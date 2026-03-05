@@ -22,7 +22,7 @@ export const MOCK_TRACKS: Track[] = [
   },
   {
     id: "2",
-    title: "souret el bakarah",
+    title: "kol howa allah ahad",
     artist: "kuraan",
     albumArt: "/covers/song2.jpg",
     duration: 31,
