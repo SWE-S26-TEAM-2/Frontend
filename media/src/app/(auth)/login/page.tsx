@@ -27,7 +27,7 @@ export default function LoginPage() {
         // Redirect to the feed/dashboard after successful login
         router.push('/feed'); 
       }
-    } catch (err) {
+    } catch {
       setError('Failed to login. Please check your credentials.');
     } finally {
       setIsLoading(false);
