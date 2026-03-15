@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Toggle from "@/components/Toggle/Toggle";
 
 export default function PrivacySettings() {
   const [receiveMessages, setReceiveMessages] = useState(true);
@@ -8,48 +9,16 @@ export default function PrivacySettings() {
   const [showTopFan, setShowTopFan] = useState(true);
   const [showTrackFans, setShowTrackFans] = useState(true);
 
-  const Toggle = ({
-    value,
-    onChange,
-  }: {
-    value: boolean;
-    onChange: () => void;
-  }) => (
-    <button
-      onClick={onChange}
-      style={{
-        width: "44px",
-        height: "24px",
-        borderRadius: "20px",
-        border: "none",
-        backgroundColor: value ? "#ff5500" : "#444",
-        position: "relative",
-        cursor: "pointer",
-      }}
-    >
-      <span
-        style={{
-          position: "absolute",
-          top: "3px",
-          left: value ? "22px" : "3px",
-          width: "18px",
-          height: "18px",
-          borderRadius: "50%",
-          background: "white",
-          transition: "0.2s",
-        }}
-      />
-    </button>
-  );
-
   return (
     <div
       style={{
         backgroundColor: "#121212",
         color: "#fff",
-        minHeight: "100vh",
+        flex:1,
         padding: "40px",
         fontFamily: "Arial",
+        overflow: "auto",
+        paddingBottom: "100px",
       }}
     >
       <h1 style={{ marginBottom: "30px" }}>Privacy settings</h1>
@@ -79,7 +48,7 @@ export default function PrivacySettings() {
       </div>
 
       <div style={{ marginBottom: "30px" }}>
-        <h3>Show when I'm a First or Top Fan</h3>
+        <h3>Show when I&apos;m a First or Top Fan</h3>
         <p style={{ color: "#aaa" }}>
           Appear in public Top Fans and First Fans lists.
         </p>
@@ -119,5 +88,3 @@ export default function PrivacySettings() {
     </div>
   );
 }
-
-// to run: http://localhost:3000/settings/privacy/auth

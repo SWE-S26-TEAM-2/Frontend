@@ -1,17 +1,17 @@
 import { create } from "zustand";
-import { Track } from "@/lib/mockData";
+import { ITrack } from "@/types/track.types";
 
-interface PlayerState {
-  currentTrack: Track | null;
-  queue: Track[];
+interface IPlayerState  {
+  currentTrack: ITrack | null;
+  queue: ITrack[];
   isPlaying: boolean;
   currentTime: number;
   volume: number;
   liked: boolean;
   shuffle: boolean;
   repeat: boolean;
-  setTrack: (track: Track) => void;
-  setQueue: (tracks: Track[]) => void;
+  setTrack: (track: ITrack) => void;
+  setQueue: (tracks: ITrack[]) => void;
   play: () => void;
   pause: () => void;
   togglePlay: () => void;
@@ -24,7 +24,7 @@ interface PlayerState {
   playPrev: () => void;
 }
 
-export const usePlayerStore = create<PlayerState>((set, get) => ({
+export const usePlayerStore = create<IPlayerState>((set, get) => ({
   currentTrack: null,
   queue: [],
   isPlaying: false,

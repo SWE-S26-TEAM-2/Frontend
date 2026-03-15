@@ -27,7 +27,7 @@ const HoverButton = ({ children, style, onClick }: any) => {
   );
 };
 
-function UncontrolledExample() {
+function SlideShow() {
   const router = useRouter();
   
   const [isHovered1, setIsHovered1] = useState(false);
@@ -228,4 +228,4 @@ const captionContainerStyle: React.CSSProperties = {
   paddingBottom: "40px",
 };
 
-export default UncontrolledExample;
+export default SlideShow;

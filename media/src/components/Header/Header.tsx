@@ -278,7 +278,7 @@ export default function Header({
     <header
       style={{
         background: "rgba(18, 18, 18)",
-        borderBottom: "1px solid rgba(80, 80, 80)",
+        borderBottom: "1px solid rgba(18,18,18)",
         height: "48px",
         display: "flex",
         alignItems: "center",
@@ -317,7 +317,7 @@ export default function Header({
                   padding: "0 10px",
                   display: "flex",
                   alignItems: "center",
-                  borderBottom: isActive ? "2px solid #fff" : "2px solid transparent",
+                  borderBottom: isActive ? "0.5px solid #fff" : "2px solid transparent",
                   transition: "color 0.15s, border-color 0.15s",
                   whiteSpace: "nowrap",
                 }}
