@@ -140,13 +140,21 @@ const SignOutIcon = () => (
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
+type IMenuItem = {
+  icon: React.ReactNode;
+  label: string;
+  href: string;
+  orange?: boolean;
+  dividerBefore?: boolean;
+};
+
 const NAV_ITEMS = [
   { label: "Home",    href: "/" },
   { label: "Feed",    href: "/feed" },
   { label: "Library", href: "/library" },
 ];
 
-const AVATAR_MENU: { icon: React.ReactNode; label: string; href: string; orange?: boolean; dividerBefore?: boolean }[] = [
+const AVATAR_MENU: IMenuItem[] = [
   { icon: <ProfileIcon />,     label: "Profile",        href: "/profile" },
   { icon: <LikesIcon />,       label: "Likes",          href: "/likes" },
   { icon: <StationsIcon />,    label: "Stations",       href: "/stations" },
@@ -157,7 +165,8 @@ const AVATAR_MENU: { icon: React.ReactNode; label: string; href: string; orange?
   { icon: <DistributeIcon />,  label: "Distribute",     href: "/distribute" },
 ];
 
-const DOTS_MENU: { icon: React.ReactNode; label: string; href: string; dividerBefore?: boolean }[] = [
+const DOTS_MENU: IMenuItem[] = [
+
   { icon: <GlobeIcon />,        label: "About us",          href: "/about" },
   { icon: <GlobeIcon />,        label: "Legal",             href: "/legal" },
   { icon: <GlobeIcon />,        label: "Copyright",         href: "/copyright" },
@@ -196,7 +205,7 @@ function DropdownMenu({
   items,
   onClose,
 }: {
-  items: typeof AVATAR_MENU | typeof DOTS_MENU;
+  items: IMenuItem[];
   onClose: () => void;
 }) {
   return (
@@ -227,7 +236,7 @@ function DropdownMenu({
               alignItems: "center",
               gap: "12px",
               padding: "10px 16px",
-              color: (item as any).orange ? "#f50" : "#ddd",
+              color: item.orange ? "#f50" : "#ddd",
               textDecoration: "none",
               fontSize: "14px",
               fontWeight: 500,
@@ -236,7 +245,7 @@ function DropdownMenu({
             onMouseEnter={(e) => (e.currentTarget.style.background = "#2a2a2a")}
             onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
           >
-            <span style={{ color: (item as any).orange ? "#f50" : "#aaa", display: "flex", alignItems: "center" }}>
+            <span style={{ color: item.orange ? "#f50" : "#aaa", display: "flex", alignItems: "center" }}>
               {item.icon}
             </span>
             {item.label}
