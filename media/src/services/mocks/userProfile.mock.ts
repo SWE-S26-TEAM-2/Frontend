@@ -1,96 +1,39 @@
 // src/services/mocks/userProfile.mock.ts
 // ─────────────────────────────────────────────────────────────
-// Temporary mock data for the User Profile page.
+// Mock service — fake data that mimics real backend responses.
+// Used when ENV.USE_MOCK_API = true in config/env.ts
 // ─────────────────────────────────────────────────────────────
 
-// ─────────────────────────────────────────────────────────────
-// TYPES  
-// ─────────────────────────────────────────────────────────────
-export type User = {
-  id: string;
-  username: string;
-  location: string;
-  followers: number;
-  following: number;
-  tracks: number;
-  likes: number;
-  avatarUrl: string | null;
-  headerUrl: string | null;
-  isOwner: boolean;
-};
+import { seededWaveform } from "@/utils/seededWaveform";
+import type { IUserProfileService, User, Track, LikedTrack } from "@/services/userProfile.service";
 
-export type Track = {
-  id: number;
-  title: string;
-  artist: string;
-  repostedBy: string | null;
-  createdAt: string;        
-  genre: string | null;
-  likes: number;
-  reposts: number;
-  plays: number;
-  comments: number;
-  duration: string;      
-  coverUrl: string | null;
-  waveform: number[];      
-  playedPercent: number;    
-  isLiked: boolean;
-};
-
-export type LikedTrack = {
-  id: number;
-  title: string;
-  artist: string;
-  plays?: number;
-  likes?: number;
-  reposts?: number;
-  comments?: number;
-  coverUrl: string | null;
-  accentColor?: string;     
-};
+const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
 
 // ─────────────────────────────────────────────────────────────
-// HELPERS
+// FAKE DATABASE
 // ─────────────────────────────────────────────────────────────
+const MOCK_USERS: User[] = [
+  {
+    id: "test00user",
+    username: "test00user",
+    location: "Giza, Egypt",
+    followers: 0,
+    following: 3,
+    tracks: 0,
+    likes: 4,
+    avatarUrl: null,
+    headerUrl: null,
+    isOwner: true,
+  },
+];
 
-export function timeAgo(isoDate: string): string {
-  const diff = Math.floor((Date.now() - new Date(isoDate).getTime()) / 1000);
-  if (diff < 60)   return `${diff} seconds ago`;
-  if (diff < 3600) return `${Math.floor(diff / 60)} minutes ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`;
-  return `${Math.floor(diff / 86400)} days ago`;
-}
-
-export const seededWaveform = (seed: number): number[] =>
-  Array.from({ length: 80 }, (_, i) => {
-    const x = Math.sin((i + seed) * 127.1) * 43758.5453;
-    return Math.abs(x - Math.floor(x));
-  });
-
-// ─────────────────────────────────────────────────────────────
-// MOCK DATA
-// ─────────────────────────────────────────────────────────────
-
-export const mockUser: User = {
-  id: "test00user",
-  username: "test00user",
-  location: "Giza, Egypt",
-  followers: 0,
-  following: 3,
-  tracks: 0,
-  likes: 4,
-  avatarUrl: null,    
-  headerUrl: null,    
-  isOwner: true,      // set based on auth: currentUser.id === profileUser.id
-};
-
-export const mockTracks: Track[] = [
+const MOCK_TRACKS: Track[] = [
   {
     id: 1,
     title: "Une vie à t'aimer",
     artist: "Lorien Testard, Alice Duport-Percier, Victor Borba",
     repostedBy: "test00user",
-    createdAt: new Date(Date.now() - 36 * 60 * 1000).toISOString(), // 36 min ago
+    createdAt: new Date(Date.now() - 36 * 60 * 1000).toISOString(),
     genre: "Soundtrack",
     likes: 5140,
     reposts: 70,
@@ -107,7 +50,7 @@ export const mockTracks: Track[] = [
     title: "Christopher Larkin",
     artist: "Jeremy",
     repostedBy: "test00user",
-    createdAt: new Date(Date.now() - 37 * 60 * 1000).toISOString(), // 37 min ago
+    createdAt: new Date(Date.now() - 37 * 60 * 1000).toISOString(),
     genre: null,
     likes: 3140,
     reposts: 76,
@@ -121,7 +64,7 @@ export const mockTracks: Track[] = [
   },
 ];
 
-export const mockLikes: LikedTrack[] = [
+const MOCK_LIKES: LikedTrack[] = [
   {
     id: 1,
     title: "Une vie à t'aimer",
@@ -157,3 +100,27 @@ export const mockLikes: LikedTrack[] = [
     accentColor: "#1a252f",
   },
 ];
+
+// ─────────────────────────────────────────────────────────────
+// MOCK SERVICE — implements IUserProfileService
+// ─────────────────────────────────────────────────────────────
+export const mockUserProfileService: IUserProfileService = {
+
+  async getUserProfile(username: string): Promise<User> {
+    await delay(300);
+    const user = MOCK_USERS.find(u => u.username === username);
+    if (!user) throw new Error(`User "${username}" not found`);
+    return user;
+  },
+
+  async getUserTracks(userId: string): Promise<Track[]> {
+    await delay(300);
+    return MOCK_TRACKS;
+  },
+
+  async getUserLikes(userId: string): Promise<LikedTrack[]> {
+    await delay(300);
+    return MOCK_LIKES;
+  },
+
+};
