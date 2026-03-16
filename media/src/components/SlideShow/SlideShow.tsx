@@ -4,10 +4,16 @@ import React, { useState } from "react";
 import Carousel from "react-bootstrap/Carousel";
 import { useRouter } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
+import Image from "next/image";
 
 // 1. Reusable HoverButton for the Carousel Slides
-const HoverButton = ({ children, style, onClick }: any) => {
-  const [isHovered, setIsHovered] = useState(false);
+type IHoverButtonProps = {
+  children: React.ReactNode;
+  style: React.CSSProperties;
+  onClick: () => void;
+}; // type for the HoverButton props
+
+const HoverButton = ({ children, style, onClick }: IHoverButtonProps) => {  const [isHovered, setIsHovered] = useState(false);
 
   const finalStyle = {
     ...style,
@@ -47,7 +53,7 @@ function SlideShow() {
         
         {/* Item 1: DC the Don */}
         <Carousel.Item>
-          <img style={slideStyle} src="/320x320.jpg" alt="Slide 1" />
+          <Image src="/320x320.jpg" alt="Slide 1" width={1200} height={400} style={slideStyle} />
           <Carousel.Caption style={captionContainerStyle}>
             <div style={mainContentWrapper}>
               <div>
@@ -82,7 +88,7 @@ function SlideShow() {
 
         {/* Item 2: Central Cee */}
         <Carousel.Item>
-          <img style={slideStyle} src="/320x320.jpg" alt="Slide 2" />
+          <Image src="/320x320.jpg" alt="Slide 2" width={1200} height={400} style={slideStyle} />
           <Carousel.Caption style={captionContainerStyle}>
             <div style={mainContentWrapper}>
               <div>
@@ -117,7 +123,7 @@ function SlideShow() {
 
         {/* Item 3: Doja Cat */}
         <Carousel.Item>
-          <img style={slideStyle} src="/320x320.jpg" alt="Slide 3" />
+          <Image src="/320x320.jpg" alt="Slide 3" width={1200} height={400} style={slideStyle} />
           <Carousel.Caption style={captionContainerStyle}>
             <div style={mainContentWrapper}>
               <div>

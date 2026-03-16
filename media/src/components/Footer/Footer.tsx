@@ -49,16 +49,17 @@ export default function Footer() {
 
   // Load tracks on mount
   useEffect(() => {
-    trackService.getAll().then((tracks) => {
+    void trackService.getAll().then((tracks) => {
       setQueue(tracks);
       setTrack(tracks[0]);
-    });
+    }).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Sync play/pause
   useEffect(() => {
     if (!audioRef.current) return;
-    isPlaying ? audioRef.current.play().catch(() => {}) : audioRef.current.pause();
+    void (isPlaying ? audioRef.current.play().catch(() => {}) : audioRef.current.pause());
   }, [isPlaying]);
 
   // Sync track source
@@ -67,6 +68,7 @@ export default function Footer() {
     audioRef.current.src = currentTrack.url;
     audioRef.current.volume = muted ? 0 : volume;
     if (isPlaying) audioRef.current.play().catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTrack]);
 
   // Sync volume / mute
