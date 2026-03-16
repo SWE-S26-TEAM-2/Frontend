@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import SlideShow from "../../components/SlideShow/SlideShow";
 import HoverButton from "@/components/HoverButton/HoverButton";
 import LoginModal from "@/components/LoginModal/LoginModal";
@@ -20,7 +21,7 @@ export default function Home() {
             {/* TOP HEADER AREA */}
             <div style={{ position: "absolute", top: "20px", left: "50px", right: "65px", display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 100 }}>
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <img src="/logo1.png" alt="Logo" style={{ width: "40px", height: "auto" }} />
+              <Image src="/logo1.png" alt="Logo" width={40} height={40} />
                 <h1 style={{ color: "white", fontSize: "24px", margin: 0, fontWeight: "bold" }}>Sound Cloud</h1>
               </div>
               <div style={{ display: "flex", gap: "10px" }}>
@@ -52,7 +53,7 @@ export default function Home() {
                   placeholder="Search for artists, bands, tracks, podcasts"
                   style={{ fontSize: "16px", width: "650px", height: "45px", borderRadius: "8px", border: "none", backgroundColor: "#333", color: "#fff", padding: "0 45px 0 15px", outline: "none" }}
                 />
-                <img src="/searchicon.svg" alt="search" style={{ position: "absolute", right: "15px", top: "12px", width: "20px", opacity: 0.6 }} />
+                <Image src="/searchicon.svg" alt="search" width={20} height={20} style={{ position: "absolute", right: "15px", top: "12px", opacity: 0.6 }} />
               </div>
               <span style={{ color: "white", fontSize: "18px" }}>or</span>
               <HoverButton style={{ height: "45px", padding: "0 25px", backgroundColor: "white", color: "black", border: "none", borderRadius: "8px", fontWeight: "bold", fontSize: "16px", cursor: "pointer" }}>
@@ -70,11 +71,11 @@ export default function Home() {
               </HoverButton>
             </div>
 
-            <img src="/ad.png" style={{ width: "1200px", marginTop: "40px" }} alt="Ad" />
+            <Image src="/ad.png" alt="Ad" width={1200} height={200} style={{ marginTop: "40px" }} />
 
             {/* CALLING ALL CREATORS */}
             <div style={{ position: "relative", width: "1200px", height: "auto" }}>
-              <img src="/beffooter.png" style={{ width: "100%", display: "block" }} alt="beffooter" />
+              <Image src="/beffooter.png" alt="beffooter" width={1200} height={400} style={{ width: "100%", display: "block" }} />
               <div style={{ position: "absolute", top: "70px", left: "50px", width: "600px", textAlign: "left", color: "white" }}>
                 <h2 style={{ fontSize: "36px", marginBottom: "15px" }}>Calling all creators</h2>
                 <p style={{ fontSize: "18px", lineHeight: "1.6", marginBottom: "30px", fontWeight: "bold" }}>
