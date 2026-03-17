@@ -1,5 +1,5 @@
-import SoundCloudHeader from "@/components/header";
-import Footer from "@/components/footer";
+import SoundCloudHeader from "@/components/Header/Header";
+import Footer from "@/components/Footer/Footer";
 
 export default function WithHeaderLayout({
   children,
