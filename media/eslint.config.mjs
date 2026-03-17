@@ -9,6 +9,9 @@ const eslintConfig = defineConfig([
 
   {
     rules: {
+      "no-console": ["warn", { allow: ["warn", "error"] }],
+
+
       "@typescript-eslint/naming-convention": [
         "error",
         // Interfaces must be PascalCase prefixed with I — e.g. ITrack, IUser
