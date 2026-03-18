@@ -1,15 +1,11 @@
 // src/app/[username]/components/Icons.tsx
-
 import { formatNumber } from "@/utils/formatNumber";
 
-// ── HeartIcon 
 export const HeartIcon = ({ isFilled }: { isFilled: boolean }) => (
-  <svg
-    width={14} height={14} viewBox="0 0 24 24"
+  <svg width={14} height={14} viewBox="0 0 24 24"
     fill={isFilled ? "#ff5500" : "none"}
     stroke={isFilled ? "#ff5500" : "currentColor"}
-    strokeWidth={2}
-  >
+    strokeWidth={2}>
     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
   </svg>
 );
@@ -23,7 +19,6 @@ export const RepostIcon = () => (
   </svg>
 );
 
-// ── ShareIcon
 export const ShareIcon = () => (
   <svg width={13} height={13} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
     <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
@@ -47,7 +42,6 @@ export const MoreIcon = () => (
   </svg>
 );
 
-// ── IconBtn — 
 export interface IIconBtnProps {
   icon: React.ReactNode;
   label?: string;
@@ -58,16 +52,16 @@ export interface IIconBtnProps {
 
 export function IconBtn({ icon, label, active = false, count, onClick }: IIconBtnProps) {
   return (
-    <button onClick={onClick} style={{
-      display: "flex", alignItems: "center", gap: 5,
-      background: active ? "#ff550015" : "transparent",
-      border: `1px solid ${active ? "#ff5500" : "#2e2e2e"}`,
-      color: active ? "#ff5500" : "#888",
-      borderRadius: 3, padding: "5px 11px",
-      cursor: "pointer", fontSize: 12, fontFamily: "inherit",
-    }}>
+    <button
+      onClick={onClick}
+      className={`flex items-center gap-1 rounded px-2.5 py-1 text-xs cursor-pointer transition-colors ${
+        active
+          ? "bg-orange-500/10 border border-[#ff5500] text-[#ff5500]"
+          : "bg-transparent border border-[#2e2e2e] text-[#888] hover:border-white hover:text-white"
+      }`}
+    >
       {icon}
-      {count !== undefined && <span style={{ fontWeight: 600 }}>{formatNumber(count)}</span>}
+      {count !== undefined && <span className="font-semibold">{formatNumber(count)}</span>}
       {label && <span>{label}</span>}
     </button>
   );

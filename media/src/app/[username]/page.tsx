@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { userProfileService, type User, type Track, type LikedTrack } from "@/services/userProfile.service";
-import { formatNumber } from "@/utils/formatNumber";
+import { userProfileService } from "@/services/userProfile.service";
+import { type IUser, type ITrack, type ILikedTrack, type IFanUser, type IFollower, type IFollowing } from "@/types/userProfile.types";
 import { Banner } from "@/components/Banner/Banner";
 import { TrackCard } from "@/components/Track/TrackCard";
-import { TrackCover } from "@/components/Track/TrackCover";
-import { ShareIcon } from "@/components/Icons/TrackIcons";
+import { ProfileSidebar } from "@/components/Profile/ProfileSidebar";
+import { ProfileActions } from "@/components/Profile/ProfileActions";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
 
@@ -15,27 +15,34 @@ type TActiveTab = typeof TABS[number];
 
 export default function UserProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = React.use(params);
-  const [activeTab, setActiveTab]       = useState<TActiveTab>(TABS[0]);
-  const [user, setUser]                 = useState<User | null>(null);
-  const [tracks, setTracks]             = useState<Track[]>([]);
-  const [likes, setLikes]               = useState<LikedTrack[]>([]);
-  const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
-  const [loading, setLoading]           = useState(true);
-  const [error, setError]               = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<TActiveTab>(TABS[0]);
+  const [user, setUser]           = useState<IUser | null>(null);
+  const [tracks, setTracks]       = useState<ITrack[]>([]);
+  const [likes, setLikes]         = useState<ILikedTrack[]>([]);
+  const [fans, setFans]           = useState<IFanUser[]>([]);
+  const [followers, setFollowers] = useState<IFollower[]>([]);
+  const [following, setFollowing] = useState<IFollowing[]>([]);
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState<string | null>(null);
 
   useEffect(() => {
     async function loadData() {
       try {
         setLoading(true);
         const fetchedUser = await userProfileService.getUserProfile(username);
-        const [fetchedTracks, fetchedLikes] = await Promise.all([
+        const [fetchedTracks, fetchedLikes, fetchedFans, fetchedFollowers, fetchedFollowing] = await Promise.all([
           userProfileService.getUserTracks(fetchedUser.id),
           userProfileService.getUserLikes(fetchedUser.id),
+          userProfileService.getFansAlsoLike(fetchedUser.id),
+          userProfileService.getFollowers(fetchedUser.id),
+          userProfileService.getFollowing(fetchedUser.id),
         ]);
         setUser(fetchedUser);
         setTracks(fetchedTracks);
         setLikes(fetchedLikes);
-        setCurrentTrack(fetchedTracks[0] ?? null);
+        setFans(fetchedFans);
+        setFollowers(fetchedFollowers);
+        setFollowing(fetchedFollowing);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong");
       } finally {
@@ -45,132 +52,101 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
     loadData();
   }, [username]);
 
+  const handleTabChange = (tab: TActiveTab) => setActiveTab(tab);
+
   if (loading) return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <span style={{ color: "#888", fontSize: 14 }}>Loading...</span>
+    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <span className="text-[#888] text-sm">Loading...</span>
     </div>
   );
 
   if (error || !user) return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <span style={{ color: "#ff5500", fontSize: 14 }}>{error ?? "User not found"}</span>
+    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <span className="text-[#ff5500] text-sm">{error ?? "User not found"}</span>
+    </div>
+  );
+
+  // Privacy Control
+  if (user.isPrivate && !user.isOwner) return (
+    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
+      <Header avatarUrl={undefined} isLoggedIn={true}/>
+      <div className="max-w-7xl mx-auto bg-[#111]">
+        <Banner user={user}/>
+      </div>
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
+        <span className="text-5xl">🔒</span>
+        <span className="text-lg font-semibold text-white">This profile is private</span>
+        <span className="text-sm text-[#666]">Follow this user to see their content</span>
+        <button className="mt-2 bg-[#ff5500] border-none text-white rounded px-7 py-2.5 text-sm cursor-pointer font-semibold hover:bg-[#e64d00] transition-colors">
+          👤 Follow
+        </button>
+      </div>
     </div>
   );
 
   return (
-    <div style={{
-      minHeight: "100vh", background: "#0a0a0a", color: "#fff",
-      fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
-      paddingTop: 0, paddingLeft: 0, paddingRight: 0, paddingBottom: 60,
-    }}>
-      {/* Navbar —  */}
+    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans pb-15">
       <Header avatarUrl={user.avatarUrl ?? undefined} isLoggedIn={true}/>
 
-      <div style={{ maxWidth: 1280, margin: "0 auto", background: "#111" }}>
+      <div className="max-w-7xl mx-auto bg-[#111]">
         <Banner user={user}/>
       </div>
 
-      <div style={{ height: 8 }}/>
+      <div className="h-2"/>
 
-      <div style={{ display: "flex", maxWidth: 1280, margin: "0 auto", padding: "0 16px", gap: 24 }}>
+      <div className="flex max-w-7xl mx-auto px-4 gap-6">
 
         {/* Left column */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            borderBottom: "1px solid #1c1c1c", marginBottom: 20,
-          }}>
-            <div style={{ display: "flex" }}>
+        <div className="flex-1 min-w-0">
+
+          {/* Tabs + actions */}
+          <div className="flex items-center border-b border-[#1c1c1c] mb-5">
+            <div className="flex flex-1">
               {TABS.map(tab => (
-                <button key={tab} onClick={() => setActiveTab(tab)} style={{
-                  background: "transparent", border: "none",
-                  borderBottom: activeTab === tab ? "2px solid #ff5500" : "2px solid transparent",
-                  color: activeTab === tab ? "#fff" : "#777",
-                  padding: "12px 14px", cursor: "pointer",
-                  fontSize: 14, fontFamily: "inherit",
-                  fontWeight: activeTab === tab ? 600 : 400,
-                }}>
+                <button
+                  key={tab}
+                  onClick={() => handleTabChange(tab)}
+                  className={`bg-transparent border-none px-3.5 py-3 cursor-pointer text-sm transition-colors ${
+                    activeTab === tab
+                      ? "text-white font-semibold border-b-2 border-[#ff5500]"
+                      : "text-[#777] font-normal border-b-2 border-transparent hover:text-[#ccc]"
+                  }`}
+                >
                   {tab}
                 </button>
               ))}
             </div>
-            <div style={{ display: "flex", gap: 8 }}>
-              <button style={{
-                display: "flex", alignItems: "center", gap: 6,
-                background: "transparent", border: "1px solid #2e2e2e",
-                color: "#ccc", borderRadius: 3, padding: "7px 16px",
-                cursor: "pointer", fontSize: 13, fontFamily: "inherit",
-              }}>
-                <ShareIcon/> Share
-              </button>
+            <ProfileActions user={user}/>
+          </div>
+
+          {/* Track list or empty state */}
+          <h2 className="text-base font-semibold text-white mb-2.5">Recent</h2>
+          {tracks.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 gap-4">
+              <span className="text-[#888] text-sm">Seems a little quiet over here</span>
               {user.isOwner && (
-                <button style={{
-                  display: "flex", alignItems: "center", gap: 6,
-                  background: "transparent", border: "1px solid #2e2e2e",
-                  color: "#ccc", borderRadius: 3, padding: "7px 16px",
-                  cursor: "pointer", fontSize: 13, fontFamily: "inherit",
-                }}>
-                  ✏ Edit
+                <button className="bg-white border border-white text-[#111] rounded px-5 py-2 text-sm cursor-pointer font-medium hover:bg-gray-100 transition-colors">
+                  Upload now
                 </button>
               )}
             </div>
-          </div>
-
-          <h2 style={{ fontSize: 16, fontWeight: 600, color: "#fff", margin: "0 0 10px 0" }}>Recent</h2>
-          {tracks.map(track => (
-            <TrackCard key={track.id} track={track} onPlay={setCurrentTrack}/>
-          ))}
+          ) : (
+            tracks.map(track => (
+              <TrackCard key={track.id} track={track} onPlay={() => {}}/>
+            ))
+          )}
         </div>
 
-        {/* Right sidebar */}
-        <div style={{ width: 220, flexShrink: 0, paddingTop: 62 }}>
-          <div style={{
-            display: "flex", justifyContent: "space-between",
-            paddingBottom: 16, marginBottom: 18, borderBottom: "1px solid #1c1c1c",
-          }}>
-            {([
-              { label: "Followers", value: user.followers },
-              { label: "Following", value: user.following },
-              { label: "Tracks",    value: user.tracks    },
-            ] as { label: string; value: number }[]).map(({ label, value }) => (
-              <div key={label} style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 22, fontWeight: 700, color: "#fff" }}>{value}</div>
-                <div style={{ fontSize: 12, color: "#666" }}>{label}</div>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: "#999" }}>{user.likes} LIKES</span>
-            <a href="#" style={{ fontSize: 12, color: "#ff5500", textDecoration: "none" }}>View all</a>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {likes.map(like => (
-              <div key={like.id} style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                <TrackCover size={44} accentColor={like.accentColor ?? "#1a1a2e"} url={like.coverUrl} alt={like.title}/>
-                <div style={{ minWidth: 0, flex: 1 }}>
-                  <div style={{ fontSize: 12, color: "#888", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {like.artist}
-                  </div>
-                  <div style={{ fontSize: 13, color: "#ddd", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 500 }}>
-                    {like.title}
-                  </div>
-                  {like.plays !== undefined && (
-                    <div style={{ fontSize: 10, color: "#444", display: "flex", gap: 6, marginTop: 2 }}>
-                      <span>▶ {formatNumber(like.plays)}</span>
-                      <span>♥ {formatNumber(like.likes ?? 0)}</span>
-                      <span>↻ {like.reposts ?? 0}</span>
-                      {like.comments !== undefined && <span>💬 {like.comments}</span>}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        {/* Sidebar */}
+        <ProfileSidebar
+          user={user}
+          likes={likes}
+          fans={fans}
+          followers={followers}
+          following={following}
+        />
       </div>
 
-      {/* Player */}
       <Footer/>
     </div>
   );
