@@ -33,11 +33,10 @@ jobs:
       working-directory: ./media
       run: npm test
       continue-on-error: true
-
-     - name: Build Next.js app
+    
+    - name: Build Next.js app
       working-directory: ./media
       run: npm run build
-    
     
     - name: Build Docker image
       run: docker build -t frontend:test .
