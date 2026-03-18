@@ -1,24 +1,68 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import Carousel from "react-bootstrap/Carousel";
-import { useRouter } from "next/navigation";
-import "bootstrap/dist/css/bootstrap.min.css";
-import Image from "next/image";
+import React, { useState } from 'react';
+import Carousel from 'react-bootstrap/Carousel';
+import { useRouter } from 'next/navigation';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Image from 'next/image';
+import LoginModal from "@/components/LoginModal/LoginModal";
 
-// 1. Reusable HoverButton for the Carousel Slides
-type IHoverButtonProps = {
+//  Types 
+interface IHoverButtonProps {
   children: React.ReactNode;
   style: React.CSSProperties;
-  onClick: () => void;
-}; // type for the HoverButton props
+  onClick?: () => void;
+}
 
-const HoverButton = ({ children, style, onClick }: IHoverButtonProps) => {  const [isHovered, setIsHovered] = useState(false);
+interface ISlideData {
+  id: number;
+  image: string;
+  titles: string[];
+  description: string;
+  artistName: string;
+  artistRoute: string;
+  buttonText: string;
+}
 
-  const finalStyle = {
+//  Mock Data 
+const SLIDE_DATA: ISlideData[] = [
+  {
+    id: 1,
+    image: "/dc1.png",
+    titles: ["Discover.", "Get Discovered."],
+    description: "Discover your next obsession, or become someone else’s. SoundCloud is the only community where fans and artists come together.",
+    artistName: "DC the Don",
+    artistRoute: "/dc-the-don",
+    buttonText: "Get Started"
+  },
+  {
+    id: 2,
+    image: "/1900Rugrat_Press_ttofwt.jpg",
+    titles: ["Connect.", "Share your Sound."],
+    description: "Post your first track and begin your journey. SoundCloud gives you the tools to grow your audience and connect with creators around the world.",
+    artistName: "1900Rugrat",
+    artistRoute: "/1900rugrat",
+    buttonText: "Upload Now"
+  },
+  {
+    id: 3,
+    image: "/cc.jpg",
+    titles: ["Trending.", "Top of the Charts."],
+    description: "From underground hits to global superstars. See what the SoundCloud community is listening to right now and find your new favorite artist.",
+    artistName: "Central Cee",
+    artistRoute: "/author/central-cee",
+    buttonText: "Explore"
+  }
+];
+
+// Reusable HoverButton 
+const HoverButton = ({ children, style, onClick }: IHoverButtonProps) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  const finalStyle: React.CSSProperties = {
     ...style,
-    color: isHovered ? "grey" : (style.color || "black"),
-    transition: "color 0.2s ease",
+    color: isHovered ? 'grey' : style.color || 'black',
+    transition: 'color 0.2s ease',
   };
 
   return (
@@ -35,203 +79,145 @@ const HoverButton = ({ children, style, onClick }: IHoverButtonProps) => {  cons
 
 function SlideShow() {
   const router = useRouter();
-  
-  const [isHovered1, setIsHovered1] = useState(false);
-  const [isHovered2, setIsHovered2] = useState(false);
-  const [isHovered3, setIsHovered3] = useState(false);
-
-  const slideStyle = {
-    width: "1200px",
-    height: "400px",
-    borderRadius: "12px",
-    objectFit: "cover" as const,
-  };
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [hoveredArtistId, setHoveredArtistId] = useState<number | null>(null);
 
   return (
-    <div style={{ width: "1200px", margin: "0 auto" }}>
-      <Carousel indicators={true} controls={false}>
-        
-        {/* Item 1: DC the Don */}
-        <Carousel.Item>
-          <Image src="/320x320.jpg" alt="Slide 1" width={1200} height={400} style={slideStyle} />
-          <Carousel.Caption style={captionContainerStyle}>
-            <div style={mainContentWrapper}>
-              <div>
-                <h2 style={headerStyle}>Discover.</h2>
-                <h2 style={headerStyle}>Get Discovered.</h2>
-              </div>
-              <p style={descriptionStyle}>
-                Discover your next obsession, or become someone else’s.
-                SoundCloud is the only community where fans and artists come together to discover and connect through music.
-              </p>
-              <HoverButton 
-                onClick={() => router.push("/Category/Technology")} 
-                style={getStartedButtonStyle}
-              >
-                Get Started
-              </HoverButton>
-            </div>
+    <>
+      {isModalOpen && <LoginModal onClose={() => setIsModalOpen(false)} />}
 
-            <div style={artistInfoWrapper}>
-              <h5
-                onMouseEnter={() => setIsHovered1(true)}
-                onMouseLeave={() => setIsHovered1(false)}
-                onClick={() => router.push("/author/dc-the-don")}
-                style={{ ...artistNameStyle, textDecoration: isHovered1 ? "underline" : "none" }}
-              >
-                DC the Don
-              </h5>
-              <h4 style={artistTitleStyle}>SoundCloud Artist Pro</h4>
-            </div>
-          </Carousel.Caption>
-        </Carousel.Item>
+      <div style={{ width: '1200px', margin: '0 auto' }}>
+        <Carousel indicators={true} controls={false} interval={5000}>
+          {SLIDE_DATA.map((slide) => (
+            <Carousel.Item key={slide.id}>
+              <Image 
+                src={slide.image} 
+                alt={slide.artistName} 
+                width={1200} 
+                height={400} 
+                style={slideStyle} 
+                priority={slide.id === 1} 
+              />
+              
+              <Carousel.Caption style={captionContainerStyle}>
+                <div style={mainContentWrapper}>
+                  <div>
+                    {slide.titles.map((text, idx) => (
+                      <h2 key={idx} style={headerStyle}>{text}</h2>
+                    ))}
+                  </div>
+                  <p style={descriptionStyle}>{slide.description}</p>
+                  
+                  <HoverButton 
+                    onClick={() => setIsModalOpen(true)} 
+                    style={getStartedButtonStyle}
+                  >
+                    {slide.buttonText}
+                  </HoverButton>
+                </div>
 
-        {/* Item 2: Central Cee */}
-        <Carousel.Item>
-          <Image src="/320x320.jpg" alt="Slide 2" width={1200} height={400} style={slideStyle} />
-          <Carousel.Caption style={captionContainerStyle}>
-            <div style={mainContentWrapper}>
-              <div>
-                <h2 style={headerStyle}>Connect.</h2>
-                <h2 style={headerStyle}>Share your Sound.</h2>
-              </div>
-              <p style={descriptionStyle}>
-                Post your first track and begin your journey. SoundCloud gives you the 
-                tools to grow your audience and connect with creators around the world.
-              </p>
-              <HoverButton 
-                onClick={() => router.push("/Category/Music")} 
-                style={getStartedButtonStyle}
-              >
-                Upload Now
-              </HoverButton>
-            </div>
-
-            <div style={artistInfoWrapper}>
-              <h5
-                onMouseEnter={() => setIsHovered2(true)}
-                onMouseLeave={() => setIsHovered2(false)}
-                onClick={() => router.push("/author/central-cee")}
-                style={{ ...artistNameStyle, textDecoration: isHovered2 ? "underline" : "none" }}
-              >
-                Central Cee
-              </h5>
-              <h4 style={artistTitleStyle}>SoundCloud Artist Pro</h4>
-            </div>
-          </Carousel.Caption>
-        </Carousel.Item>
-
-        {/* Item 3: Doja Cat */}
-        <Carousel.Item>
-          <Image src="/320x320.jpg" alt="Slide 3" width={1200} height={400} style={slideStyle} />
-          <Carousel.Caption style={captionContainerStyle}>
-            <div style={mainContentWrapper}>
-              <div>
-                <h2 style={headerStyle}>Trending.</h2>
-                <h2 style={headerStyle}>Top of the Charts.</h2>
-              </div>
-              <p style={descriptionStyle}>
-                From underground hits to global superstars. See what the SoundCloud 
-                community is listening to right now and find your new favorite artist.
-              </p>
-              <HoverButton 
-                onClick={() => router.push("/Category/Trending")} 
-                style={getStartedButtonStyle}
-              >
-                Explore
-              </HoverButton>
-            </div>
-
-            <div style={artistInfoWrapper}>
-              <h5
-                onMouseEnter={() => setIsHovered3(true)}
-                onMouseLeave={() => setIsHovered3(false)}
-                onClick={() => router.push("/author/doja-cat")}
-                style={{ ...artistNameStyle, textDecoration: isHovered3 ? "underline" : "none" }}
-              >
-                Doja Cat
-              </h5>
-              <h4 style={artistTitleStyle}>SoundCloud Artist Pro</h4>
-            </div>
-          </Carousel.Caption>
-        </Carousel.Item>
-
-      </Carousel>
-    </div>
+                <div style={artistInfoWrapper}>
+                  <h5 
+                    onMouseEnter={() => setHoveredArtistId(slide.id)} 
+                    onMouseLeave={() => setHoveredArtistId(null)}
+                    onClick={() => router.push(slide.artistRoute)}
+                    style={{ 
+                      ...artistNameStyle, 
+                      textDecoration: hoveredArtistId === slide.id ? 'underline' : 'none' 
+                    }}
+                  >
+                    {slide.artistName}
+                  </h5>
+                  <h4 style={artistTitleStyle}>SoundCloud Artist Pro</h4>
+                </div>
+              </Carousel.Caption>
+            </Carousel.Item>
+          ))}
+        </Carousel>
+      </div>
+    </>
   );
 }
 
-// --- Styles ---
+// Styles
+const slideStyle: React.CSSProperties = {
+  width: '100%',
+  height: '450px',
+  borderRadius: '12px',
+  objectFit: 'cover',
+  objectPosition: 'top',
+  display: 'block',
+};
 
 const mainContentWrapper: React.CSSProperties = {
-  paddingTop: "130px",
-  textAlign: "left",
-  marginBottom: "20px",
-  marginLeft: "-410px",
+  paddingTop: '130px',
+  textAlign: 'left',
+  marginBottom: '20px',
+  marginLeft: '-410px',
 };
 
-const headerStyle: React.CSSProperties = { 
-  fontSize: "60px", 
-  fontWeight: "bold", 
-  margin: 0 
+const headerStyle: React.CSSProperties = {
+  fontSize: '60px',
+  fontWeight: 'bold',
+  margin: 0,
 };
 
-const descriptionStyle: React.CSSProperties = { 
-  fontSize: "20px", 
-  maxWidth: "700px", 
-  lineHeight: "1.4", 
-  fontWeight: "500", 
-  textAlign: "left", 
-  paddingTop: "20px" 
+const descriptionStyle: React.CSSProperties = {
+  fontSize: '20px',
+  maxWidth: '700px',
+  lineHeight: '1.4',
+  fontWeight: '500',
+  textAlign: 'left',
+  paddingTop: '20px',
 };
 
 const artistInfoWrapper: React.CSSProperties = {
-  position: "absolute",
-  bottom: "30px",
-  right: "-99px",
-  display: "flex",
-  alignItems: "left",
-  textAlign: "left",
-  gap: "10px",
+  position: 'absolute',
+  bottom: '30px',
+  right: '-99px',
+  display: 'flex',
+  alignItems: 'left',
+  textAlign: 'left',
+  gap: '10px',
   zIndex: 20,
-  flexDirection: "column",
+  flexDirection: 'column',
 };
 
 const artistNameStyle: React.CSSProperties = {
-  cursor: "pointer",
+  cursor: 'pointer',
   margin: 0,
-  fontSize: "16px",
-  fontWeight: "bold",
-  color: "white",
-  textAlign: "left",
+  fontSize: '16px',
+  fontWeight: 'bold',
+  color: 'white',
+  textAlign: 'left',
 };
 
-const artistTitleStyle: React.CSSProperties = { 
-  fontWeight: "normal", 
-  fontSize: "10px", 
-  textAlign: "left" 
+const artistTitleStyle: React.CSSProperties = {
+  fontWeight: 'normal',
+  fontSize: '10px',
+  textAlign: 'left',
 };
 
 const getStartedButtonStyle: React.CSSProperties = {
-  backgroundColor: "white",
-  width: "140px",
-  textAlign: "center",
-  fontSize: "18px",
-  color: "black",
-  paddingTop: "5px",
-  paddingBottom: "5px",
-  borderRadius: "6px",
-  cursor: "pointer",
-  marginTop: "30px",
+  backgroundColor: 'white',
+  width: '140px',
+  textAlign: 'center',
+  fontSize: '18px',
+  color: 'black',
+  paddingTop: '5px',
+  paddingBottom: '5px',
+  borderRadius: '6px',
+  cursor: 'pointer',
+  marginTop: '30px',
 };
 
 const captionContainerStyle: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  height: "100%",
-  paddingBottom: "40px",
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  height: '100%',
+  paddingBottom: '40px',
 };
 
 export default SlideShow;
