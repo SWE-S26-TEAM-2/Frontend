@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { FaFacebook, FaGoogle, FaApple } from "react-icons/fa";
 import Link from "next/link";
+import EmailStep from "./EmailStep";
 
 interface ILoginModalProps {
   onClose: () => void;
@@ -12,6 +13,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
   
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
+  const [step, setStep] = useState<"main" | "email" | "register" | "signin">("main");
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
   };
@@ -27,6 +29,9 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
     setError("");
     console.log(email); 
   };
+  const handleEmailFocus = () => {
+    setStep("email");
+  };
 
 
   return (
@@ -38,7 +43,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       {/* Modal box — stop click from closing when clicking inside */}
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-[#222222] w-[400px] rounded-lg p-10 relative"
+        className="bg-[#222222] w-[500px] rounded-lg p-10 relative"
       >
         {/* Close button */}
         <button
@@ -47,10 +52,11 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
         >
           ✕
         </button>
-
-        <h1 className="text-white text-[24px] font-bold mb-4">
+        {step === "main" && (
+    <>
+        <p className="text-white text-[35px] mb-4">
           Sign in or create an account
-        </h1>
+        </p>
         <p className="text-[#999999] text-sm leading-relaxed mb-8">
           By clicking on any of the &quot;Continue&quot; buttons below, you agree to SoundCloud&apos;s <Link href="#">Terms of Use</Link> and acknowledge our <Link href="#">Privacy Policy</Link>.
         </p>
@@ -80,17 +86,29 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
           className="bg-[#333333] text-white w-full p-3 rounded border border-[#444444] text-sm mb-3 box-border"
           value={email}
           onChange={handleEmailChange}
+          onFocus={handleEmailFocus}
         />
 
         {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 
-        <button className="bg-[#555555] text-white w-full p-3 rounded cursor-pointer mb-6 text-[15px] font-semibold border-none" onClick={handleSubmit}>
+        <button className="bg-[#555555] text-white w-full p-3 rounded cursor-pointer mb-10 text-[15px] font-semibold border-none" onClick={handleSubmit}>
           Continue
         </button>
 
-        <Link href="#" className="text-[#ff5500] text-sm cursor-pointer">
+        <Link href="#" className="text-[#ff5500] text-sm cursor-pointer mt-8">
           Need help?
         </Link>
+        </>
+        )}
+          {step === "email" && (
+           <EmailStep
+           email={email}
+           onEmailChange={handleEmailChange}
+           onSubmit={handleSubmit}
+           onBack={() => setStep("main")}
+           error={error}
+            />
+        )}
       </div>
     </div>
   );
