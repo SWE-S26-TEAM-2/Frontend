@@ -4,6 +4,8 @@ import { useState } from "react";
 import { FaFacebook, FaGoogle, FaApple } from "react-icons/fa";
 import Link from "next/link";
 import EmailStep from "./EmailStep";
+import RegisterStep from "./RegisterStep";
+import SignInStep from "./SignInStep";
 
 interface ILoginModalProps {
   onClose: () => void;
@@ -14,6 +16,8 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [step, setStep] = useState<"main" | "email" | "register" | "signin">("main");
+  const [password, setPassword] = useState("");
+
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
   };
@@ -27,10 +31,13 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       return;
     }
     setError("");
-    console.log(email); 
+    setStep("signin"); 
   };
   const handleEmailFocus = () => {
     setStep("email");
+  };
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
   };
 
 
@@ -109,6 +116,27 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
            error={error}
             />
         )}
+        {step === "register" && (
+        <RegisterStep
+        email={email}
+        password={password}
+        onPasswordChange={handlePasswordChange}
+        onSubmit={handleSubmit}
+        onBack={() => setStep("main")}
+        error={error}
+        />
+        )}
+        {step === "signin" && (
+        <SignInStep
+        email={email}
+        password={password}
+        onPasswordChange={handlePasswordChange}
+        onSubmit={handleSubmit}
+        onBack={() => setStep("main")}
+        error={error}
+        />
+        )}
+
       </div>
     </div>
   );
