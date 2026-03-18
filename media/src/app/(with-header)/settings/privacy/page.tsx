@@ -2,14 +2,13 @@
 
 import { useState, useEffect } from "react";
 import Toggle from "@/components/Toggle/Toggle";
-import { getPrivacySettings, updatePrivacySettings } from "@/services/privacy.service";
-import { IPrivacySettings } from "@/types/privacy.types";
+import { getPrivacySettings, updatePrivacySettings } from "@/services/settings-privacy.service";
+import { IPrivacySettings } from "@/types/settings-privacy.types";
 
 export default function PrivacySettings() {
   const [settings, setSettings] = useState<IPrivacySettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load settings when page opens
   useEffect(() => {
     loadSettings();
   }, []);
@@ -17,7 +16,7 @@ export default function PrivacySettings() {
   const loadSettings = async () => {
     try {
       const data = await getPrivacySettings();
-      console.log("Loaded settings:", data);  // check
+      console.log("Loaded privacy settings:", data); // check
       setSettings(data);
     } catch (error) {
       console.error("Failed to load settings:", error);
@@ -28,17 +27,14 @@ export default function PrivacySettings() {
 
   const handleToggle = async (key: keyof IPrivacySettings, value: boolean) => {
     if (!settings) return;
-     console.log(`Toggling ${key} to ${value}`) // check
-    
-    // Update UI immediately
+    console.log(`Toggling ${key} to ${value}`); // check
+
     const previousSettings = { ...settings };
     setSettings({ ...settings, [key]: value });
-    
-    // Save to mock/API
+
     try {
       await updatePrivacySettings({ [key]: value });
     } catch (error) {
-      // If save fails, revert
       setSettings(previousSettings);
       console.error("Failed to update:", error);
     }
@@ -46,7 +42,7 @@ export default function PrivacySettings() {
 
   if (isLoading) {
     return (
-      <div style={{ backgroundColor: "#121212", color: "#fff", padding: "40px" }}>
+      <div style={{ color: "#fff", padding: "40px" }}>
         Loading...
       </div>
     );
@@ -54,7 +50,7 @@ export default function PrivacySettings() {
 
   if (!settings) {
     return (
-      <div style={{ backgroundColor: "#121212", color: "#fff", padding: "40px" }}>
+      <div style={{ color: "#fff", padding: "40px" }}>
         Failed to load settings
       </div>
     );
@@ -63,11 +59,8 @@ export default function PrivacySettings() {
   return (
     <div
       style={{
-        backgroundColor: "#121212",
-        color: "#fff",
         flex: 1,
         padding: "40px",
-        fontFamily: "Arial",
         overflow: "auto",
         paddingBottom: "100px",
       }}

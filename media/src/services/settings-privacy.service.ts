@@ -1,9 +1,9 @@
 // src/services/privacy.service.ts
 
-import { IPrivacySettings } from "@/types/privacy.types";
+import { IPrivacySettings } from "@/types/settings-privacy.types";
 import { ENV } from "@/config/env";
-import { getMockPrivacySettings, updateMockPrivacySettings } from "./mocks/privacy.mock";
-import { getPrivacySettingsFromAPI, updatePrivacySettingsOnAPI } from "./api/privacy.api";
+import { getMockPrivacySettings, updateMockPrivacySettings } from "./mocks/settings-privacy.mock";
+import { getPrivacySettingsFromAPI, updatePrivacySettingsOnAPI } from "./api/settings-privacy.api";
 
 export const getPrivacySettings = async (): Promise<IPrivacySettings> => {
   // Just check the boolean - true = mock, false = real API
