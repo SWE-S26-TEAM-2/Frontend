@@ -1,20 +1,71 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Toggle from "@/components/Toggle/Toggle";
+import { getPrivacySettings, updatePrivacySettings } from "@/services/privacy.service";
+import { IPrivacySettings } from "@/types/privacy.types";
 
 export default function PrivacySettings() {
-  const [receiveMessages, setReceiveMessages] = useState(true);
-  const [showActivities, setShowActivities] = useState(true);
-  const [showTopFan, setShowTopFan] = useState(true);
-  const [showTrackFans, setShowTrackFans] = useState(true);
+  const [settings, setSettings] = useState<IPrivacySettings | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load settings when page opens
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    try {
+      const data = await getPrivacySettings();
+      console.log("Loaded settings:", data);  // check
+      setSettings(data);
+    } catch (error) {
+      console.error("Failed to load settings:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleToggle = async (key: keyof IPrivacySettings, value: boolean) => {
+    if (!settings) return;
+     console.log(`Toggling ${key} to ${value}`) // check
+    
+    // Update UI immediately
+    const previousSettings = { ...settings };
+    setSettings({ ...settings, [key]: value });
+    
+    // Save to mock/API
+    try {
+      await updatePrivacySettings({ [key]: value });
+    } catch (error) {
+      // If save fails, revert
+      setSettings(previousSettings);
+      console.error("Failed to update:", error);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div style={{ backgroundColor: "#121212", color: "#fff", padding: "40px" }}>
+        Loading...
+      </div>
+    );
+  }
+
+  if (!settings) {
+    return (
+      <div style={{ backgroundColor: "#121212", color: "#fff", padding: "40px" }}>
+        Failed to load settings
+      </div>
+    );
+  }
 
   return (
     <div
       style={{
         backgroundColor: "#121212",
         color: "#fff",
-        flex:1,
+        flex: 1,
         padding: "40px",
         fontFamily: "Arial",
         overflow: "auto",
@@ -30,8 +81,8 @@ export default function PrivacySettings() {
           follow. Turning this on will allow anyone to send you messages.
         </p>
         <Toggle
-          value={receiveMessages}
-          onChange={() => setReceiveMessages(!receiveMessages)}
+          value={settings.receiveMessages}
+          onChange={(value) => handleToggle("receiveMessages", value)}
         />
       </div>
 
@@ -42,8 +93,8 @@ export default function PrivacySettings() {
           users in discovery features.
         </p>
         <Toggle
-          value={showActivities}
-          onChange={() => setShowActivities(!showActivities)}
+          value={settings.showActivities}
+          onChange={(value) => handleToggle("showActivities", value)}
         />
       </div>
 
@@ -53,8 +104,8 @@ export default function PrivacySettings() {
           Appear in public Top Fans and First Fans lists.
         </p>
         <Toggle
-          value={showTopFan}
-          onChange={() => setShowTopFan(!showTopFan)}
+          value={settings.showTopFan}
+          onChange={(value) => handleToggle("showTopFan", value)}
         />
       </div>
 
@@ -64,13 +115,21 @@ export default function PrivacySettings() {
           Your First and Top Fans will appear on your tracks.
         </p>
         <Toggle
-          value={showTrackFans}
-          onChange={() => setShowTrackFans(!showTrackFans)}
+          value={settings.showTrackFans}
+          onChange={(value) => handleToggle("showTrackFans", value)}
         />
       </div>
 
       <h2 style={{ marginTop: "50px" }}>Blocked users</h2>
-      <p style={{ color: "#aaa" }}>You have not muted any users.</p>
+      {settings.blockedUsers.length > 0 ? (
+        <ul>
+          {settings.blockedUsers.map((user, index) => (
+            <li key={index}>{user}</li>
+          ))}
+        </ul>
+      ) : (
+        <p style={{ color: "#aaa" }}>You have not muted any users.</p>
+      )}
 
       <h2 style={{ marginTop: "50px" }}>Cookies</h2>
       <button
