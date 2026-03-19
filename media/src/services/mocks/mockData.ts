@@ -54,6 +54,7 @@ export const MOCK_PRIVACY_SETTINGS: IPrivacySettings = {
   showTrackFans: true,
   blockedUsers: [],
 };
+<<<<<<< HEAD
 
 // settings/account
 export const MOCK_ACCOUNT_SETTINGS: IAccountSettings = {
@@ -112,3 +113,5 @@ export const MOCK_ADVERTISING_SETTINGS: IAdvertisingSettings = {
 export const MOCK_TWO_FACTOR_SETTINGS: ITwoFactorSettings = {
   isEnabled: false,
 };
+=======
+>>>>>>> ba4a6a6 (feat(fe): add user profile page (#3))
