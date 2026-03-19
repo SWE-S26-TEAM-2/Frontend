@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import Home from "../app/(auth)/landingPage/page"; 
+import Home from "../app/(auth)/page"; 
 import { useRouter } from "next/navigation";
 import "@testing-library/jest-dom";
 
