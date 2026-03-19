@@ -1,6 +1,6 @@
 // src/services/api/auth.api.ts
 import { ENV } from "../../config/env";
-import { ILoginRequest, ILoginResponse, IUser } from "@/types/auth.types";
+import { ILoginRequest, ILoginResponse, IUser, ICheckEmailResponse, IRegisterResponse } from "@/types/auth.types";
 
 /**
  * Real authentication API service
@@ -11,8 +11,8 @@ export const RealAuthService = {
    * Login user with credentials
    * @throws Error if login fails
    */
-  login: async (username: string, password: string): Promise<ILoginResponse> => {
-    const payload: ILoginRequest = { username, password };
+  login: async (emailOrProfileUrl: string, password: string): Promise<ILoginResponse> => {
+    const payload: ILoginRequest = { emailOrProfileUrl, password };
 
     const response = await fetch(`${ENV.API_BASE_URL}/auth/login`, {
       method: "POST",
@@ -24,9 +24,42 @@ export const RealAuthService = {
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
-      throw new Error(error?.message || "Invalid username or password");
+      throw new Error(error?.message || "Invalid email or password");
     }
 
+    return response.json();
+  },
+
+  register: async (emailOrProfileUrl: string, password: string): Promise<IRegisterResponse> => {
+    const response = await fetch(`${ENV.API_BASE_URL}/auth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ emailOrProfileUrl, password }),
+    });
+  
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error?.message || "Registration failed");
+    }
+  
+    return response.json();
+  },
+
+  checkEmail: async (emailOrProfileUrl: string): Promise<ICheckEmailResponse> => {
+    const response = await fetch(`${ENV.API_BASE_URL}/auth/check-email`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ emailOrProfileUrl }),
+    });
+  
+    if (!response.ok) {
+      throw new Error("Failed to check email");
+    }
+  
     return response.json();
   },
 

@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { FaFacebook, FaGoogle, FaApple } from "react-icons/fa";
 import Link from "next/link";
-import EmailStep from "./EmailStep";
+import InputStep from "./InputStep";
 import RegisterStep from "./RegisterStep";
 import SignInStep from "./SignInStep";
+import { AuthService } from "@/services";
+
 
 interface ILoginModalProps {
   onClose: () => void;
@@ -13,26 +15,46 @@ interface ILoginModalProps {
 
 export default function LoginModal({ onClose }: ILoginModalProps) {
   
-  const [email, setEmail] = useState("");
+  const [emailOrProfileUrl, setEmailOrProfileUrl] = useState("");
   const [error, setError] = useState("");
-  const [step, setStep] = useState<"main" | "email" | "register" | "signin">("main");
+  const [step, setStep] = useState<"main" | "input" | "register" | "signin">("main");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmailOrProfileUrl(e.target.value);
   };
-  const handleSubmit = () => {
-    if(step === "email" || step === "main"){
-    if (!email) {
+  const handleSubmit = async () => {
+    if(step === "input" || step === "main"){
+    if (!emailOrProfileUrl) {
       setError("Please enter your email address.");
       return;
     }
-    if (!/\S+@\S+\.\S+/.test(email)) {
-      setError("Please enter a valid email address.");
-      return;
+    const isEmail = /\S+@\S+\.\S+/.test(emailOrProfileUrl);
+    const isProfileUrl = emailOrProfileUrl.startsWith("soundcloud.com/");
+
+    if (!isEmail && !isProfileUrl) {
+    setError("Please enter a valid email address or profile URL.");
+    return;
     }
+
     setError("");
-    setStep("register"); 
+    try {
+      setIsLoading(true);
+      //console.log("checking email:", emailOrProfileUrl);
+      const { isExisting } = await AuthService.checkEmail(emailOrProfileUrl);
+      //console.log("isExisting:", isExisting);
+    if (isExisting) {
+    setStep("signin");
+    } else {
+    setStep("register");
+    }
+    } catch {
+    setError("Something went wrong. Please try again.");
+    } finally {
+    setIsLoading(false);
+    }
   }
   if (step === "register" || step === "signin") {
     if (!password) {
@@ -48,11 +70,27 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       return;
     }
     setError("");
+    try {
+      setIsLoading(true);
+      if (step === "register") {
+        await AuthService.register(emailOrProfileUrl, password);
+        //console.log("registered:", response);
+      } else {
+        await AuthService.login(emailOrProfileUrl, password);
+       // console.log("logged in:", response);
+      }
+      setIsSuccess(true);
+    } catch {
+      setError("Incorrect password. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+
     //console.log("submitting:", email, password);
   }
   };
   const handleEmailFocus = () => {
-    setStep("email");
+    setStep("input");
   };
   
 
@@ -65,16 +103,22 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
     // Overlay — dark background behind modal
     <div
       onClick={onClose}
-      className="fixed inset-0 bg-[rgba(0,0,0,0.7)] flex items-center justify-center z-[1000]"
+      className="fixed inset-0 bg-[rgba(0,0,0,0.7)] flex items-center justify-center z-1000"
     >
+      {isSuccess && (
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-[#333333] text-white px-6 py-4 rounded-lg z-2000">
+      Successfully signed in! 🎉
+      </div>
+      )}
+
       {/* Modal box — stop click from closing when clicking inside */}
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-[#222222] w-[500px] rounded-lg p-10 relative"
+        className="bg-[#222222] w-125 rounded-lg p-10 relative"
       >
         {/* Close button */}
         <button
-          onClick={onClose}
+          onClick={() => { onClose(); setIsSuccess(false); }}
           className="absolute top-3 right-4 bg-none border-none text-[#999] text-xl cursor-pointer"
         >
           ✕
@@ -108,18 +152,18 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
         </p>
 
         <input
-          type="email"
+          type="text"
           placeholder="Your email address or profile URL"
           className="bg-[#333333] text-white w-full p-3 rounded border border-[#444444] text-sm mb-3 box-border"
-          value={email}
-          onChange={handleEmailChange}
+          value={emailOrProfileUrl}
+          onChange={handleInputChange}
           onFocus={handleEmailFocus}
         />
 
         {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 
-        <button className="bg-[#555555] text-white w-full p-3 rounded cursor-pointer mb-10 text-[15px] font-semibold border-none" onClick={handleSubmit}>
-          Continue
+        <button className="bg-[#555555] text-white w-full p-3 rounded cursor-pointer mb-10 text-[15px] font-semibold border-none" onClick={handleSubmit} disabled={isLoading}>
+        {isLoading ? "Loading..." : "Continue"}
         </button>
 
         <Link href="#" className="text-[#ff5500] text-sm cursor-pointer mt-8">
@@ -127,33 +171,36 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
         </Link>
         </>
         )}
-          {step === "email" && (
-           <EmailStep
-           email={email}
-           onEmailChange={handleEmailChange}
-           onSubmit={handleSubmit}
-           onBack={() => {setStep("main");setError("");}}
-           error={error}
+          {step === "input" && (
+           <InputStep
+            emailOrProfileUrl={emailOrProfileUrl}
+            onInputChange={handleInputChange}
+            onSubmit={handleSubmit}
+            onBack={() => {setStep("main"); setError(""); setIsSuccess(false);}}
+            error={error}
+            isLoading={isLoading}
             />
         )}
         {step === "register" && (
         <RegisterStep
-        email={email}
+        emailOrProfileUrl={emailOrProfileUrl}
         password={password}
         onPasswordChange={handlePasswordChange}
         onSubmit={handleSubmit}
-        onBack={() => {setStep("main");setError("");}}
+        onBack={() => {setStep("main"); setError(""); setIsSuccess(false);}}
         error={error}
+        isLoading={isLoading}
         />
         )}
         {step === "signin" && (
         <SignInStep
-        email={email}
+        emailOrProfileUrl={emailOrProfileUrl}
         password={password}
         onPasswordChange={handlePasswordChange}
         onSubmit={handleSubmit}
-        onBack={() => {setStep("main");setError("");}}
+        onBack={() => {setStep("main"); setError(""); setIsSuccess(false);}}
         error={error}
+        isLoading={isLoading}
         />
         )}
 

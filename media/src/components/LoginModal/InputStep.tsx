@@ -2,15 +2,16 @@
 
 import Link from "next/link";
 
-interface IEmailStepProps {
-    email: string;
-    onEmailChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+interface IInputStepProps {
+    emailOrProfileUrl: string;
+    onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onSubmit: () => void;
     onBack: () => void;
     error: string;
+    isLoading: boolean;
   }
 
-  export default function EmailStep({ email, onEmailChange, onSubmit, onBack, error }: IEmailStepProps) {
+  export default function InputStep({ emailOrProfileUrl, onInputChange, onSubmit, onBack, error, isLoading }: IInputStepProps) {
     return (
         <div className="flex flex-col">
         <div className="flex items-center justify-center mb-6 relative">
@@ -21,20 +22,21 @@ interface IEmailStepProps {
         </div>
 
         <input
-        type="email"
+        type="text"
         placeholder="Your email address or profile URL"
         className="bg-[#333333] text-white w-full p-3 rounded border border-[#444444] text-sm mb-3 box-border"
-        value={email}
-        onChange={onEmailChange}
+        value={emailOrProfileUrl}
+        onChange={onInputChange}
         />
 
         {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 
         <button 
          onClick={onSubmit}
+         disabled={isLoading}
          className="bg-[#555555] text-white w-full p-3 rounded cursor-pointer mb-10 text-[15px] font-semibold border-none"
         >
-         Continue
+         {isLoading ? "Loading..." : "Continue"}
         </button>
 
         <Link href="#" className="text-[#ff5500] text-sm cursor-pointer mt-8">
