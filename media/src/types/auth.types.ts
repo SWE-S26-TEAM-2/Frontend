@@ -1,8 +1,23 @@
 
 
 export interface ILoginRequest {
-  username: string;
+  emailOrProfileUrl: string;
   password: string;
+}
+
+export interface IRegisterRequest {
+  emailOrProfileUrl: string;
+  password: string;
+}
+
+export interface IRegisterResponse {
+  success: boolean;
+  token: string;
+  user: IUser;
+}
+
+export interface ICheckEmailResponse {
+  isExisting: boolean;
 }
 
 export interface IUser {
