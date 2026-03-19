@@ -22,6 +22,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
     setEmail(e.target.value);
   };
   const handleSubmit = () => {
+    if(step === "email" || step === "main"){
     if (!email) {
       setError("Please enter your email address.");
       return;
@@ -31,11 +32,30 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       return;
     }
     setError("");
-    setStep("signin"); 
+    setStep("register"); 
+  }
+  if (step === "register" || step === "signin") {
+    if (!password) {
+      setError("Please enter your password.");
+      return;
+    }
+    if (step === "register" && password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+    if (step === "signin" && password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+    setError("");
+    //console.log("submitting:", email, password);
+  }
   };
   const handleEmailFocus = () => {
     setStep("email");
   };
+  
+
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
   };
@@ -112,7 +132,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
            email={email}
            onEmailChange={handleEmailChange}
            onSubmit={handleSubmit}
-           onBack={() => setStep("main")}
+           onBack={() => {setStep("main");setError("");}}
            error={error}
             />
         )}
@@ -122,7 +142,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
         password={password}
         onPasswordChange={handlePasswordChange}
         onSubmit={handleSubmit}
-        onBack={() => setStep("main")}
+        onBack={() => {setStep("main");setError("");}}
         error={error}
         />
         )}
@@ -132,7 +152,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
         password={password}
         onPasswordChange={handlePasswordChange}
         onSubmit={handleSubmit}
-        onBack={() => setStep("main")}
+        onBack={() => {setStep("main");setError("");}}
         error={error}
         />
         )}
