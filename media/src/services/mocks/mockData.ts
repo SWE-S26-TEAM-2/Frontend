@@ -1,5 +1,8 @@
 import { ITrack } from "@/types/track.types";
 
+//settings/privacy
+import { IPrivacySettings } from "@/types/privacy.types"; 
+
 export const MOCK_TRACKS: ITrack[] = [
   {
     id: "1",
@@ -27,3 +30,12 @@ export const MOCK_TRACKS: ITrack[] = [
   },
 
 ];
+
+// settings/privacy
+export const MOCK_PRIVACY_SETTINGS: IPrivacySettings = {
+  receiveMessages: true,
+  showActivities: true,
+  showTopFan: true,
+  showTrackFans: true,
+  blockedUsers: [],
+};
