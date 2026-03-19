@@ -54,6 +54,27 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
 
   const handleTabChange = (tab: TActiveTab) => setActiveTab(tab);
 
+  // ── Tab filtering logic ──
+  function getFilteredTracks(tab: TActiveTab): ITrack[] {
+    switch (tab) {
+      case "All":
+        return tracks;
+      case "Popular tracks":
+        return [...tracks].sort((a, b) => b.plays - a.plays);
+      case "Tracks":
+        return tracks.filter(t => t.repostedBy === null);
+      case "Reposts":
+        return tracks.filter(t => t.repostedBy !== null);
+      case "Albums":
+      case "Playlists":
+        return []; // will be populated when backend provides album/playlist data
+      default:
+        return tracks;
+    }
+  }
+
+  const filteredTracks = getFilteredTracks(activeTab);
+
   if (loading) return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
       <span className="text-[#888] text-sm">Loading...</span>
@@ -120,18 +141,24 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
           </div>
 
           {/* Track list or empty state */}
-          <h2 className="text-base font-semibold text-white mb-2.5">Recent</h2>
-          {tracks.length === 0 ? (
+          <h2 className="text-base font-semibold text-white mb-2.5">
+            {activeTab === "All" ? "Recent" : activeTab}
+          </h2>
+          {filteredTracks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 gap-4">
-              <span className="text-[#888] text-sm">Seems a little quiet over here</span>
-              {user.isOwner && (
+              <span className="text-[#888] text-sm">
+                {activeTab === "Albums" ? "No albums yet" :
+                 activeTab === "Playlists" ? "No playlists yet" :
+                 "Seems a little quiet over here"}
+              </span>
+              {user.isOwner && activeTab === "All" && (
                 <button className="bg-white border border-white text-[#111] rounded px-5 py-2 text-sm cursor-pointer font-medium hover:bg-gray-100 transition-colors">
                   Upload now
                 </button>
               )}
             </div>
           ) : (
-            tracks.map(track => (
+            filteredTracks.map(track => (
               <TrackCard key={track.id} track={track} onPlay={() => {}}/>
             ))
           )}
