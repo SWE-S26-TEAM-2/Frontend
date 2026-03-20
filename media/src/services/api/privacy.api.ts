@@ -1,35 +1,29 @@
 // src/services/api/privacy.api.ts
 
 import { IPrivacySettings } from "@/types/privacy.types";
-import { ENV } from "@/config/env";
 
-// For now, this will just log that API isn't ready
-// Later you'll replace with real API calls
+/**
+ * Real privacy settings API service.
+ * These functions throw until the backend endpoint is ready.
+ * Switch from mock to real by setting NEXT_PUBLIC_USE_MOCK_API=false.
+ */
 
 export const getPrivacySettingsFromAPI = async (): Promise<IPrivacySettings> => {
-  console.log("🔵 API call: getPrivacySettings");
-  
-  // TEMPORARY: Return empty data until backend is ready
-  // Later this will be:
+  // TODO: replace with real implementation when backend is ready:
   // const response = await fetch(`${ENV.API_BASE_URL}/privacy-settings`);
   // return response.json();
-  
-  throw new Error("API not implemented yet");
+  throw new Error("Privacy settings API not implemented yet");
 };
 
 export const updatePrivacySettingsOnAPI = async (
-  settings: Partial<IPrivacySettings>
+  _settings: Partial<IPrivacySettings>
 ): Promise<IPrivacySettings> => {
-  console.log("🔵 API call: updatePrivacySettings", settings);
-  
-  // TEMPORARY: Throw error until backend is ready
-  // Later this will be:
+  // TODO: replace with real implementation when backend is ready:
   // const response = await fetch(`${ENV.API_BASE_URL}/privacy-settings`, {
-  //   method: 'PATCH',
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify(settings)
+  //   method: "PATCH",
+  //   headers: { "Content-Type": "application/json" },
+  //   body: JSON.stringify(_settings),
   // });
   // return response.json();
-  
-  throw new Error("API not implemented yet");
+  throw new Error("Privacy settings API not implemented yet");
 };
