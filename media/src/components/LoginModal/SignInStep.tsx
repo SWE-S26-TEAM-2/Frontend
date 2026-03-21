@@ -3,16 +3,8 @@
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Link from "next/link";
+import {ISignInStepProps} from "@/types/auth.types";
 
-interface ISignInStepProps {
-    emailOrProfileUrl: string;
-    password: string;
-    onPasswordChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onSubmit: () => void;
-    onBack: () => void;
-    error: string;
-    isLoading: boolean;
-}
 
 export default function SignInStep({ emailOrProfileUrl, password, onPasswordChange, onSubmit, onBack, error , isLoading}: ISignInStepProps) {
     

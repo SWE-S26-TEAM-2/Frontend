@@ -25,7 +25,7 @@ const HoverButton = ({ children, style = {}, onClick }: IHoverButtonProps) => {
       onMouseLeave={() => setIsHovered(false)}
       onClick={onClick}
       style={finalStyle}
-      className={className} 
+      //className={className} 
     >
       {children}
     </button>

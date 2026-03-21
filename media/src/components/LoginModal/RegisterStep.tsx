@@ -4,17 +4,9 @@ import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Link from "next/link";
 import ReCAPTCHA from "react-google-recaptcha";
+import {IRegisterStepProps} from "@/types/auth.types";
 
-interface IRegisterStepProps {
-    emailOrProfileUrl: string;
-    password: string;
-    onPasswordChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onSubmit: () => void;
-    onBack: () => void;
-    error: string;
-    isLoading: boolean;
-    onCaptchaChange: (token: string | null) => void;
-}
+
 
 export default function RegisterStep({ emailOrProfileUrl, password, onPasswordChange, onSubmit, onBack, error, isLoading,onCaptchaChange }: IRegisterStepProps) {
     
