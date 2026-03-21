@@ -1,8 +1,8 @@
-export type EmailDisplay = "don't display" | "display";
+export type IEmailDisplay = "don't display" | "display";
 
 export interface IContentSettings {
   rssUrl: string;
-  emailDisplay: EmailDisplay;
+  emailDisplay: IEmailDisplay;
   customFeedTitle: string;
   category: string;
   statsServiceUrl: string;

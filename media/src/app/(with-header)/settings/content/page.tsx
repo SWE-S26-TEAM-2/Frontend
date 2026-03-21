@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getContentSettings, updateContentSettings } from "@/services/settings-content.service";
-import { IContentSettings, EmailDisplay } from "@/types/settings-content.types";
+import { contentService } from "@/services/di";
+import { IContentSettings, IEmailDisplay } from "@/types/settings-content.types";
 
 export default function ContentSettings() {
   const [settings, setSettings] = useState<IContentSettings | null>(null);
@@ -14,8 +14,8 @@ export default function ContentSettings() {
 
   const loadSettings = async () => {
     try {
-      const data = await getContentSettings();
-      console.log("Loaded content settings:", data); // check
+      const data = await contentService.getSettings();
+      //console.log("Loaded content settings:", data); // check
       setSettings(data);
     } catch (error) {
       console.error("Failed to load content settings:", error);
@@ -26,13 +26,13 @@ export default function ContentSettings() {
 
   const handleChange = async (key: keyof IContentSettings, value: string | boolean) => {
     if (!settings) return;
-    console.log(`Updating ${key} to:`, value); // check
+    //console.log(`Updating ${key} to:`, value); // check
 
     const previousSettings = { ...settings };
     setSettings({ ...settings, [key]: value });
 
     try {
-      await updateContentSettings({ [key]: value });
+      await contentService.updateSettings({ [key]: value });
     } catch (error) {
       setSettings(previousSettings);
       console.error("Failed to update content settings:", error);
@@ -95,7 +95,7 @@ export default function ContentSettings() {
             <select
               style={selectStyle}
               value={settings.emailDisplay}
-              onChange={(e) => handleChange("emailDisplay", e.target.value as EmailDisplay)}
+              onChange={(e) => handleChange("emailDisplay", e.target.value as IEmailDisplay)}
             >
               <option value="don&apos;t display">Don&apos;t display email address</option>
               <option value="display">Display email address</option>

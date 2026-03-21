@@ -1,4 +1,4 @@
-export type Theme = "light" | "dark" | "automatic";
+export type ITheme = "light" | "dark" | "automatic";
 
 export interface IEmail {
   address: string;
@@ -12,7 +12,7 @@ export interface ILinkedAccounts {
 }
 
 export interface IAccountSettings {
-  theme: Theme;
+  theme: ITheme;
   emails: IEmail[];
   linkedAccounts: ILinkedAccounts;
 }

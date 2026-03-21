@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getAccountSettings, updateAccountSettings } from "@/services/settings-account.service";
-import { IAccountSettings, Theme } from "@/types/settings-account.types";
+import { accountService } from "@/services/di";
+import { IAccountSettings, ITheme } from "@/types/settings-account.types";
 
 export default function AccountSettings() {
   const [settings, setSettings] = useState<IAccountSettings | null>(null);
@@ -14,8 +14,8 @@ export default function AccountSettings() {
 
   const loadSettings = async () => {
     try {
-      const data = await getAccountSettings();
-      console.log("Loaded account settings:", data);  // check
+      const data = await accountService.getSettings();
+      //console.log("Loaded account settings:", data);  // check
       setSettings(data);
     } catch (error) {
       console.error("Failed to load account settings:", error);
@@ -24,15 +24,15 @@ export default function AccountSettings() {
     }
   };
 
-  const handleThemeChange = async (theme: Theme) => {
+  const handleThemeChange = async (theme: ITheme) => {
     if (!settings) return;
-    console.log("Changing theme to:", theme);  // check
+    //console.log("Changing theme to:", theme);  // check
 
     const previousSettings = { ...settings };
     setSettings({ ...settings, theme });
 
     try {
-      await updateAccountSettings({ theme });
+      await accountService.updateSettings({ theme });
     } catch (error) {
       setSettings(previousSettings);
       console.error("Failed to update theme:", error);
@@ -61,7 +61,7 @@ export default function AccountSettings() {
       {/* Change theme */}
       <div style={{ marginBottom: "40px" }}>
         <h2 style={{ marginBottom: "20px" }}>Change theme</h2>
-        {(["light", "dark", "automatic"] as Theme[]).map((option) => (
+        {(["light", "dark", "automatic"] as ITheme[]).map((option) => (
           <label
             key={option}
             style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px", cursor: "pointer" }}

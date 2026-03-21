@@ -59,7 +59,7 @@ export const MOCK_PRIVACY_SETTINGS: IPrivacySettings = {
 export const MOCK_ACCOUNT_SETTINGS: IAccountSettings = {
   theme: "dark",
   emails: [
-    { address: "ahmed10salah222@gmail.com", isPrimary: true },
+    { address: "user@example.com", isPrimary: true },
   ],
   linkedAccounts: {
     facebook: false,

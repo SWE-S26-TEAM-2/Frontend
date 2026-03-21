@@ -1,9 +1,9 @@
-export type DevicesValue = boolean | "Everyone" | "Following" | "No one";
+export type IDevicesValue = boolean | "Everyone" | "Following" | "No one";
 
 export interface INotificationRow {
   name: string;
   email: boolean;
-  devices: DevicesValue;
+  devices: IDevicesValue;
 }
 
 export interface INotificationSettings {

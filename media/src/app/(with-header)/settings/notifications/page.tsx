@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getNotificationSettings, updateNotificationSettings } from "@/services/settings-notification.service";
-import { INotificationSettings, INotificationRow, DevicesValue } from "@/types/settings-notification.types";
+import { notificationService } from "@/services/di";
+import { INotificationSettings, INotificationRow, IDevicesValue } from "@/types/settings-notification.types";
 
 export default function NotificationsSettings() {
   const [settings, setSettings] = useState<INotificationSettings | null>(null);
@@ -14,8 +14,8 @@ export default function NotificationsSettings() {
 
   const loadSettings = async () => {
     try {
-      const data = await getNotificationSettings();
-      console.log("Loaded notification settings:", data); // check
+      const data = await notificationService.getSettings();
+      //console.log("Loaded notification settings:", data); // check
       setSettings(data);
     } catch (error) {
       console.error("Failed to load notification settings:", error);
@@ -27,10 +27,10 @@ export default function NotificationsSettings() {
   const handleActivityChange = async (
     index: number,
     field: "email" | "devices",
-    value: DevicesValue
+    value: IDevicesValue
   ) => {
     if (!settings) return;
-    console.log(`Updating activity ${index} ${field} to:`, value); // check
+    //console.log(`Updating activity ${index} ${field} to:`, value); // check
 
     const previousSettings = { ...settings };
     const updatedActivities = settings.activities.map((row, i) =>
@@ -39,7 +39,7 @@ export default function NotificationsSettings() {
     setSettings({ ...settings, activities: updatedActivities });
 
     try {
-      await updateNotificationSettings({ activities: updatedActivities });
+      await notificationService.updateSettings({ activities: updatedActivities });
     } catch (error) {
       setSettings(previousSettings);
       console.error("Failed to update notification settings:", error);
@@ -49,10 +49,10 @@ export default function NotificationsSettings() {
   const handleUpdateChange = async (
     index: number,
     field: "email" | "devices",
-    value: DevicesValue
+    value: IDevicesValue
   ) => {
     if (!settings) return;
-    console.log(`Updating soundcloudUpdate ${index} ${field} to:`, value); // check
+    //console.log(`Updating soundcloudUpdate ${index} ${field} to:`, value); // check
 
     const previousSettings = { ...settings };
     const updatedSoundcloudUpdates = settings.soundcloudUpdates.map((row, i) =>
@@ -61,7 +61,7 @@ export default function NotificationsSettings() {
     setSettings({ ...settings, soundcloudUpdates: updatedSoundcloudUpdates });
 
     try {
-      await updateNotificationSettings({ soundcloudUpdates: updatedSoundcloudUpdates });
+      await notificationService.updateSettings({ soundcloudUpdates: updatedSoundcloudUpdates });
     } catch (error) {
       setSettings(previousSettings);
       console.error("Failed to update notification settings:", error);
@@ -69,14 +69,14 @@ export default function NotificationsSettings() {
   };
 
   const renderCheckbox = (
-    value: DevicesValue,
-    onChange: (value: DevicesValue) => void
+    value: IDevicesValue,
+    onChange: (value: IDevicesValue) => void
   ) => {
     if (typeof value === "string") {
       return (
         <select
           value={value}
-          onChange={(e) => onChange(e.target.value as DevicesValue)}
+          onChange={(e) => onChange(e.target.value as IDevicesValue)}
           style={{
             background: "#222",
             color: "#fff",
@@ -104,8 +104,8 @@ export default function NotificationsSettings() {
   const renderSection = (
     title: string,
     rows: INotificationRow[],
-    onEmailChange: (index: number, value: DevicesValue) => void,
-    onDevicesChange: (index: number, value: DevicesValue) => void
+    onEmailChange: (index: number, value: IDevicesValue) => void,
+    onDevicesChange: (index: number, value: IDevicesValue) => void
   ) => (
     <div style={{ marginBottom: "48px" }}>
       <div

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getTwoFactorSettings, updateTwoFactorSettings } from "@/services/settings-two-factor.service";
+import { twoFactorService } from "@/services/di";
 import { ITwoFactorSettings } from "@/types/settings-two-factor.types";
 
 export default function TwoFactorSettings() {
@@ -14,8 +14,8 @@ export default function TwoFactorSettings() {
 
   const loadSettings = async () => {
     try {
-      const data = await getTwoFactorSettings();
-      console.log("Loaded 2FA settings:", data); // check
+      const data = await twoFactorService.getSettings();
+      // console.log("Loaded 2FA settings:", data); // check
       setSettings(data);
     } catch (error) {
       console.error("Failed to load 2FA settings:", error);
@@ -26,13 +26,13 @@ export default function TwoFactorSettings() {
 
   const handleEnable = async () => {
     if (!settings) return;
-    console.log("Toggling 2FA to:", !settings.isEnabled); // check
+    //console.log("Toggling 2FA to:", !settings.isEnabled); // check
 
     const previousSettings = { ...settings };
     setSettings({ ...settings, isEnabled: !settings.isEnabled });
 
     try {
-      await updateTwoFactorSettings({ isEnabled: !settings.isEnabled });
+      await twoFactorService.updateSettings({ isEnabled: !settings.isEnabled });
     } catch (error) {
       setSettings(previousSettings);
       console.error("Failed to update 2FA settings:", error);

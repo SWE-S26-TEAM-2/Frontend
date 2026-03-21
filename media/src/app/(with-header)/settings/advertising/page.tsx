@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getAdvertisingSettings } from "@/services/settings-advertising.service";
+import { advertisingService } from "@/services/di";
 import { IAdvertisingSettings } from "@/types/settings-advertising.types";
 
 export default function AdvertisingSettings() {
@@ -14,8 +14,8 @@ export default function AdvertisingSettings() {
 
   const loadSettings = async () => {
     try {
-      const data = await getAdvertisingSettings();
-      console.log("Loaded advertising settings:", data); // check
+      const data = await advertisingService.getSettings();
+      //console.log("Loaded advertising settings:", data); // check
       setSettings(data);
     } catch (error) {
       console.error("Failed to load advertising settings:", error);
