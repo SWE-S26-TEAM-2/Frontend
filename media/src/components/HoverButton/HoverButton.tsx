@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { IHoverButtonProps } from "@/types/hover.types";
 
-interface IHoverButtonProps {
-  children: React.ReactNode;
-  style?: React.CSSProperties;
-  onClick?: () => void;
-}
+
+
 
 const HoverButton = ({ children, style = {}, onClick }: IHoverButtonProps) => {
   const [isHovered, setIsHovered] = useState(false);
