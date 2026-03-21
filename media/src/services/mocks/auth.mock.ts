@@ -34,6 +34,7 @@ export const MockAuthService = {
     }
   },
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   googleLogin: async (token: string): Promise<ILoginResponse> => {
     await new Promise((resolve) => setTimeout(resolve, 500));
     return {
