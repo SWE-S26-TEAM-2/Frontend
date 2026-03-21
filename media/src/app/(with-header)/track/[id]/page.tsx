@@ -1,3 +1,3 @@
 export default function TrackPage() {
-  return null;
+  return <div>Track Page</div>;
 }

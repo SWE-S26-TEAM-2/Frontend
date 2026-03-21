@@ -11,8 +11,9 @@ const HoverButton = ({ children, style = {}, onClick }: IHoverButtonProps) => {
 
   const finalStyle: React.CSSProperties = {
     ...style,
-    color: isHovered ? "grey" : (style.color || "black"),
+    color: isHovered ? "grey" : (style.color || undefined),
     transition: "color 0.2s ease",
+    cursor: "pointer", 
   };
 
   return (
@@ -21,6 +22,7 @@ const HoverButton = ({ children, style = {}, onClick }: IHoverButtonProps) => {
       onMouseLeave={() => setIsHovered(false)}
       onClick={onClick}
       style={finalStyle}
+      className={className} 
     >
       {children}
     </button>
