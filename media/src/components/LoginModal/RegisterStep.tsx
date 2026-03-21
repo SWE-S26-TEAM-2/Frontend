@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Link from "next/link";
+import ReCAPTCHA from "react-google-recaptcha";
 
 interface IRegisterStepProps {
     emailOrProfileUrl: string;
@@ -12,11 +13,14 @@ interface IRegisterStepProps {
     onBack: () => void;
     error: string;
     isLoading: boolean;
+    onCaptchaChange: (token: string | null) => void;
 }
 
-export default function RegisterStep({ emailOrProfileUrl, password, onPasswordChange, onSubmit, onBack, error, isLoading }: IRegisterStepProps) {
+export default function RegisterStep({ emailOrProfileUrl, password, onPasswordChange, onSubmit, onBack, error, isLoading,onCaptchaChange }: IRegisterStepProps) {
     
     const [showPassword, setShowPassword] = useState(false);
+    const[captchaToken, setCaptchaToken] = useState<string | null>(null);
+
     
     return (
         <div className="flex flex-col">
@@ -42,11 +46,16 @@ export default function RegisterStep({ emailOrProfileUrl, password, onPasswordCh
         onClick={() => setShowPassword(!showPassword)}
         className="absolute right-3 top-1/2 -translate-y-1/2 bg-none border-none text-[#999] cursor-pointer"
         >
-        {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
+        {showPassword ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
         </button>
         </div>
 
         {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+
+        <ReCAPTCHA
+        sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
+        onChange={onCaptchaChange}
+        />
 
         <button
         onClick={onSubmit}

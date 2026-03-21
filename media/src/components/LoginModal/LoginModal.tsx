@@ -7,7 +7,8 @@ import InputStep from "./InputStep";
 import RegisterStep from "./RegisterStep";
 import SignInStep from "./SignInStep";
 import { AuthService } from "@/services";
-
+import { useGoogleLogin } from "@react-oauth/google";
+import{useRouter} from "next/navigation";
 
 interface ILoginModalProps {
   onClose: () => void;
@@ -21,10 +22,30 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const[captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmailOrProfileUrl(e.target.value);
   };
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess:async (response)=> {
+      //console.log(response.access_token);
+      try{
+      setIsLoading(true);
+      await AuthService.googleLogin(response.access_token);
+      setIsSuccess(true);
+      
+      }catch{
+        setError("Google login failed. Please try again.");
+      }finally{
+        setIsLoading(false);
+      }
+    },
+    onError: () =>{
+      setError("Google login failed. Please try again.");
+    }
+  })
   const handleSubmit = async () => {
     if(step === "input" || step === "main"){
     if (!emailOrProfileUrl) {
@@ -65,6 +86,10 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       setError("Password must be at least 8 characters.");
       return;
     }
+    if (step === "register" && !captchaToken) {
+      setError("Please verify you are a human.");
+      return;
+    }
     if (step === "signin" && password.length < 6) {
       setError("Password must be at least 6 characters.");
       return;
@@ -74,12 +99,14 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       setIsLoading(true);
       if (step === "register") {
         await AuthService.register(emailOrProfileUrl, password);
+        router.push("/verify-email");
         //console.log("registered:", response);
       } else {
         await AuthService.login(emailOrProfileUrl, password);
+        setIsSuccess(true);
        // console.log("logged in:", response);
       }
-      setIsSuccess(true);
+      
     } catch {
       setError("Incorrect password. Please try again.");
     } finally {
@@ -132,12 +159,12 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
           By clicking on any of the &quot;Continue&quot; buttons below, you agree to SoundCloud&apos;s <Link href="#">Terms of Use</Link> and acknowledge our <Link href="#">Privacy Policy</Link>.
         </p>
 
-        <button className="bg-[#1877f2] text-white w-full p-3 rounded cursor-pointer mb-3 text-[15px] font-semibold border-none flex items-center justify-center gap-2">
+        <button className="bg-[#1877f2] text-white w-full p-3 rounded cursor-pointer mb-3 text-[15px] font-semibold border-none flex items-center justify-center gap-2" >
           <FaFacebook size={20} />
           Continue with Facebook
         </button>
 
-        <button className="bg-[#333333] text-white w-full p-3 rounded cursor-pointer mb-3 text-[15px] font-semibold border-none flex items-center justify-center gap-2">
+        <button className="bg-[#333333] text-white w-full p-3 rounded cursor-pointer mb-3 text-[15px] font-semibold border-none flex items-center justify-center gap-2" onClick={()=>handleGoogleLogin()} >
         <FaGoogle size={20} />
           Continue with Google
         </button>
@@ -190,6 +217,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
         onBack={() => {setStep("main"); setError(""); setIsSuccess(false);}}
         error={error}
         isLoading={isLoading}
+        onCaptchaChange={(token) => setCaptchaToken(token)}
         />
         )}
         {step === "signin" && (
