@@ -29,6 +29,16 @@ export const RealAuthService = {
 
     return response.json();
   },
+  
+  googleLogin: async (token: string): Promise<ILoginResponse> => {
+    const response = await fetch(`${ENV.API_BASE_URL}/auth/google`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    });
+    if (!response.ok) throw new Error("Google login failed");
+    return response.json();
+  },
 
   register: async (emailOrProfileUrl: string, password: string): Promise<IRegisterResponse> => {
     const response = await fetch(`${ENV.API_BASE_URL}/auth/register`, {

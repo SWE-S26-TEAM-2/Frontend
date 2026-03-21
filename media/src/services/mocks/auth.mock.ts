@@ -34,6 +34,21 @@ export const MockAuthService = {
     }
   },
 
+  googleLogin: async (token: string): Promise<ILoginResponse> => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return {
+      success: true,
+      token: "fake-google-jwt-" + Date.now(),
+      user: {
+        id: "google-user-" + Date.now(),
+        username: "Google User",
+        email: "googleuser@gmail.com",
+        profileImageUrl: "/default-avatar.png",
+        createdAt: new Date().toISOString(),
+      },
+    };
+  },
+
   register: async (emailOrProfileUrl: string, password: string): Promise<IRegisterResponse> => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     if(password.length < 8){
