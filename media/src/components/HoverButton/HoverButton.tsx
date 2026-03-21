@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { IHoverButtonProps } from "../../types/landing.types"; 
+import { IHoverButtonProps } from "../../types/hover.types"; 
 
 const HoverButton = ({ 
   children, 
