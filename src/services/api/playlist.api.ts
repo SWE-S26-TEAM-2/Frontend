@@ -1,6 +1,6 @@
 /**
  * Real playlist API service.
- * Pattern mirrors src/services/api/track.api.ts (realTrackService).
+ * Pattern mirrors src/services/api/trackService.ts (realTrackService).
  *
  * Backend contract expected:
  *   GET /api/playlists/:id
