@@ -2,12 +2,14 @@
 
 interface IToggleProps {
   value: boolean;
-  onChange: () => void;
+  // onChange: () => void; //removed by reta
+  onChange: (value: boolean) => void;  // added by reta // add the boolean parameter
 }
 
 const Toggle = ({ value, onChange }: IToggleProps) => (
   <button
-    onClick={onChange}
+    // onClick={onChange}  // removed by reta
+    onClick={() => onChange(!value)}  // added by reta
     style={{
       width: "44px",
       height: "24px",

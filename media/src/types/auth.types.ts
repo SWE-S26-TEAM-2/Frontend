@@ -25,4 +25,7 @@ export interface IAuthState {
   token: string | null;
   loading: boolean;
   error: string | null;
+  isLoggedIn: boolean;
+  login: (user: IUser, token: string) => void;
+  logout: () => void;
 }
