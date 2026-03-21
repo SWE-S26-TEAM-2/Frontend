@@ -1,35 +1,31 @@
 import { create } from "zustand";
-
-interface IUser {
-  id: number;
-  username: string;
-  profileImageUrl: string;
-}
-
-interface IAuthState {
-  user: IUser | null;
-  token: string | null;
-  isLoggedIn: boolean;
-  login: (user: IUser, token: string) => void;
-  logout: () => void;
-}
+import { IAuthState } from "@/types/auth.types";
 
 export const useAuthStore = create<IAuthState>((set) => ({
+  isAuthenticated: false,
   user: null,
   token: null,
+  loading: false,
+  error: null,
   isLoggedIn: false,
 
   login: (user, token) =>
     set({
+      isAuthenticated: true,
       user,
       token,
+      loading: false,
+      error: null,
       isLoggedIn: true,
     }),
 
   logout: () =>
     set({
+      isAuthenticated: false,
       user: null,
       token: null,
+      loading: false,
+      error: null,
       isLoggedIn: false,
     }),
 }));
