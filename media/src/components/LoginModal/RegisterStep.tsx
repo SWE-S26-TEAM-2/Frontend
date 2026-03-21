@@ -19,7 +19,6 @@ interface IRegisterStepProps {
 export default function RegisterStep({ emailOrProfileUrl, password, onPasswordChange, onSubmit, onBack, error, isLoading,onCaptchaChange }: IRegisterStepProps) {
     
     const [showPassword, setShowPassword] = useState(false);
-    const[captchaToken, setCaptchaToken] = useState<string | null>(null);
 
     
     return (
