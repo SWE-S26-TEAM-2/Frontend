@@ -1,15 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import {IInputStepProps} from "@/types/auth.types";
 
-interface IInputStepProps {
-    emailOrProfileUrl: string;
-    onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onSubmit: () => void;
-    onBack: () => void;
-    error: string;
-    isLoading: boolean;
-  }
 
   export default function InputStep({ emailOrProfileUrl, onInputChange, onSubmit, onBack, error, isLoading }: IInputStepProps) {
     return (
