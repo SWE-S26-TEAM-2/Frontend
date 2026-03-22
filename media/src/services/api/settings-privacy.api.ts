@@ -1,6 +1,7 @@
 // src/services/api/privacy.api.ts
 
-import { IPrivacySettings } from "@/types/privacy.types";
+import { IPrivacySettings } from "@/types/settings-privacy.types";
+import { ENV } from "@/config/env";
 
 // For now, this will just log that API isn't ready
 // Later you'll replace with real API calls

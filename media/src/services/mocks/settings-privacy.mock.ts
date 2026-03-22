@@ -1,6 +1,6 @@
 // src/services/mocks/privacy.mock.ts
 
-import { IPrivacySettings } from "@/types/privacy.types";
+import { IPrivacySettings } from "@/types/settings-privacy.types";
 import { MOCK_PRIVACY_SETTINGS } from "./mockData";
 
 export const getMockPrivacySettings = async (): Promise<IPrivacySettings> => {
