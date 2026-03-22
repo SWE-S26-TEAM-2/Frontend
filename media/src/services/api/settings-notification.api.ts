@@ -1,4 +1,4 @@
-import { INotificationSettings } from "@/types/notification.types";
+import { INotificationSettings } from "@/types/settings-notification.types";
 
 export const getNotificationSettingsFromAPI = async (): Promise<INotificationSettings> => {
   console.log("🔵 API call: getNotificationSettings");

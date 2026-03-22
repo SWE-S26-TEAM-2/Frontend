@@ -1,4 +1,4 @@
-import { INotificationSettings } from "@/types/notification.types";
+import { INotificationSettings } from "@/types/settings-notification.types";
 import { MOCK_NOTIFICATION_SETTINGS } from "./mockData";
 
 export const getMockNotificationSettings = async (): Promise<INotificationSettings> => {

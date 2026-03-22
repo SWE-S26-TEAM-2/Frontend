@@ -1,4 +1,4 @@
-import { IAccountSettings } from "@/types/account.types";
+import { IAccountSettings } from "@/types/settings-account.types";
 
 export const getAccountSettingsFromAPI = async (): Promise<IAccountSettings> => {
   console.log("🔵 API call: getAccountSettings");
