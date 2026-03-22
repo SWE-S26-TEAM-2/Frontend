@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { userProfileService } from "@/services/di";
 import { type ITrack } from "@/types/track.types";
-import { type IUser, type ILikedTrack, type IFanUser, type IFollower, type IFollowing, type ITrack as IUserProfileTrack } from "@/types/userProfile.types";
+import { type IUser, type ILikedTrack, type IFanUser, type IFollower, type IFollowing, type ITrack as IUserProfileTrack, type IUserProfileService } from "@/types/userProfile.types";
 import { Banner } from "@/components/Banner/Banner";
 import { TrackCard } from "@/components/Track/TrackCard";
 import { ProfileSidebar } from "@/components/Profile/ProfileSidebar";
@@ -35,6 +35,7 @@ function mapTrackData(track: IUserProfileTrack): ITrack {
 
 export default function UserProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = React.use(params);
+  const profileService: IUserProfileService = userProfileService;
   const [activeTab, setActiveTab] = useState<TActiveTab>(TABS[0]);
   const [user, setUser]           = useState<IUser | null>(null);
   const [tracks, setTracks]       = useState<ITrack[]>([]);
@@ -49,13 +50,13 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
     async function loadData() {
       try {
         setLoading(true);
-        const fetchedUser = await userProfileService.getUserProfile(username);
+        const fetchedUser = await profileService.getUserProfile(username);
         const [fetchedTracks, fetchedLikes, fetchedFans, fetchedFollowers, fetchedFollowing] = await Promise.all([
-          userProfileService.getUserTracks(fetchedUser.id),
-          userProfileService.getUserLikes(fetchedUser.id),
-          userProfileService.getFansAlsoLike(fetchedUser.id),
-          userProfileService.getFollowers(fetchedUser.id),
-          userProfileService.getFollowing(fetchedUser.id),
+          profileService.getUserTracks(fetchedUser.id),
+          profileService.getUserLikes(fetchedUser.id),
+          profileService.getFansAlsoLike(fetchedUser.id),
+          profileService.getFollowers(fetchedUser.id),
+          profileService.getFollowing(fetchedUser.id),
         ]);
         setUser(fetchedUser);
         setTracks(fetchedTracks.map(mapTrackData));
@@ -70,7 +71,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
       }
     }
     loadData();
-  }, [username]);
+  }, [username, profileService]);
 
   const handleTabChange = (tab: TActiveTab) => setActiveTab(tab);
 
