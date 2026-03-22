@@ -5,12 +5,21 @@ import React, { useState, useEffect, useRef } from "react";
 interface IShareModalProps {
   username: string;
   onClose: () => void;
+  mode?: "modal" | "popover";
+  anchorRef?: React.RefObject<HTMLElement | null>;
 }
 
-export function ShareModal({ username, onClose }: IShareModalProps) {
+export function ShareModal({
+  username,
+  onClose,
+  mode = "modal",
+  anchorRef,
+}: IShareModalProps) {
   const [isShortenLink, setIsShortenLink] = useState(false);
   const [isCopied, setIsCopied]           = useState(false);
   const overlayRef                    = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [popoverPosition, setPopoverPosition] = useState({ top: -9999, left: -9999 });
 
   const fullUrl      = `${window.location.origin}/${username}?utm_source=clipboard&utm_medium=text`;
   const shortenedUrl = `${window.location.origin}/${username}`;
@@ -27,6 +36,51 @@ export function ShareModal({ username, onClose }: IShareModalProps) {
   function handleBackdropClick(e: React.MouseEvent) {
     if (e.target === overlayRef.current) onClose();
   }
+
+  useEffect(() => {
+    if (mode !== "popover") return;
+
+    const updatePosition = () => {
+      const anchor = anchorRef?.current;
+      const panel = panelRef.current;
+      if (!anchor || !panel) return;
+
+      const anchorRect = anchor.getBoundingClientRect();
+      const panelRect = panel.getBoundingClientRect();
+      const gap = 8;
+
+      let left = anchorRect.right - panelRect.width;
+      const minLeft = 8;
+      const maxLeft = window.innerWidth - panelRect.width - 8;
+      left = Math.max(minLeft, Math.min(maxLeft, left));
+
+      let top = anchorRect.top - panelRect.height - gap;
+      if (top < 8) {
+        top = anchorRect.bottom + gap;
+      }
+
+      setPopoverPosition({ top, left });
+    };
+
+    updatePosition();
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+
+    const handleOutsideClick = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (panelRef.current?.contains(target)) return;
+      if (anchorRef?.current?.contains(target)) return;
+      onClose();
+    };
+
+    window.addEventListener("mousedown", handleOutsideClick);
+
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+      window.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, [anchorRef, mode, onClose]);
 
   async function handleCopy() {
     try {
@@ -92,14 +146,8 @@ export function ShareModal({ username, onClose }: IShareModalProps) {
     },
   ];
 
-  return (
-    <div
-      ref={overlayRef}
-      onClick={handleBackdropClick}
-      className="fixed inset-0 z-50 flex items-start justify-center"
-      style={{ paddingTop: "clamp(80px, 15vh, 160px)" }}
-    >
-      <div className="relative bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg w-120 shadow-2xl overflow-hidden">
+  const panel = (
+    <div ref={panelRef} className="relative bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg w-120 shadow-2xl overflow-hidden">
 
         {/* Tabs */}
         <div className="flex border-b border-[#2a2a2a]">
@@ -168,7 +216,34 @@ export function ShareModal({ username, onClose }: IShareModalProps) {
             <path d="M14 1.41L12.59 0 7 5.59 1.41 0 0 1.41 5.59 7 0 12.59 1.41 14 7 8.41 12.59 14 14 12.59 8.41 7z"/>
           </svg>
         </button>
+    </div>
+  );
+
+  if (mode === "popover") {
+    return (
+      <div className="fixed inset-0 z-50 pointer-events-none">
+        <div
+          className="pointer-events-auto"
+          style={{
+            position: "fixed",
+            top: popoverPosition.top,
+            left: popoverPosition.left,
+          }}
+        >
+          {panel}
+        </div>
       </div>
+    );
+  }
+
+  return (
+    <div
+      ref={overlayRef}
+      onClick={handleBackdropClick}
+      className="fixed inset-0 z-50 flex items-start justify-center"
+      style={{ paddingTop: "clamp(80px, 15vh, 160px)" }}
+    >
+      {panel}
     </div>
   );
 }

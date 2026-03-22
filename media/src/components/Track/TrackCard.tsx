@@ -2,43 +2,32 @@
 "use client";
 
 import { useState } from "react";
-import { type ITrack } from "@/types/userProfile.types";
+import { ITrackCardProps } from "@/types/track.types";
 import { formatNumber } from "@/utils/formatNumber";
-import { timeAgo } from "@/utils/timeAgo";
 import { TrackCover } from "./TrackCover";
-import { Waveform } from "@/components/WaveForm/Waveform";
-import { HeartIcon, RepostIcon, ShareIcon, CopyIcon, MoreIcon, IconBtn } from "@/components/Icons/TrackIcons";
-
-interface ITrackCardProps {
-  track: ITrack;
-  onPlay: (track: ITrack) => void;
-}
+import { Waveform } from "@/components/Track/Waveform";
+import { HeartIcon, ShareIcon, CopyIcon, MoreIcon, IconBtn } from "@/components/Icons/TrackIcons";
+import { seededWaveform } from "@/utils/seededWaveform";
 
 export function TrackCard({ track, onPlay }: ITrackCardProps) {
-  const [isLiked, setIsLiked] = useState<boolean>(track.isLiked);
+  const [isLiked, setIsLiked] = useState<boolean>(track.isLiked ?? false);
 
   const handlePlay = () => onPlay(track);
   const handleLikeToggle = () => setIsLiked(v => !v);
 
+  const waveform = seededWaveform(Number(track.id) || 1);
+
   return (
     <div className="flex py-3.5 border-b border-[#161616]">
-      <TrackCover size={148} url={track.coverUrl} alt={track.title} accentColor="#111822"/>
+      <TrackCover size={148} url={track.albumArt} alt={track.title} accentColor="#111822"/>
 
       <div className="flex-1 min-w-0 pl-3.5">
 
         {/* Top row */}
         <div className="flex justify-between items-center mb-1">
-          <span className="text-xs text-[#888]">
-            {track.artist}
-            {track.repostedBy && (
-              <>
-                <span className="text-[#555] mx-1">↻</span>
-                <span>{track.repostedBy}</span>
-              </>
-            )}
-          </span>
+          <span className="text-xs text-[#888]">{track.artist}</span>
           <div className="flex items-center gap-2 shrink-0">
-            <span className="text-xs text-[#555]">{timeAgo(track.createdAt)}</span>
+            <span className="text-xs text-[#555]">{track.createdAt}</span>
             {track.genre && (
               <span className="text-[11px] bg-[#1c1c1c] border border-[#2e2e2e] text-[#999] rounded px-2 py-0.5">
                 # {track.genre}
@@ -60,8 +49,8 @@ export function TrackCard({ track, onPlay }: ITrackCardProps) {
               <path d="M8 5v14l11-7z"/>
             </svg>
           </div>
-          <Waveform data={track.waveform} playedPercent={track.playedPercent}/>
-          <span className="text-[11px] text-[#555] shrink-0">{track.duration}</span>
+          <Waveform data={waveform} />
+          <span className="text-[11px] text-[#555] shrink-0">{Math.floor(track.duration / 60)}:{(track.duration % 60).toString().padStart(2, '0')}</span>
         </div>
 
         {/* Action buttons */}
@@ -72,13 +61,12 @@ export function TrackCard({ track, onPlay }: ITrackCardProps) {
             active={isLiked}
             onClick={handleLikeToggle}
           />
-          <IconBtn icon={<RepostIcon/>} count={track.reposts}/>
           <IconBtn icon={<ShareIcon/>}/>
           <IconBtn icon={<CopyIcon/>}/>
           <IconBtn icon={<MoreIcon/>}/>
           <div className="ml-auto flex gap-3 text-[#444] text-xs">
             <span>▶ {formatNumber(track.plays)}</span>
-            <span>💬 {track.comments}</span>
+            <span>💬 {formatNumber(track.commentsCount ?? 0)}</span>
           </div>
         </div>
       </div>

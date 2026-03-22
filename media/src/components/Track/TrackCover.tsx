@@ -1,12 +1,6 @@
 // src/components/Track/TrackCover.tsx
 import Image from "next/image";
-
-export interface ITrackCoverProps {
-  url?: string | null;
-  size?: number;
-  accentColor?: string;
-  alt?: string;
-}
+import { ITrackCoverProps } from "@/types/track.types";
 
 export function TrackCover({ url = null, size = 130, accentColor = "#1a1a2e", alt = "cover" }: ITrackCoverProps) {
   return (

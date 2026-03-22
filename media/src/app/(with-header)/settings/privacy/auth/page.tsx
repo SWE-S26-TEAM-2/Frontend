@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Toggle from "@/components/Toggle/Toggle";
-import { getPrivacySettings, updatePrivacySettings } from "@/services/privacy.service";
+import { getPrivacySettings, updatePrivacySettings } from "@/services/di";
 import { IPrivacySettings } from "@/types/privacy.types";
 
 export default function PrivacySettings() {
@@ -17,10 +17,10 @@ export default function PrivacySettings() {
   const loadSettings = async () => {
     try {
       const data = await getPrivacySettings();
-      console.log("Loaded settings:", data);  // check
+      console.warn("Loaded settings:", data);  // check
       setSettings(data);
     } catch (error) {
-      console.error("Failed to load settings:", error);
+      console.log("Failed to load settings:", error);
     } finally {
       setIsLoading(false);
     }
@@ -28,7 +28,6 @@ export default function PrivacySettings() {
 
   const handleToggle = async (key: keyof IPrivacySettings, value: boolean) => {
     if (!settings) return;
-     console.log(`Toggling ${key} to ${value}`) // check
     
     // Update UI immediately
     const previousSettings = { ...settings };
@@ -40,7 +39,7 @@ export default function PrivacySettings() {
     } catch (error) {
       // If save fails, revert
       setSettings(previousSettings);
-      console.error("Failed to update:", error);
+      console.log("Failed to update:", error);
     }
   };
 

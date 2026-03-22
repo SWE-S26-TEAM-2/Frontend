@@ -1,13 +1,12 @@
 // src/services/api/privacy.api.ts
 
 import { IPrivacySettings } from "@/types/privacy.types";
-import { ENV } from "@/config/env";
 
 // For now, this will just log that API isn't ready
 // Later you'll replace with real API calls
 
 export const getPrivacySettingsFromAPI = async (): Promise<IPrivacySettings> => {
-  console.log("🔵 API call: getPrivacySettings");
+  console.warn("🔵 API call: getPrivacySettings");
   
   // TEMPORARY: Return empty data until backend is ready
   // Later this will be:
@@ -20,7 +19,7 @@ export const getPrivacySettingsFromAPI = async (): Promise<IPrivacySettings> => 
 export const updatePrivacySettingsOnAPI = async (
   settings: Partial<IPrivacySettings>
 ): Promise<IPrivacySettings> => {
-  console.log("🔵 API call: updatePrivacySettings", settings);
+  console.warn("🔵 API call: updatePrivacySettings", settings);
   
   // TEMPORARY: Throw error until backend is ready
   // Later this will be:

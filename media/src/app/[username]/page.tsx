@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { userProfileService } from "@/services/userProfile.service";
-import { type IUser, type ITrack, type ILikedTrack, type IFanUser, type IFollower, type IFollowing } from "@/types/userProfile.types";
+import { userProfileService } from "@/services/di";
+import { type ITrack } from "@/types/track.types";
+import { type IUser, type ILikedTrack, type IFanUser, type IFollower, type IFollowing, type ITrack as IUserProfileTrack } from "@/types/userProfile.types";
 import { Banner } from "@/components/Banner/Banner";
 import { TrackCard } from "@/components/Track/TrackCard";
 import { ProfileSidebar } from "@/components/Profile/ProfileSidebar";
@@ -12,6 +13,25 @@ import Footer from "@/components/Footer/Footer";
 
 const TABS = ["All", "Popular tracks", "Tracks", "Albums", "Playlists", "Reposts"] as const;
 type TActiveTab = typeof TABS[number];
+
+// Map userProfile.types.ITrack to track.types.ITrack
+function mapTrackData(track: IUserProfileTrack): ITrack {
+  return {
+    id: track.id.toString(),
+    title: track.title,
+    artist: track.artist,
+    albumArt: track.coverUrl || "",
+    genre: track.genre || undefined,
+    url: "", // userProfileService doesn't provide URL
+    duration: parseInt(track.duration) || 0,
+    likes: track.likes,
+    plays: track.plays,
+    commentsCount: track.comments,
+    isLiked: track.isLiked,
+    createdAt: track.createdAt,
+    updatedAt: track.createdAt, // fallback to createdAt since updatedAt not available
+  };
+}
 
 export default function UserProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = React.use(params);
@@ -38,7 +58,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
           userProfileService.getFollowing(fetchedUser.id),
         ]);
         setUser(fetchedUser);
-        setTracks(fetchedTracks);
+        setTracks(fetchedTracks.map(mapTrackData));
         setLikes(fetchedLikes);
         setFans(fetchedFans);
         setFollowers(fetchedFollowers);
@@ -62,9 +82,9 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
       case "Popular tracks":
         return [...tracks].sort((a, b) => b.plays - a.plays);
       case "Tracks":
-        return tracks.filter(t => t.repostedBy === null);
+        return tracks;
       case "Reposts":
-        return tracks.filter(t => t.repostedBy !== null);
+        return [];
       case "Albums":
       case "Playlists":
         return []; // will be populated when backend provides album/playlist data

@@ -1,5 +1,3 @@
-import React from "react";
-
 export interface ISlideData {
   id: number;
   image: string;

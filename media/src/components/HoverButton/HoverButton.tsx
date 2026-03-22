@@ -6,7 +6,7 @@ import { IHoverButtonProps } from "@/types/hover.types";
 
 
 
-const HoverButton = ({ children, style = {}, onClick }: IHoverButtonProps) => {
+const HoverButton = ({ children, style = {}, onClick, className }: IHoverButtonProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const finalStyle: React.CSSProperties = {
@@ -22,7 +22,7 @@ const HoverButton = ({ children, style = {}, onClick }: IHoverButtonProps) => {
       onMouseLeave={() => setIsHovered(false)}
       onClick={onClick}
       style={finalStyle}
-      className={className} 
+      className={className}
     >
       {children}
     </button>
