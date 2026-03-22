@@ -2,23 +2,21 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { TrackCard } from "@/components/Track/TrackCard";
 import { TrackCover } from "@/components/Track/TrackCover";
-import { type ITrack } from "@/types/userProfile.types";
+import { type ITrack } from "@/types/track.types";
 
 const sampleTrack: ITrack = {
-  id: 1,
+  id: "1",
   title: "Une vie à t'aimer",
   artist: "Lorien Testard",
-  repostedBy: "test00user",
   createdAt: new Date(Date.now() - 36 * 60 * 1000).toISOString(),
+  updatedAt: new Date().toISOString(),
   genre: "Soundtrack",
   likes: 5140,
-  reposts: 70,
   plays: 312000,
-  comments: 99,
-  duration: "11:00",
-  coverUrl: null,
-  waveform: Array(80).fill(0.5),
-  playedPercent: 0.28,
+  commentsCount: 99,
+  duration: 660,
+  albumArt: "",
+  url: "https://example.com/audio.mp3",
   isLiked: true,
 };
 
@@ -34,7 +32,7 @@ describe("TrackCard", () => {
 
   it("renders track duration", () => {
     render(<TrackCard track={sampleTrack} onPlay={onPlay}/>);
-    expect(screen.getByText(sampleTrack.duration)).toBeInTheDocument();
+    expect(screen.getByText("11:00")).toBeInTheDocument();
   });
 
   it("renders genre tag when genre is provided", () => {
@@ -43,18 +41,8 @@ describe("TrackCard", () => {
   });
 
   it("does not render genre tag when genre is null", () => {
-    render(<TrackCard track={{ ...sampleTrack, genre: null }} onPlay={onPlay}/>);
+    render(<TrackCard track={{ ...sampleTrack, genre: undefined }} onPlay={onPlay}/>);
     expect(screen.queryByText(/#/)).not.toBeInTheDocument();
-  });
-
-  it("renders repostedBy when provided", () => {
-    render(<TrackCard track={sampleTrack} onPlay={onPlay}/>);
-    expect(screen.getByText("test00user")).toBeInTheDocument();
-  });
-
-  it("does not render repost info when repostedBy is null", () => {
-    render(<TrackCard track={{ ...sampleTrack, repostedBy: null }} onPlay={onPlay}/>);
-    expect(screen.queryByText("↻")).not.toBeInTheDocument();
   });
 
   it("calls onPlay when play button div is clicked", () => {
