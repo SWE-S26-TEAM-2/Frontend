@@ -2,7 +2,7 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy dependency files
+# Copy dependency 
 COPY media/package*.json ./
 
 # Install dependencies
