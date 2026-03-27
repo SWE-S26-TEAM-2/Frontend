@@ -1,22 +1,30 @@
 ================================================================
   FRONTEND CODE REVIEW — AUTOMATED REPORT
-  Generated: 2026-03-17 12:44:54
+  Generated: 2026-03-27 07:27:21
 ================================================================
 
 ================================================================
 STEP 1 — ESLINT
 ================================================================
 
-C:\Users\MOH\Documents\GitHub\Frontend\media\coverage\lcov-report\block-navigation.js
-  1:1  warning  Unused eslint-disable directive (no problems were reported)
+C:\Users\MOH\Documents\GitHub\Frontend\media\src\services\api\settings-privacy.api.ts
+  4:10  warning  'ENV' is defined but never used  @typescript-eslint/no-unused-vars
 
-✖ 1 problem (0 errors, 1 warning)
+C:\Users\MOH\Documents\GitHub\Frontend\media\src\services\mocks\mockData.ts
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+
+✖ 2 problems (0 errors, 2 warnings)
   0 errors and 1 warning potentially fixable with the `--fix` option.
 
 RESULT: PASSED — No ESLint errors
 
 ================================================================
-STEP 2 — BUILD
+STEP 2 — TYPESCRIPT
+================================================================
+RESULT: PASSED — No TypeScript errors
+
+================================================================
+STEP 3 — BUILD
 ================================================================
 
 > media@0.1.0 build
@@ -26,246 +34,77 @@ STEP 2 — BUILD
 - Environments: .env.local, .env.production
 
   Creating an optimized production build ...
-✓ Compiled successfully in 28.0s
+✓ Compiled successfully in 7.7s
   Running TypeScript ...
   Collecting page data using 7 workers ...
-  Generating static pages using 7 workers (0/6) ...
-  Generating static pages using 7 workers (1/6) 
-  Generating static pages using 7 workers (2/6) 
-  Generating static pages using 7 workers (4/6) 
-✓ Generating static pages using 7 workers (6/6) in 1758.2ms
+  Generating static pages using 7 workers (0/14) ...
+  Generating static pages using 7 workers (3/14) 
+  Generating static pages using 7 workers (6/14) 
+  Generating static pages using 7 workers (10/14) 
+✓ Generating static pages using 7 workers (14/14) in 511.6ms
   Finalizing page optimization ...
 
 Route (app)
 ┌ ○ /
 ├ ○ /_not-found
+├ ƒ /[username]
 ├ ○ /login
-└ ○ /settings/privacy/auth
+├ ○ /settings
+├ ○ /settings/account
+├ ○ /settings/advertising
+├ ○ /settings/content
+├ ○ /settings/notifications
+├ ○ /settings/privacy
+├ ○ /settings/privacy/auth
+├ ○ /settings/two-factor
+├ ƒ /track/[id]
+└ ○ /verify-email
 
 
-○  (Static)  prerendered as static content
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
 
 RESULT: PASSED — Build successful
 
 ================================================================
-STEP 3 — TEST COVERAGE
+STEP 4 — TESTS
 ================================================================
 
 > media@0.1.0 test
-> jest --coverage
+> jest --silent
 
-------------|---------|----------|---------|---------|-------------------
-File        | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
-------------|---------|----------|---------|---------|-------------------
-All files   |     100 |      100 |     100 |     100 |                   
- Toggle.tsx |     100 |      100 |     100 |     100 |                   
-------------|---------|----------|---------|---------|-------------------
+PASS src/__tests__/TrackPage.test.tsx
+PASS src/__tests__/Landing.test.tsx
+PASS src/__tests__/SlideShow.test.tsx
+PASS src/__tests__/Toggle.test.tsx
+PASS src/__tests__/utils/formatNumber.test.ts
+PASS src/__tests__/utils/timeAgo.test.ts
+PASS src/__tests__/components/TrackCard.test.tsx
+PASS src/__tests__/Footer.test.tsx
+PASS src/__tests__/Header.test.tsx
+PASS src/__tests__/services/userProfile.service.test.ts (6.835 s)
 
-================================================================
-STEP 4 — INLINE STYLES SCAN
-Searching for style={{ in all page and component files...
-================================================================
-RESULT: REVIEW NEEDED — Inline styles found:
-src/app/(auth)/page.tsx:17:      <div style={{ backgroundColor: "#141212", minHeight: "100vh", display: "flex", justifyContent: "center" }}>
-src/app/(auth)/page.tsx:18:        <main style={{ padding: "3rem" }}>
-src/app/(auth)/page.tsx:19:          <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center" }}>
-src/app/(auth)/page.tsx:22:            <div style={{ position: "absolute", top: "20px", left: "50px", right: "65px", display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 100 }}>
-src/app/(auth)/page.tsx:23:              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-src/app/(auth)/page.tsx:25:                <h1 style={{ color: "white", fontSize: "24px", margin: 0, fontWeight: "bold" }}>Sound Cloud</h1>
-src/app/(auth)/page.tsx:27:              <div style={{ display: "flex", gap: "10px" }}>
-src/app/(auth)/page.tsx:29:                  style={{ padding: "8px 20px", backgroundColor: "#ffffff", color: "black", border: "none", borderRadius: "4px", fontWeight: "bold", cursor: "pointer", width: "100px" }}
-src/app/(auth)/page.tsx:35:                  style={{ padding: "8px 20px", backgroundColor: "black", color: "white", border: "1px solid #333", borderRadius: "4px", cursor: "pointer" }}
-src/app/(auth)/page.tsx:40:                <HoverButton style={{ backgroundColor: "transparent", color: "white", border: "none", cursor: "pointer" }}>
-src/app/(auth)/page.tsx:49:            <div style={{ marginTop: "20px", display: "flex", justifyContent: "center", alignItems: "center", gap: "15px" }}>
-src/app/(auth)/page.tsx:50:              <div style={{ position: "relative" }}>
-src/app/(auth)/page.tsx:54:                  style={{ fontSize: "16px", width: "650px", height: "45px", borderRadius: "8px", border: "none", backgroundColor: "#333", color: "#fff", padding: "0 45px 0 15px", outline: "none" }}
-src/app/(auth)/page.tsx:56:                <Image src="/searchicon.svg" alt="search" width={20} height={20} style={{ position: "absolute", right: "15px", top: "12px", opacity: 0.6 }} />
-src/app/(auth)/page.tsx:58:              <span style={{ color: "white", fontSize: "18px" }}>or</span>
-src/app/(auth)/page.tsx:59:              <HoverButton style={{ height: "45px", padding: "0 25px", backgroundColor: "white", color: "black", border: "none", borderRadius: "8px", fontWeight: "bold", fontSize: "16px", cursor: "pointer" }}>
-src/app/(auth)/page.tsx:65:            <div style={{ color: "white", display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "40px", textAlign: "center" }}>
-src/app/(auth)/page.tsx:66:              <div style={{ fontSize: "25px", marginBottom: "20px" }}>
-src/app/(auth)/page.tsx:69:              <HoverButton style={{ color: "black", backgroundColor: "white", fontSize: "18px", padding: "12px 24px", border: "none", borderRadius: "4px", cursor: "pointer" }}>
-src/app/(auth)/page.tsx:74:            <Image src="/ad.png" alt="Ad" width={1200} height={200} style={{ marginTop: "40px" }} />
-src/app/(auth)/page.tsx:77:            <div style={{ position: "relative", width: "1200px", height: "auto" }}>
-src/app/(auth)/page.tsx:78:              <Image src="/beffooter.png" alt="beffooter" width={1200} height={400} style={{ width: "100%", display: "block" }} />
-src/app/(auth)/page.tsx:79:              <div style={{ position: "absolute", top: "70px", left: "50px", width: "600px", textAlign: "left", color: "white" }}>
-src/app/(auth)/page.tsx:80:                <h2 style={{ fontSize: "36px", marginBottom: "15px" }}>Calling all creators</h2>
-src/app/(auth)/page.tsx:81:                <p style={{ fontSize: "18px", lineHeight: "1.6", marginBottom: "30px", fontWeight: "bold" }}>
-src/app/(auth)/page.tsx:84:                <HoverButton style={{ padding: "12px 24px", fontSize: "16px", backgroundColor: "white", color: "black", borderRadius: "4px", fontWeight: "bold", cursor: "pointer", marginTop: "10px" }}>
-src/app/(auth)/page.tsx:91:            <div style={{ color: "white", display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "70px", textAlign: "center" }}>
-src/app/(auth)/page.tsx:92:              <h1 style={{ fontSize: "45px" }}>Thanks for listening. Now join in.</h1>
-src/app/(auth)/page.tsx:93:              <h2 style={{ fontWeight: "bold", fontSize: "18px", marginTop: "20px" }}>
-src/app/(auth)/page.tsx:97:                style={{ marginTop: "30px", padding: "12px 40px", fontSize: "20px", backgroundColor: "white", color: "black", borderRadius: "4px", fontWeight: "bold", cursor: "pointer" }}
-src/app/(auth)/page.tsx:102:              <div style={{ display: "flex", gap: "10px", marginTop: "15px", alignItems: "center" }}>
-src/app/(auth)/page.tsx:103:                <h3 style={{ fontSize: "14px" }}>Already have an account?</h3>
-src/app/(auth)/page.tsx:105:                  style={{ backgroundColor: "transparent", color: "white", border: "none", cursor: "pointer", fontSize: "14px", fontWeight: "bold", marginTop: "-5px" }}
-src/app/(auth)/page.tsx:116:          <footer style={{ paddingTop: "50px", paddingBottom: "40px", color: "#999", fontSize: "13px", lineHeight: "2" }}>
-src/app/(auth)/page.tsx:117:            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", justifyContent: "flex-start", alignItems: "center" }}>
-src/app/(auth)/page.tsx:127:              <span style={{ marginLeft: "15px", color: "#ccc" }}>Language: <strong>English (US)</strong></span>
-src/app/(with-header)/settings/privacy/auth/page.tsx:14:      style={{
-src/app/(with-header)/settings/privacy/auth/page.tsx:24:      <h1 style={{ marginBottom: "30px" }}>Privacy settings</h1>
-src/app/(with-header)/settings/privacy/auth/page.tsx:26:      <div style={{ marginBottom: "30px" }}>
-src/app/(with-header)/settings/privacy/auth/page.tsx:28:        <p style={{ color: "#aaa", maxWidth: "600px" }}>
-src/app/(with-header)/settings/privacy/auth/page.tsx:38:      <div style={{ marginBottom: "30px" }}>
-src/app/(with-header)/settings/privacy/auth/page.tsx:40:        <p style={{ color: "#aaa", maxWidth: "600px" }}>
-src/app/(with-header)/settings/privacy/auth/page.tsx:50:      <div style={{ marginBottom: "30px" }}>
-src/app/(with-header)/settings/privacy/auth/page.tsx:52:        <p style={{ color: "#aaa" }}>
-src/app/(with-header)/settings/privacy/auth/page.tsx:61:      <div style={{ marginBottom: "40px" }}>
-src/app/(with-header)/settings/privacy/auth/page.tsx:63:        <p style={{ color: "#aaa" }}>
-src/app/(with-header)/settings/privacy/auth/page.tsx:72:      <h2 style={{ marginTop: "50px" }}>Blocked users</h2>
-src/app/(with-header)/settings/privacy/auth/page.tsx:73:      <p style={{ color: "#aaa" }}>You have not muted any users.</p>
-src/app/(with-header)/settings/privacy/auth/page.tsx:75:      <h2 style={{ marginTop: "50px" }}>Cookies</h2>
-src/app/(with-header)/settings/privacy/auth/page.tsx:77:        style={{
-src/components/Footer/Footer.tsx:108:      <footer style={{
-src/components/Footer/Footer.tsx:121:        <div style={{ display: "flex", alignItems: "center", gap: "8px", flex: 1, minWidth: 0 }}>
-src/components/Footer/Footer.tsx:129:            style={{
-src/components/Footer/Footer.tsx:140:            <span style={{ display: "flex", alignItems: "center", justifyContent: "center", marginLeft: isPlaying ? "0" : "2px" }}>
-src/components/Footer/Footer.tsx:150:          <button style={{ ...ICON_BTN, color: shuffle ? "#FF5500" : "rgba(255,255,255,0.8)" }}
-src/components/Footer/Footer.tsx:156:          <button style={{ ...ICON_BTN, color: repeat ? "#FF5500" : "rgba(255,255,255,0.8)" }}
-src/components/Footer/Footer.tsx:163:          <span style={{ color: "rgba(200,200,200)", fontSize: "11px", flexShrink: 0, minWidth: "28px", textAlign: "right" }}>
-src/components/Footer/Footer.tsx:167:          <div ref={progressRef} onClick={handleSeek} style={{
-src/components/Footer/Footer.tsx:171:            <div style={{
-src/components/Footer/Footer.tsx:178:          <span style={{ color: "rgba(200,200,200)", fontSize: "11px", flexShrink: 0, minWidth: "28px" }}>
-src/components/Footer/Footer.tsx:186:            style={{ display: "flex", alignItems: "center", gap: "4px", flexShrink: 0 }}
-src/components/Footer/Footer.tsx:199:            <div style={{
-src/components/Footer/Footer.tsx:212:                style={{ width: "70px", accentColor: "#FF5500", cursor: "pointer" }}
-src/components/Footer/Footer.tsx:220:          <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
-src/components/Footer/Footer.tsx:224:              style={{ borderRadius: "2px", objectFit: "cover", flexShrink: 0 }}
-src/components/Footer/Footer.tsx:226:            <div style={{ overflow: "hidden", maxWidth: "160px" }}>
-src/components/Footer/Footer.tsx:227:              <div style={{ color: "#fff", fontSize: "12px", fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-src/components/Footer/Footer.tsx:230:              <div style={{ color: "rgba(200,200,200)", fontSize: "11px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-src/components/Footer/Footer.tsx:235:            <div style={{ width: "1px", height: "20px", background: "rgba(80,80,80)", flexShrink: 0 }} />
-src/components/Footer/Footer.tsx:237:            <button style={{ ...ICON_BTN , color: liked ? "#FF5500" : "rgba(255,255,255,0.8)" }}
-src/components/Header/Header.tsx:162:  { icon: <span style={{ width: 15, height: 15, borderRadius: "50%", background: "#FF5500", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#fff", fontWeight: 700 }}>★</span>, label: "Try Artist Pro", href: "/artist-pro", orange: true },
-src/components/Header/Header.tsx:213:      style={{
-src/components/Header/Header.tsx:229:            <div style={{ height: "1px", background: "rgba(80, 80, 80)", margin: "0" }} />
-src/components/Header/Header.tsx:234:            style={{
-src/components/Header/Header.tsx:248:            <span style={{ color: item.orange ? "#f50" : "#aaa", display: "flex", alignItems: "center" }}>
-src/components/Header/Header.tsx:288:      style={{
-src/components/Header/Header.tsx:302:      <div style={{ display: "flex", alignItems: "center", gap: "4px", width: "100%", maxWidth: "1280px" }}>
-src/components/Header/Header.tsx:305:        <Link href="/" style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none", flexShrink: 0, marginRight: "4px" }}>
-src/components/Header/Header.tsx:307:          <span style={{ color: "white", fontSize: "16px", fontWeight: 700, letterSpacing: "-0.3px" }}>
-src/components/Header/Header.tsx:313:        <nav style={{ display: "flex", alignItems: "stretch", height: "48px", flexShrink: 0 }}>
-src/components/Header/Header.tsx:321:                style={{
-src/components/Header/Header.tsx:341:        <div style={{ position: "relative", display: "flex", alignItems: "center", flexShrink: 0 }}>
-src/components/Header/Header.tsx:342:          <span style={{ position: "absolute", left: "10px", color: "#777", display: "flex", alignItems: "center", pointerEvents: "none" }}>
-src/components/Header/Header.tsx:350:            style={{
-src/components/Header/Header.tsx:369:        <div style={{ flex: 1 }} />
-src/components/Header/Header.tsx:372:        <Link href="/artist-pro" style={{ color: "#f50", fontSize: "14px", fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap", padding: "0 6px", flexShrink: 0 }}>
-src/components/Header/Header.tsx:378:          style={{ color: "#ccc", fontSize: "14px", textDecoration: "none", whiteSpace: "nowrap", padding: "0 6px", flexShrink: 0 }}
-src/components/Header/Header.tsx:387:          style={{ color: "#ccc", fontSize: "14px", textDecoration: "none", whiteSpace: "nowrap", padding: "0 6px", flexShrink: 0 }}
-src/components/Header/Header.tsx:395:        <div style={{ width: "1px", height: "20px", background: "rgba(80, 80, 80)", margin: "0 4px", flexShrink: 0 }} />
-src/components/Header/Header.tsx:400:            <div ref={avatarRef} style={{ position: "relative", flexShrink: 0 }}>
-src/components/Header/Header.tsx:403:                style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", padding: "0 4px" }}
-src/components/Header/Header.tsx:405:                <Image src={avatarUrl} alt="User avatar" width={28} height={28} style={{ borderRadius: "50%", objectFit: "cover" }} />
-src/components/Header/Header.tsx:406:                <span style={{ color: "#888" }}><ChevronDown /></span>
-src/components/Header/Header.tsx:428:            <div ref={dotsRef} style={{ position: "relative", flexShrink: 0 }}>
-src/components/Header/Header.tsx:431:                style={{ ...iconBtnStyle }}
-src/components/LoginModal/LoginModal.tsx:12:      style={{
-src/components/LoginModal/LoginModal.tsx:25:        style={{
-src/components/LoginModal/LoginModal.tsx:36:          style={{
-src/components/LoginModal/LoginModal.tsx:50:        <h1 style={{ color: "#ffffff", fontSize: "24px", fontWeight: "700", marginBottom: "16px" }}>
-src/components/LoginModal/LoginModal.tsx:53:        <p style={{ color: "#999999", fontSize: "14px", lineHeight: "1.5", marginBottom: "32px" }}>
-src/components/LoginModal/LoginModal.tsx:57:        <button style={{
-src/components/LoginModal/LoginModal.tsx:72:        <button style={{
-src/components/LoginModal/LoginModal.tsx:87:        <button style={{
-src/components/LoginModal/LoginModal.tsx:102:        <p style={{ color: "#ffffff", fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>
-src/components/LoginModal/LoginModal.tsx:109:          style={{
-src/components/LoginModal/LoginModal.tsx:122:        <button style={{
-src/components/LoginModal/LoginModal.tsx:137:        <a style={{ color: "#f50", fontSize: "14px", cursor: "pointer" }}>
-src/components/SlideShow/SlideShow.tsx:51:    <div style={{ width: "1200px", margin: "0 auto" }}>
-src/components/SlideShow/SlideShow.tsx:80:                style={{ ...artistNameStyle, textDecoration: isHovered1 ? "underline" : "none" }}
-src/components/SlideShow/SlideShow.tsx:115:                style={{ ...artistNameStyle, textDecoration: isHovered2 ? "underline" : "none" }}
-src/components/SlideShow/SlideShow.tsx:150:                style={{ ...artistNameStyle, textDecoration: isHovered3 ? "underline" : "none" }}
-src/components/Toggle/Toggle.tsx:11:    style={{
-src/components/Toggle/Toggle.tsx:22:      style={{
+Test Suites: 10 passed, 10 total
+Tests:       130 passed, 130 total
+Snapshots:   0 total
+Time:        10.351 s
+RESULT: PASSED — Tests successful
 
 ================================================================
-STEP 5 — FOLDER STRUCTURE
-All source files found:
+STEP 5 — CONSOLE.LOG CHECK
 ================================================================
-src/__tests__/Footer.test.tsx
-src/__tests__/Header.test.tsx
-src/__tests__/Toggle.test.tsx
-src/app/(auth)/layout.tsx
-src/app/(auth)/login/page.tsx
-src/app/(auth)/page.tsx
-src/app/(with-header)/layout.tsx
-src/app/(with-header)/settings/privacy/auth/page.tsx
-src/app/layout.tsx
-src/components/Footer/Footer.tsx
-src/components/Header/Header.tsx
-src/components/HoverButton/HoverButton.tsx
-src/components/Icons/PlayerIcons.tsx
-src/components/LoginModal/LoginModal.tsx
-src/components/SlideShow/SlideShow.tsx
-src/components/Toggle/Toggle.tsx
-src/config/env.ts
-src/services/api/auth.api.ts
-src/services/api/track.api.ts
-src/services/api/trackService.ts
-src/services/di.ts
-src/services/index.ts
-src/services/mocks/auth.mock.ts
-src/services/mocks/mockData.ts
-src/services/mocks/trackService.ts
-src/store/authStore.ts
-src/store/playerStore.ts
-src/types/api.types.ts
-src/types/auth.types.ts
-src/types/track.types.ts
+RESULT: PASSED — No console.log found
 
 ================================================================
-STEP 6 — MOCK / REAL CONFIG FLAG
-Searching for mock/config flag usage...
+STEP 6 — BRANCH NAME
 ================================================================
-src/config/env.ts:1:export const ENV = {
-src/config/env.ts:2:  USE_MOCK_API: process.env.NEXT_PUBLIC_USE_MOCK_API === "true",
-src/config/env.ts:3:  API_BASE_URL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api",
-src/services/api/auth.api.ts:2:import { ENV } from "../../config/env";
-src/services/api/auth.api.ts:17:    const response = await fetch(`${ENV.API_BASE_URL}/auth/login`, {
-src/services/api/auth.api.ts:39:    const response = await fetch(`${ENV.API_BASE_URL}/auth/logout`, {
-src/services/api/auth.api.ts:59:    const response = await fetch(`${ENV.API_BASE_URL}/auth/me`, {
-src/services/api/auth.api.ts:79:    const response = await fetch(`${ENV.API_BASE_URL}/auth/refresh`, {
-src/services/api/track.api.ts:2:import { ENV } from "../../config/env";
-src/services/api/track.api.ts:14:    const response = await fetch(`${ENV.API_BASE_URL}/tracks`, {
-src/services/api/track.api.ts:37:      `${ENV.API_BASE_URL}/tracks?page=${page}&pageSize=${pageSize}`,
-src/services/api/track.api.ts:57:    const response = await fetch(`${ENV.API_BASE_URL}/tracks/${id}`, {
-src/services/api/track.api.ts:77:      `${ENV.API_BASE_URL}/tracks?genre=${encodeURIComponent(genre)}`,
-src/services/api/track.api.ts:99:      `${ENV.API_BASE_URL}/tracks/search?q=${encodeURIComponent(query)}`,
-src/services/api/track.api.ts:121:      `${ENV.API_BASE_URL}/tracks/trending?limit=${limit}`,
-src/services/api/track.api.ts:142:    const response = await fetch(`${ENV.API_BASE_URL}/tracks/${trackId}/like`, {
-src/services/api/track.api.ts:161:    const response = await fetch(`${ENV.API_BASE_URL}/tracks/${trackId}/unlike`, {
-src/services/api/trackService.ts:2:import { ENV } from "../../config/env";
-src/services/api/trackService.ts:13:    const response = await fetch(`${ENV.API_BASE_URL}/tracks`, {
-src/services/api/trackService.ts:36:      `${ENV.API_BASE_URL}/tracks?page=${page}&pageSize=${pageSize}`,
-src/services/api/trackService.ts:56:    const response = await fetch(`${ENV.API_BASE_URL}/tracks/${id}`, {
-src/services/api/trackService.ts:76:      `${ENV.API_BASE_URL}/tracks?genre=${encodeURIComponent(genre)}`,
-src/services/api/trackService.ts:98:      `${ENV.API_BASE_URL}/tracks/search?q=${encodeURIComponent(query)}`,
-src/services/api/trackService.ts:120:      `${ENV.API_BASE_URL}/tracks/trending?limit=${limit}`,
-src/services/api/trackService.ts:141:    const response = await fetch(`${ENV.API_BASE_URL}/tracks/${trackId}/like`, {
-src/services/api/trackService.ts:160:    const response = await fetch(`${ENV.API_BASE_URL}/tracks/${trackId}/unlike`, {
-src/services/di.ts:3: * Handles switching between mock and real services based on ENV.USE_MOCK_API
-src/services/di.ts:6:import { ENV } from "../config/env";
-src/services/di.ts:14: * Automatically switches between mock and real based on USE_MOCK_API flag
-src/services/di.ts:16:export const AuthService = ENV.USE_MOCK_API ? MockAuthService : RealAuthService;
-src/services/di.ts:20: * Automatically switches between mock and real based on USE_MOCK_API flag
-src/services/di.ts:22:export const trackService = ENV.USE_MOCK_API ? mockTrackService : realTrackService;
-src/services/di.ts:29:  isMocked: ENV.USE_MOCK_API,
-src/services/di.ts:30:  apiBaseUrl: ENV.API_BASE_URL,
-src/services/di.ts:31:  mode: ENV.USE_MOCK_API ? "MOCK" : "REAL",
+RESULT: PASSED — Branch name valid (feature/fe-login-page)
 
 ================================================================
-STEP 7 — TYPE IMPORTS CHECK
-Checking if types are imported from service files instead of src/types/...
+STEP 7 — COMMIT MESSAGE
 ================================================================
-RESULT: PASSED — No types imported from service files in pages
+RESULT: PASSED — Commit message valid
 
 ================================================================
-END OF AUTOMATED REVIEW
-Remaining manual checks:
-  - Responsive design (375px / 768px / 1280px) — open browser
-  - GitHub branch naming and commit messages — check on GitHub
-  - PR merged by sub-team leader — check on GitHub
-  - Test assertion quality — read test files manually
+✅ FINAL RESULT: ALL CHECKS PASSED
 ================================================================
