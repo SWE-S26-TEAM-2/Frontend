@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ITrack } from "@/types/track.types";
 
 // settings/privacy
@@ -84,32 +85,15 @@ export const MOCK_PRIVACY_SETTINGS: IPrivacySettings = {
   showTrackFans: true,
   blockedUsers: [],
 };
-
-// settings/account
-export const MOCK_ACCOUNT_SETTINGS: IAccountSettings = {
-  theme: "dark",
-  emails: [
-<<<<<<< Updated upstream
     { address: "user@example.com", isPrimary: true },
   ],
   linkedAccounts: {
     facebook: false,
     google: false,
-=======
-    {
-      address: "user@example.com",
-      isPrimary: true,
-    },
-  ],
-  linkedAccounts: {
-    facebook: false,
-    google: true,
->>>>>>> Stashed changes
     apple: false,
   },
 };
 
-<<<<<<< Updated upstream
 // settings/notification
 export const MOCK_NOTIFICATION_SETTINGS: INotificationSettings = {
   activities: [
@@ -126,45 +110,11 @@ export const MOCK_NOTIFICATION_SETTINGS: INotificationSettings = {
     { name: "Surveys and feedback", email: true, devices: true },
     { name: "Promotional & Partnership Content", email: true, devices: true },
     { name: "SoundCloud newsletter", email: true, devices: false },
-=======
-// settings/advertising
-export const MOCK_ADVERTISING_SETTINGS: IAdvertisingSettings = {
-  partnersListUrl: "https://example.com/partners",
-  language: "en",
-};
-
-// settings/notification
-export const MOCK_NOTIFICATION_SETTINGS: INotificationSettings = {
-  activities: [
-    {
-      name: "Comments on your tracks",
-      email: true,
-      devices: "Everyone",
-    },
-    {
-      name: "Likes on your tracks",
-      email: false,
-      devices: "Following",
-    },
-  ],
-  soundcloudUpdates: [
-    {
-      name: "New tracks from artists you follow",
-      email: true,
-      devices: "Everyone",
-    },
-    {
-      name: "New features and updates",
-      email: false,
-      devices: "No one",
-    },
->>>>>>> Stashed changes
   ],
 };
 
 // settings/content
 export const MOCK_CONTENT_SETTINGS: IContentSettings = {
-<<<<<<< Updated upstream
   rssUrl: "https://feeds.soundcloud.com/users/soundcloud:users:1676128205/sounds.rss",
   emailDisplay: "don't display",
   customFeedTitle: "",
@@ -184,21 +134,6 @@ export const MOCK_ADVERTISING_SETTINGS: IAdvertisingSettings = {
   language: "English (US)",
 };
 
-=======
-  rssUrl: "https://example.com/rss",
-  emailDisplay: "display",
-  customFeedTitle: "My Feed",
-  category: "Music",
-  statsServiceUrl: "https://example.com/stats",
-  customAuthorName: "My Author",
-  language: "en",
-  subscriberRedirect: "https://example.com/redirect",
-  explicitContent: true,
-  includeInRSS: true,
-  creativeCommons: false,
-};
-
->>>>>>> Stashed changes
 // settings/two-factor
 export const MOCK_TWO_FACTOR_SETTINGS: ITwoFactorSettings = {
   isEnabled: false,
