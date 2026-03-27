@@ -15,7 +15,7 @@ export default function ContentSettings() {
   const loadSettings = async () => {
     try {
       const data = await contentService.getSettings();
-      //console.log("Loaded content settings:", data); // check
+      //console.error("Loaded content settings:", data); // check
       setSettings(data);
     } catch (error) {
       console.error("Failed to load content settings:", error);
@@ -26,7 +26,7 @@ export default function ContentSettings() {
 
   const handleChange = async (key: keyof IContentSettings, value: string | boolean) => {
     if (!settings) return;
-    //console.log(`Updating ${key} to:`, value); // check
+    //console.error(`Updating ${key} to:`, value); // check
 
     const previousSettings = { ...settings };
     setSettings({ ...settings, [key]: value });

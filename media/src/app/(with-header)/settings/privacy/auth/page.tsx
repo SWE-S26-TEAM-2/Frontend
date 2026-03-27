@@ -20,7 +20,7 @@ export default function PrivacySettings() {
       console.warn("Loaded settings:", data);  // check
       setSettings(data);
     } catch (error) {
-      console.log("Failed to load settings:", error);
+      console.error("Failed to load settings:", error);
     } finally {
       setIsLoading(false);
     }
@@ -39,7 +39,7 @@ export default function PrivacySettings() {
     } catch (error) {
       // If save fails, revert
       setSettings(previousSettings);
-      console.log("Failed to update:", error);
+      console.error("Failed to update:", error);
     }
   };
 

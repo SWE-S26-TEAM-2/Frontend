@@ -15,7 +15,7 @@ export default function TwoFactorSettings() {
   const loadSettings = async () => {
     try {
       const data = await twoFactorService.getSettings();
-      // console.log("Loaded 2FA settings:", data); // check
+      // console.error("Loaded 2FA settings:", data); // check
       setSettings(data);
     } catch (error) {
       console.error("Failed to load 2FA settings:", error);
@@ -26,7 +26,7 @@ export default function TwoFactorSettings() {
 
   const handleEnable = async () => {
     if (!settings) return;
-    //console.log("Toggling 2FA to:", !settings.isEnabled); // check
+    //console.error("Toggling 2FA to:", !settings.isEnabled); // check
 
     const previousSettings = { ...settings };
     setSettings({ ...settings, isEnabled: !settings.isEnabled });

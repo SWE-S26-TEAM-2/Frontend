@@ -5,6 +5,120 @@ interface ILoginModalProps {
 }
 
 export default function LoginModal({ onClose }: ILoginModalProps) {
+<<<<<<< Updated upstream
+=======
+  
+  const [emailOrProfileUrl, setEmailOrProfileUrl] = useState("");
+  const [error, setError] = useState("");
+  const [step, setStep] = useState<"main" | "input" | "register" | "signin">("main");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const[captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const router = useRouter();
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmailOrProfileUrl(e.target.value);
+  };
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess:async (response)=> {
+      //console.error(response.access_token);
+      try{
+      setIsLoading(true);
+      await AuthService.googleLogin(response.access_token);
+      setIsSuccess(true);
+      
+      }catch{
+        setError("Google login failed. Please try again.");
+      }finally{
+        setIsLoading(false);
+      }
+    },
+    onError: () =>{
+      setError("Google login failed. Please try again.");
+    }
+  })
+  const handleSubmit = async () => {
+    if(step === "input" || step === "main"){
+    if (!emailOrProfileUrl) {
+      setError("Please enter your email address.");
+      return;
+    }
+    const isEmail = /\S+@\S+\.\S+/.test(emailOrProfileUrl);
+    const isProfileUrl = emailOrProfileUrl.startsWith("soundcloud.com/");
+
+    if (!isEmail && !isProfileUrl) {
+    setError("Please enter a valid email address or profile URL.");
+    return;
+    }
+
+    setError("");
+    try {
+      setIsLoading(true);
+      //console.error("checking email:", emailOrProfileUrl);
+      const { isExisting } = await AuthService.checkEmail(emailOrProfileUrl);
+      //console.error("isExisting:", isExisting);
+    if (isExisting) {
+    setStep("signin");
+    } else {
+    setStep("register");
+    }
+    } catch {
+    setError("Something went wrong. Please try again.");
+    } finally {
+    setIsLoading(false);
+    }
+  }
+  if (step === "register" || step === "signin") {
+    if (!password) {
+      setError("Please enter your password.");
+      return;
+    }
+    if (step === "register" && password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+    if (step === "register" && !captchaToken) {
+      setError("Please verify you are a human.");
+      return;
+    }
+    if (step === "signin" && password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+    setError("");
+    try {
+      setIsLoading(true);
+      if (step === "register") {
+        await AuthService.register(emailOrProfileUrl, password);
+        router.push("/verify-email");
+        //console.error("registered:", response);
+      } else {
+        await AuthService.login(emailOrProfileUrl, password);
+        setIsSuccess(true);
+       // console.error("logged in:", response);
+      }
+      
+    } catch {
+      setError("Incorrect password. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+
+    //console.error("submitting:", email, password);
+  }
+  };
+  const handleEmailFocus = () => {
+    setStep("input");
+  };
+  
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+  };
+
+
+>>>>>>> Stashed changes
   return (
     // Overlay — dark background behind modal
     <div

@@ -15,7 +15,7 @@ export default function NotificationsSettings() {
   const loadSettings = async () => {
     try {
       const data = await notificationService.getSettings();
-      //console.log("Loaded notification settings:", data); // check
+      //console.error("Loaded notification settings:", data); // check
       setSettings(data);
     } catch (error) {
       console.error("Failed to load notification settings:", error);
@@ -30,7 +30,7 @@ export default function NotificationsSettings() {
     value: IDevicesValue
   ) => {
     if (!settings) return;
-    //console.log(`Updating activity ${index} ${field} to:`, value); // check
+    //console.error(`Updating activity ${index} ${field} to:`, value); // check
 
     const previousSettings = { ...settings };
     const updatedActivities = settings.activities.map((row, i) =>
@@ -52,7 +52,7 @@ export default function NotificationsSettings() {
     value: IDevicesValue
   ) => {
     if (!settings) return;
-    //console.log(`Updating soundcloudUpdate ${index} ${field} to:`, value); // check
+    //console.error(`Updating soundcloudUpdate ${index} ${field} to:`, value); // check
 
     const previousSettings = { ...settings };
     const updatedSoundcloudUpdates = settings.soundcloudUpdates.map((row, i) =>
