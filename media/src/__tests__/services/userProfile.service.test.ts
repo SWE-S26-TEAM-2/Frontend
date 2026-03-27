@@ -53,28 +53,29 @@ describe("mockUserProfileService", () => {
       expect(track).toHaveProperty("id");
       expect(track).toHaveProperty("title");
       expect(track).toHaveProperty("artist");
+      expect(track).toHaveProperty("albumArt");
+      expect(track).toHaveProperty("url");
       expect(track).toHaveProperty("duration");
-      expect(track).toHaveProperty("waveform");
-      expect(track).toHaveProperty("playedPercent");
+      expect(track).toHaveProperty("likes");
+      expect(track).toHaveProperty("plays");
+      expect(track).toHaveProperty("commentsCount");
       expect(track).toHaveProperty("isLiked");
       expect(track).toHaveProperty("createdAt");
+      expect(track).toHaveProperty("updatedAt");
     });
 
-    it("waveform values are between 0 and 1", async () => {
+    it("duration is a non-negative number", async () => {
       const tracks = await mockUserProfileService.getUserTracks("testartist");
       tracks.forEach(track => {
-        track.waveform.forEach(v => {
-          expect(v).toBeGreaterThanOrEqual(0);
-          expect(v).toBeLessThanOrEqual(1);
-        });
+        expect(typeof track.duration).toBe("number");
+        expect(track.duration).toBeGreaterThanOrEqual(0);
       });
     });
 
-    it("playedPercent is between 0 and 1", async () => {
+    it("id is normalized as a string", async () => {
       const tracks = await mockUserProfileService.getUserTracks("testartist");
       tracks.forEach(track => {
-        expect(track.playedPercent).toBeGreaterThanOrEqual(0);
-        expect(track.playedPercent).toBeLessThanOrEqual(1);
+        expect(typeof track.id).toBe("string");
       });
     });
   });

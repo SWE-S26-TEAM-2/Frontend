@@ -85,6 +85,11 @@ export const MOCK_PRIVACY_SETTINGS: IPrivacySettings = {
   showTrackFans: true,
   blockedUsers: [],
 };
+
+// settings/account
+export const MOCK_ACCOUNT_SETTINGS: IAccountSettings = {
+  theme: "dark",
+  emails: [
     { address: "user@example.com", isPrimary: true },
   ],
   linkedAccounts: {
@@ -97,19 +102,19 @@ export const MOCK_PRIVACY_SETTINGS: IPrivacySettings = {
 // settings/notification
 export const MOCK_NOTIFICATION_SETTINGS: INotificationSettings = {
   activities: [
-    { name: "New follower", email: false, devices: true },
-    { name: "Repost of your post", email: true, devices: true },
-    { name: "New post by followed user", email: true, devices: true },
-    { name: "Likes and plays on your post", email: false, devices: true },
-    { name: "Comment on your post", email: false, devices: true },
-    { name: "Recommended Content", email: true, devices: true },
+    { name: "New follower", email: false, devices: "Everyone" },
+    { name: "Repost of your post", email: true, devices: "Everyone" },
+    { name: "New post by followed user", email: true, devices: "Everyone" },
+    { name: "Likes and plays on your post", email: false, devices: "Everyone" },
+    { name: "Comment on your post", email: false, devices: "Everyone" },
+    { name: "Recommended Content", email: true, devices: "Everyone" },
     { name: "New message", email: true, devices: "Everyone" },
   ],
   soundcloudUpdates: [
-    { name: "SoundCloud Feature Updates & Education", email: true, devices: true },
-    { name: "Surveys and feedback", email: true, devices: true },
-    { name: "Promotional & Partnership Content", email: true, devices: true },
-    { name: "SoundCloud newsletter", email: true, devices: false },
+    { name: "SoundCloud Feature Updates & Education", email: true, devices: "Everyone" },
+    { name: "Surveys and feedback", email: true, devices: "Everyone" },
+    { name: "Promotional & Partnership Content", email: true, devices: "Everyone" },
+    { name: "SoundCloud newsletter", email: true, devices: "No one" },
   ],
 };
 

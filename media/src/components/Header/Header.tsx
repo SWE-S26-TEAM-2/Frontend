@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import type { IMenuItem } from "@/types/ui.types";
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -18,17 +19,20 @@ const BellIcon = () => (
 );
 const MailIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" />
-  </svg>
-);
-const DotsIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-    <circle cx="5" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" />
+    <rect x="3" y="5" width="18" height="14" rx="2" ry="2" />
+    <polyline points="3 7 12 13 21 7" />
   </svg>
 );
 const ChevronDown = () => (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="6 9 12 15 18 9" />
+  </svg>
+);
+const DotsIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+    <circle cx="5" cy="12" r="2" />
+    <circle cx="12" cy="12" r="2" />
+    <circle cx="19" cy="12" r="2" />
   </svg>
 );
 const SoundCloudLogo = () => (
@@ -139,14 +143,6 @@ const SignOutIcon = () => (
 );
 
 // ── Data ──────────────────────────────────────────────────────────────────────
-
-type IMenuItem = {
-  icon: React.ReactNode;
-  label: string;
-  href: string;
-  orange?: boolean;
-  dividerBefore?: boolean;
-};
 
 const NAV_ITEMS = [
   { label: "Home",    href: "/" },

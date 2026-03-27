@@ -1,11 +1,7 @@
 // src/app/[username]/components/ProfileStats.tsx
 
-import { type IUser } from "@/types/userProfile.types";
+import type { IProfileStatsProps } from "@/types/ui.types";
 import { formatNumber } from "@/utils/formatNumber";
-
-interface IProfileStatsProps {
-  user: IUser;
-}
 
 export function ProfileStats({ user }: IProfileStatsProps) {
   return (

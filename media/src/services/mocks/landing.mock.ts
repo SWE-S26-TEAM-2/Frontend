@@ -1,4 +1,4 @@
-import { ISlideData, ITrack, ILandingData } from "@/types/landing.types";
+import { ISlideData, ILandingTrack, ILandingData } from "@/types/landing.types";
 
 export const LANDING_DATA: ILandingData = {
   trendingTagline: "Hear what's trending for free in the SoundCloud community",
@@ -10,7 +10,7 @@ export const LANDING_DATA: ILandingData = {
   footerLinks: ["Directory", "About us", "Jobs", "Press", "Blog", "Legal", "Privacy", "Cookies", "Charts"]
 };
 
-export const MOCK_TRACKS: ITrack[] = [
+export const MOCK_TRACKS: ILandingTrack[] = [
   { id: 1, title: "7AM ON BRIDLE PATH", artist: "Drake" },
   { id: 2, title: "MONTERO", artist: "Lil Nas X" },
   { id: 3, title: "SICKO MODE", artist: "Travis Scott" }

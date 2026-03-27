@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { userProfileService } from "@/services/di";
 import { type ITrack } from "@/types/track.types";
-import { type IUser, type ILikedTrack, type IFanUser, type IFollower, type IFollowing, type ITrack as IUserProfileTrack } from "@/types/userProfile.types";
+import { type IUser, type ILikedTrack, type IFanUser, type IFollower, type IFollowing } from "@/types/userProfile.types";
+import type { IActiveTab } from "@/types/ui.types";
 import { Banner } from "@/components/Banner/Banner";
 import { TrackCard } from "@/components/Track/TrackCard";
 import { ProfileSidebar } from "@/components/Profile/ProfileSidebar";
@@ -12,30 +13,10 @@ import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
 
 const TABS = ["All", "Popular tracks", "Tracks", "Albums", "Playlists", "Reposts"] as const;
-type TActiveTab = typeof TABS[number];
-
-// Map userProfile.types.ITrack to track.types.ITrack
-function mapTrackData(track: IUserProfileTrack): ITrack {
-  return {
-    id: track.id.toString(),
-    title: track.title,
-    artist: track.artist,
-    albumArt: track.coverUrl || "",
-    genre: track.genre || undefined,
-    url: "", // userProfileService doesn't provide URL
-    duration: parseInt(track.duration) || 0,
-    likes: track.likes,
-    plays: track.plays,
-    commentsCount: track.comments,
-    isLiked: track.isLiked,
-    createdAt: track.createdAt,
-    updatedAt: track.createdAt, // fallback to createdAt since updatedAt not available
-  };
-}
 
 export default function UserProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = React.use(params);
-  const [activeTab, setActiveTab] = useState<TActiveTab>(TABS[0]);
+  const [activeTab, setActiveTab] = useState<IActiveTab>(TABS[0]);
   const [user, setUser]           = useState<IUser | null>(null);
   const [tracks, setTracks]       = useState<ITrack[]>([]);
   const [likes, setLikes]         = useState<ILikedTrack[]>([]);
@@ -58,7 +39,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
           userProfileService.getFollowing(fetchedUser.id),
         ]);
         setUser(fetchedUser);
-        setTracks(fetchedTracks.map(mapTrackData));
+        setTracks(fetchedTracks);
         setLikes(fetchedLikes);
         setFans(fetchedFans);
         setFollowers(fetchedFollowers);
@@ -72,10 +53,10 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
     loadData();
   }, [username]);
 
-  const handleTabChange = (tab: TActiveTab) => setActiveTab(tab);
+  const handleTabChange = (tab: IActiveTab) => setActiveTab(tab);
 
   // ── Tab filtering logic ──
-  function getFilteredTracks(tab: TActiveTab): ITrack[] {
+  function getFilteredTracks(tab: IActiveTab): ITrack[] {
     switch (tab) {
       case "All":
         return tracks;

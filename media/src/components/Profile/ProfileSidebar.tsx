@@ -1,17 +1,9 @@
 // src/app/[username]/components/ProfileSidebar.tsx
 
-import { type IUser, type ILikedTrack, type IFanUser, type IFollower, type IFollowing } from "@/types/userProfile.types";
+import type { IProfileSidebarProps } from "@/types/ui.types";
 import { formatNumber } from "@/utils/formatNumber";
 import { TrackCover } from "@/components/Track/TrackCover";
 import { ProfileStats } from "./ProfileStats";
-
-interface IProfileSidebarProps {
-  user: IUser;
-  likes: ILikedTrack[];
-  fans: IFanUser[];
-  followers: IFollower[];
-  following: IFollowing[];
-}
 
 const WebIcon = () => (
   <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>

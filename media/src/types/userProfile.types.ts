@@ -1,6 +1,8 @@
 // src/types/userProfile.types.ts
 // ─────────────────────────────────────────────────────────────
 
+import type { ITrack } from "@/types/track.types";
+
 export interface IUser {
   id: string;
   username: string;
@@ -24,7 +26,7 @@ export interface IUser {
   isOwner: boolean;
 }
 
-export interface ITrack {
+export interface IUserProfileTrack {
   id: number;
   title: string;
   artist: string;
@@ -86,13 +88,6 @@ export interface IUserProfileService {
   getFollowing(userId: string): Promise<IFollowing[]>;
 }
 
-export interface IFanUser {
-  id: string;
-  username: string;
-  avatarUrl: string | null;
-  followers: number;
-  tracks: number;
-}
 
 export interface IFollower {
   id: string;

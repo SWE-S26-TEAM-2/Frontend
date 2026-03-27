@@ -4,12 +4,9 @@ import { notFound } from "next/navigation";
 import TrackPlayer from "@/components/Track/TrackPlayer";
 import TrackActions from "@/components/Track/TrackActions";
 import RelatedTracks from "@/components/Track/RelatedTracks";
+import type { ITrackPageProps } from "@/types/ui.types";
 
-interface IPageProps {
-  params: Promise<{ id: string }>;
-}
-
-export default async function TrackPage({ params }: IPageProps) {
+export default async function TrackPage({ params }: ITrackPageProps) {
   const { id } = await params;
 
   let track;

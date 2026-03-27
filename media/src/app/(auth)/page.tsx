@@ -8,7 +8,8 @@ import LoginModal from "@/components/LoginModal/LoginModal";
 import HoverButton from "@/components/HoverButton/HoverButton";
 
 import { LandingApiService } from "@/services/api/landing.api";
-import { ILandingData, ITrack } from "@/types/landing.types";
+import { ILandingData } from "@/types/landing.types";
+import type { ITrack } from "@/types/track.types";
 
 export default function Home() {
   const router = useRouter();
@@ -18,7 +19,7 @@ export default function Home() {
   const [tracks, setTracks] = useState<ITrack[]>([]);
 
   useEffect(() => {
-    if (localStorage.getItem("auth_token")) {
+    if (typeof window !== "undefined" && window.localStorage.getItem("auth_token")) {
       router.push("/discover"); 
     }
     LandingApiService.getLandingData().then(setContent);

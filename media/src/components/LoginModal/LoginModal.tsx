@@ -7,12 +7,9 @@ import InputStep from "./InputStep";
 import RegisterStep from "./RegisterStep";
 import SignInStep from "./SignInStep";
 import { AuthService } from "@/services";
+import type { ILoginModalProps } from "@/types/ui.types";
 import { useGoogleLogin } from "@react-oauth/google";
 import{useRouter} from "next/navigation";
-
-interface ILoginModalProps {
-  onClose: () => void;
-}
 
 export default function LoginModal({ onClose }: ILoginModalProps) {
   

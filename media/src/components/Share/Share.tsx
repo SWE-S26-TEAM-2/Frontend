@@ -1,13 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-
-interface IShareModalProps {
-  username: string;
-  onClose: () => void;
-  mode?: "modal" | "popover";
-  anchorRef?: React.RefObject<HTMLElement | null>;
-}
+import { useState, useEffect, useRef } from "react";
+import type { IShareModalProps } from "@/types/ui.types";
 
 export function ShareModal({
   username,
@@ -17,15 +11,23 @@ export function ShareModal({
 }: IShareModalProps) {
   const [isShortenLink, setIsShortenLink] = useState(false);
   const [isCopied, setIsCopied]           = useState(false);
+  const [origin, setOrigin] = useState("");
   const overlayRef                    = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const [popoverPosition, setPopoverPosition] = useState({ top: -9999, left: -9999 });
 
-  const fullUrl      = `${window.location.origin}/${username}?utm_source=clipboard&utm_medium=text`;
-  const shortenedUrl = `${window.location.origin}/${username}`;
+  const fullUrl      = `${origin}/${username}?utm_source=clipboard&utm_medium=text`;
+  const shortenedUrl = `${origin}/${username}`;
   const displayUrl   = isShortenLink ? shortenedUrl : fullUrl;
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    setOrigin(window.location.origin);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
     function handleKey(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
     }
@@ -39,6 +41,7 @@ export function ShareModal({
 
   useEffect(() => {
     if (mode !== "popover") return;
+    if (typeof window === "undefined") return;
 
     const updatePosition = () => {
       const anchor = anchorRef?.current;
@@ -84,6 +87,7 @@ export function ShareModal({
 
   async function handleCopy() {
     try {
+      if (typeof navigator === "undefined" || !navigator.clipboard) return;
       await navigator.clipboard.writeText(displayUrl);
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);

@@ -8,7 +8,7 @@ export interface ISlideData {
   buttonText: string;
 }
 
-export interface ITrack {
+export interface ILandingTrack {
   id: number;
   title: string;
   artist: string;

@@ -2,6 +2,14 @@
 import { ENV } from "../../config/env";
 import { ILoginRequest, ILoginResponse, IUser, ICheckEmailResponse, IRegisterResponse } from "@/types/auth.types";
 
+const getAuthTokenFromStorage = (): string | null => {
+  let token: string | null = null;
+  if (typeof window !== "undefined") {
+    token = window.localStorage.getItem("auth_token");
+  }
+  return token;
+};
+
 /**
  * Real authentication API service
  * Makes actual HTTP requests to the backend
@@ -77,7 +85,7 @@ export const RealAuthService = {
    * Logout user and invalidate token
    */
   logout: async (): Promise<{ success: boolean }> => {
-    const token = localStorage.getItem("auth_token");
+    const token = getAuthTokenFromStorage();
 
     const response = await fetch(`${ENV.API_BASE_URL}/auth/logout`, {
       method: "POST",

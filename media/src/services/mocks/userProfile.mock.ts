@@ -5,12 +5,38 @@
 // ─────────────────────────────────────────────────────────────
 
 import { seededWaveform } from "@/utils/seededWaveform";
+import type { ITrack } from "@/types/track.types";
 import type {
-  IUserProfileService, IUser, ITrack, ILikedTrack,
+  IUserProfileService, IUser, IUserProfileTrack, ILikedTrack,
   IFanUser, IFollower, IFollowing,
 } from "@/types/userProfile.types";
 
 const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+function toCanonicalTrack(track: IUserProfileTrack): ITrack {
+  const durationInSeconds = track.duration.includes(":")
+    ? track.duration
+        .split(":")
+        .map((v) => parseInt(v, 10) || 0)
+        .reduce((acc, part) => acc * 60 + part, 0)
+    : parseInt(track.duration, 10) || 0;
+
+  return {
+    id: track.id.toString(),
+    title: track.title,
+    artist: track.artist,
+    albumArt: track.coverUrl || "",
+    genre: track.genre || undefined,
+    url: "",
+    duration: durationInSeconds,
+    likes: track.likes,
+    plays: track.plays,
+    commentsCount: track.comments,
+    isLiked: track.isLiked,
+    createdAt: track.createdAt,
+    updatedAt: track.createdAt,
+  };
+}
 
 // ─────────────────────────────────────────────────────────────
 // FAKE DATABASE
@@ -60,7 +86,7 @@ const MOCK_USERS: IUser[] = [
   },
 ];
 
-const MOCK_TRACKS: ITrack[] = [
+const MOCK_TRACKS: IUserProfileTrack[] = [
   {
     id: 1,
     title: "Une vie à t'aimer",
@@ -142,7 +168,7 @@ export const mockUserProfileService: IUserProfileService = {
     await delay(300);
     // Owner has no tracks yet — shows empty state
     if (userId === "testuser") return [];
-    return MOCK_TRACKS;
+    return MOCK_TRACKS.map(toCanonicalTrack);
   },
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

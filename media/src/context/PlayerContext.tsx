@@ -2,17 +2,7 @@
 
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import type { ITrack } from "@/types/track.types";
-
-interface IPlayerContextValue {
-  currentTrack: ITrack | null;
-  isPlaying: boolean;
-  playTrack: (track: ITrack) => void;
-  togglePlay: () => void;
-  currentTime: number;
-  duration: number;
-  setCurrentTime: (t: number) => void;
-  setDuration: (d: number) => void;
-}
+import type { IPlayerContextValue } from "@/types/player.types";
 
 const PlayerContext = createContext<IPlayerContextValue | undefined>(undefined);
 
