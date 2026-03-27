@@ -15,7 +15,7 @@ export default function AccountSettings() {
   const loadSettings = async () => {
     try {
       const data = await accountService.getSettings();
-      //console.log("Loaded account settings:", data);  // check
+      //console.error("Loaded account settings:", data);  // check
       setSettings(data);
     } catch (error) {
       console.error("Failed to load account settings:", error);
@@ -26,7 +26,7 @@ export default function AccountSettings() {
 
   const handleThemeChange = async (theme: ITheme) => {
     if (!settings) return;
-    //console.log("Changing theme to:", theme);  // check
+    //console.error("Changing theme to:", theme);  // check
 
     const previousSettings = { ...settings };
     setSettings({ ...settings, theme });

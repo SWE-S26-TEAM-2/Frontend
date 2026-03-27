@@ -30,7 +30,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
   };
   const handleGoogleLogin = useGoogleLogin({
     onSuccess:async (response)=> {
-      //console.log(response.access_token);
+      //console.error(response.access_token);
       try{
       setIsLoading(true);
       await AuthService.googleLogin(response.access_token);
@@ -63,9 +63,9 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
     setError("");
     try {
       setIsLoading(true);
-      //console.log("checking email:", emailOrProfileUrl);
+      //console.error("checking email:", emailOrProfileUrl);
       const { isExisting } = await AuthService.checkEmail(emailOrProfileUrl);
-      //console.log("isExisting:", isExisting);
+      //console.error("isExisting:", isExisting);
     if (isExisting) {
     setStep("signin");
     } else {
@@ -100,11 +100,11 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       if (step === "register") {
         await AuthService.register(emailOrProfileUrl, password);
         router.push("/verify-email");
-        //console.log("registered:", response);
+        //console.error("registered:", response);
       } else {
         await AuthService.login(emailOrProfileUrl, password);
         setIsSuccess(true);
-       // console.log("logged in:", response);
+       // console.error("logged in:", response);
       }
       
     } catch {
@@ -113,7 +113,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       setIsLoading(false);
     }
 
-    //console.log("submitting:", email, password);
+    //console.error("submitting:", email, password);
   }
   };
   const handleEmailFocus = () => {

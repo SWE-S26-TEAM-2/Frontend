@@ -23,7 +23,7 @@ export const MOCK_TRACKS: ITrack[] = [
   {
     id: "1",
     title: "Vodafone",
-    artist: "vod",
+    artist: "Mohamed monir, Amir Eid, Asmaa galal",
     albumArt: "/covers/song1.jpg",
     duration: 180,
     url: "/tracks/song1.mp3",
@@ -84,4 +84,57 @@ export const MOCK_PRIVACY_SETTINGS: IPrivacySettings = {
   showTopFan: true,
   showTrackFans: true,
   blockedUsers: [],
+};
+    { address: "user@example.com", isPrimary: true },
+  ],
+  linkedAccounts: {
+    facebook: false,
+    google: false,
+    apple: false,
+  },
+};
+
+// settings/notification
+export const MOCK_NOTIFICATION_SETTINGS: INotificationSettings = {
+  activities: [
+    { name: "New follower", email: false, devices: true },
+    { name: "Repost of your post", email: true, devices: true },
+    { name: "New post by followed user", email: true, devices: true },
+    { name: "Likes and plays on your post", email: false, devices: true },
+    { name: "Comment on your post", email: false, devices: true },
+    { name: "Recommended Content", email: true, devices: true },
+    { name: "New message", email: true, devices: "Everyone" },
+  ],
+  soundcloudUpdates: [
+    { name: "SoundCloud Feature Updates & Education", email: true, devices: true },
+    { name: "Surveys and feedback", email: true, devices: true },
+    { name: "Promotional & Partnership Content", email: true, devices: true },
+    { name: "SoundCloud newsletter", email: true, devices: false },
+  ],
+};
+
+// settings/content
+export const MOCK_CONTENT_SETTINGS: IContentSettings = {
+  rssUrl: "https://feeds.soundcloud.com/users/soundcloud:users:1676128205/sounds.rss",
+  emailDisplay: "don't display",
+  customFeedTitle: "",
+  category: "",
+  statsServiceUrl: "",
+  customAuthorName: "",
+  language: "English",
+  subscriberRedirect: "",
+  explicitContent: false,
+  includeInRSS: false,
+  creativeCommons: false,
+};
+
+// settings/advertising
+export const MOCK_ADVERTISING_SETTINGS: IAdvertisingSettings = {
+  partnersListUrl: "#",
+  language: "English (US)",
+};
+
+// settings/two-factor
+export const MOCK_TWO_FACTOR_SETTINGS: ITwoFactorSettings = {
+  isEnabled: false,
 };

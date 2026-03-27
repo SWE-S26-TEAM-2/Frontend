@@ -5,7 +5,7 @@ import {useRouter} from "next/navigation";
 export default function VerifyEmailPage() {
     const router = useRouter();
     const handleContinue = () => {
-        router.push("/");
+        router.push("/track/1");
     }
     return (
         <div className="flex flex-col items-center justify-center h-screen bg-[#222222] text-white">

@@ -66,7 +66,7 @@ export default function TrackPlayer({ track }: { track: ITrack }) {
                   Private
                 </span>
                 <span className="truncate bg-black px-3 py-1 text-sm font-semibold text-[#dddddd] sm:text-2xl sm:font-bold sm:leading-none">
-                  Made for Mohamed Mohamed
+                  {track.artist}
                 </span>
               </div>
             </div>

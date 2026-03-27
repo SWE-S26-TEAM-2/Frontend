@@ -38,7 +38,8 @@ export default function RelatedTracks({ tracks, sourceTrack }: IRelatedTracksPro
         ) : (
           <ul className="divide-y divide-[#1f1f1f] border-y border-[#1f1f1f] bg-[#0f0f0f]">
             {list.slice(0, 7).map((track, index) => {
-              const isActive = currentTrack?.id === track.id;
+              const isActiv = currentTrack?.id === track.id;
+
 
               return (
                 <li key={`${track.id}-${index}`}>
@@ -46,7 +47,7 @@ export default function RelatedTracks({ tracks, sourceTrack }: IRelatedTracksPro
                     <div className="flex w-full min-w-0 items-center gap-3 sm:w-auto sm:flex-1">
                       <span
                         className={`w-6 text-right text-sm font-semibold ${
-                          isActive ? "text-[#ff6b24]" : "text-[#727272]"
+                          (isActiv) ? "text-[#ff6b24]" : "text-[#727272]"
                         }`}
                       >
                         {index + 1}
@@ -63,7 +64,7 @@ export default function RelatedTracks({ tracks, sourceTrack }: IRelatedTracksPro
                       <Link href={`/track/${track.id}`} className="min-w-0" onClick={() => setTrack(track)}>
                         <p
                           className={`truncate text-lg font-semibold ${
-                            isActive ? "text-[#ff6b24]" : "text-[#e5e5e5]"
+                            (isActiv) ? "text-[#ff6b24]" : "text-[#e5e5e5]"
                           }`}
                         >
                           {track.artist} · {track.title}
@@ -94,7 +95,7 @@ export default function RelatedTracks({ tracks, sourceTrack }: IRelatedTracksPro
         <div className="rounded border border-[#2d2d2d] bg-[#141414] p-4">
           <div className="mb-3 flex items-center gap-3">
             <div className="h-12 w-12 rounded-full bg-linear-to-br from-[#e09f84] to-[#9ca7b1]" />
-            <p className="text-2xl font-semibold text-white">Made for Mohamed Mohamed</p>
+            <p className="text-2xl font-semibold text-white">{sourceTrack?.title ?? "Track Title"}</p>
           </div>
         </div>
 

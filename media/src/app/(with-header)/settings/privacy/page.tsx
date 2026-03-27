@@ -16,10 +16,10 @@ export default function PrivacySettings() {
   const loadSettings = async () => {
     try {
       const data = await privacyService.getSettings();
-      //console.log("Loaded privacy settings:", data); // check
+      //console.error("Loaded privacy settings:", data); // check
       setSettings(data);
     } catch (error) {
-      console.log("Failed to load settings:", error);
+      console.error("Failed to load settings:", error);
     } finally {
       setIsLoading(false);
     }
@@ -27,7 +27,7 @@ export default function PrivacySettings() {
 
   const handleToggle = async (key: keyof IPrivacySettings, value: boolean) => {
     if (!settings) return;
-    //console.log(`Toggling ${key} to ${value}`); // check
+    //console.error(`Toggling ${key} to ${value}`); // check
 
     const previousSettings = { ...settings };
     setSettings({ ...settings, [key]: value });
@@ -36,7 +36,7 @@ export default function PrivacySettings() {
       await privacyService.updateSettings({ [key]: value });
     } catch (error) {
       setSettings(previousSettings);
-      console.log("Failed to update:", error);
+      console.error("Failed to update:", error);
     }
   };
 

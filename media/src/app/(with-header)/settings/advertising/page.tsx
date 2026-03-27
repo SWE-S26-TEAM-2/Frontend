@@ -15,7 +15,7 @@ export default function AdvertisingSettings() {
   const loadSettings = async () => {
     try {
       const data = await advertisingService.getSettings();
-      //console.log("Loaded advertising settings:", data); // check
+      //console.error("Loaded advertising settings:", data); // check
       setSettings(data);
     } catch (error) {
       console.error("Failed to load advertising settings:", error);
