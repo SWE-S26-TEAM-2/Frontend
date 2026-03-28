@@ -13,6 +13,9 @@ test.describe('Auth entry points', () => {
     await gotoHome(page);
     const landingPage = page.locator('main').first();
     const landingHeader = landingPage.locator('header').first();
+    const modalHeading = page.getByRole('heading', {
+      name: 'Sign in or create an account',
+    });
 
     await expect(
       landingPage.getByRole('heading', {
@@ -23,52 +26,34 @@ test.describe('Auth entry points', () => {
     const signInButton = landingHeader.getByRole('button', { name: 'Sign in' });
     await signInButton.waitFor({ state: 'visible' });
     await signInButton.click();
+    await modalHeading.waitFor({ state: 'visible' });
 
-    const authModal = page
-      .locator('div')
-      .filter({
-        has: page.getByRole('heading', { name: 'Sign in or create an account' }),
-      })
-      .nth(0);
-    await authModal.waitFor({ state: 'visible' });
-    await page.waitForLoadState('networkidle').catch(() => {});
-
+    await expect(modalHeading).toBeVisible();
     await expect(
-      authModal.getByRole('heading', { name: 'Sign in or create an account' })
+      page.getByRole('button', { name: 'Continue with Facebook' })
     ).toBeVisible();
     await expect(
-      authModal.getByRole('button', { name: 'Continue with Facebook' })
+      page.getByRole('button', { name: 'Continue with Google' })
     ).toBeVisible();
     await expect(
-      authModal.getByRole('button', { name: 'Continue with Google' })
+      page.getByRole('button', { name: 'Continue with Apple' })
     ).toBeVisible();
     await expect(
-      authModal.getByRole('button', { name: 'Continue with Apple' })
-    ).toBeVisible();
-    await expect(
-      authModal.getByPlaceholder('Your email address or profile URL')
+      page.getByPlaceholder('Your email address or profile URL')
     ).toBeVisible();
 
-    const closeButton = authModal.getByRole('button', { name: '✕' });
+    const closeButton = page.getByRole('button', { name: '✕' });
     await closeButton.waitFor({ state: 'visible' });
     await closeButton.click();
 
-    await expect(authModal).toBeHidden();
+    await expect(modalHeading).toBeHidden();
   });
 
   test('/login opens the auth modal and closing it returns to home', async ({
     page,
   }) => {
     await gotoLogin(page);
-    const authModal = page
-      .locator('div')
-      .filter({
-        has: page.getByRole('heading', { name: 'Sign in or create an account' }),
-      })
-      .nth(0);
-    await authModal.waitFor({ state: 'visible' });
-
-    const closeButton = authModal.getByRole('button', { name: '✕' });
+    const closeButton = page.getByRole('button', { name: '✕' });
     await closeButton.waitFor({ state: 'visible' });
     await closeButton.click();
 

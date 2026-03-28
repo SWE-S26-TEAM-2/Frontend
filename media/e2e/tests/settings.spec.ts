@@ -9,33 +9,58 @@ function settingsMain(page: Page) {
   return page.locator('main').first();
 }
 
-function settingsShell(page: Page) {
+function settingsHeading(page: Page) {
+  return settingsMain(page).getByRole('heading', {
+    name: 'Settings',
+    exact: true,
+  });
+}
+
+function settingsTab(page: Page, name: string) {
+  return settingsMain(page).getByRole('link', { name, exact: true });
+}
+async function navigateToSettingsTab(
+  page: Page,
+  tabName: string,
+  href: string,
+  readyLocator?: ReturnType<Page['locator']>
+) {
+  const tab = settingsTab(page, tabName);
+
+  await expect(tab).toBeVisible();
+  await expect(tab).toBeEnabled();
+  await expect(tab).toHaveAttribute('href', href);
+
+  await tab.scrollIntoViewIfNeeded();
+  await tab.click({ trial: true });
+
+  await tab.click();
+
+  if (readyLocator) {
+    await readyLocator.waitFor({ state: 'visible', timeout: 15000 });
+  }
+
+  await expect(page).toHaveURL(
+    new RegExp(`${href.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`)
+  );
+}
+
+function sectionByHeading(page: Page, name: string) {
   return settingsMain(page)
-    .locator('div')
-    .filter({
-      has: settingsMain(page).getByRole('heading', { name: 'Settings' }),
-    })
-    .first();
+    .getByText(name, { exact: true })
+    .locator('xpath=..');
 }
 
-function settingsTabs(page: Page) {
-  return settingsShell(page).locator('a');
-}
-
-async function waitForSettingsReady(page: Page, anchor: ReturnType<Page['locator']>) {
+async function waitForSettingsReady(
+  page: Page,
+  anchor: ReturnType<Page['locator']>
+) {
   await page.waitForLoadState('networkidle').catch(() => {});
   await anchor.waitFor({ state: 'visible' });
 }
 
 async function getToggleInSection(page: Page, title: string) {
-  const section = settingsMain(page)
-    .locator('div')
-    .filter({
-      has: settingsMain(page).getByRole('heading', { name: title }),
-    })
-    .first();
-
-  return section.getByRole('button').first();
+  return sectionByHeading(page, title).getByRole('button').first();
 }
 
 test.describe('Settings pages', () => {
@@ -45,65 +70,58 @@ test.describe('Settings pages', () => {
     await page.waitForLoadState('networkidle').catch(() => {});
 
     await expect(page).toHaveURL('/settings/account');
-    await expect(
-      settingsShell(page).getByRole('heading', { name: 'Settings' })
-    ).toBeVisible();
+    await expect(settingsHeading(page)).toBeVisible();
     await expect(
       settingsMain(page).getByRole('heading', { name: 'Change theme' })
     ).toBeVisible();
   });
 
-  test('settings tabs navigate between implemented sections', async ({ page }) => {
+  test('settings tabs navigate between implemented sections', async ({
+    page,
+  }) => {
     await gotoSettings(page, 'account');
 
-    const contentTab = settingsTabs(page).filter({ hasText: 'Content' }).first();
-    await contentTab.waitFor({ state: 'visible' });
-    await contentTab.click();
-    await page.waitForLoadState('networkidle').catch(() => {});
-    await expect(page).toHaveURL('/settings/content');
     await expect(
-      settingsMain(page).getByRole('heading', { name: 'RSS feed' })
+      settingsMain(page).getByRole('heading', {
+        name: 'Change theme',
+        exact: true,
+      })
     ).toBeVisible();
 
-    const notificationsTab = settingsTabs(page)
-      .filter({ hasText: 'Notifications' })
-      .first();
-    await notificationsTab.waitFor({ state: 'visible' });
-    await notificationsTab.click();
-    await page.waitForLoadState('networkidle').catch(() => {});
-    await expect(page).toHaveURL('/settings/notifications');
-    await expect(
+    await navigateToSettingsTab(
+      page,
+      'Content',
+      '/settings/content',
+      settingsMain(page).getByRole('heading', { name: /RSS feed/ })
+    );
+
+    await navigateToSettingsTab(
+      page,
+      'Notifications',
+      '/settings/notifications',
       settingsMain(page).getByText('Activities', { exact: true })
-    ).toBeVisible();
+    );
 
-    const privacyTab = settingsTabs(page).filter({ hasText: 'Privacy' }).first();
-    await privacyTab.waitFor({ state: 'visible' });
-    await privacyTab.click();
-    await page.waitForLoadState('networkidle').catch(() => {});
-    await expect(page).toHaveURL('/settings/privacy');
-    await expect(
-      settingsMain(page).getByRole('heading', { name: 'Privacy settings' })
-    ).toBeVisible();
+    await navigateToSettingsTab(
+      page,
+      'Privacy',
+      '/settings/privacy',
+      settingsMain(page).getByRole('heading', { name: 'Privacy settings', exact: true })
+    );
 
-    const advertisingTab = settingsTabs(page)
-      .filter({ hasText: 'Advertising' })
-      .first();
-    await advertisingTab.waitFor({ state: 'visible' });
-    await advertisingTab.click();
-    await page.waitForLoadState('networkidle').catch(() => {});
-    await expect(page).toHaveURL('/settings/advertising');
-    await expect(
-      settingsMain(page).getByRole('heading', { name: 'Advertising Settings' })
-    ).toBeVisible();
+    await navigateToSettingsTab(
+      page,
+      'Advertising',
+      '/settings/advertising',
+      settingsMain(page).getByRole('heading', { name: 'Advertising Settings', exact: true })
+    );
 
-    const twoFactorTab = settingsTabs(page).filter({ hasText: '2FA' }).first();
-    await twoFactorTab.waitFor({ state: 'visible' });
-    await twoFactorTab.click();
-    await page.waitForLoadState('networkidle').catch(() => {});
-    await expect(page).toHaveURL('/settings/two-factor');
-    await expect(
+    await navigateToSettingsTab(
+      page,
+      '2FA',
+      '/settings/two-factor',
       settingsMain(page).getByText('Status', { exact: true })
-    ).toBeVisible();
+    );
   });
 
   test('privacy auth page loads and allows toggling a setting', async ({
@@ -115,9 +133,7 @@ test.describe('Settings pages', () => {
     });
     await waitForSettingsReady(page, privacyHeading);
 
-    await expect(
-      privacyHeading
-    ).toBeVisible();
+    await expect(privacyHeading).toBeVisible();
 
     const toggle = await getToggleInSection(
       page,
@@ -164,15 +180,14 @@ test.describe('Settings pages', () => {
   }) => {
     await gotoSettings(page, 'account');
 
-    const themeSection = settingsMain(page)
-      .locator('div')
-      .filter({
-        has: settingsMain(page).getByRole('heading', { name: 'Change theme' }),
-      })
-      .first();
-    const lightTheme = themeSection.getByRole('radio').nth(0);
-    const darkTheme = themeSection.getByRole('radio').nth(1);
-    await themeSection.waitFor({ state: 'visible' });
+    const lightTheme = settingsMain(page).getByRole('radio', {
+      name: 'light',
+      exact: true,
+    });
+    const darkTheme = settingsMain(page).getByRole('radio', {
+      name: 'dark',
+      exact: true,
+    });
     await darkTheme.waitFor({ state: 'visible' });
     await lightTheme.waitFor({ state: 'visible' });
 
@@ -181,16 +196,15 @@ test.describe('Settings pages', () => {
     await expect(lightTheme).toBeChecked();
   });
 
-  test('notifications settings allow updating row controls', async ({ page }) => {
+  test('notifications settings allow updating row controls', async ({
+    page,
+  }) => {
     await gotoSettings(page, 'notifications');
 
     const notificationsPage = settingsMain(page);
     const newFollowerRow = notificationsPage
-      .locator('div')
-      .filter({
-        has: notificationsPage.getByText('New follower', { exact: true }),
-      })
-      .first();
+      .getByText('New follower', { exact: true })
+      .locator('xpath=..');
     const checkboxes = newFollowerRow.getByRole('checkbox');
     await newFollowerRow.waitFor({ state: 'visible' });
     await checkboxes.nth(0).waitFor({ state: 'visible' });
@@ -200,11 +214,8 @@ test.describe('Settings pages', () => {
     await expect(checkboxes.nth(0)).toBeChecked();
 
     const newMessageRow = notificationsPage
-      .locator('div')
-      .filter({
-        has: notificationsPage.getByText('New message', { exact: true }),
-      })
-      .first();
+      .getByText('New message', { exact: true })
+      .locator('xpath=..');
     const audienceSelect = newMessageRow.locator('select');
     await newMessageRow.waitFor({ state: 'visible' });
     await audienceSelect.waitFor({ state: 'visible' });
@@ -221,13 +232,13 @@ test.describe('Settings pages', () => {
 
     const contentPage = settingsMain(page);
     const authorNameInput = contentPage
-      .locator('div')
-      .filter({
-        has: contentPage.getByText('Custom author name', { exact: true }),
-      })
+      .getByText('Custom author name', { exact: true })
+      .locator('xpath=..')
       .locator('input')
       .first();
-    const explicitContentCheckbox = contentPage.getByRole('checkbox').first();
+    const explicitContentCheckbox = contentPage.getByRole('checkbox', {
+      name: 'Contains explicit content',
+    });
     await authorNameInput.waitFor({ state: 'visible' });
     await explicitContentCheckbox.waitFor({ state: 'visible' });
 
@@ -249,7 +260,6 @@ test.describe('Settings pages', () => {
     await toggleButton.waitFor({ state: 'visible' });
 
     await toggleButton.click();
-    await page.waitForLoadState('networkidle').catch(() => {});
 
     await expect(
       twoFactorPage.getByRole('button', {

@@ -29,7 +29,10 @@ export async function gotoSettings(page: Page, section: string) {
   await waitForInteractive(page);
   await expect(page).toHaveURL(`/settings/${section}`);
   await expect(
-    page.locator('main').getByRole('heading', { name: 'Settings' }).first()
+    page.locator('main').first().getByRole('heading', {
+      name: 'Settings',
+      exact: true,
+    })
   ).toBeVisible();
 }
 
@@ -37,6 +40,6 @@ export async function gotoProfile(page: Page, username: string) {
   await page.goto(`/${username}`, { waitUntil: 'domcontentloaded' });
   await waitForInteractive(page);
   await expect(
-    page.getByRole('button', { name: 'All' }).first()
+    page.getByRole('button', { name: 'All', exact: true })
   ).toBeVisible();
 }

@@ -2,79 +2,60 @@ import { expect, test, type Page } from '@playwright/test';
 import { gotoProfile } from '../helpers/navigation';
 import { TEST_USERS } from '../helpers/profile';
 
-function profilePage(page: Page) {
-  return page
-    .locator('body > div')
-    .filter({
-      has: page.getByRole('button', { name: 'All' }).first(),
-    })
-    .first();
-}
-
 test.describe('Profile pages', () => {
   test('public artist profile loads with tracks and social sections', async ({
     page,
   }) => {
     await gotoProfile(page, TEST_USERS.artist);
-    const profile = profilePage(page);
-    await profile.waitFor({ state: 'visible' });
-    await page.waitForLoadState('networkidle').catch(() => {});
-
-    await expect(profile.getByText('NEW ALBUM SOON')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'All', exact: true })).toBeVisible();
+    await expect(page.getByText('NEW ALBUM SOON')).toBeVisible();
     await expect(
-      profile.getByRole('button', { name: /Follow/i }).nth(0)
+      page.getByRole('button', { name: /^👤 Follow$/ }).first()
     ).toBeVisible();
-    await expect(profile.getByText(/FANS ALSO LIKE/i)).toBeVisible();
-    await expect(profile.getByRole('heading', { name: 'Recent' })).toBeVisible();
-    await expect(profile.getByText(/Une vie à t['’]aimer/i)).toBeVisible();
+    await expect(page.getByText(/FANS ALSO LIKE/i)).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Recent' })).toBeVisible();
+    await expect(page.getByText(/Une vie à t['’]aimer/i).first()).toBeVisible();
   });
 
   test('owner profile loads with the current empty-state experience', async ({
     page,
   }) => {
     await gotoProfile(page, TEST_USERS.owner);
-    const profile = profilePage(page);
-    await profile.waitFor({ state: 'visible' });
-    await page.waitForLoadState('networkidle').catch(() => {});
-
+    await expect(page.getByRole('button', { name: 'Upload image' })).toBeVisible();
     await expect(
-      profile.getByRole('button', { name: 'Upload image' })
+      page.getByRole('button', { name: 'Upload header image' })
     ).toBeVisible();
-    await expect(
-      profile.getByRole('button', { name: 'Upload header image' })
-    ).toBeVisible();
-    await expect(
-      profile.getByText('Seems a little quiet over here')
-    ).toBeVisible();
-    await expect(profile.getByRole('button', { name: 'Upload now' })).toBeVisible();
+    await expect(page.getByText('Seems a little quiet over here')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Upload now' })).toBeVisible();
   });
 
   test('profile tabs switch between implemented visible states', async ({
     page,
   }) => {
     await gotoProfile(page, TEST_USERS.artist);
-    const profile = profilePage(page);
-    const tabList = profile.locator('button');
-    await profile.waitFor({ state: 'visible' });
-    await tabList.filter({ hasText: 'Playlists' }).first().waitFor({
-      state: 'visible',
+    const playlistsTab = page.getByRole('button', {
+      name: 'Playlists',
+      exact: true,
+    });
+    const popularTracksTab = page.getByRole('button', {
+      name: 'Popular tracks',
+      exact: true,
+    });
+    const repostsTab = page.getByRole('button', {
+      name: 'Reposts',
+      exact: true,
     });
 
-    await tabList.filter({ hasText: 'Playlists' }).first().click();
-    await page.waitForLoadState('networkidle').catch(() => {});
-    await expect(profile.getByText('No playlists yet')).toBeVisible();
+    await playlistsTab.click();
+    await expect(page.getByText('No playlists yet')).toBeVisible();
 
-    await tabList.filter({ hasText: 'Popular tracks' }).first().click();
-    await page.waitForLoadState('networkidle').catch(() => {});
+    await popularTracksTab.click();
     await expect(
-      profile.getByRole('heading', { name: 'Popular tracks' })
+      page.getByRole('heading', { name: 'Popular tracks' })
     ).toBeVisible();
-    await expect(profile.getByText(/Une vie à t['’]aimer/i)).toBeVisible();
+    await expect(page.getByText(/Une vie à t['’]aimer/i).first()).toBeVisible();
 
-    await tabList.filter({ hasText: 'Reposts' }).first().click();
-    await page.waitForLoadState('networkidle').catch(() => {});
-    await expect(
-      profile.getByText('Seems a little quiet over here')
-    ).toBeVisible();
+    await repostsTab.click();
+    await expect(page.getByText('Seems a little quiet over here')).toBeVisible();
   });
 });
