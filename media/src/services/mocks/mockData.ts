@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ITrack } from "@/types/track.types";
 
 // settings/privacy

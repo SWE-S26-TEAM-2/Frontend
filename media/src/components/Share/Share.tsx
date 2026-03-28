@@ -11,7 +11,7 @@ export function ShareModal({
 }: IShareModalProps) {
   const [isShortenLink, setIsShortenLink] = useState(false);
   const [isCopied, setIsCopied]           = useState(false);
-  const [origin, setOrigin] = useState("");
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
   const overlayRef                    = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const [popoverPosition, setPopoverPosition] = useState({ top: -9999, left: -9999 });
@@ -19,11 +19,6 @@ export function ShareModal({
   const fullUrl      = `${origin}/${username}?utm_source=clipboard&utm_medium=text`;
   const shortenedUrl = `${origin}/${username}`;
   const displayUrl   = isShortenLink ? shortenedUrl : fullUrl;
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    setOrigin(window.location.origin);
-  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
