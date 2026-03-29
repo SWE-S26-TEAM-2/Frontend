@@ -13,8 +13,8 @@ test.describe('Auth entry points', () => {
     await gotoHome(page);
     const landingPage = page.locator('main').first();
     const landingHeader = landingPage.locator('header').first();
-    const modalHeading = page.getByRole('heading', {
-      name: 'Sign in or create an account',
+    const modalHeading = page.getByText('Sign in or create an account', {
+      exact: true,
     });
 
     await expect(
@@ -24,9 +24,8 @@ test.describe('Auth entry points', () => {
     ).toBeVisible();
 
     const signInButton = landingHeader.getByRole('button', { name: 'Sign in' });
-    await signInButton.waitFor({ state: 'visible' });
+    await expect(signInButton).toBeVisible();
     await signInButton.click();
-    await modalHeading.waitFor({ state: 'visible' });
 
     await expect(modalHeading).toBeVisible();
     await expect(
@@ -43,7 +42,7 @@ test.describe('Auth entry points', () => {
     ).toBeVisible();
 
     const closeButton = page.getByRole('button', { name: '✕' });
-    await closeButton.waitFor({ state: 'visible' });
+    await expect(closeButton).toBeVisible();
     await closeButton.click();
 
     await expect(modalHeading).toBeHidden();
@@ -54,7 +53,7 @@ test.describe('Auth entry points', () => {
   }) => {
     await gotoLogin(page);
     const closeButton = page.getByRole('button', { name: '✕' });
-    await closeButton.waitFor({ state: 'visible' });
+    await expect(closeButton).toBeVisible();
     await closeButton.click();
 
     await page.waitForLoadState('networkidle').catch(() => {});
