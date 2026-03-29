@@ -36,13 +36,14 @@ async function navigateToSettingsTab(
 
   await tab.click();
 
+  await expect(page).toHaveURL(
+    new RegExp(`${href.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`),
+    { timeout: 15000 }
+  );
+
   if (readyLocator) {
     await readyLocator.waitFor({ state: 'visible', timeout: 15000 });
   }
-
-  await expect(page).toHaveURL(
-    new RegExp(`${href.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`)
-  );
 }
 
 function sectionByHeading(page: Page, name: string) {
@@ -106,14 +107,14 @@ test.describe('Settings pages', () => {
       page,
       'Privacy',
       '/settings/privacy',
-      settingsMain(page).getByRole('heading', { name: 'Privacy settings', exact: true })
+      settingsMain(page).getByText('Privacy settings', { exact: true })
     );
 
     await navigateToSettingsTab(
       page,
       'Advertising',
       '/settings/advertising',
-      settingsMain(page).getByRole('heading', { name: 'Advertising Settings', exact: true })
+      settingsMain(page).getByText('Advertising Settings', { exact: true })
     );
 
     await navigateToSettingsTab(

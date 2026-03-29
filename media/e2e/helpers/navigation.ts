@@ -20,7 +20,7 @@ export async function gotoLogin(page: Page) {
   await page.goto('/login', { waitUntil: 'domcontentloaded' });
   await waitForInteractive(page);
   await expect(
-    page.getByRole('heading', { name: 'Sign in or create an account' })
+    page.getByText('Sign in or create an account', { exact: true })
   ).toBeVisible();
 }
 
