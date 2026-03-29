@@ -2,41 +2,43 @@ name: Frontend CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
 
 jobs:
   build:
+    env:
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: placeholder-for-ci-build
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '24'
-        cache: 'npm'
-        cache-dependency-path: './media/package-lock.json'
-    
-    - name: Install dependencies
-      working-directory: ./media
-      run: npm ci
-    
-    - name: Run ESLint
-      working-directory: ./media
-      run: npm run lint
-    
-    - name: Run tests
-      working-directory: ./media
-      run: npm test
-      continue-on-error: true
-    
-    - name: Build Next.js app
-      working-directory: ./media
-      run: npm run build
-    
-    - name: Build Docker image
-      run: docker build -t frontend:test .
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: "./media/package-lock.json"
+
+      - name: Install dependencies
+        working-directory: ./media
+        run: npm ci
+
+      - name: Run ESLint
+        working-directory: ./media
+        run: npm run lint
+
+      - name: Run tests
+        working-directory: ./media
+        run: npm test
+        continue-on-error: true
+
+      - name: Build Next.js app
+        working-directory: ./media
+        run: npm run build
+
+      - name: Build Docker image
+        run: docker build --build-arg NEXT_PUBLIC_GOOGLE_CLIENT_ID=$NEXT_PUBLIC_GOOGLE_CLIENT_ID -t frontend:test .
