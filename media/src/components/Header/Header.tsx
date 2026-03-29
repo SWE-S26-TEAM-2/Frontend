@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import type { IMenuItem } from "@/types/ui.types";
+import { useAuthStore } from "@/store/authStore";
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -150,8 +151,8 @@ const NAV_ITEMS = [
   { label: "Library", href: "/library" },
 ];
 
-const AVATAR_MENU: IMenuItem[] = [
-  { icon: <ProfileIcon />,     label: "Profile",        href: "/profile" },
+const getAvatarMenu = (profileHref: string): IMenuItem[] => [
+  { icon: <ProfileIcon />,     label: "Profile",        href: profileHref },
   { icon: <LikesIcon />,       label: "Likes",          href: "/likes" },
   { icon: <StationsIcon />,    label: "Stations",       href: "/stations" },
   { icon: <WhoToFollowIcon />, label: "Who to follow",  href: "/who-to-follow", dividerBefore: true },
@@ -176,7 +177,7 @@ const DOTS_MENU: IMenuItem[] = [
   { icon: <KeyboardIcon />,     label: "Keyboard shortcuts",href: "/shortcuts" },
   { icon: <SubscriptionIcon />, label: "Subscription",      href: "/subscription",  dividerBefore: true },
   { icon: <SettingsIcon />,     label: "Settings",          href: "/settings" },
-  { icon: <SignOutIcon />,      label: "Sign out",          href: "/signout" },
+  { icon: <SignOutIcon />,      label: "Sign out",          href: "/" },
 ];
 
 // ── Shared styles ─────────────────────────────────────────────────────────────
@@ -265,9 +266,11 @@ export default function Header({
   const [activeNav, setActiveNav]     = useState("Home");
   const [avatarOpen, setAvatarOpen]   = useState(false);
   const [dotsOpen, setDotsOpen]       = useState(false);
+  const authUser = useAuthStore((state) => state.user);
 
   const avatarRef = useRef<HTMLDivElement>(null);
   const dotsRef   = useRef<HTMLDivElement>(null);
+  const profileHref = authUser?.username ? `/${encodeURIComponent(authUser.username)}` : "/testuser";
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -394,14 +397,23 @@ export default function Header({
           <>
             {/* Avatar dropdown */}
             <div ref={avatarRef} style={{ position: "relative", flexShrink: 0 }}>
-              <button
-                onClick={() => { setAvatarOpen((o) => !o); setDotsOpen(false); }}
-                style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", padding: "0 4px" }}
-              >
-                <Image src={avatarUrl} alt="User avatar" width={28} height={28} style={{ borderRadius: "50%", objectFit: "cover" }} />
-                <span style={{ color: "#888" }}><ChevronDown /></span>
-              </button>
-              {avatarOpen && <DropdownMenu items={AVATAR_MENU} onClose={() => setAvatarOpen(false)} />}
+              <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                <Link
+                  href={profileHref}
+                  aria-label="Go to profile"
+                  style={{ display: "flex", alignItems: "center", textDecoration: "none" }}
+                >
+                  <Image src={avatarUrl} alt="User avatar" width={28} height={28} style={{ borderRadius: "50%", objectFit: "cover" }} />
+                </Link>
+                <button
+                  aria-label="Open profile menu"
+                  onClick={() => { setAvatarOpen((o) => !o); setDotsOpen(false); }}
+                  style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", padding: "0 2px" }}
+                >
+                  <span style={{ color: "#888" }}><ChevronDown /></span>
+                </button>
+              </div>
+              {avatarOpen && <DropdownMenu items={getAvatarMenu(profileHref)} onClose={() => setAvatarOpen(false)} />}
             </div>
 
             {/* Bell */}

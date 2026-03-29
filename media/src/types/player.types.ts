@@ -1,16 +1,5 @@
 import type { ITrack } from "@/types/track.types";
 
-export interface IPlayerContextValue {
-  currentTrack: ITrack | null;
-  isPlaying: boolean;
-  playTrack: (track: ITrack) => void;
-  togglePlay: () => void;
-  currentTime: number;
-  duration: number;
-  setCurrentTime: (t: number) => void;
-  setDuration: (d: number) => void;
-}
-
 export interface IPlayerState {
   currentTrack: ITrack | null;
   queue: ITrack[];
