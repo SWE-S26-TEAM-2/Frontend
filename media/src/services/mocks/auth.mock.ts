@@ -22,7 +22,7 @@ export const MockAuthService = {
       createdAt: new Date().toISOString(),
     };
 
-    if (emailOrProfileUrl === "test@example.com" && password === "pass123") {
+    if ((emailOrProfileUrl === "test@example.com"|| emailOrProfileUrl === "soundcloud.com/testuser")  && password === "pass123") {
       return {
         success: true,
         token: "fake-jwt-token-12345-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
