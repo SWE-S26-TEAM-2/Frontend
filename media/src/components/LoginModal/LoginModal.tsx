@@ -127,7 +127,8 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
   const handleTellUsMoreSubmit = async (data: { displayName: string; month: string; day: string; year: string; gender: string }) => {
     try {
       setIsLoading(true);
-      await AuthService.updateProfile(data);
+      const finalDisplayName = data.displayName || emailOrProfileUrl.split("@")[0];
+      await AuthService.updateProfile({ ...data, displayName: finalDisplayName });
       router.push("/verify-email");
     } catch {
       setError("Failed to update profile. Please try again.");
