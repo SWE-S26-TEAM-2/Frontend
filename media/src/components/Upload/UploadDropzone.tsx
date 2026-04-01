@@ -47,8 +47,10 @@ export default function UploadDropzone({ onFilesSelected, isDisabled }: IUploadD
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    console.log('[Dropzone] handleDrop fired');  //check
     e.preventDefault();
     setIsDraggingOver(false);
+    console.log('[Dropzone] dropped files:', e.dataTransfer.files);  //check
     if (!isDisabled) handleFiles(e.dataTransfer.files);
   };
 
@@ -69,7 +71,7 @@ export default function UploadDropzone({ onFilesSelected, isDisabled }: IUploadD
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      onClick={handleChooseFiles}
+      //onClick={handleChooseFiles}
       onKeyDown={(e) => e.key === 'Enter' && handleChooseFiles()}
       className={`
         relative flex flex-col items-center justify-center
