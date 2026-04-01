@@ -6,6 +6,7 @@ import Link from "next/link";
 import InputStep from "./InputStep";
 import RegisterStep from "./RegisterStep";
 import SignInStep from "./SignInStep";
+import TellUsMoreStep from "./TellUsMoreStep";
 import { AuthService } from "@/services";
 import type { ILoginModalProps } from "@/types/ui.types";
 import { useGoogleLogin } from "@react-oauth/google";
@@ -15,7 +16,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
   
   const [emailOrProfileUrl, setEmailOrProfileUrl] = useState("");
   const [error, setError] = useState("");
-  const [step, setStep] = useState<"main" | "input" | "register" | "signin">("main");
+  const [step, setStep] = useState<"main" | "input" | "register" | "signin"|"tell-us-more">("main");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -96,7 +97,8 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       setIsLoading(true);
       if (step === "register") {
         await AuthService.register(emailOrProfileUrl, password);
-        router.push("/verify-email");
+        //router.push("/verify-email");
+        setStep("tell-us-more");
         //console.error("registered:", response);
       } else {
         await AuthService.login(emailOrProfileUrl, password);
@@ -122,6 +124,17 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
     setPassword(e.target.value);
   };
 
+  const handleTellUsMoreSubmit = async (data: { displayName: string; month: string; day: string; year: string; gender: string }) => {
+    try {
+      setIsLoading(true);
+      await AuthService.updateProfile(data);
+      router.push("/verify-email");
+    } catch {
+      setError("Failed to update profile. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     // Overlay — dark background behind modal
@@ -227,6 +240,13 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
         error={error}
         isLoading={isLoading}
         />
+        )}
+        {step === "tell-us-more" && (
+         <TellUsMoreStep 
+         onSubmit={handleTellUsMoreSubmit}
+         onBack={() => { setStep("main"); setError(""); setIsSuccess(false); }}
+         isLoading={isLoading}
+         />
         )}
 
       </div>

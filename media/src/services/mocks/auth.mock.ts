@@ -1,5 +1,5 @@
 // src/services/mocks/auth.mock.ts
-import { ILoginResponse, IUser , ICheckEmailResponse, IRegisterResponse} from "@/types/auth.types";
+import { ILoginResponse, IUser , ICheckEmailResponse, IRegisterResponse, IUpdateProfileRequest, IUpdateProfileResponse} from "@/types/auth.types";
 
 /**
  * Mock authentication service for development/testing
@@ -83,6 +83,20 @@ export const MockAuthService = {
     };
   },
 
+
+  updateProfile: async (data: IUpdateProfileRequest): Promise<IUpdateProfileResponse> => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return {
+      success: true,
+      user: {
+        id: "user-123",
+        username: data.displayName,
+        email: "test@example.com",
+        profileImageUrl: "/default-avatar.png",
+        createdAt: new Date().toISOString(),
+      },
+    };
+  },
 
 
   /**
