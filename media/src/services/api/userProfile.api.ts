@@ -2,6 +2,7 @@
 import { ENV } from "@/config/env";
 import type { IUserProfileService, IUser, IUserProfileTrack, ILikedTrack, IFanUser, IFollower, IFollowing } from "@/types/userProfile.types";
 import type { ITrack } from "@/types/track.types";
+import type { IEditProfilePayload } from "@/types/userProfile.types";
 
 function toCanonicalTrack(track: IUserProfileTrack): ITrack {
   const durationInSeconds = track.duration.includes(":")
@@ -60,4 +61,8 @@ export const realUserProfileService: IUserProfileService = {
     if (!res.ok) throw new Error(`Could not fetch following for user "${userId}"`);
     return res.json();
   },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async updateProfile(_userId: string, _payload: IEditProfilePayload): Promise<IUser> {
+  throw new Error("updateProfile not implemented on real API yet");
+},
 };

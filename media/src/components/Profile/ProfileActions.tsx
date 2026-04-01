@@ -15,7 +15,7 @@ const StationIcon = () => (
   </svg>
 );
 
-export function ProfileActions({ user }: IProfileActionsProps) {
+export function ProfileActions({ user, onEditOpen }: IProfileActionsProps) {
   const [isFollowing, setIsFollowing] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
 
@@ -29,7 +29,10 @@ export function ProfileActions({ user }: IProfileActionsProps) {
           >
             <ShareIcon /> Share
           </button>
-          <button className="flex items-center gap-1.5 bg-transparent border border-[#2e2e2e] text-[#ccc] rounded px-4 py-1.5 text-sm cursor-pointer hover:border-white transition-colors">
+          <button
+            onClick={() => onEditOpen?.()}
+            className="flex items-center gap-1.5 bg-transparent border border-[#2e2e2e] text-[#ccc] rounded px-4 py-1.5 text-sm cursor-pointer hover:border-white transition-colors"
+          >
             ✏ Edit
           </button>
         </div>

@@ -6,6 +6,11 @@ import type { ITrack } from "@/types/track.types";
 export interface IUser {
   id: string;
   username: string;
+  displayName?: string;   
+  firstName?: string;     
+  lastName?: string;      
+  city?: string;         
+  country?: string;       
   location: string;
   bio?: string;                         
   favoriteGenres?: string[];          
@@ -86,6 +91,7 @@ export interface IUserProfileService {
   getFansAlsoLike(userId: string): Promise<IFanUser[]>;
   getFollowers(userId: string): Promise<IFollower[]>;
   getFollowing(userId: string): Promise<IFollowing[]>;
+  updateProfile(userId: string, payload: IEditProfilePayload): Promise<IUser>;
 }
 
 
@@ -102,4 +108,20 @@ export interface IFollowing {
   followers: number;
   tracks: number;
   isVerified?: boolean;
+}
+
+export interface IEditProfilePayload {
+  displayName?: string;
+  firstName?: string;
+  lastName?: string;
+  city?: string;
+  country?: string;
+  bio?: string;
+  profileUrl?: string;
+  links?: {
+    website?: string;
+    instagram?: string;
+    twitter?: string;
+    facebook?: string;
+  };
 }
