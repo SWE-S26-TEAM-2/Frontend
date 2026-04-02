@@ -1,0 +1,94 @@
+import type {
+  IStudioService,
+  IStudioTrack,
+  IStudioTracksResponse,
+} from '@/types/studio.types';
+import type { TrackVisibility } from '@/types/upload.types';
+ 
+const MOCK_TRACKS: IStudioTrack[] = [
+  {
+    id: 'mock-track-1',
+    title: 'Midnight Drive',
+    genre: 'Electronic',
+    format: 'wav',
+    duration: 214,
+    visibility: 'public',
+    processingStatus: 'finished',
+    plays: 1243,
+    likes: 87,
+    artworkUrl: undefined,
+    createdAt: '2025-03-10T12:00:00.000Z',
+  },
+  {
+    id: 'mock-track-2',
+    title: 'Lost in the Noise',
+    genre: 'Ambient',
+    format: 'flac',
+    duration: 312,
+    visibility: 'public',
+    processingStatus: 'finished',
+    plays: 542,
+    likes: 34,
+    artworkUrl: undefined,
+    createdAt: '2025-03-18T09:30:00.000Z',
+  },
+  {
+    id: 'mock-track-3',
+    title: 'Unfinished Demo',
+    genre: 'Indie',
+    format: 'mp3',
+    duration: 178,
+    visibility: 'private',
+    processingStatus: 'finished',
+    plays: 0,
+    likes: 0,
+    artworkUrl: undefined,
+    createdAt: '2025-03-25T16:45:00.000Z',
+  },
+  {
+    id: 'mock-track-4',
+    title: 'New Upload',
+    genre: 'Hip-hop & Rap',
+    format: 'wav',
+    duration: 0,
+    visibility: 'private',
+    processingStatus: 'processing',
+    plays: 0,
+    likes: 0,
+    artworkUrl: undefined,
+    createdAt: '2025-04-01T08:00:00.000Z',
+  },
+];
+ 
+// In-memory copy so mutations (delete, visibility) persist during the session
+let mockTracks = [...MOCK_TRACKS];
+ 
+export const mockStudioService: IStudioService = {
+  async getTracks(page: number, pageSize: number): Promise<IStudioTracksResponse> {
+    console.log('[MOCK] studioService.getTracks called', { page, pageSize });  //check
+    await new Promise((r) => setTimeout(r, 400));
+    const start = (page - 1) * pageSize;
+    const paginated = mockTracks.slice(start, start + pageSize);
+    return {
+      tracks: paginated,
+      total: mockTracks.length,
+      page,
+      pageSize,
+    };
+  },
+ 
+  async deleteTrack(trackId: string): Promise<void> {
+    console.log('[MOCK] studioService.deleteTrack called', { trackId });  //check
+    await new Promise((r) => setTimeout(r, 300));
+    mockTracks = mockTracks.filter((t) => t.id !== trackId);
+  },
+ 
+  async updateVisibility(trackId: string, visibility: TrackVisibility): Promise<IStudioTrack> {
+    console.log('[MOCK] studioService.updateVisibility called', { trackId, visibility });  //check
+    await new Promise((r) => setTimeout(r, 300));
+    const track = mockTracks.find((t) => t.id === trackId);
+    if (!track) throw new Error(`Track ${trackId} not found`);
+    track.visibility = visibility;
+    return { ...track };
+  },
+};
