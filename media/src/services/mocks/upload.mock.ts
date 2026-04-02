@@ -16,7 +16,7 @@ const MOCK_QUOTA: IUploadQuota = {
 export const mockUploadService: IUploadService = {
   async getQuota(): Promise<IUploadQuota> {
     console.log('[MOCK] getQuota called');  // check
-    await new Promise((r) => setTimeout(r, 300));
+    await new Promise((r) => setTimeout(r, 300));  
     return { ...MOCK_QUOTA };
   },
  
