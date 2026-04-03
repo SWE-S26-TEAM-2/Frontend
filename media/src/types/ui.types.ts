@@ -64,3 +64,9 @@ export type IActiveTab =
   | "Albums"
   | "Playlists"
   | "Reposts";
+
+
+  export interface IVerifyEmailStepProps {
+    email: string;
+    onBack: () => void;
+  }
