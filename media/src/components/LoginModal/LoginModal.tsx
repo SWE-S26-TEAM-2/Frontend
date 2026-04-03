@@ -11,12 +11,13 @@ import { AuthService } from "@/services";
 import type { ILoginModalProps } from "@/types/ui.types";
 import { useGoogleLogin } from "@react-oauth/google";
 import{useRouter} from "next/navigation";
+import VerifyEmailStep from "./VerifyEmailStep";
 
 export default function LoginModal({ onClose }: ILoginModalProps) {
   
   const [emailOrProfileUrl, setEmailOrProfileUrl] = useState("");
   const [error, setError] = useState("");
-  const [step, setStep] = useState<"main" | "input" | "register" | "signin"|"tell-us-more">("main");
+  const [step, setStep] = useState<"main" | "input" | "register" | "signin"|"tell-us-more"|"verify-email">("main");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -129,7 +130,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       setIsLoading(true);
       const finalDisplayName = data.displayName || emailOrProfileUrl.split("@")[0];
       await AuthService.updateProfile({ ...data, displayName: finalDisplayName });
-      router.push("/verify-email");
+      setStep("verify-email");
     } catch {
       setError("Failed to update profile. Please try again.");
     } finally {
@@ -248,6 +249,12 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
          onBack={() => { setStep("main"); setError(""); setIsSuccess(false); }}
          isLoading={isLoading}
          />
+        )}
+        {step === "verify-email" && (
+        <VerifyEmailStep
+        email={emailOrProfileUrl}
+        onBack={() => { setStep("main"); setError(""); setIsSuccess(false); }}
+        />
         )}
 
       </div>

@@ -90,3 +90,7 @@ export interface IUpdateProfileResponse {
   success: boolean;
   user: IUser;
 }
+
+export interface IResendVerificationResponse {
+  success: boolean;
+}

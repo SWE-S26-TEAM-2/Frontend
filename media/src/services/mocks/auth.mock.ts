@@ -1,5 +1,5 @@
 // src/services/mocks/auth.mock.ts
-import { ILoginResponse, IUser , ICheckEmailResponse, IRegisterResponse, IUpdateProfileRequest, IUpdateProfileResponse} from "@/types/auth.types";
+import { ILoginResponse, IUser , ICheckEmailResponse, IRegisterResponse, IUpdateProfileRequest, IUpdateProfileResponse, IResendVerificationResponse} from "@/types/auth.types";
 
 /**
  * Mock authentication service for development/testing
@@ -98,6 +98,16 @@ export const MockAuthService = {
     };
   },
 
+
+  resendVerification: async (email: string): Promise<IResendVerificationResponse> => {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    
+    if (!email) {
+      throw new Error("Email is required");
+    }
+  
+    return { success: true };
+  },
 
   /**
    * Mock logout - clears session
