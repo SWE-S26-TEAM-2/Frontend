@@ -10,7 +10,6 @@ import TellUsMoreStep from "./TellUsMoreStep";
 import { AuthService } from "@/services";
 import type { ILoginModalProps } from "@/types/ui.types";
 import { useGoogleLogin } from "@react-oauth/google";
-import{useRouter} from "next/navigation";
 import VerifyEmailStep from "./VerifyEmailStep";
 
 export default function LoginModal({ onClose }: ILoginModalProps) {
@@ -22,7 +21,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const[captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const router = useRouter();
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmailOrProfileUrl(e.target.value);
