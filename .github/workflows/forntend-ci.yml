@@ -39,4 +39,4 @@ jobs:
         run: npm run build
 
       - name: Build Docker image
-        run: docker build --build-arg NEXT_PUBLIC_GOOGLE_CLIENT_ID=$NEXT_PUBLIC_GOOGLE_CLIENT_ID -t frontend:test .
+        run: docker build --platform linux/amd64 --build-arg NEXT_PUBLIC_GOOGLE_CLIENT_ID=$NEXT_PUBLIC_GOOGLE_CLIENT_ID -t frontend:test  .

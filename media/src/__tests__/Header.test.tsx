@@ -121,10 +121,10 @@ describe("Header Component", () => {
     test("opens avatar dropdown when avatar button is clicked", async () => {
       render(<Header isLoggedIn={true} />);
       
-      const avatarButton = screen.getByAltText("User avatar").closest("button");
+      const avatarButton = screen.getByLabelText("Open profile menu");
       expect(avatarButton).toBeInTheDocument();
       
-      fireEvent.click(avatarButton!);
+      fireEvent.click(avatarButton);
       
       await waitFor(() => {
         expect(screen.getByText("Profile")).toBeVisible();
@@ -136,14 +136,14 @@ describe("Header Component", () => {
     test("closes avatar dropdown when clicked again", async () => {
       render(<Header isLoggedIn={true} />);
       
-      const avatarButton = screen.getByAltText("User avatar").closest("button");
-      fireEvent.click(avatarButton!);
+      const avatarButton = screen.getByLabelText("Open profile menu");
+      fireEvent.click(avatarButton);
       
       await waitFor(() => {
         expect(screen.getByText("Profile")).toBeVisible();
       });
       
-      fireEvent.click(avatarButton!);
+      fireEvent.click(avatarButton);
       
       await waitFor(() => {
         // Check if the menu container is hidden (not visible in DOM)
@@ -153,8 +153,8 @@ describe("Header Component", () => {
     test("closes dropdown on outside click", async () => {
       render(<Header isLoggedIn={true} />);
       
-      const avatarButton = screen.getByAltText("User avatar").closest("button");
-      fireEvent.click(avatarButton!);
+      const avatarButton = screen.getByLabelText("Open profile menu");
+      fireEvent.click(avatarButton);
       
       await waitFor(() => {
         expect(screen.getByText("Profile")).toBeVisible();
@@ -171,8 +171,8 @@ describe("Header Component", () => {
     test("avatar dropdown contains correct menu items", async () => {
       render(<Header isLoggedIn={true} />);
       
-      const avatarButton = screen.getByAltText("User avatar").closest("button");
-      fireEvent.click(avatarButton!);
+      const avatarButton = screen.getByLabelText("Open profile menu");
+      fireEvent.click(avatarButton);
       
       await waitFor(() => {
         expect(screen.getByText("Profile")).toBeInTheDocument();
@@ -188,12 +188,12 @@ describe("Header Component", () => {
     test("avatar dropdown items have correct hrefs", async () => {
       render(<Header isLoggedIn={true} />);
       
-      const avatarButton = screen.getByAltText("User avatar").closest("button");
-      fireEvent.click(avatarButton!);
+      const avatarButton = screen.getByLabelText("Open profile menu");
+      fireEvent.click(avatarButton);
       
       await waitFor(() => {
         const profileLink = screen.getByText("Profile").closest("a");
-        expect(profileLink).toHaveAttribute("href", "/profile");
+        expect(profileLink).toHaveAttribute("href", "/testuser");
         
         const likesLink = screen.getByText("Likes").closest("a");
         expect(likesLink).toHaveAttribute("href", "/likes");
@@ -246,8 +246,8 @@ describe("Header Component", () => {
     test("closes avatar menu when dots menu is opened", async () => {
       render(<Header isLoggedIn={true} />);
       
-      const avatarButton = screen.getByAltText("User avatar").closest("button");
-      fireEvent.click(avatarButton!);
+      const avatarButton = screen.getByLabelText("Open profile menu");
+      fireEvent.click(avatarButton);
       
       await waitFor(() => {
         expect(screen.getByText("Profile")).toBeVisible();

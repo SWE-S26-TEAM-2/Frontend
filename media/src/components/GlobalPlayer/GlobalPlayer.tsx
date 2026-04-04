@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import { usePlayer } from "@/context/PlayerContext";
+import { usePlayerStore } from "@/store/playerStore";
 
 export default function GlobalPlayer() {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -12,7 +12,7 @@ export default function GlobalPlayer() {
     currentTime,
     setCurrentTime,
     setDuration,
-  } = usePlayer();
+  } = usePlayerStore();
 
   // ✅ ALWAYS call hooks
   useEffect(() => {

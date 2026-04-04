@@ -2,14 +2,6 @@
  * Track types following standardized API patterns
  */
 
-export interface ITrackHeaderProps {
-  track: ITrack;
-}
-
-export interface ICommentsSectionProps {
-  comments: ITrackComment[];
-}
-
 export interface IRelatedTracksProps {
   tracks: ITrack[];
   sourceTrack?: ITrack;
@@ -25,14 +17,6 @@ export interface ITrackCoverProps {
   size?: number;
   accentColor?: string;
   alt?: string;
-}
-
-export interface ITrackDescriptionProps {
-  track: ITrack;
-}
-
-export interface ITrackStatsProps {
-  track: ITrack;
 }
 
 export interface IWaveformProps {
