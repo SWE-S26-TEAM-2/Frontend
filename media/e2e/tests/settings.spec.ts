@@ -22,8 +22,7 @@ function settingsTab(page: Page, name: string) {
 async function navigateToSettingsTab(
   page: Page,
   tabName: string,
-  href: string,
-  readyLocator?: ReturnType<Page['locator']>
+  href: string
 ) {
   const tab = settingsTab(page, tabName);
 
@@ -34,16 +33,11 @@ async function navigateToSettingsTab(
   await tab.scrollIntoViewIfNeeded();
   await tab.click({ trial: true });
 
-  await tab.click();
+  await Promise.all([page.waitForURL(`**${href}`), tab.click()]);
 
   await expect(page).toHaveURL(
-    new RegExp(`${href.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`),
-    { timeout: 15000 }
+    new RegExp(`${href.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`)
   );
-
-  if (readyLocator) {
-    await readyLocator.waitFor({ state: 'visible', timeout: 15000 });
-  }
 }
 
 function sectionByHeading(page: Page, name: string) {
@@ -89,40 +83,53 @@ test.describe('Settings pages', () => {
       })
     ).toBeVisible();
 
-    await navigateToSettingsTab(
-      page,
-      'Content',
-      '/settings/content',
-      settingsMain(page).getByRole('heading', { name: /RSS feed/ })
-    );
+    await navigateToSettingsTab(page, 'Content', '/settings/content');
+    await expect(
+      settingsMain(page).getByRole('heading', { name: 'RSS feed', exact: true })
+    ).toBeVisible();
+    await navigateToSettingsTab(page, 'Content', '/settings/content');
 
+    const contentPage = settingsMain(page);
+    const loadingText = contentPage.getByText('Loading...', { exact: true });
+    const rssHeading = contentPage.getByRole('heading', {
+      name: 'RSS feed',
+      exact: true,
+    });
+
+    if (await loadingText.isVisible().catch(() => false)) {
+      await loadingText.waitFor({ state: 'hidden', timeout: 10000 });
+    }
+
+    await expect(rssHeading).toBeVisible();
     await navigateToSettingsTab(
       page,
       'Notifications',
-      '/settings/notifications',
+      '/settings/notifications'
+    );
+    await expect(
       settingsMain(page).getByText('Activities', { exact: true })
-    );
+    ).toBeVisible();
 
-    await navigateToSettingsTab(
-      page,
-      'Privacy',
-      '/settings/privacy',
-      settingsMain(page).getByText('Privacy settings', { exact: true })
-    );
+    await navigateToSettingsTab(page, 'Privacy', '/settings/privacy');
+    await expect(
+      settingsMain(page).getByRole('heading', {
+        name: 'Privacy settings',
+        exact: true,
+      })
+    ).toBeVisible();
 
-    await navigateToSettingsTab(
-      page,
-      'Advertising',
-      '/settings/advertising',
-      settingsMain(page).getByText('Advertising Settings', { exact: true })
-    );
+    await navigateToSettingsTab(page, 'Advertising', '/settings/advertising');
+    await expect(
+      settingsMain(page).getByRole('heading', {
+        name: 'Advertising Settings',
+        exact: true,
+      })
+    ).toBeVisible();
 
-    await navigateToSettingsTab(
-      page,
-      '2FA',
-      '/settings/two-factor',
+    await navigateToSettingsTab(page, '2FA', '/settings/two-factor');
+    await expect(
       settingsMain(page).getByText('Status', { exact: true })
-    );
+    ).toBeVisible();
   });
 
   test('privacy auth page loads and allows toggling a setting', async ({
