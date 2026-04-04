@@ -21,15 +21,15 @@
 import { expect, test } from '@playwright/test';
 import { gotoHome } from '../helpers/navigation';
 import {
+  AUTH_FIXTURES,
   clearAuthState,
   seedAuthToken,
   openLoginModal,
   fillEmailInput,
   clickContinue,
-  fillPasswordInput,
-  closeLoginModal,
   getAuthToken,
   openDotsMenu,
+  waitForPasswordStep,
 } from '../helpers/auth';
 import { LOGIN_SELECTORS } from '../selectors/login.selectors';
 import { AUTH_SELECTORS } from '../selectors/auth.selectors';
@@ -45,13 +45,14 @@ test.describe('@critical Valid Login Flow', () => {
     await gotoHome(page);
     await openLoginModal(page);
 
-    await fillEmailInput(page, 'testuser@example.com');
+    await fillEmailInput(page, AUTH_FIXTURES.existingEmail);
     await clickContinue(page);
 
-    // Should advance to either sign-in or register step
-    // Both show a password field
-    const passwordInput = page.locator(LOGIN_SELECTORS.PASSWORD_INPUT).first();
-    await expect(passwordInput).toBeVisible({ timeout: 5000 });
+    const passwordInput = await waitForPasswordStep(page);
+    await expect(passwordInput).toBeVisible();
+    await expect(
+      page.getByText('Welcome back!', { exact: true })
+    ).toBeVisible();
   });
 
   test('email input advances for valid profile URL format', async ({
@@ -60,12 +61,14 @@ test.describe('@critical Valid Login Flow', () => {
     await gotoHome(page);
     await openLoginModal(page);
 
-    await fillEmailInput(page, 'soundcloud.com/testartist');
+    await fillEmailInput(page, AUTH_FIXTURES.existingProfileUrl);
     await clickContinue(page);
 
-    // Should advance to next step
-    const passwordInput = page.locator(LOGIN_SELECTORS.PASSWORD_INPUT).first();
-    await expect(passwordInput).toBeVisible({ timeout: 5000 });
+    const passwordInput = await waitForPasswordStep(page);
+    await expect(passwordInput).toBeVisible();
+    await expect(
+      page.getByText('Welcome back!', { exact: true })
+    ).toBeVisible();
   });
 
   test('OAuth provider buttons are visible and clickable', async ({ page }) => {
@@ -90,11 +93,10 @@ test.describe('@critical Valid Login Flow', () => {
     await gotoHome(page);
     await openLoginModal(page);
 
-    await fillEmailInput(page, 'testuser@example.com');
+    await fillEmailInput(page, AUTH_FIXTURES.existingEmail);
     await clickContinue(page);
 
-    const passwordInput = page.locator(LOGIN_SELECTORS.PASSWORD_INPUT).first();
-    await passwordInput.waitFor({ state: 'visible' });
+    const passwordInput = await waitForPasswordStep(page);
 
     // Password should initially be hidden
     await expect(passwordInput).toHaveAttribute('type', 'password');
@@ -115,12 +117,10 @@ test.describe('@critical Valid Login Flow', () => {
     await gotoHome(page);
     await openLoginModal(page);
 
-    await fillEmailInput(page, 'testuser@example.com');
+    await fillEmailInput(page, AUTH_FIXTURES.existingEmail);
     await clickContinue(page);
 
-    // Wait for password step
-    const passwordInput = page.locator(LOGIN_SELECTORS.PASSWORD_INPUT).first();
-    await passwordInput.waitFor({ state: 'visible' });
+    await waitForPasswordStep(page);
 
     // Click back button
     const backButton = page.locator(LOGIN_SELECTORS.BACK_BUTTON);

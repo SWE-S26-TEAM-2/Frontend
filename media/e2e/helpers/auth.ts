@@ -2,6 +2,14 @@ import { expect, type Page } from '@playwright/test';
 import { LOGIN_SELECTORS } from '../selectors/login.selectors';
 import { AUTH_SELECTORS } from '../selectors/auth.selectors';
 
+export const AUTH_FIXTURES = {
+  existingEmail: 'test@example.com',
+  existingProfileUrl: 'soundcloud.com/testuser',
+  newEmail: 'newuser@example.com',
+  newProfileUrl: 'soundcloud.com/new-artist',
+  validPassword: 'pass123',
+} as const;
+
 export async function seedAuthToken(
   page: Page,
   token: string = 'fake-e2e-token'
@@ -40,20 +48,60 @@ export async function fillEmailInput(page: Page, email: string) {
 }
 
 /**
- * Clicks the Continue button in the login modal.
+ * Clicks the Continue button in the login modal and waits for step transition.
+ * Waits for either:
+ * - Password input to become visible (valid email → next step)
+ * - Error text to appear (invalid email → stays on same step)
  */
 export async function clickContinue(page: Page) {
   const continueButton = page.locator(LOGIN_SELECTORS.CONTINUE_BUTTON).first();
   await continueButton.click();
+
+  // Wait for a state transition: either password step OR error message
+  const passwordInput = page.locator(LOGIN_SELECTORS.PASSWORD_INPUT).first();
+  const errorText = page.locator('text=/Please enter|Invalid|error/i').first();
+  const welcomeBack = page.getByText('Welcome back!');
+  const createAccount = page.getByText('Create an account');
+
+  // Wait for any of: password input, error message, or step title change
+  await Promise.race([
+    passwordInput.waitFor({ state: 'visible', timeout: 10000 }).catch(() => {}),
+    errorText.waitFor({ state: 'visible', timeout: 10000 }).catch(() => {}),
+    welcomeBack.waitFor({ state: 'visible', timeout: 10000 }).catch(() => {}),
+    createAccount.waitFor({ state: 'visible', timeout: 10000 }).catch(() => {}),
+  ]);
 }
 
 /**
  * Fills the password input (works for both sign in and register).
  */
 export async function fillPasswordInput(page: Page, password: string) {
-  const passwordInput = page.locator(LOGIN_SELECTORS.PASSWORD_INPUT).first();
-  await passwordInput.waitFor({ state: 'visible' });
+  const passwordInput = await waitForPasswordStep(page);
   await passwordInput.fill(password);
+  return passwordInput;
+}
+
+/**
+ * Waits for the auth flow to render either the sign-in or register password step.
+ */
+export async function waitForPasswordStep(page: Page) {
+  const passwordInput = page.locator(LOGIN_SELECTORS.PASSWORD_INPUT).first();
+
+  await expect(async () => {
+    const signInVisible = await page
+      .getByText('Welcome back!', { exact: true })
+      .isVisible()
+      .catch(() => false);
+    const registerVisible = await page
+      .getByText('Create an account', { exact: true })
+      .isVisible()
+      .catch(() => false);
+    const passwordVisible = await passwordInput.isVisible().catch(() => false);
+
+    expect(signInVisible || registerVisible).toBe(true);
+    expect(passwordVisible).toBe(true);
+  }).toPass({ timeout: 7000 });
+
   return passwordInput;
 }
 

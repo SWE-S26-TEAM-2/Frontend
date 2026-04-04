@@ -199,25 +199,20 @@ test.describe('@high Repeated Modal Actions', () => {
     await openLoginModal(page);
 
     // Click on the overlay (outside the modal box)
-    // The overlay is the fixed backdrop
-    await page
-      .locator('div.fixed.inset-0.bg-black\\/70')
-      .click({ position: { x: 10, y: 10 }, force: true });
+    // The overlay is the fixed backdrop around the modal container.
+    await page.locator('div.fixed.inset-0').click({
+      position: { x: 10, y: 10 },
+      force: true,
+    });
 
     // Modal should close
-    await page.waitForTimeout(500);
-    // Note: If overlay click doesn't close, this documents that behavior
+    await expect(
+      page.getByText('Sign in or create an account', { exact: true })
+    ).toBeHidden();
   });
 
-  test('pressing Escape closes modal', async ({ page }) => {
-    await gotoHome(page);
-    await openLoginModal(page);
-
-    await page.keyboard.press('Escape');
-
-    // Wait for close animation
-    await page.waitForTimeout(500);
-    // Note: If Escape doesn't close, this documents that behavior
+  test.skip('pressing Escape closes modal', async () => {
+    // Escape close is not implemented in LoginModal yet.
   });
 
   test('rapid clicking on sign in button does not break UI', async ({
