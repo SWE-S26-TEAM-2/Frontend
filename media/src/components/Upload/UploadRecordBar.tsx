@@ -12,11 +12,7 @@ export default function UploadRecordBar() {
         type="button"
         onClick={() => setIsExpanded((prev) => !prev)}
         aria-expanded={isExpanded}
-        className="
-          w-full flex items-center justify-between px-6 py-4
-          hover:bg-[#222] transition-colors duration-150
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-white
-        "
+        className="w-full flex items-center justify-between px-6 py-4 hover:bg-[#222] transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
       >
         <div className="flex items-center gap-3">
           {/* Mic icon */}
