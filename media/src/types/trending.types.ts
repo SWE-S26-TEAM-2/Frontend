@@ -13,7 +13,7 @@ export interface IDotsMenuItem {
   dividerBefore?: boolean;
 }
 
-export interface SliderProps {
+export interface ISliderProps {
   title: string;
   subtitle: string;
   tracks: ITrack[];

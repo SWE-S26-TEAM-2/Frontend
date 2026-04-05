@@ -5,10 +5,10 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 
 import TrackCard2 from "./TrackCard2";
-import { SliderProps } from "@/types/trending.types";
+import { ISliderProps } from "@/types/trending.types";
 
 
-export default function TrackSlider({ title, subtitle, tracks }: SliderProps) {
+export default function TrackSlider({ title, subtitle, tracks }: ISliderProps) {
   const [index, setIndex] = useState(0);
   const [peekOffset, setPeekOffset] = useState(0); 
   const peekTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
