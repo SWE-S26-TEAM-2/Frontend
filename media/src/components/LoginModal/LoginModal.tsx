@@ -12,6 +12,7 @@ import type { ILoginModalProps } from "@/types/ui.types";
 import { useGoogleLogin } from "@react-oauth/google";
 import VerifyEmailStep from "./VerifyEmailStep";
 import ForgotPasswordStep from "./ForgotPasswordStep";
+import CheckYourEmailStep from "./CheckYourEmailStep";
 
 export default function LoginModal({ onClose }: ILoginModalProps) {
   
@@ -261,6 +262,11 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
         onBack={() => { setStep("signin"); setError(""); }}
         onSubmit={handleForgotPassword}
         isLoading={isLoading}
+        />
+        )}
+        {step === "check-your-email" && (
+        <CheckYourEmailStep
+        onBack={() => { setStep("signin"); setError(""); }}
         />
         )}
         {step === "tell-us-more" && (
