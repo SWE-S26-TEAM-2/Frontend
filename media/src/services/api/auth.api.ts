@@ -1,6 +1,6 @@
 // src/services/api/auth.api.ts
 import { ENV } from "../../config/env";
-import { ILoginRequest, ILoginResponse, IUser, ICheckEmailResponse, IRegisterResponse, IUpdateProfileRequest, IUpdateProfileResponse, IResendVerificationResponse} from "@/types/auth.types";
+import { ILoginRequest, ILoginResponse, IUser, ICheckEmailResponse, IRegisterResponse, IUpdateProfileRequest, IUpdateProfileResponse, IResendVerificationResponse, IForgotPasswordResponse, IResetPasswordResponse } from "@/types/auth.types";
 
 const getAuthTokenFromStorage = (): string | null => {
   let token: string | null = null;
@@ -113,6 +113,36 @@ export const RealAuthService = {
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
       throw new Error(error?.message || "Failed to resend verification email");
+    }
+  
+    return response.json();
+  },
+
+  forgotPassword: async (email: string): Promise<IForgotPasswordResponse> => {
+    const response = await fetch(`${ENV.API_BASE_URL}/auth/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+  
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error?.message || "Failed to send reset link");
+    }
+  
+    return response.json();
+  },
+  
+  resetPassword: async (token: string, newPassword: string): Promise<IResetPasswordResponse> => {
+    const response = await fetch(`${ENV.API_BASE_URL}/auth/reset-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, newPassword }),
+    });
+  
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error?.message || "Failed to reset password");
     }
   
     return response.json();

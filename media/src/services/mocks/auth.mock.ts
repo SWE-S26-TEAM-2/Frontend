@@ -1,5 +1,5 @@
 // src/services/mocks/auth.mock.ts
-import { ILoginResponse, IUser , ICheckEmailResponse, IRegisterResponse, IUpdateProfileRequest, IUpdateProfileResponse, IResendVerificationResponse} from "@/types/auth.types";
+import { ILoginResponse, IUser , ICheckEmailResponse, IRegisterResponse, IUpdateProfileRequest, IUpdateProfileResponse, IResendVerificationResponse,  IForgotPasswordResponse, IResetPasswordResponse} from "@/types/auth.types";
 
 /**
  * Mock authentication service for development/testing
@@ -104,6 +104,31 @@ export const MockAuthService = {
     
     if (!email) {
       throw new Error("Email is required");
+    }
+  
+    return { success: true };
+  },
+
+
+  forgotPassword: async (email: string): Promise<IForgotPasswordResponse> => {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    
+    if (!email) {
+      throw new Error("Email is required");
+    }
+  
+    return { success: true };
+  },
+  
+  resetPassword: async (token: string, newPassword: string): Promise<IResetPasswordResponse> => {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+  
+    if (!token) {
+      throw new Error("Invalid or expired reset token");
+    }
+  
+    if (newPassword.length < 8) {
+      throw new Error("Password must be at least 8 characters");
     }
   
     return { success: true };

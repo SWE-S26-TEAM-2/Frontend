@@ -23,6 +23,7 @@ export interface ISignInStepProps {
   onBack: () => void;
   error: string;
   isLoading: boolean;
+  onForgotPassword: () => void;
 }
 export interface IInputStepProps {
   emailOrProfileUrl: string;
@@ -93,4 +94,32 @@ export interface IUpdateProfileResponse {
 
 export interface IResendVerificationResponse {
   success: boolean;
+}
+
+export interface IForgotPasswordStepProps {
+  emailOrProfileUrl: string;
+  onBack: () => void;
+  onSubmit: () => void;
+  isLoading: boolean;
+}
+
+export interface IForgotPasswordRequest {
+  email: string;
+}
+
+export interface IForgotPasswordResponse {
+  success: boolean;
+}
+
+export interface IResetPasswordRequest {
+  token: string;
+  newPassword: string;
+}
+
+export interface IResetPasswordResponse {
+  success: boolean;
+}
+
+export interface ICheckYourEmailStepProps {
+  onBack: () => void;
 }

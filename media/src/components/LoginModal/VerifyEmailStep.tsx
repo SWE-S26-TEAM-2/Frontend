@@ -37,11 +37,11 @@ const handleResend = async () => {
         <p className="text-xs text-[#999999] text-center mb-6">
          No email in your inbox or spam folder?{" "}
         {resent ? (
-        <span className="text-[#ff5500]">Email sent!</span>
+        <span className="text-[#4a90e2]">Email sent!</span>
         ) : (
         <span
         onClick={handleResend}
-        className="text-[#ff5500] cursor-pointer hover:underline"
+        className="text-[#4a90e2] cursor-pointer hover:underline"
         >
         {isResending ? "Sending..." : "Send again"}
         </span>
@@ -65,7 +65,7 @@ const handleResend = async () => {
          Wrong address?{" "}
         <span
         onClick={onBack}
-        className="text-[#ff5500] cursor-pointer hover:underline"
+        className="text-[#4a90e2] cursor-pointer hover:underline"
         >
         Back to login
         </span>
@@ -73,7 +73,7 @@ const handleResend = async () => {
 
         <p className="text-[#999999] text-sm text-center">
         If you still need help, visit our{" "}
-        <span className="text-[#ff5500] cursor-pointer hover:underline">
+        <span className="text-[#4a90e2] cursor-pointer hover:underline">
         Help Center.
         </span>
         </p>

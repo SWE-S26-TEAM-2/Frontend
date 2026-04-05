@@ -11,12 +11,13 @@ import { AuthService } from "@/services";
 import type { ILoginModalProps } from "@/types/ui.types";
 import { useGoogleLogin } from "@react-oauth/google";
 import VerifyEmailStep from "./VerifyEmailStep";
+import ForgotPasswordStep from "./ForgotPasswordStep";
 
 export default function LoginModal({ onClose }: ILoginModalProps) {
   
   const [emailOrProfileUrl, setEmailOrProfileUrl] = useState("");
   const [error, setError] = useState("");
-  const [step, setStep] = useState<"main" | "input" | "register" | "signin"|"tell-us-more"|"verify-email">("main");
+  const [step, setStep] = useState<"main" | "input" | "register" | "signin"|"tell-us-more"|"verify-email"| "forgot-password" | "check-your-email">("main");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -137,6 +138,17 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
     }
   };
 
+  const handleForgotPassword = async () => {
+    try {
+      setIsLoading(true);
+      await AuthService.forgotPassword(emailOrProfileUrl);
+      setStep("check-your-email");
+    } catch {
+      // error is handled locally in ForgotPasswordStep
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     // Overlay — dark background behind modal
     <div
@@ -200,11 +212,11 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
 
         {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 
-        <button className="bg-[#555555] text-white w-full p-3 rounded cursor-pointer mb-10 text-[15px] font-semibold border-none" onClick={handleSubmit} disabled={isLoading}>
+        <button className="bg-[#555555] text-white w-full p-3 rounded cursor-pointer mb-3 text-[15px] font-semibold border-none" onClick={handleSubmit} disabled={isLoading}>
         {isLoading ? "Loading..." : "Continue"}
         </button>
 
-        <Link href="#" className="text-[#ff5500] text-sm cursor-pointer mt-8">
+        <Link href="#" className="text-[#4a90e2] text-sm cursor-pointer">
           Need help?
         </Link>
         </>
@@ -239,6 +251,15 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
         onSubmit={handleSubmit}
         onBack={() => {setStep("main"); setError(""); setIsSuccess(false);}}
         error={error}
+        isLoading={isLoading}
+        onForgotPassword={() => { setStep("forgot-password"); setError(""); }}
+        />
+        )}
+        {step === "forgot-password" && (
+        <ForgotPasswordStep
+        emailOrProfileUrl={emailOrProfileUrl}
+        onBack={() => { setStep("signin"); setError(""); }}
+        onSubmit={handleForgotPassword}
         isLoading={isLoading}
         />
         )}

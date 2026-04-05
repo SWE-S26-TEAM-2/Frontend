@@ -51,12 +51,12 @@ export default function RegisterStep({ emailOrProfileUrl, password, onPasswordCh
         <button
         onClick={onSubmit}
         disabled={isLoading}
-        className="bg-[#555555] text-white w-full p-3 rounded cursor-pointer mb-16 text-[15px] font-semibold border-none"
+        className="bg-[#555555] text-white w-full p-3 rounded cursor-pointer mb-3 text-[15px] font-semibold border-none"
         >
         {isLoading ? "Loading..." : "Continue"}
         </button>
 
-        <Link href="#" className="text-[#ff5500] text-sm cursor-pointer mt-8">
+        <Link href="#" className="text-[#4a90e2] text-sm cursor-pointer ">
         Need help?
         </Link>
 

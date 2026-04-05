@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import Link from "next/link";
+//import Link from "next/link";
 import {ISignInStepProps} from "@/types/auth.types";
 
 
-export default function SignInStep({ emailOrProfileUrl, password, onPasswordChange, onSubmit, onBack, error , isLoading}: ISignInStepProps) {
+export default function SignInStep({ emailOrProfileUrl, password, onPasswordChange, onSubmit, onBack, error , isLoading, onForgotPassword }: ISignInStepProps) {
     
     const [showPassword, setShowPassword] = useState(false);
 
@@ -45,14 +45,17 @@ export default function SignInStep({ emailOrProfileUrl, password, onPasswordChan
         <button
         onClick={onSubmit}
         disabled={isLoading}
-        className="bg-[#555555] text-white w-full p-3 rounded cursor-pointer mb-16 text-[15px] font-semibold border-none"
+        className="bg-[#555555] text-white w-full p-3 rounded cursor-pointer mb-3 text-[15px] font-semibold border-none"
         >
         {isLoading ? "Loading..." : "Continue"}
         </button>
 
-        <Link href="#" className="text-[#ff5500] text-sm cursor-pointer mt-8">
+        <button 
+        onClick={onForgotPassword} 
+        className="text-[#4a90e2] text-sm cursor-pointer bg-transparent border-none p-0 text-left w-fit"
+        >
         Forgot your password?
-        </Link>
+        </button>
 
 
 
