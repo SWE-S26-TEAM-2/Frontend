@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { AuthService } from "@/services";
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
@@ -52,9 +52,9 @@ export default function ResetPasswordPage() {
     <div className="min-h-screen bg-[#111111] flex items-center justify-center">
       <div className="bg-[#222222] w-125 rounded-lg p-10">
         <p className="text-white text-[24px] font-bold text-center mb-2">Change your password</p>
-        <p className="text-[#999999] text-sm text-center mb-8">
+        <p className="text-[#999999] text-sm text-center mb-3">
           Choose a strong, unique password. For tips on choosing a secure password,{" "}
-          <a href="#" className="text-[#4a90e2]"> visit our Help Center.</a>
+          <a href="#" className="text-[#4a90e2]">visit our Help Center.</a>
         </p>
 
         <p className="text-white text-sm mb-1">Type your new password</p>
@@ -90,18 +90,17 @@ export default function ResetPasswordPage() {
         </div>
 
         <div className="flex items-center gap-2 mb-4">
-        <input 
-        type="checkbox" 
-        id="signOutEverywhere" 
-        className="cursor-pointer"
-        checked={signOutEverywhere}
-        onChange={(e) => setSignOutEverywhere(e.target.checked)}
-        />
-        <label htmlFor="signOutEverywhere" className="text-white text-sm cursor-pointer">
-        Also sign me out everywhere
-        </label>
+          <input
+            type="checkbox"
+            id="signOutEverywhere"
+            className="cursor-pointer"
+            checked={signOutEverywhere}
+            onChange={(e) => setSignOutEverywhere(e.target.checked)}
+          />
+          <label htmlFor="signOutEverywhere" className="text-white text-sm cursor-pointer">
+            Also sign me out everywhere
+          </label>
         </div>
-
 
         {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 
@@ -114,5 +113,13 @@ export default function ResetPasswordPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#111111]" />}>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }

@@ -120,7 +120,7 @@ export const MockAuthService = {
     return { success: true };
   },
   
-  resetPassword: async (token: string, newPassword: string): Promise<IResetPasswordResponse> => {
+  resetPassword: async (token: string, newPassword: string, signOutEverywhere: boolean): Promise<IResetPasswordResponse> => {
     await new Promise((resolve) => setTimeout(resolve, 800));
   
     if (!token) {
@@ -129,6 +129,10 @@ export const MockAuthService = {
   
     if (newPassword.length < 8) {
       throw new Error("Password must be at least 8 characters");
+    }
+
+    if(signOutEverywhere){
+      
     }
   
     return { success: true };
