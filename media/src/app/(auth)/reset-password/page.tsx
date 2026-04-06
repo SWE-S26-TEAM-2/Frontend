@@ -39,7 +39,7 @@ export default function ResetPasswordPage() {
     setError("");
     try {
       setIsLoading(true);
-      await AuthService.resetPassword(token, newPassword);
+      await AuthService.resetPassword(token, newPassword, signOutEverywhere);
       router.push("/reset-password/success");
     } catch {
       setError("Failed to reset password. Please try again.");
