@@ -114,6 +114,7 @@ export interface IForgotPasswordResponse {
 export interface IResetPasswordRequest {
   token: string;
   newPassword: string;
+  signOutEverywhere: boolean;
 }
 
 export interface IResetPasswordResponse {

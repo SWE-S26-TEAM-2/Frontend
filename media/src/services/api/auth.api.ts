@@ -133,11 +133,11 @@ export const RealAuthService = {
     return response.json();
   },
   
-  resetPassword: async (token: string, newPassword: string): Promise<IResetPasswordResponse> => {
+  resetPassword: async (token: string, newPassword: string,  signOutEverywhere: boolean): Promise<IResetPasswordResponse> => {
     const response = await fetch(`${ENV.API_BASE_URL}/auth/reset-password`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, newPassword }),
+      body: JSON.stringify({ token, newPassword, signOutEverywhere  }),
     });
   
     if (!response.ok) {
