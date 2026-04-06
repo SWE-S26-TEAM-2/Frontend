@@ -22,7 +22,6 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
   const [step, setStep] = useState<"main" | "input" | "register" | "signin"|"tell-us-more"|"verify-email"| "forgot-password" | "check-your-email">("main");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  //const [isSuccess, setIsSuccess] = useState(false);
   const[captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   const router = useRouter();
@@ -33,7 +32,6 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
   };
   const handleGoogleLogin = useGoogleLogin({
     onSuccess:async (response)=> {
-      //console.error(response.access_token);
       try{
       setIsLoading(true);
       await AuthService.googleLogin(response.access_token);
@@ -66,9 +64,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
     setError("");
     try {
       setIsLoading(true);
-      //console.error("checking email:", emailOrProfileUrl);
       const { isExisting } = await AuthService.checkEmail(emailOrProfileUrl);
-      //console.error("isExisting:", isExisting);
     if (isExisting) {
     setStep("signin");
     } else {
@@ -102,14 +98,10 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       setIsLoading(true);
       if (step === "register") {
         await AuthService.register(emailOrProfileUrl, password);
-        //router.push("/verify-email");
         setStep("tell-us-more");
-        //console.error("registered:", response);
       } else {
         await AuthService.login(emailOrProfileUrl, password);
-        //setIsSuccess(true);
         router.push("/track/1");
-       // console.error("logged in:", response);
       }
       
     } catch {
@@ -118,7 +110,6 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       setIsLoading(false);
     }
 
-    //console.error("submitting:", email, password);
   }
   };
   const handleEmailFocus = () => {
@@ -225,7 +216,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
             emailOrProfileUrl={emailOrProfileUrl}
             onInputChange={handleInputChange}
             onSubmit={handleSubmit}
-            onBack={() => {setStep("main"); setError(""); setIsSuccess(false);}}
+            onBack={() => {setStep("main"); setError("");}}
             error={error}
             isLoading={isLoading}
             />
