@@ -13,6 +13,7 @@ import { useGoogleLogin } from "@react-oauth/google";
 import VerifyEmailStep from "./VerifyEmailStep";
 import ForgotPasswordStep from "./ForgotPasswordStep";
 import CheckYourEmailStep from "./CheckYourEmailStep";
+import { useRouter } from "next/navigation";
 
 export default function LoginModal({ onClose }: ILoginModalProps) {
   
@@ -21,8 +22,10 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
   const [step, setStep] = useState<"main" | "input" | "register" | "signin"|"tell-us-more"|"verify-email"| "forgot-password" | "check-your-email">("main");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  //const [isSuccess, setIsSuccess] = useState(false);
   const[captchaToken, setCaptchaToken] = useState<string | null>(null);
+
+  const router = useRouter();
 
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,7 +37,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       try{
       setIsLoading(true);
       await AuthService.googleLogin(response.access_token);
-      setIsSuccess(true);
+      router.push("/track/1");
       
       }catch{
         setError("Google login failed. Please try again.");
@@ -104,7 +107,8 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
         //console.error("registered:", response);
       } else {
         await AuthService.login(emailOrProfileUrl, password);
-        setIsSuccess(true);
+        //setIsSuccess(true);
+        router.push("/track/1");
        // console.error("logged in:", response);
       }
       
@@ -156,12 +160,6 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       onClick={onClose}
       className="fixed inset-0 bg-[rgba(0,0,0,0.7)] flex items-center justify-center z-1000"
     >
-      {isSuccess && (
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-[#333333] text-white px-6 py-4 rounded-lg z-2000">
-      Successfully signed in! 🎉
-      </div>
-      )}
-
       {/* Modal box — stop click from closing when clicking inside */}
       <div
         onClick={(e) => e.stopPropagation()}
@@ -169,7 +167,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       >
         {/* Close button */}
         <button
-          onClick={() => { onClose(); setIsSuccess(false); }}
+          onClick={() =>  onClose()}
           className="absolute top-3 right-4 bg-none border-none text-[#999] text-xl cursor-pointer"
         >
           ✕
@@ -238,7 +236,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
         password={password}
         onPasswordChange={handlePasswordChange}
         onSubmit={handleSubmit}
-        onBack={() => {setStep("main"); setError(""); setIsSuccess(false);}}
+        onBack={() => {setStep("main"); setError("");}}
         error={error}
         isLoading={isLoading}
         onCaptchaChange={(token) => setCaptchaToken(token)}
@@ -250,7 +248,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
         password={password}
         onPasswordChange={handlePasswordChange}
         onSubmit={handleSubmit}
-        onBack={() => {setStep("main"); setError(""); setIsSuccess(false);}}
+        onBack={() => {setStep("main"); setError("");}}
         error={error}
         isLoading={isLoading}
         onForgotPassword={() => { setStep("forgot-password"); setError(""); }}
@@ -272,14 +270,14 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
         {step === "tell-us-more" && (
          <TellUsMoreStep 
          onSubmit={handleTellUsMoreSubmit}
-         onBack={() => { setStep("main"); setError(""); setIsSuccess(false); }}
+         onBack={() => { setStep("main"); setError(""); }}
          isLoading={isLoading}
          />
         )}
         {step === "verify-email" && (
         <VerifyEmailStep
         email={emailOrProfileUrl}
-        onBack={() => { setStep("main"); setError(""); setIsSuccess(false); }}
+        onBack={() => { setStep("main"); setError("");}}
         />
         )}
 
