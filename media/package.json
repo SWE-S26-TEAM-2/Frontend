@@ -17,8 +17,10 @@
   "dependencies": {
     "@react-oauth/google": "^0.13.4",
     "@types/react-google-recaptcha": "^2.1.9",
+    "autoprefixer": "^10.4.27",
     "bootstrap": "^5.3.8",
     "next": "16.1.6",
+    "postcss": "^8.5.8",
     "react": "19.2.3",
     "react-bootstrap": "^2.10.10",
     "react-dom": "19.2.3",
@@ -27,7 +29,7 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
-    "@playwright/test": "^1.58.2",
+    "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -44,7 +46,7 @@
     "jest": "^30.3.0",
     "jest-environment-jsdom": "^30.3.0",
     "prettier": "^3.8.1",
-    "tailwindcss": "^4",
+    "tailwindcss": "^4.2.2",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "typescript": "^5"

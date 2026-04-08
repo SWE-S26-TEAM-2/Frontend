@@ -47,6 +47,12 @@ export interface ICheckEmailResponse {
   isExisting: boolean;
 }
 
+export interface ITellUsMoreStepProps {
+  onSubmit: (data: { displayName: string; month: string; day: string; year: string; gender: string }) => void;
+  onBack: () => void;
+  isLoading: boolean;
+}
+
 export interface IUser {
   id: string | number;
   username: string;
@@ -70,4 +76,21 @@ export interface IAuthState {
   isLoggedIn: boolean;
   login: (user: IUser, token: string) => void;
   logout: () => void;
+}
+
+export interface IUpdateProfileRequest {
+  displayName: string;
+  month: string;
+  day: string;
+  year: string;
+  gender: string;
+}
+
+export interface IUpdateProfileResponse {
+  success: boolean;
+  user: IUser;
+}
+
+export interface IResendVerificationResponse {
+  success: boolean;
 }
