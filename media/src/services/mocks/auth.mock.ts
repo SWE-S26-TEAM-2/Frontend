@@ -1,5 +1,5 @@
 // src/services/mocks/auth.mock.ts
-import { ILoginResponse, IUser , ICheckEmailResponse, IRegisterResponse} from "@/types/auth.types";
+import { ILoginResponse, IUser , ICheckEmailResponse, IRegisterResponse, IUpdateProfileRequest, IUpdateProfileResponse, IResendVerificationResponse} from "@/types/auth.types";
 
 /**
  * Mock authentication service for development/testing
@@ -22,7 +22,7 @@ export const MockAuthService = {
       createdAt: new Date().toISOString(),
     };
 
-    if (emailOrProfileUrl === "test@example.com" && password === "pass123") {
+    if ((emailOrProfileUrl === "test@example.com"|| emailOrProfileUrl === "soundcloud.com/testuser")  && password === "pass123") {
       return {
         success: true,
         token: "fake-jwt-token-12345-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
@@ -84,6 +84,30 @@ export const MockAuthService = {
   },
 
 
+  updateProfile: async (data: IUpdateProfileRequest): Promise<IUpdateProfileResponse> => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return {
+      success: true,
+      user: {
+        id: "user-123",
+        username: data.displayName,
+        email: "test@example.com",
+        profileImageUrl: "/default-avatar.png",
+        createdAt: new Date().toISOString(),
+      },
+    };
+  },
+
+
+  resendVerification: async (email: string): Promise<IResendVerificationResponse> => {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    
+    if (!email) {
+      throw new Error("Email is required");
+    }
+  
+    return { success: true };
+  },
 
   /**
    * Mock logout - clears session
