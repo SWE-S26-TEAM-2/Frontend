@@ -38,6 +38,11 @@ import { getAdvertisingSettingsFromAPI, updateAdvertisingSettingsOnAPI } from ".
 import { getMockTwoFactorSettings, updateMockTwoFactorSettings } from "./mocks/settings-two-factor.mock";
 import { getTwoFactorSettingsFromAPI, updateTwoFactorSettingsOnAPI } from "./api/settings-two-factor.api";
 
+// upload
+import { mockUploadService } from "./mocks/upload.mock";
+import { realUploadService } from "./api/upload.api";
+import type { IUploadService } from "@/types/upload.types";
+
 /**
  * Authentication Service
  * Automatically switches between mock and real based on USE_MOCK_API flag
@@ -57,6 +62,13 @@ export const trackService = ENV.USE_MOCK_API ? mockTrackService : realTrackServi
 export const userProfileService: IUserProfileService = ENV.USE_MOCK_API
   ? mockUserProfileService
   : realUserProfileService;
+
+/**
+ * Upload Service
+ */
+export const uploadService: IUploadService = ENV.USE_MOCK_API
+  ? mockUploadService
+  : realUploadService;
 
 /**
  * Settings - Privacy Service
@@ -139,4 +151,6 @@ export {
   updatePrivacySettingsOnAPI,
   mockUserProfileService,
   realUserProfileService,
+  mockUploadService,
+  realUploadService,
 };

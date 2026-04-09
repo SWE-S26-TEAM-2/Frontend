@@ -1,6 +1,6 @@
 // src/services/api/auth.api.ts
 import { ENV } from "../../config/env";
-import { ILoginRequest, ILoginResponse, IUser, ICheckEmailResponse, IRegisterResponse } from "@/types/auth.types";
+import { ILoginRequest, ILoginResponse, IUser, ICheckEmailResponse, IRegisterResponse, IUpdateProfileRequest, IUpdateProfileResponse, IResendVerificationResponse} from "@/types/auth.types";
 
 const getAuthTokenFromStorage = (): string | null => {
   let token: string | null = null;
@@ -81,6 +81,42 @@ export const RealAuthService = {
     return response.json();
   },
 
+  updateProfile: async (data: IUpdateProfileRequest): Promise<IUpdateProfileResponse> => {
+    const token = getAuthTokenFromStorage();
+    const response = await fetch(`${ENV.API_BASE_URL}/auth/profile`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+  
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error?.message || "Failed to update profile");
+    }
+  
+    return response.json();
+  },
+
+
+  resendVerification: async (email: string): Promise<IResendVerificationResponse> => {
+    const response = await fetch(`${ENV.API_BASE_URL}/auth/resend-verification`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
+  
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error?.message || "Failed to resend verification email");
+    }
+  
+    return response.json();
+  },
   /**
    * Logout user and invalidate token
    */

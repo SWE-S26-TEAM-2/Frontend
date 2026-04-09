@@ -73,3 +73,9 @@ export type IActiveTab =
     onClose: () => void;
     onSave: (payload: IEditProfilePayload) => Promise<void>;
   }
+
+
+  export interface IVerifyEmailStepProps {
+    email: string;
+    onBack: () => void;
+  }
