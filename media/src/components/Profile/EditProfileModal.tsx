@@ -68,20 +68,17 @@ export function EditProfileModal({ user, onClose, onSave }: IEditProfileModalPro
   const fileInputRef = useRef<HTMLInputElement>(null);
   const nextId       = useRef(100);
 
-  // Close on Escape
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  // Prevent body scroll
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = ""; };
   }, []);
 
-  // Close image menu on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (imageMenuRef.current && !imageMenuRef.current.contains(e.target as Node)) {
@@ -99,8 +96,7 @@ export function EditProfileModal({ user, onClose, onSave }: IEditProfileModalPro
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const objectUrl = URL.createObjectURL(file);
-    setAvatarPreview(objectUrl);
+    setAvatarPreview(URL.createObjectURL(file));
   };
 
   const handleAddLink = () => {
@@ -128,10 +124,10 @@ export function EditProfileModal({ user, onClose, onSave }: IEditProfileModalPro
       const builtLinks: IEditProfilePayload["links"] = {};
       links.forEach(l => {
         const label = l.label.toLowerCase();
-        if (label === "instagram")     builtLinks.instagram = l.url;
-        else if (label === "twitter")  builtLinks.twitter   = l.url;
-        else if (label === "facebook") builtLinks.facebook  = l.url;
-        else                           builtLinks.website   = l.url;
+        if (label === "instagram")      builtLinks.instagram = l.url;
+        else if (label === "twitter")   builtLinks.twitter   = l.url;
+        else if (label === "facebook")  builtLinks.facebook  = l.url;
+        else                            builtLinks.website   = l.url;
       });
       await onSave({ displayName, firstName, lastName, city, country, bio, links: builtLinks });
       onClose();
@@ -141,46 +137,51 @@ export function EditProfileModal({ user, onClose, onSave }: IEditProfileModalPro
   };
 
   return (
-    // ── z-40 so it sits above header (z-30 or default) but below nothing ──
+    // ── Backdrop ──
     <div
       ref={backdropRef}
       onClick={handleBackdropClick}
-      className="fixed inset-0 z-70 flex items-center justify-center bg-black/75"
+      className="fixed inset-0 flex items-start justify-center bg-black/75 z-3000"
     >
-      <div className="relative bg-[#111] w-full max-w-170 max-h-[90vh] overflow-y-auto rounded-sm shadow-2xl">
+      {/* ── Modal box ── */}
+      <div className="relative w-182 mt-19 mb-7.5 rounded-sm shadow-2xl bg-black border-[0.8px] border-white/15 max-h-[calc(100vh-106px)] overflow-y-auto scrollbar-thin scrollbar-track-[#121212] scrollbar-thumb-white/20 hover:scrollbar-thumb-white/35 transition-transform duration-300 ease-[cubic-bezier(0.13,1.07,0.5,1.01)]">
 
         {/* ── Header ── */}
-        <div className="flex items-center justify-between px-8 pt-6 pb-5">
-          <h2 className="text-white text-lg font-semibold tracking-wide">Edit your Profile</h2>
+        <div className="flex items-center justify-between px-6 pt-5 pb-4">
+          <h2 className="text-white text-base font-semibold">Edit your Profile</h2>
           <button
             onClick={onClose}
-            className="text-[#777] hover:text-white text-xl leading-none cursor-pointer bg-transparent border-none transition-colors"
+            className="text-[#777] hover:text-white text-lg leading-none cursor-pointer bg-transparent border-none transition-colors"
           >
             ✕
           </button>
         </div>
 
-        {/* ── Body ── */}
-        <div className="flex gap-7 px-8 pb-4">
+        {/* ── Body: avatar + fields side by side ── */}
+        <div className="flex gap-6 px-6 pb-3">
 
           {/* Avatar column */}
-          <div className="shrink-0 flex flex-col items-center">
-            <div className="relative" ref={imageMenuRef}>
+          <div className="shrink-0" ref={imageMenuRef}>
+            <div className="relative">
 
               {/* Circle */}
               <div
                 onClick={() => setShowImageMenu(prev => !prev)}
-                className="relative w-35 h-35 rounded-full overflow-hidden bg-[#2a2a2a] flex items-center justify-center group cursor-pointer"
+                className="relative w-54 h-54 rounded-full overflow-hidden bg-[#2a2a2a] flex items-center justify-center group cursor-pointer shadow-[rgba(18,18,18,0.1)_0px_0px_0px_1px_inset]"
               >
                 {avatarPreview ? (
-                  <Image src={avatarPreview} alt="avatar" fill className="object-cover" />
+                  <Image
+                    src={avatarPreview}
+                    alt="avatar"
+                    fill
+                    className="object-cover transition-opacity duration-200"
+                  />
                 ) : (
                   <span className="text-6xl font-bold text-white select-none">
                     {(displayName?.[0] ?? user.username[0]).toUpperCase()}
                   </span>
                 )}
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-black/55 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
+                <div className="absolute inset-0 bg-black/55 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-full">
                   <span className="text-white text-[11px] font-semibold text-center leading-tight px-3">
                     Update<br />image
                   </span>
@@ -189,29 +190,20 @@ export function EditProfileModal({ user, onClose, onSave }: IEditProfileModalPro
 
               {/* Dropdown */}
               {showImageMenu && (
-                <div className="absolute top-[calc(100%-12px)] left-1/2 -translate-x-1/2 z-10 bg-[#111] border border-[#2a2a2a] rounded-sm shadow-xl overflow-hidden min-w-40">
-                  {/* Orange header */}
+                <div className="absolute top-[calc(100%-12px)] left-1/2 -translate-x-1/2 z-10 bg-[#121212] border border-white/15 rounded-sm shadow-xl overflow-hidden min-w-40">
                   <div className="bg-[#ff5500] px-4 py-2 text-white text-xs font-semibold text-center">
                     Update image
                   </div>
-                  {/* Replace */}
                   <button
-                    onClick={() => {
-                      setShowImageMenu(false);
-                      fileInputRef.current?.click();
-                    }}
-                    className="w-full text-left px-4 py-2.5 text-sm text-white bg-transparent border-none cursor-pointer hover:bg-[#1c1c1c] transition-colors"
+                    onClick={() => { setShowImageMenu(false); fileInputRef.current?.click(); }}
+                    className="w-full text-left px-4 py-2.5 text-sm text-white bg-transparent border-none cursor-pointer hover:bg-white/5 transition-colors"
                   >
                     Replace image
                   </button>
-                  <div className="border-t border-[#2a2a2a]" />
-                  {/* Delete */}
+                  <div className="border-t border-white/10" />
                   <button
-                    onClick={() => {
-                      setShowImageMenu(false);
-                      setAvatarPreview(null);
-                    }}
-                    className="w-full text-left px-4 py-2.5 text-sm text-white bg-transparent border-none cursor-pointer hover:bg-[#1c1c1c] transition-colors"
+                    onClick={() => { setShowImageMenu(false); setAvatarPreview(null); }}
+                    className="w-full text-left px-4 py-2.5 text-sm text-white bg-transparent border-none cursor-pointer hover:bg-white/5 transition-colors"
                   >
                     Delete image
                   </button>
@@ -222,27 +214,27 @@ export function EditProfileModal({ user, onClose, onSave }: IEditProfileModalPro
           </div>
 
           {/* Fields column */}
-          <div className="flex-1 flex flex-col gap-3.5">
+          <div className="flex-1 flex flex-col gap-3">
 
             {/* Display name */}
             <div className="flex flex-col gap-1">
-              <label className="text-[#999] text-[11px] font-semibold uppercase tracking-wider">
+              <label className="text-[#999] text-[11px] font-semibold tracking-wide">
                 Display name <span className="text-[#ff5500]">*</span>
               </label>
               <input
                 value={displayName}
                 onChange={e => setDisplayName(e.target.value)}
-                className="bg-[#1c1c1c] border border-[#2a2a2a] rounded-sm px-3 py-2 text-white text-sm outline-none focus:border-[#555] transition-colors"
+                className="bg-[#2a2a2a] border-none rounded-sm px-3 py-2 text-white text-sm outline-none focus:ring-1 focus:ring-[#555] transition-all"
               />
             </div>
 
             {/* Profile URL */}
             <div className="flex flex-col gap-1">
-              <label className="text-[#999] text-[11px] font-semibold uppercase tracking-wider">
+              <label className="text-[#999] text-[11px] font-semibold tracking-wide">
                 Profile URL <span className="text-[#ff5500]">*</span>
               </label>
-              <div className="flex items-center bg-[#1c1c1c] border border-[#2a2a2a] rounded-sm px-3 py-2">
-                <span className="text-[#4a4a4a] text-sm select-none">soundcloud.com/</span>
+              <div className="flex items-center bg-[#2a2a2a] rounded-sm px-3 py-2">
+                <span className="text-[#555] text-sm select-none">soundcloud.com/</span>
                 <span className="text-white text-sm">{user.username}</span>
               </div>
             </div>
@@ -250,19 +242,19 @@ export function EditProfileModal({ user, onClose, onSave }: IEditProfileModalPro
             {/* First & Last name */}
             <div className="flex gap-3">
               <div className="flex flex-col gap-1 flex-1">
-                <label className="text-[#999] text-[11px] font-semibold uppercase tracking-wider">First name</label>
+                <label className="text-[#999] text-[11px] font-semibold tracking-wide">First name</label>
                 <input
                   value={firstName}
                   onChange={e => setFirstName(e.target.value)}
-                  className="bg-[#1c1c1c] border border-[#2a2a2a] rounded-sm px-3 py-2 text-white text-sm outline-none focus:border-[#555] transition-colors"
+                  className="bg-[#2a2a2a] border-none rounded-sm px-3 py-2 text-white text-sm outline-none focus:ring-1 focus:ring-[#555] transition-all"
                 />
               </div>
               <div className="flex flex-col gap-1 flex-1">
-                <label className="text-[#999] text-[11px] font-semibold uppercase tracking-wider">Last name</label>
+                <label className="text-[#999] text-[11px] font-semibold tracking-wide">Last name</label>
                 <input
                   value={lastName}
                   onChange={e => setLastName(e.target.value)}
-                  className="bg-[#1c1c1c] border border-[#2a2a2a] rounded-sm px-3 py-2 text-white text-sm outline-none focus:border-[#555] transition-colors"
+                  className="bg-[#2a2a2a] border-none rounded-sm px-3 py-2 text-white text-sm outline-none focus:ring-1 focus:ring-[#555] transition-all"
                 />
               </div>
             </div>
@@ -270,80 +262,78 @@ export function EditProfileModal({ user, onClose, onSave }: IEditProfileModalPro
             {/* City & Country */}
             <div className="flex gap-3">
               <div className="flex flex-col gap-1 flex-1">
-                <label className="text-[#999] text-[11px] font-semibold uppercase tracking-wider">City</label>
+                <label className="text-[#999] text-[11px] font-semibold tracking-wide">City</label>
                 <input
                   value={city}
                   onChange={e => setCity(e.target.value)}
-                  className="bg-[#1c1c1c] border border-[#2a2a2a] rounded-sm px-3 py-2 text-white text-sm outline-none focus:border-[#555] transition-colors"
+                  className="bg-[#2a2a2a] border-none rounded-sm px-3 py-2 text-white text-sm outline-none focus:ring-1 focus:ring-[#555] transition-all"
                 />
               </div>
               <div className="flex flex-col gap-1 flex-1">
-                <label className="text-[#999] text-[11px] font-semibold uppercase tracking-wider">Country</label>
+                <label className="text-[#999] text-[11px] font-semibold tracking-wide">Country</label>
                 <input
                   value={country}
                   onChange={e => setCountry(e.target.value)}
-                  className="bg-[#1c1c1c] border border-[#2a2a2a] rounded-sm px-3 py-2 text-white text-sm outline-none focus:border-[#555] transition-colors"
+                  className="bg-[#2a2a2a] border-none rounded-sm px-3 py-2 text-white text-sm outline-none focus:ring-1 focus:ring-[#555] transition-all"
                 />
               </div>
             </div>
 
             {/* Bio */}
             <div className="flex flex-col gap-1">
-              <label className="text-[#999] text-[11px] font-semibold uppercase tracking-wider">Bio</label>
+              <label className="text-[#999] text-[11px] font-semibold tracking-wide">Bio</label>
               <textarea
                 value={bio}
                 onChange={e => setBio(e.target.value)}
-                rows={3}
-                className="bg-[#1c1c1c] border border-[#2a2a2a] rounded-sm px-3 py-2 text-white text-sm outline-none focus:border-[#555] transition-colors resize-none"
+                rows={4}
+                className="bg-[#2a2a2a] border-none rounded-sm px-3 py-2 text-white text-sm outline-none focus:ring-1 focus:ring-[#555] transition-all resize-none"
               />
             </div>
 
-            {/* Links */}
-            <div className="flex flex-col gap-2">
-              <label className="text-[#999] text-[11px] font-semibold uppercase tracking-wider">
-                Your links
-              </label>
-
-              {links.map(link => {
-                const IconComponent = PLATFORM_ICON_MAP[link.label] ?? LinkIcon;
-                return (
-                  <div key={link.id} className="flex items-center gap-2">
-                    <div className="w-32 shrink-0 flex items-center gap-2 bg-[#1c1c1c] border border-[#2a2a2a] rounded-sm px-2.5 py-1.5">
-                      <span className="text-[#aaa] shrink-0">
-                        <IconComponent />
-                      </span>
-                      <input
-                        value={link.label}
-                        onChange={e => handleLabelChange(link.id, e.target.value)}
-                        placeholder="Label"
-                        className="w-full bg-transparent text-[#ccc] text-xs outline-none placeholder:text-[#3a3a3a]"
-                      />
-                    </div>
-                    <input
-                      value={link.url}
-                      onChange={e => handleUrlChange(link.id, e.target.value)}
-                      placeholder="https://"
-                      className="flex-1 bg-[#1c1c1c] border border-[#2a2a2a] rounded-sm px-3 py-1.5 text-white text-sm outline-none focus:border-[#555] transition-colors placeholder:text-[#3a3a3a]"
-                    />
-                    <button
-                      onClick={() => handleRemoveLink(link.id)}
-                      className="text-[#555] hover:text-[#ff5500] text-lg leading-none cursor-pointer bg-transparent border-none transition-colors px-1"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                );
-              })}
-
-              <button
-                onClick={handleAddLink}
-                className="self-start mt-1 bg-transparent border border-[#2a2a2a] text-[#ccc] rounded-sm px-4 py-1.5 text-sm cursor-pointer hover:border-[#555] hover:text-white transition-colors"
-              >
-                + Add link
-              </button>
-            </div>
-
           </div>
+        </div>
+
+        {/* ── Your links ── */}
+        <div className="px-6 pb-2 flex flex-col gap-2">
+          <label className="text-[#999] text-sm font-normal tracking-wide">
+            Your links
+          </label>
+
+          {links.map(link => {
+            const IconComponent = PLATFORM_ICON_MAP[link.label] ?? LinkIcon;
+            return (
+              <div key={link.id} className="flex items-center gap-2">
+                <div className="w-36 shrink-0 flex items-center gap-2 bg-[#2a2a2a] rounded-sm px-3 py-2">
+                  <span className="text-[#aaa] shrink-0"><IconComponent /></span>
+                  <input
+                    value={link.label}
+                    onChange={e => handleLabelChange(link.id, e.target.value)}
+                    placeholder="Label"
+                    className="w-full bg-transparent text-[#ccc] text-sm outline-none placeholder:text-[#444]"
+                  />
+                </div>
+                <input
+                  value={link.url}
+                  onChange={e => handleUrlChange(link.id, e.target.value)}
+                  placeholder="https://"
+                  className="flex-1 bg-[#2a2a2a] rounded-sm px-3 py-2 text-white text-sm outline-none focus:ring-1 focus:ring-[#555] transition-all placeholder:text-[#444]"
+                />
+                <button
+                  onClick={() => handleRemoveLink(link.id)}
+                  className="text-[#555] hover:text-[#ff5500] text-lg leading-none cursor-pointer bg-transparent border-none transition-colors px-1"
+                >
+                  ✕
+                </button>
+              </div>
+            );
+          })}
+
+          <button
+            onClick={handleAddLink}
+            className="self-start mt-1 bg-transparent border border-white/30 text-white rounded-sm px-4 py-1.5 text-sm cursor-pointer hover:border-white transition-colors"
+          >
+            Add link
+          </button>
         </div>
 
         {/* Hidden file input */}
@@ -356,17 +346,17 @@ export function EditProfileModal({ user, onClose, onSave }: IEditProfileModalPro
         />
 
         {/* ── Footer ── */}
-        <div className="flex justify-end items-center gap-3 px-8 py-5 border-t border-[#1c1c1c] mt-2">
+        <div className="flex justify-end items-center gap-3 px-6 py-4">
           <button
             onClick={onClose}
-            className="bg-transparent border-none text-[#aaa] text-sm cursor-pointer hover:text-white transition-colors px-2"
+            className="bg-transparent border border-white/30 text-white rounded-sm px-5 py-2 text-sm cursor-pointer hover:border-white transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={saving || !displayName.trim()}
-            className="bg-[#333] border border-[#444] text-white rounded-sm px-6 py-2 text-sm cursor-pointer font-semibold hover:bg-[#444] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="bg-white border-none text-[#121212] rounded-sm px-6 py-2 text-sm cursor-pointer font-semibold hover:bg-[#e0e0e0] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {saving ? "Saving…" : "Save changes"}
           </button>

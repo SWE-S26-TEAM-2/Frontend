@@ -5,7 +5,6 @@ import Image from "next/image";
 import type { IBannerProps } from "@/types/ui.types";
 
 const AVATAR_SIZE = 180;
-const AVATAR_LEFT = 20;
 
 export function Banner({ user, onAvatarChange, onHeaderChange }: IBannerProps) {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatarUrl);
@@ -32,9 +31,8 @@ export function Banner({ user, onAvatarChange, onHeaderChange }: IBannerProps) {
 
   return (
     <div
-      className="relative overflow-hidden"
+      className="relative overflow-hidden h-62.5"
       style={{
-        height: 250,
         background: headerPreview
           ? `url(${headerPreview}) center/cover`
           : "linear-gradient(160deg, #3d7080 0%, #4d909f 40%, #3d7888 100%)",
@@ -61,14 +59,8 @@ export function Banner({ user, onAvatarChange, onHeaderChange }: IBannerProps) {
 
       {/* Avatar circle */}
       <div
-        className="absolute rounded-full bg-[#4a4a4a] overflow-hidden z-10 group"
-        style={{
-          left: AVATAR_LEFT,
-          top: "50%",
-          transform: "translateY(-50%)",
-          width: AVATAR_SIZE,
-          height: AVATAR_SIZE,
-        }}
+        className="absolute left-5 top-1/2 -translate-y-1/2 rounded-full bg-[#4a4a4a] overflow-hidden z-10 group"
+        style={{ width: AVATAR_SIZE, height: AVATAR_SIZE }}
       >
         {avatarPreview ? (
           <Image
@@ -76,13 +68,13 @@ export function Banner({ user, onAvatarChange, onHeaderChange }: IBannerProps) {
             alt={user.username}
             width={AVATAR_SIZE}
             height={AVATAR_SIZE}
-            style={{ objectFit: "cover" }}
+            className="object-cover"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <span className="text-6xl font-bold text-white select-none">
-              {user.username[0].toUpperCase()}
-            </span>
+           <span className="text-6xl font-bold text-white select-none">
+          {(user.displayName ?? user.username)[0].toUpperCase()}
+        </span>
           </div>
         )}
 
@@ -111,18 +103,14 @@ export function Banner({ user, onAvatarChange, onHeaderChange }: IBannerProps) {
       )}
 
       {/* Info */}
-      <div
-        className="absolute z-10 flex flex-col gap-2"
-        style={{
-          left: AVATAR_LEFT + AVATAR_SIZE + 24,
-          top: "50%",
-          transform: "translateY(-50%)",
-        }}
-      >
+      <div className="absolute z-10 flex flex-col gap-2 left-56 top-1/2 -translate-y-1/2">
+
+        {/* Display name */}
         <span className="bg-black/80 rounded px-3 py-1 text-2xl font-bold text-white inline-block">
-          {user.username}
+          {user.displayName ?? user.username}
         </span>
 
+        {/* Location */}
         <span className="bg-black/80 rounded px-3 py-1 text-sm text-gray-300 inline-block self-start">
           {user.location}
         </span>

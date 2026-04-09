@@ -26,7 +26,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   const [following, setFollowing] = useState<IFollowing[]>([]);
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState<string | null>(null);
-  const [isEditOpen, setIsEditOpen] = useState(false); 
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -57,7 +57,6 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
 
   const handleTabChange = (tab: IActiveTab) => setActiveTab(tab);
 
-  // ── Save handler — updates user state after modal saves ──
   const handleSaveProfile = async (payload: IEditProfilePayload) => {
     if (!user) return;
     const updated = await userProfileService.updateProfile(user.id, payload);
@@ -65,23 +64,22 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   };
 
   const handleBannerAvatarChange = (url: string) => {
-  setUser(prev => prev ? { ...prev, avatarUrl: url } : prev);
+    setUser(prev => prev ? { ...prev, avatarUrl: url } : prev);
   };
 
   const handleBannerHeaderChange = (url: string) => {
-  setUser(prev => prev ? { ...prev, headerUrl: url } : prev);
+    setUser(prev => prev ? { ...prev, headerUrl: url } : prev);
   };
 
-  // ── Tab filtering logic ──
   function getFilteredTracks(tab: IActiveTab): ITrack[] {
     switch (tab) {
-      case "All":             return tracks;
-      case "Popular tracks":  return [...tracks].sort((a, b) => b.plays - a.plays);
-      case "Tracks":          return tracks;
-      case "Reposts":         return [];
+      case "All":            return tracks;
+      case "Popular tracks": return [...tracks].sort((a, b) => b.plays - a.plays);
+      case "Tracks":         return tracks;
+      case "Reposts":        return [];
       case "Albums":
-      case "Playlists":       return [];
-      default:                return tracks;
+      case "Playlists":      return [];
+      default:               return tracks;
     }
   }
 
@@ -104,8 +102,13 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
       <Header avatarUrl={undefined} isLoggedIn={true}/>
       <div className="max-w-7xl mx-auto bg-[#111]">
-        <Banner user={user} onAvatarChange={handleBannerAvatarChange} onHeaderChange={handleBannerHeaderChange}/>
-     </div>
+        <Banner
+          key={user.username}
+          user={user}
+          onAvatarChange={handleBannerAvatarChange}
+          onHeaderChange={handleBannerHeaderChange}
+        />
+      </div>
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <span className="text-5xl">🔒</span>
         <span className="text-lg font-semibold text-white">This profile is private</span>
@@ -122,7 +125,12 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
       <Header avatarUrl={user.avatarUrl ?? undefined} isLoggedIn={true}/>
 
       <div className="max-w-7xl mx-auto bg-[#111]">
-        <Banner user={user} onAvatarChange={handleBannerAvatarChange} onHeaderChange={handleBannerHeaderChange}/>
+        <Banner
+          key={user.username}
+          user={user}
+          onAvatarChange={handleBannerAvatarChange}
+          onHeaderChange={handleBannerHeaderChange}
+        />
       </div>
 
       <div className="h-2"/>
@@ -149,7 +157,6 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
                 </button>
               ))}
             </div>
-            {/* onEditOpen wired here */}
             <ProfileActions user={user} onEditOpen={() => setIsEditOpen(true)} />
           </div>
 
@@ -189,7 +196,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
 
       <Footer/>
 
-      {/*  Edit Profile Modal */}
+      {/* Edit Profile Modal */}
       {isEditOpen && (
         <EditProfileModal
           user={user}
