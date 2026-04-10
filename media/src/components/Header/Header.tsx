@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import type { IMenuItem } from "@/types/ui.types";
 import { useAuthStore } from "@/store/authStore";
 
@@ -227,7 +228,7 @@ function DropdownMenu({
           )}
           <Link
             href={item.href}
-            onClick={onClose}
+            onClick={() => { item.onClick?.(); onClose(); }}
             style={{
               display: "flex",
               alignItems: "center",
@@ -267,10 +268,22 @@ export default function Header({
   const [avatarOpen, setAvatarOpen]   = useState(false);
   const [dotsOpen, setDotsOpen]       = useState(false);
   const authUser = useAuthStore((state) => state.user);
+  const logout   = useAuthStore((state) => state.logout);
+  const router   = useRouter();
 
   const avatarRef = useRef<HTMLDivElement>(null);
   const dotsRef   = useRef<HTMLDivElement>(null);
   const profileHref = authUser?.username ? `/${encodeURIComponent(authUser.username)}` : "/testuser";
+
+  const handleSignOut = () => {
+    logout();
+    router.push("/login");
+  };
+
+  // Enrich module-level DOTS_MENU with runtime onClick for Sign out
+  const dotsMenu = DOTS_MENU.map((item) =>
+    item.label === "Sign out" ? { ...item, onClick: handleSignOut } : item
+  );
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -382,7 +395,7 @@ export default function Header({
         </Link>
 
         {/* Upload */}
-        <Link href="/upload"
+        <Link href="/creator/upload"
           style={{ color: "#ccc", fontSize: "14px", textDecoration: "none", whiteSpace: "nowrap", padding: "0 6px", flexShrink: 0 }}
           onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
           onMouseLeave={(e) => (e.currentTarget.style.color = "#ccc")}
@@ -443,7 +456,7 @@ export default function Header({
               >
                 <DotsIcon />
               </button>
-              {dotsOpen && <DropdownMenu items={DOTS_MENU} onClose={() => setDotsOpen(false)} />}
+              {dotsOpen && <DropdownMenu items={dotsMenu} onClose={() => setDotsOpen(false)} />}
             </div>
           </>
         )}

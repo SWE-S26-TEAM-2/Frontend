@@ -3,6 +3,17 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import Header from "@/components/Header/Header";
 import "@testing-library/jest-dom";
 
+// Mock next/navigation (required because Header uses useRouter for sign out)
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+    back: jest.fn(),
+    prefetch: jest.fn(),
+  }),
+  usePathname: () => "/",
+}));
+
 // Mock next/link
 jest.mock("next/link", () => {
   const MockedLink = ({ children, href, onClick }: { children: React.ReactNode; href: string; onClick?: (e: React.MouseEvent) => void }) => (
@@ -328,7 +339,7 @@ describe("Header Component", () => {
     test("Upload link has correct href", () => {
       render(<Header />);
       const link = screen.getByText("Upload").closest("a");
-      expect(link).toHaveAttribute("href", "/upload");
+      expect(link).toHaveAttribute("href", "/creator/upload");
     });
 
     test("logo link navigates to home", () => {

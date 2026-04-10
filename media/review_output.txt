@@ -1,6 +1,6 @@
 ================================================================
   FRONTEND CODE REVIEW — AUTOMATED REPORT
-  Generated: 2026-03-29 11:49:11
+  Generated: 2026-04-10 02:07:08
 ================================================================
 
 ================================================================
@@ -10,10 +10,13 @@ STEP 1 — ESLINT
 C:\Users\MOH\Documents\GitHub\Frontend\media\e2e\tests\profile.spec.ts
   1:29  warning  'Page' is defined but never used  @typescript-eslint/no-unused-vars
 
+C:\Users\MOH\Documents\GitHub\Frontend\media\src\app\(with-header)\creator\upload\page.tsx
+  12:10  warning  'useAuthStore' is defined but never used  @typescript-eslint/no-unused-vars
+
 C:\Users\MOH\Documents\GitHub\Frontend\media\src\services\mocks\mockData.ts
   1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
 
-✖ 2 problems (0 errors, 2 warnings)
+✖ 3 problems (0 errors, 3 warnings)
   0 errors and 1 warning potentially fixable with the `--fix` option.
 
 RESULT: PASSED — No ESLint errors
@@ -34,20 +37,21 @@ STEP 3 — BUILD
 - Environments: .env.local, .env.production
 
   Creating an optimized production build ...
-✓ Compiled successfully in 9.7s
+✓ Compiled successfully in 12.8s
   Running TypeScript ...
   Collecting page data using 7 workers ...
-  Generating static pages using 7 workers (0/14) ...
-  Generating static pages using 7 workers (3/14) 
-  Generating static pages using 7 workers (6/14) 
-  Generating static pages using 7 workers (10/14) 
-✓ Generating static pages using 7 workers (14/14) in 877.2ms
+  Generating static pages using 7 workers (0/15) ...
+  Generating static pages using 7 workers (3/15) 
+  Generating static pages using 7 workers (7/15) 
+  Generating static pages using 7 workers (11/15) 
+✓ Generating static pages using 7 workers (15/15) in 955.5ms
   Finalizing page optimization ...
 
 Route (app)
 ┌ ○ /
 ├ ○ /_not-found
 ├ ƒ /[username]
+├ ○ /creator/upload
 ├ ○ /login
 ├ ○ /settings
 ├ ○ /settings/account
@@ -57,8 +61,8 @@ Route (app)
 ├ ○ /settings/privacy
 ├ ○ /settings/privacy/auth
 ├ ○ /settings/two-factor
-├ ƒ /track/[id]
-└ ○ /verify-email
+├ ○ /store
+└ ƒ /track/[id]
 
 
 ○  (Static)   prerendered as static content
@@ -74,20 +78,20 @@ STEP 4 — TESTS
 > jest --silent
 
 PASS src/__tests__/Toggle.test.tsx
-PASS src/__tests__/SlideShow.test.tsx
-PASS src/__tests__/TrackPage.test.tsx
-PASS src/__tests__/Landing.test.tsx
 PASS src/__tests__/utils/formatNumber.test.ts
+PASS src/__tests__/TrackPage.test.tsx
+PASS src/__tests__/SlideShow.test.tsx
 PASS src/__tests__/utils/timeAgo.test.ts
+PASS src/__tests__/Landing.test.tsx
+PASS src/__tests__/Header.test.tsx
 PASS src/__tests__/components/TrackCard.test.tsx
 PASS src/__tests__/Footer.test.tsx
-PASS src/__tests__/Header.test.tsx
-PASS src/__tests__/services/userProfile.service.test.ts (7.55 s)
+PASS src/__tests__/services/userProfile.service.test.ts (7.153 s)
 
 Test Suites: 10 passed, 10 total
 Tests:       130 passed, 130 total
 Snapshots:   0 total
-Time:        10.862 s
+Time:        10.879 s
 RESULT: PASSED — Tests successful
 
 ================================================================
@@ -104,7 +108,9 @@ RESULT: FAILED — Invalid branch name: main
 STEP 7 — COMMIT MESSAGE
 ================================================================
 RESULT: FAILED — Invalid commit message:
-chore(devops): ignore e2e files in jest configuration
+Merge pull request #31 from SWE-S26-TEAM-2/chore/devops<adding-Cd>
+
+Chore/devops<adding cd>
 
 ================================================================
 ❌ FINAL RESULT: ISSUES FOUND — FIX BEFORE MERGE

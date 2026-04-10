@@ -51,6 +51,7 @@ export interface IMenuItem {
   href: string;
   orange?: boolean;
   dividerBefore?: boolean;
+  onClick?: () => void;
 }
 
 export interface ITrackPageProps {

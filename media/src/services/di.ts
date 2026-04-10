@@ -43,6 +43,11 @@ import { mockUploadService } from "./mocks/upload.mock";
 import { realUploadService } from "./api/upload.api";
 import type { IUploadService } from "@/types/upload.types";
 
+// store
+import { mockStoreService } from "./mocks/store.mock";
+import { realStoreService } from "./api/store.api";
+import type { IStoreService } from "@/types/store.types";
+
 /**
  * Authentication Service
  * Automatically switches between mock and real based on USE_MOCK_API flag
@@ -69,6 +74,13 @@ export const userProfileService: IUserProfileService = ENV.USE_MOCK_API
 export const uploadService: IUploadService = ENV.USE_MOCK_API
   ? mockUploadService
   : realUploadService;
+
+/**
+ * Store Service
+ */
+export const storeService: IStoreService = ENV.USE_MOCK_API
+  ? mockStoreService
+  : realStoreService;
 
 /**
  * Settings - Privacy Service
