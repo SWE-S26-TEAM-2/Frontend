@@ -1,10 +1,8 @@
 'use client';
 
 import Image from 'next/image';
+import type { IUploadLandingProps } from '@/types/upload.types';
 
-interface IUploadLandingProps {
-  onUploadClick: () => void;
-}
 
 const FEATURES = [
   {

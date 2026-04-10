@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react';
 import Image from 'next/image';
 import Toggle from '@/components/Toggle/Toggle';
-import type { ITrackMetadata, IUploadFile, TrackVisibility } from '@/types/upload.types';
+import type { ITrackMetadata, IUploadFile, TrackVisibility, ITrackInfoFormProps } from '@/types/upload.types';
 import { useAuthStore } from '@/store/authStore';
 
 const GENRES = [
@@ -14,14 +14,6 @@ const GENRES = [
   'Techno', 'Trance', 'Trap', 'Triphop', 'World',
 ];
 
-interface ITrackInfoFormProps {
-  uploadFile: IUploadFile;
-  onReplaceTrack: () => void;
-  onClose: () => void;
-  onUpload: (metadata: ITrackMetadata) => void;
-  isUploading: boolean;
-  uploadProgress: number;
-}
 
 function generateTrackLink(username: string, title: string): string {
   const slug = title
