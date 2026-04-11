@@ -16,10 +16,10 @@ import {
   Pause
 } from "lucide-react";
 
-import { ITrack } from "@/types/track.types"; // Using your ITrack interface
+import { ITrack } from "@/types/track.types"; 
 import { usePlayerStore } from "@/store/playerStore";
 
-// ─── Dropdown Menu (With Portal Logic) ───────────────────
+// ─── Dropdown Menu (Portal) ──────────────────────────────
 
 const MoreMenu = ({ 
   onClose, 
@@ -29,10 +29,8 @@ const MoreMenu = ({
   anchorRect: DOMRect 
 }) => {
   const ref = useRef<HTMLDivElement>(null);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     const handler = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) {
         onClose();
@@ -41,8 +39,6 @@ const MoreMenu = ({
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [onClose]);
-
-  if (!mounted) return null;
 
   const items = [
     { icon: <Repeat2 size={12} />, label: "Repost" },
@@ -70,7 +66,7 @@ const MoreMenu = ({
             e.stopPropagation();
             onClose();
           }}
-          className="flex items-center gap-2.5 w-full px-3 py-2 text-[11px] text-neutral-300 hover:bg-neutral-800 hover:text-white transition text-left outline-none border-none cursor-pointer"
+          className="flex items-center gap-2.5 w-full px-3 py-2 text-[11px] text-neutral-300 hover:bg-neutral-800 hover:text-white transition text-left outline-none border-none cursor-pointer bg-transparent"
         >
           {item.icon}
           {item.label}
@@ -81,7 +77,7 @@ const MoreMenu = ({
   );
 };
 
-// ─── Track Card ──────────────────────────────────────────
+// ─── Track Card Component ──────────────────────────────────
 
 export default function TrackCard2({ track, showFollow = true }: { track: ITrack, showFollow?: boolean }) {
   const router = useRouter();
@@ -90,7 +86,6 @@ export default function TrackCard2({ track, showFollow = true }: { track: ITrack
   // Global Player logic
   const { currentTrack, isPlaying, setTrack, togglePlay } = usePlayerStore();
   
-  // Checking if this specific track is currently in the player
   const isCurrentTrack = currentTrack?.id === track.id;
 
   const [liked, setLiked] = useState(track.isLiked || false);
@@ -101,7 +96,6 @@ export default function TrackCard2({ track, showFollow = true }: { track: ITrack
   const btnReset =
     "cursor-pointer outline-none ring-0 border-none focus:outline-none focus:ring-0 active:outline-none active:ring-0";
 
-  // Connect the Play Button to your Global Engine
   const handlePlayToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (isCurrentTrack) {
@@ -122,7 +116,6 @@ export default function TrackCard2({ track, showFollow = true }: { track: ITrack
   return (
     <div className="group w-full flex flex-col gap-2 relative select-none z-10">
       <div className="relative aspect-square rounded-xl bg-neutral-800 cursor-pointer overflow-hidden">
-        {/* DYNAMIC IMAGE: Uses backend albumArt with a fallback */}
         <Image
           src={track.albumArt || "/test.png"}
           alt={track.title}
@@ -137,7 +130,7 @@ export default function TrackCard2({ track, showFollow = true }: { track: ITrack
           }`}
         />
 
-        {/* Play/Pause Button - Functional */}
+        {/* Play/Pause Button */}
         <div
           className={`absolute inset-0 flex items-center justify-center transition duration-300 ${
             menuOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"
@@ -161,64 +154,46 @@ export default function TrackCard2({ track, showFollow = true }: { track: ITrack
             menuOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"
           }`}
         >
-          {/* LIKE */}
-          <div className="relative group/btn">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setLiked(!liked);
+            }}
+            className={`p-1.5 rounded-full backdrop-blur-md hover:scale-110 transition ${btnReset} ${
+              liked ? "bg-black/40 text-orange-500" : "bg-black/40 text-white"
+            }`}
+          >
+            <Heart size={14} className={liked ? "fill-orange-500" : ""} />
+          </button>
+
+          {showFollow && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                setLiked(!liked);
+                setFollowing(!following);
               }}
               className={`p-1.5 rounded-full backdrop-blur-md hover:scale-110 transition ${btnReset} ${
-                liked ? "bg-black/40 text-orange-500" : "bg-black/40 text-white"
+                following ? "bg-black/40 text-orange-500" : "bg-black/40 text-white"
               }`}
             >
-              <Heart size={14} className={liked ? "fill-orange-500" : ""} />
+              <UserPlus size={14} />
             </button>
-          </div>
-
-          {/* FOLLOW */}
-          {showFollow && (
-            <div className="relative group/btn">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setFollowing(!following);
-                }}
-                className={`p-1.5 rounded-full backdrop-blur-md hover:scale-110 transition ${btnReset} ${
-                  following ? "bg-black/40 text-orange-500" : "bg-black/40 text-white"
-                }`}
-              >
-                <UserPlus size={14} />
-              </button>
-            </div>
           )}
 
-          {/* MORE (Dropdown) */}
-          <div className="relative group/more">
-            <button
-              ref={buttonRef}
-              type="button"
-                data-testid={`more-btn-${track.id}`}  
-
-onClick={handleToggleMenu}
-              className={`p-1.5 rounded-full backdrop-blur-md hover:scale-110 transition relative z-[20] ${btnReset} ${
-                menuOpen ? "bg-orange-500 text-white" : "bg-black/40 text-white"
-              }`}
-            >
-              <MoreHorizontal size={14} />
-            </button>
-
-            {menuOpen && anchorRect && (
-              <MoreMenu 
-                anchorRect={anchorRect} 
-                onClose={() => setMenuOpen(false)} 
-              />
-            )}
-          </div>
+          <button
+            ref={buttonRef}
+            type="button"
+            data-testid={`more-btn-${track.id}`}
+            onClick={handleToggleMenu}
+            className={`p-1.5 rounded-full backdrop-blur-md hover:scale-110 transition relative z-[20] ${btnReset} ${
+              menuOpen ? "bg-orange-500 text-white" : "bg-black/40 text-white"
+            }`}
+          >
+            <MoreHorizontal size={14} />
+          </button>
         </div>
       </div>
 
-      {/* TEXT INFO - Dynamic */}
       <div className="flex flex-col">
         <span
           onClick={() => router.push(`/track/${track.id}`)}
@@ -233,6 +208,13 @@ onClick={handleToggleMenu}
           {track.artist}
         </span>
       </div>
+
+      {menuOpen && anchorRect && (
+        <MoreMenu 
+          anchorRect={anchorRect} 
+          onClose={() => setMenuOpen(false)} 
+        />
+      )}
     </div>
   );
 }

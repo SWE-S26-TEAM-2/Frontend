@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import TrackCard2 from "./TrackCard2";
-import { ITrack } from "@/types/track.types";
 
 import { ISliderProps, IExtendedSliderProps } from "@/types/trending.types"; 
 
