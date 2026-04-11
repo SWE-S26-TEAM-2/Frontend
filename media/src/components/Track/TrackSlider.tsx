@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import TrackCard2 from "./TrackCard2";
 
-import { ISliderProps, IExtendedSliderProps } from "@/types/trending.types"; 
+import {  IExtendedSliderProps } from "@/types/trending.types"; 
 
 export default function TrackSlider({ title, subtitle, tracks, showFollow = true }: IExtendedSliderProps) {
   const [index, setIndex] = useState(0);

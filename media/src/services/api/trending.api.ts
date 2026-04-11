@@ -1,4 +1,4 @@
-import { ITrack } from "../../types/trending.types";
+import { ITrack } from "../../types/track.types";
 import { MOCK_CURATED, MOCK_EMERGING, MOCK_POWER } from "../mocks/trending.mock";
 
 // Simulating a network delay for a professional feel
