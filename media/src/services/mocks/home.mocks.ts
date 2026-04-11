@@ -1,5 +1,5 @@
 import { ITrack } from '../../types/track.types';
-import { RecentItem, IArtist } from '../../types/home.types';
+import { IRecentItem, IArtist } from '../../types/home.types';
 
 export const MOCK_MORE_LIKE: ITrack[] = [
   { 
@@ -28,7 +28,7 @@ export const MOCK_MORE_LIKE: ITrack[] = [
   }
 ];
 
-export const MOCK_RECENTLY_PLAYED: RecentItem[] = [
+export const MOCK_RECENTLY_PLAYED: IRecentItem[] = [
   { 
     id: "10", 
     title: "After Hours", 

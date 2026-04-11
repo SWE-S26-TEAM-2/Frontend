@@ -8,12 +8,9 @@ import ListeningHistory from './ListeningHistory';
 import HoverButton from '../../components/HoverButton/HoverButton';
 import { IArtist } from '../../types/home.types';
 import { ITrack } from '../../types/track.types';
-interface RightSidebarProps {
-  followSuggestions: IArtist[];
-  listeningHistory: ITrack[];
-}
+import { IRightSidebarProps } from '../../types/home.types';
 
-const RightSidebar = ({ followSuggestions, listeningHistory }: RightSidebarProps) => {
+const RightSidebar = ({ followSuggestions, listeningHistory }: IRightSidebarProps) => {
   return (
     <aside style={styles.sidebar}>
       <div style={styles.scrollableContent} className="custom-scrollbar">

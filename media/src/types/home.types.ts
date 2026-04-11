@@ -1,14 +1,4 @@
-// @/types/home.types.ts
-import { ITrack } from './track.types'; // Import from your first file
-
-
-export interface RecentItem extends ITrack {
-  playedAt?: string;
-  type: 'track' | 'artist'; // Make sure this is explicit
-  name?: string;            // Add this as optional
-  followers?: string;       // Add this as optional
-}
-
+import { ITrack } from './track.types';
 
 export interface IArtist {
   id: string;
@@ -19,9 +9,25 @@ export interface IArtist {
   type: 'artist'; 
 }
 
+// Discriminated Union: This is the key to removing (any)
+export type IRecentItem = 
+  | (ITrack & { type: 'track'; playedAt?: string }) 
+  | (IArtist & { type: 'artist'; playedAt?: string });
+
+export interface IToolItem {
+  icon: React.ReactNode;
+  label: string;
+  isGold?: boolean;
+}
+
+export interface IRightSidebarProps {
+  followSuggestions: IArtist[];
+  listeningHistory: ITrack[];
+}
+
 export interface IHomePageData {
-  moreOfWhatYouLike: ITrack[];     // Uses the master ITrack
-  recentlyPlayed: RecentItem[];   // Uses the master ITrack + playedAt
+  moreOfWhatYouLike: ITrack[];
+  recentlyPlayed: IRecentItem[];
   mixedForUser: ITrack[];
   discoverStations: ITrack[];
   followSuggestions: IArtist[];

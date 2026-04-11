@@ -6,15 +6,9 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import TrackCard2 from "./TrackCard2";
 import { ITrack } from "@/types/track.types";
 
-// Added showFollow to the interface
-interface ExtendedSliderProps {
-  title: string;
-  subtitle: string;
-  tracks: ITrack[];
-  showFollow?: boolean;
-}
+import { ISliderProps, IExtendedSliderProps } from "@/types/trending.types"; 
 
-export default function TrackSlider({ title, subtitle, tracks, showFollow = true }: ExtendedSliderProps) {
+export default function TrackSlider({ title, subtitle, tracks, showFollow = true }: IExtendedSliderProps) {
   const [index, setIndex] = useState(0);
   const [peekOffset, setPeekOffset] = useState(0); 
   const peekTimer = useRef<ReturnType<typeof setTimeout> | null>(null);

@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Heart, MoreHorizontal, ListMusic, PlusSquare, UserPlus } from "lucide-react";
-import { RecentItem } from "../../types/home.types";
+import { IRecentItem } from "../../types/home.types";
 
 // ─── Dropdown Menu (Portal) ──────────────────────────────
 const MoreMenu = ({ onClose, anchorRect }: { onClose: () => void; anchorRect: DOMRect }) => {
@@ -45,18 +45,20 @@ const MoreMenu = ({ onClose, anchorRect }: { onClose: () => void; anchorRect: DO
 };
 
 // ─── Recent Card Component ───────────────────────────────
-const RecentCard = ({ item }: { item: RecentItem }) => {
-  const [isLiked, setIsLiked] = useState(item.isLiked || false);
+const RecentCard = ({ item }: { item: IRecentItem }) => {
+  const isArtist = item.type === "artist";
+  
+  // State Initialization (Type Safe)
+  const [isLiked, setIsLiked] = useState(item.type === 'track' ? (item.isLiked || false) : false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
   const moreBtnRef = useRef<HTMLButtonElement>(null);
 
-  // Check if it's an artist or a track
-  const isArtist = item.type === "artist";
-  
-  // Master Type Sync: Use albumArt for tracks, imageUrl for artists
-  const displayImage = isArtist ? (item as any).imageUrl : item.albumArt;
+  // Derived properties based on Type Narrowing
+  const displayImage = item.type === "artist" ? item.imageUrl : item.albumArt;
+  const mainTitle = item.type === "artist" ? item.name : item.title;
+  const subText = item.type === "artist" ? `${item.followers} followers` : item.artist;
 
   const handleMoreClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -75,19 +77,12 @@ const RecentCard = ({ item }: { item: RecentItem }) => {
       >
         <img 
           src={displayImage || "/test.png"} 
-          alt={isArtist ? item.name : item.title} 
+          alt={mainTitle} 
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
         />
         
-        {/* Overlay for Tracks Only */}
-        {!isArtist && (
-          <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-             {/* Potential Play Button could go here */}
-          </div>
-        )}
-
-        {/* Action Buttons Overlay */}
-        {!isArtist && (
+        {/* Track-Only Overlays */}
+        {item.type === "track" && (
           <div className="absolute bottom-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-all translate-y-1 group-hover:translate-y-0">
             <button
               onClick={(e) => { e.stopPropagation(); setIsLiked(!isLiked); }}
@@ -96,15 +91,13 @@ const RecentCard = ({ item }: { item: RecentItem }) => {
               <Heart size={16} fill={isLiked ? "currentColor" : "none"} />
             </button>
 
-            <div className="relative group/more">
-              <button
-                ref={moreBtnRef}
-                onClick={handleMoreClick}
-                className={`p-1.5 rounded bg-black/60 backdrop-blur-sm border-none cursor-pointer transition-transform hover:scale-110 text-white ${menuOpen ? 'bg-orange-500' : ''}`}
-              >
-                <MoreHorizontal size={16} />
-              </button>
-            </div>
+            <button
+              ref={moreBtnRef}
+              onClick={handleMoreClick}
+              className={`p-1.5 rounded bg-black/60 backdrop-blur-sm border-none cursor-pointer transition-transform hover:scale-110 text-white ${menuOpen ? 'bg-orange-500' : ''}`}
+            >
+              <MoreHorizontal size={16} />
+            </button>
           </div>
         )}
       </div>
@@ -112,14 +105,14 @@ const RecentCard = ({ item }: { item: RecentItem }) => {
       {/* TEXT SECTION */}
       <div className={`flex flex-col ${isArtist ? 'items-center text-center' : 'items-start text-left'}`}>
         <span className="text-sm font-semibold text-white truncate w-full cursor-pointer hover:text-orange-500 transition-colors">
-          {isArtist ? item.name : item.title}
+          {mainTitle}
         </span>
         <span className="text-xs text-neutral-400 hover:text-white cursor-pointer transition-colors">
-          {isArtist ? `${(item as any).followers || '0'} followers` : item.artist}
+          {subText}
         </span>
 
-        {/* ARTIST FOLLOW BUTTON */}
-        {isArtist && (
+        {/* Artist-Only Follow Button */}
+        {item.type === "artist" && (
           <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             <button 
               onClick={(e) => { e.stopPropagation(); setIsFollowing(!isFollowing); }}
@@ -143,7 +136,7 @@ const RecentCard = ({ item }: { item: RecentItem }) => {
   );
 };
 
-export default function RecentlyPlayedGrid({ items }: { items: RecentItem[] }) {
+export default function RecentlyPlayedGrid({ items }: { items: IRecentItem[] }) {
   return (
     <div className="mb-12">
       <h2 className="text-xl font-bold text-white mb-5">Recently Played</h2>

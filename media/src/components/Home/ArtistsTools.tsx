@@ -7,16 +7,14 @@ import {
   Globe, TrendingUp, Award 
 } from 'lucide-react';
 
-interface ToolItem {
-  icon: React.ReactNode;
-  label: string;
-  isGold?: boolean;
-}
+import { IToolItem } from '../../types/home.types';
+
+
 
 const ArtistTools = () => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const allTools: ToolItem[] = [
+  const allTools: IToolItem[] = [
     /* Increased Icon Size to 24 */
     { icon: <Radio size={24} />, label: "Amplify" },
     { icon: <Share2 size={24} />, label: "Distribute" },
@@ -53,7 +51,7 @@ const ArtistTools = () => {
   );
 };
 
-const ToolCard = ({ tool }: { tool: ToolItem }) => {
+const ToolCard = ({ tool }: { tool: IToolItem }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (

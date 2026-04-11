@@ -16,3 +16,10 @@ export interface ISliderProps {
   // 2. Now this uses the official ITrack with url, albumArt, etc.
   tracks: ITrack[]; 
 }
+
+export interface IExtendedSliderProps {
+  title: string;
+  subtitle: string;
+  tracks: ITrack[];
+  showFollow?: boolean;
+}
