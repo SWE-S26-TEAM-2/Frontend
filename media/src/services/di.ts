@@ -1,0 +1,185 @@
+/**
+ * Dependency Injection Layer
+ *
+ * Single source of truth for all service instances.
+ * Switches between mock and real implementations via NEXT_PUBLIC_USE_MOCK_API.
+ *
+ * Merge summary (main ← playlist):
+ *  PRESERVED from main (untouched):
+ *    AuthService, trackService, userProfileService
+ *    privacyService, accountService, notificationService
+ *    contentService, advertisingService, twoFactorService
+ *    getPrivacySettings / updatePrivacySettings named exports
+ *
+ *  ADDED from playlist:
+ *    playlistService — typed against IPlaylistService
+ *
+ *  DISCARDED from playlist:
+ *    privacy.service.ts — main already handles privacy switching inline here.
+ *
+ * Import convention for all consumers:
+ *  ✅ import { ... } from "@/services"
+ *  ✅ import { ... } from "@/services/di"
+ *  ❌ import { ... } from "@/services/api/*"   (bypasses mock/real toggle)
+ *  ❌ import { ... } from "@/services/mocks/*"  (bypasses mock/real toggle)
+ */
+
+import { ENV } from "@/config/env";
+
+// ── Auth ─────────────────────────────────────────────────────────────────────
+import { RealAuthService } from "./api/auth.api";
+import { MockAuthService } from "./mocks/auth.mock";
+
+// ── Track ─────────────────────────────────────────────────────────────────────
+import { realTrackService } from "./api/trackService";
+import { mockTrackService } from "./mocks/trackService";
+
+// ── Playlist (new) ────────────────────────────────────────────────────────────
+import { realPlaylistService } from "./api/playlist.api";
+import { mockPlaylistService } from "./mocks/playlist.mock";
+import type { IPlaylistService } from "@/types/playlist.types";
+
+// ── User Profile ──────────────────────────────────────────────────────────────
+import { mockUserProfileService } from "./mocks/userProfile.mock";
+import { realUserProfileService } from "./api/userProfile.api";
+import type { IUserProfileService } from "@/types/userProfile.types";
+import type { IPrivacySettings } from "@/types/settings-privacy.types";
+
+// settings/privacy
+import { getMockPrivacySettings, updateMockPrivacySettings } from "./mocks/settings-privacy.mock";
+import { getPrivacySettingsFromAPI, updatePrivacySettingsOnAPI } from "./api/settings-privacy.api";
+
+// settings/account
+import { getMockAccountSettings, updateMockAccountSettings } from "./mocks/settings-account.mock";
+import { getAccountSettingsFromAPI, updateAccountSettingsOnAPI } from "./api/settings-account.api";
+
+// settings/notification
+import { getMockNotificationSettings, updateMockNotificationSettings } from "./mocks/settings-notification.mock";
+import { getNotificationSettingsFromAPI, updateNotificationSettingsOnAPI } from "./api/settings-notification.api";
+
+// settings/content
+import { getMockContentSettings, updateMockContentSettings } from "./mocks/settings-content.mock";
+import { getContentSettingsFromAPI, updateContentSettingsOnAPI } from "./api/settings-content.api";
+
+// settings/advertising
+import { getMockAdvertisingSettings, updateMockAdvertisingSettings } from "./mocks/settings-advertising.mock";
+import { getAdvertisingSettingsFromAPI, updateAdvertisingSettingsOnAPI } from "./api/settings-advertising.api";
+
+// settings/two-factor
+import { getMockTwoFactorSettings, updateMockTwoFactorSettings } from "./mocks/settings-two-factor.mock";
+import { getTwoFactorSettingsFromAPI, updateTwoFactorSettingsOnAPI } from "./api/settings-two-factor.api";
+
+/**
+ * Authentication Service
+ * Automatically switches between mock and real based on USE_MOCK_API flag
+ */
+export const AuthService = ENV.USE_MOCK_API ? MockAuthService : RealAuthService;
+
+/**
+ * Track Service
+ * Automatically switches between mock and real based on USE_MOCK_API flag
+ */
+export const trackService = ENV.USE_MOCK_API ? mockTrackService : realTrackService;
+
+/**
+ * Playlist Service
+ * Exposes: getById, create, update, getUserPlaylists,
+ *          addTrackToPlaylist, removeTrackFromPlaylist, deletePlaylist
+ * Typed against IPlaylistService for strict contract enforcement.
+ */
+export const playlistService: IPlaylistService = ENV.USE_MOCK_API
+  ? mockPlaylistService
+  : realPlaylistService;
+
+/**
+ * User Profile Service
+ * Automatically switches between mock and real based on USE_MOCK_API flag
+ */
+export const userProfileService: IUserProfileService = ENV.USE_MOCK_API
+  ? mockUserProfileService
+  : realUserProfileService;
+
+/**
+ * Settings - Privacy Service
+ */
+export const privacyService = {
+  getSettings: ENV.USE_MOCK_API ? getMockPrivacySettings : getPrivacySettingsFromAPI,
+  updateSettings: ENV.USE_MOCK_API ? updateMockPrivacySettings : updatePrivacySettingsOnAPI,
+};
+
+// Keep direct function exports for existing page imports.
+export const getPrivacySettings = async (): Promise<IPrivacySettings> => {
+  return privacyService.getSettings();
+};
+
+export const updatePrivacySettings = async (
+  settings: Partial<IPrivacySettings>
+): Promise<IPrivacySettings> => {
+  return privacyService.updateSettings(settings);
+};
+
+/**
+ * Settings - Account Service
+ */
+export const accountService = {
+  getSettings: ENV.USE_MOCK_API ? getMockAccountSettings : getAccountSettingsFromAPI,
+  updateSettings: ENV.USE_MOCK_API ? updateMockAccountSettings : updateAccountSettingsOnAPI,
+};
+
+/**
+ * Settings - Notification Service
+ */
+export const notificationService = {
+  getSettings: ENV.USE_MOCK_API ? getMockNotificationSettings : getNotificationSettingsFromAPI,
+  updateSettings: ENV.USE_MOCK_API ? updateMockNotificationSettings : updateNotificationSettingsOnAPI,
+};
+
+/**
+ * Settings - Content Service
+ */
+export const contentService = {
+  getSettings: ENV.USE_MOCK_API ? getMockContentSettings : getContentSettingsFromAPI,
+  updateSettings: ENV.USE_MOCK_API ? updateMockContentSettings : updateContentSettingsOnAPI,
+};
+
+/**
+ * Settings - Advertising Service
+ */
+export const advertisingService = {
+  getSettings: ENV.USE_MOCK_API ? getMockAdvertisingSettings : getAdvertisingSettingsFromAPI,
+  updateSettings: ENV.USE_MOCK_API ? updateMockAdvertisingSettings : updateAdvertisingSettingsOnAPI,
+};
+
+/**
+ * Settings - Two Factor Service
+ */
+export const twoFactorService = {
+  getSettings: ENV.USE_MOCK_API ? getMockTwoFactorSettings : getTwoFactorSettingsFromAPI,
+  updateSettings: ENV.USE_MOCK_API ? updateMockTwoFactorSettings : updateTwoFactorSettingsOnAPI,
+};
+
+/**
+ * Service Status
+ * Helpful debug info
+ */
+export const serviceStatus = {
+  isMocked: ENV.USE_MOCK_API,
+  apiBaseUrl: ENV.API_BASE_URL,
+  mode: ENV.USE_MOCK_API ? "MOCK" : "REAL",
+};
+
+// Export individual services for direct imports if needed
+export {
+  RealAuthService,
+  MockAuthService,
+  realTrackService,
+  mockTrackService,
+  realPlaylistService,
+  mockPlaylistService,
+  getMockPrivacySettings,
+  updateMockPrivacySettings,
+  getPrivacySettingsFromAPI,
+  updatePrivacySettingsOnAPI,
+  mockUserProfileService,
+  realUserProfileService,
+};

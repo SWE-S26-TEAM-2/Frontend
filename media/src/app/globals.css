@@ -1,0 +1,93 @@
+/*
+ * src/app/globals.css
+ *
+ * Contains ONLY:
+ *  1. Global resets + Tailwind base
+ *  2. Root CSS custom properties (brand tokens)
+ *  3. Body base styles
+ *  4. Carousel utility (shared, non-playlist)
+ *  5. Playlist token layer (--pl-* variables) — referenced by CSS Modules
+ *     so they must live in :root, not in a scoped file
+ *
+ * All playlist-specific class selectors have been moved to CSS Modules:
+ *   PlaylistPage.module.css     — page shell + loading/error states
+ *   PlaylistHeader.module.css   — header, action buttons, tags, error boundary
+ *   TrackList.module.css        — track list + track items (detail view)
+ *   PlaylistSkeleton.module.css — shimmer skeleton
+ *   PlaylistForm.module.css     — create/edit form, inputs, toggle, cover, draft banner
+ *   TrackListEditor.module.css  — drag-drop editor, undo toast, summary
+ *   TrackSelector.module.css    — add-tracks sidebar panel
+ */
+
+/* ── 1. Tailwind base ───────────────────────────────────────── */
+@import "tailwindcss";
+
+/* ── 2. Root design tokens ──────────────────────────────────── */
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+/* ── 3. Body base styles ────────────────────────────────────── */
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ── 4. Carousel utility (non-playlist) ─────────────────────── */
+.carousel-indicators button {
+  box-sizing: border-box !important;
+  width: 16px !important;
+  height: 16px !important;
+  border-radius: 50% !important;
+  background-color: transparent !important;
+  border: 2px solid white !important;
+  opacity: 1 !important;
+  margin: 0 12px !important;
+  top: 20px !important;
+}
+
+.carousel-indicators button.active {
+  background-color: white !important;
+}
+
+/* ── 5. Playlist token layer ────────────────────────────────── */
+/*
+ * These custom properties are consumed by every playlist CSS Module.
+ * They MUST remain in :root so that scoped files can reference them
+ * without redeclaring them inside every module.
+ */
+:root {
+  --pl-bg:           #0d0d0e;
+  --pl-surface:      #161617;
+  --pl-surface-2:    #1e1e20;
+  --pl-border:       rgba(255, 255, 255, 0.07);
+  --pl-text:         #f0ece4;
+  --pl-text-muted:   #7a7874;
+  --pl-text-dim:     #4a4845;
+  --pl-accent:       #ff5500;
+  --pl-accent-hover: #ff6a1f;
+  --pl-accent-rgb:   255, 85, 0;
+  --pl-liked:        #ff5500;
+  --pl-radius:       6px;
+  --pl-radius-lg:    12px;
+  --pl-transition:   180ms ease;
+  /* Skeleton shimmer colours */
+  --pl-skel-base:    #1a1a1c;
+  --pl-skel-shine:   #252528;
+}
