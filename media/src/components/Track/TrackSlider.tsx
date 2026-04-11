@@ -3,12 +3,18 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-
 import TrackCard2 from "./TrackCard2";
-import { ISliderProps } from "@/types/trending.types";
+import { ITrack } from "@/types/track.types";
 
+// Added showFollow to the interface
+interface ExtendedSliderProps {
+  title: string;
+  subtitle: string;
+  tracks: ITrack[];
+  showFollow?: boolean;
+}
 
-export default function TrackSlider({ title, subtitle, tracks }: ISliderProps) {
+export default function TrackSlider({ title, subtitle, tracks, showFollow = true }: ExtendedSliderProps) {
   const [index, setIndex] = useState(0);
   const [peekOffset, setPeekOffset] = useState(0); 
   const peekTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -48,6 +54,9 @@ export default function TrackSlider({ title, subtitle, tracks }: ISliderProps) {
   const isDragging = useRef(false);
 
   const onMouseDown = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest("button")) {
+    return;
+  }
     isDragging.current = true;
     startX.current = e.clientX;
   };
@@ -106,8 +115,8 @@ export default function TrackSlider({ title, subtitle, tracks }: ISliderProps) {
           >
             {tracks.map((track) => (
               <div key={track.id} className="flex-[0_0_calc(20%-25.6px)]">
-                {/* 3. Ensure this matches the imported component name EXACTLY */}
-                <TrackCard2 track={track} />
+                {/* Passed showFollow down to the card */}
+                <TrackCard2 track={track} showFollow={showFollow} />
               </div>
             ))}
           </div>
