@@ -258,7 +258,7 @@ function DropdownMenu({
 
 export default function Header({
   avatarUrl = "https://i.pravatar.cc/32",
-  isLoggedIn = true,
+  isLoggedIn: _isLoggedIn,
 }: {
   avatarUrl?: string;
   isLoggedIn?: boolean;
@@ -267,9 +267,29 @@ export default function Header({
   const [activeNav, setActiveNav]     = useState("Home");
   const [avatarOpen, setAvatarOpen]   = useState(false);
   const [dotsOpen, setDotsOpen]       = useState(false);
-  const authUser = useAuthStore((state) => state.user);
-  const logout   = useAuthStore((state) => state.logout);
-  const router   = useRouter();
+  const authUser        = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const storeLogin      = useAuthStore((state) => state.login);
+  const logout          = useAuthStore((state) => state.logout);
+  const router          = useRouter();
+
+  // Re-hydrate auth store from localStorage on page refresh
+  useEffect(() => {
+    if (isAuthenticated) return;
+    const token = typeof window !== "undefined" ? window.localStorage.getItem("auth_token") : null;
+    if (!token) return;
+    import("@/services").then(({ AuthService }) => {
+      AuthService.getCurrentUser(token)
+        .then((user) => storeLogin(user, token))
+        .catch(() => {
+          window.localStorage.removeItem("auth_token");
+          window.localStorage.removeItem("refresh_token");
+        });
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const isLoggedIn = isAuthenticated || (typeof window !== "undefined" && !!window.localStorage.getItem("auth_token"));
 
   const avatarRef = useRef<HTMLDivElement>(null);
   const dotsRef   = useRef<HTMLDivElement>(null);

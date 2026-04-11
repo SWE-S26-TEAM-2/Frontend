@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import SlideShow from "../../components/SlideShow/SlideShow";
 import LoginModal from "@/components/LoginModal/LoginModal";
 import HoverButton from "@/components/HoverButton/HoverButton";
+import { useAuthStore } from "@/store/authStore";
 
 import { LandingApiService } from "@/services/api/landing.api";
 import { ILandingData } from "@/types/landing.types";
@@ -13,24 +14,40 @@ import type { ITrack } from "@/types/track.types";
 
 export default function Home() {
   const router = useRouter();
+  const authUser = useAuthStore((state) => state.user);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [content, setContent] = useState<ILandingData | null>(null);
   const [tracks, setTracks] = useState<ITrack[]>([]);
 
+  const redirectToProfile = () => {
+    const userId = authUser?.id ?? window.localStorage.getItem("auth_user_id");
+    router.push(userId ? `/${userId}` : "/settings/account");
+  };
+
   useEffect(() => {
     if (typeof window !== "undefined" && window.localStorage.getItem("auth_token")) {
-      router.push("/discover"); 
+      redirectToProfile();
     }
     LandingApiService.getLandingData().then(setContent);
     LandingApiService.getTrendingTracks().then(setTracks);
-  }, [router]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!content) return <div className="bg-[#141212] min-h-screen" />;
 
   return (
     <>
-      {isModalOpen && <LoginModal onClose={() => setIsModalOpen(false)} />}
+      {isModalOpen && (
+        <LoginModal
+          onClose={() => {
+            setIsModalOpen(false);
+            if (window.localStorage.getItem("auth_token")) {
+              redirectToProfile();
+            }
+          }}
+        />
+      )}
       
       <div className="bg-[#141212] min-h-screen flex justify-center text-white pb-20 selection:bg-orange-500 selection:text-white">
         <main className="p-12 w-full max-w-[1400px]">

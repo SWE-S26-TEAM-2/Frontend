@@ -28,11 +28,41 @@ function toCanonicalTrack(track: IUserProfileTrack): ITrack {
   };
 }
 
+const getAuthToken = () =>
+  typeof window !== "undefined" ? window.localStorage.getItem("auth_token") : null;
+
+const getStoredUserId = () =>
+  typeof window !== "undefined" ? window.localStorage.getItem("auth_user_id") : null;
+
+function normalizeUser(d: Record<string, unknown>, requestedId: string): IUser {
+  return {
+    id: (d.user_id as string) ?? requestedId,
+    username: (d.display_name as string) ?? "",
+    location: (d.location as string) ?? "",
+    bio: (d.bio as string) ?? undefined,
+    role: ((d.account_type as string) === "artist" ? "artist" : "listener"),
+    isPrivate: (d.is_private as boolean) ?? false,
+    avatarUrl: (d.profile_picture as string) ?? null,
+    headerUrl: (d.cover_photo as string) ?? null,
+    followers: (d.follower_count as number) ?? 0,
+    following: (d.following_count as number) ?? 0,
+    tracks: 0,
+    likes: 0,
+    isOwner: (d.user_id as string) === getStoredUserId(),
+  };
+}
+
 export const realUserProfileService: IUserProfileService = {
-  async getUserProfile(username: string): Promise<IUser> {
-    const res = await fetch(`${ENV.API_BASE_URL}/users/${username}`);
-    if (!res.ok) throw new Error(`User "${username}" not found`);
-    return res.json();
+  async getUserProfile(userId: string): Promise<IUser> {
+    const token = getAuthToken();
+    const headers: Record<string, string> = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    const res = await fetch(`${ENV.API_BASE_URL}/users/${userId}`, { headers });
+    if (!res.ok) throw new Error(`User "${userId}" not found`);
+    const json = await res.json();
+    const data = json.data ?? json;
+    return normalizeUser(data as Record<string, unknown>, userId);
   },
   async getUserTracks(userId: string): Promise<ITrack[]> {
     const res = await fetch(`${ENV.API_BASE_URL}/users/${userId}/tracks`);
