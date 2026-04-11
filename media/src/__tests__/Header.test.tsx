@@ -33,6 +33,14 @@ jest.mock("next/image", () => ({
   },
 }));
 
+// Mock useAuthStore so isLoggedIn prop controls the authenticated state in tests
+jest.mock("@/store/authStore", () => ({
+  useAuthStore: (selector?: (s: { user: null; isAuthenticated: boolean; login: jest.Mock; logout: jest.Mock }) => unknown) => {
+    const state = { user: null, isAuthenticated: false, login: jest.fn(), logout: jest.fn() };
+    return typeof selector === "function" ? selector(state) : state;
+  },
+}));
+
 describe("Header Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();

@@ -258,7 +258,7 @@ function DropdownMenu({
 
 export default function Header({
   avatarUrl = "https://i.pravatar.cc/32",
-  isLoggedIn: _isLoggedIn,
+  isLoggedIn: isLoggedInProp,
 }: {
   avatarUrl?: string;
   isLoggedIn?: boolean;
@@ -278,8 +278,8 @@ export default function Header({
     if (isAuthenticated) return;
     const token = typeof window !== "undefined" ? window.localStorage.getItem("auth_token") : null;
     if (!token) return;
-    import("@/services").then(({ AuthService }) => {
-      AuthService.getCurrentUser(token)
+    import("@/services").then(({ AuthService: authService }) => {
+      authService.getCurrentUser(token)
         .then((user) => storeLogin(user, token))
         .catch(() => {
           window.localStorage.removeItem("auth_token");
@@ -289,7 +289,8 @@ export default function Header({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const isLoggedIn = isAuthenticated || (typeof window !== "undefined" && !!window.localStorage.getItem("auth_token"));
+  const authDerived = isAuthenticated || (typeof window !== "undefined" && !!window.localStorage.getItem("auth_token"));
+  const isLoggedIn = isLoggedInProp !== undefined ? isLoggedInProp : authDerived;
 
   const avatarRef = useRef<HTMLDivElement>(null);
   const dotsRef   = useRef<HTMLDivElement>(null);

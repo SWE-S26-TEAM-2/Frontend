@@ -169,10 +169,13 @@ describe("realUserProfileService", () => {
   it("getUserProfile calls correct endpoint", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ id: "1", username: "testuser" }),
+      json: async () => ({ user_id: "1", display_name: "testuser" }),
     });
     const user = await realUserProfileService.getUserProfile("testuser");
-    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining("/users/testuser"));
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining("/users/testuser"),
+      expect.objectContaining({ headers: expect.any(Object) })
+    );
     expect(user.username).toBe("testuser");
   });
 

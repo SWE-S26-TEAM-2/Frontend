@@ -66,13 +66,13 @@ export const RealAuthService = {
     }
 
     const json = await response.json();
-    const { access_token, refresh_token, user } = json.data;
+    const { access_token: accessToken, refresh_token: refreshToken, user } = json.data;
     const normalized = normalizeUser(user);
 
-    saveTokens(access_token, refresh_token);
+    saveTokens(accessToken, refreshToken);
     saveUserMeta(normalized);
 
-    return { success: true, token: access_token, user: normalized };
+    return { success: true, token: accessToken, user: normalized };
   },
 
   googleLogin: async (token: string): Promise<ILoginResponse> => {
@@ -88,13 +88,13 @@ export const RealAuthService = {
     }
 
     const json = await response.json();
-    const { access_token, refresh_token, user } = json.data;
+    const { access_token: accessToken, refresh_token: refreshToken, user } = json.data;
     const normalized = normalizeUser(user);
 
-    saveTokens(access_token, refresh_token);
+    saveTokens(accessToken, refreshToken);
     saveUserMeta(normalized);
 
-    return { success: true, token: access_token, user: normalized };
+    return { success: true, token: accessToken, user: normalized };
   },
 
   register: async (emailOrProfileUrl: string, password: string): Promise<IRegisterResponse> => {
@@ -227,21 +227,21 @@ export const RealAuthService = {
   },
 
   refreshToken: async (_token: string): Promise<{ token: string }> => {
-    const refreshToken = getRefreshToken();
+    const storedRefresh = getRefreshToken();
 
     const response = await fetch(`${ENV.API_BASE_URL}/auth/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refresh_token: refreshToken }),
+      body: JSON.stringify({ refresh_token: storedRefresh }),
     });
 
     if (!response.ok) throw new Error("Token refresh failed");
 
     const json = await response.json();
-    const { access_token, refresh_token } = json.data;
+    const { access_token: accessToken, refresh_token: newRefreshToken } = json.data;
 
-    saveTokens(access_token, refresh_token);
+    saveTokens(accessToken, newRefreshToken);
 
-    return { token: access_token };
+    return { token: accessToken };
   },
 };
