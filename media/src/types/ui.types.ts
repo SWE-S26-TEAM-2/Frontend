@@ -52,6 +52,7 @@ export interface IMenuItem {
   orange?: boolean;
   dividerBefore?: boolean;
   onClick?: () => void;
+  noNav?: boolean;
 }
 
 export interface ITrackPageProps {
@@ -70,4 +71,5 @@ export type IActiveTab =
   export interface IVerifyEmailStepProps {
     email: string;
     onBack: () => void;
+    onVerified: () => void;
   }

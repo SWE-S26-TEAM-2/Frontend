@@ -157,10 +157,10 @@ const MOCK_FOLLOWING: IFollowing[] = [
 // ─────────────────────────────────────────────────────────────
 export const mockUserProfileService: IUserProfileService = {
 
-  async getUserProfile(username: string): Promise<IUser> {
+  async getUserProfile(userId: string): Promise<IUser> {
     await delay(300);
-    const user = MOCK_USERS.find(u => u.username === username);
-    if (!user) throw new Error(`User "${username}" not found`);
+    const user = MOCK_USERS.find(u => u.id === userId || u.username === userId);
+    if (!user) throw new Error(`User "${userId}" not found`);
     return user;
   },
 

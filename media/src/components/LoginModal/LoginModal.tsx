@@ -88,6 +88,8 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
         } else {
           const response = await AuthService.login(emailOrProfileUrl, password);
           authStore.login(response.user, response.token);
+          window.localStorage.setItem("auth_token", response.token);
+          window.localStorage.setItem("auth_user_id", String(response.user.id));
           setIsSuccess(true);
           setTimeout(onClose, 1500);
         }
@@ -97,6 +99,8 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
           try {
             const response = await AuthService.login(emailOrProfileUrl, password);
             authStore.login(response.user, response.token);
+            window.localStorage.setItem("auth_token", response.token);
+            window.localStorage.setItem("auth_user_id", String(response.user.id));
             setIsSuccess(true);
             setTimeout(onClose, 1500);
           } catch {
@@ -129,6 +133,21 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       setIsLoading(false);
     }
     setStep("verify-email");
+  };
+
+  const handleVerified = async () => {
+    try {
+      const response = await AuthService.login(emailOrProfileUrl, password);
+      authStore.login(response.user, response.token);
+      window.localStorage.setItem("auth_token", response.token);
+      window.localStorage.setItem("auth_user_id", String(response.user.id));
+      setIsSuccess(true);
+      setTimeout(onClose, 1500);
+    } catch {
+      // Verification succeeded but auto-login failed — send them to sign-in
+      setStep("signin");
+      setError("Email verified! Please sign in.");
+    }
   };
 
   return (
@@ -175,6 +194,8 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
                     setIsLoading(true);
                     const response = await AuthService.googleLogin(credentialResponse.credential);
                     authStore.login(response.user, response.token);
+                    window.localStorage.setItem("auth_token", response.token);
+                    window.localStorage.setItem("auth_user_id", String(response.user.id));
                     setIsSuccess(true);
                     setTimeout(onClose, 1500);
                   } catch {
@@ -197,6 +218,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
 
             <p className="text-white text-sm font-semibold mb-3 mt-4">Or with email</p>
 
+            <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
             <input
               type="text"
               placeholder="Your email address or profile URL"
@@ -209,12 +231,13 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
             {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 
             <button
+              type="submit"
               className="bg-[#555555] text-white w-full p-3 rounded cursor-pointer mb-10 text-[15px] font-semibold border-none"
-              onClick={handleSubmit}
               disabled={isLoading}
             >
               {isLoading ? "Loading..." : "Continue"}
             </button>
+            </form>
 
             <Link href="#" className="text-[#ff5500] text-sm cursor-pointer mt-8">
               Need help?
@@ -270,6 +293,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
           <VerifyEmailStep
             email={emailOrProfileUrl}
             onBack={resetToMain}
+            onVerified={handleVerified}
           />
         )}
       </div>

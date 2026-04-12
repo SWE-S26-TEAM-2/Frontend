@@ -15,8 +15,8 @@ export const MockAuthService = {
 
     // Fake database validation
     const mockUser: IUser = {
-      id: "user-123",
-      username: emailOrProfileUrl,
+      id: "testuser",
+      username: "testuser",
       email: emailOrProfileUrl,
       profileImageUrl: "/default-avatar.png",
       createdAt: new Date().toISOString(),
@@ -39,10 +39,10 @@ export const MockAuthService = {
     await new Promise((resolve) => setTimeout(resolve, 500));
     return {
       success: true,
-      token: "fake-google-jwt-" + Date.now(),
+      token: "fake-google-jwt-testuser",
       user: {
-        id: "google-user-" + Date.now(),
-        username: "Google User",
+        id: "testuser",
+        username: "testuser",
         email: "googleuser@gmail.com",
         profileImageUrl: "/default-avatar.png",
         createdAt: new Date().toISOString(),
@@ -89,7 +89,7 @@ export const MockAuthService = {
     return {
       success: true,
       user: {
-        id: "user-123",
+        id: "testuser",
         username: data.displayName,
         email: "test@example.com",
         profileImageUrl: "/default-avatar.png",
@@ -123,15 +123,14 @@ export const MockAuthService = {
   getCurrentUser: async (token: string): Promise<IUser> => {
     await new Promise((resolve) => setTimeout(resolve, 200));
 
-    if (token.startsWith("fake-jwt-token")) {
-      return {
-        id: "user-123",
-        username: "testuser",
-        email: "testuser@example.com",
-        profileImageUrl: "/default-avatar.png",
-        createdAt: new Date().toISOString(),
-      };
-    }
-    throw new Error("Invalid token");
+    if (!token) throw new Error("401 Unauthorized");
+    // In mock mode, accept any non-empty token (real or fake)
+    return {
+      id: "testuser",
+      username: "testuser",
+      email: "testuser@example.com",
+      profileImageUrl: "/default-avatar.png",
+      createdAt: new Date().toISOString(),
+    };
   },
 };

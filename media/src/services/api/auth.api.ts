@@ -44,11 +44,13 @@ const normalizeUser = (u: {
   display_name: string;
   account_type: string;
   is_premium: boolean;
+  profile_picture?: string;
+  email?: string;
 }): IUser => ({
   id: u.user_id,
   username: u.display_name,
-  email: "",
-  profileImageUrl: "",
+  email: u.email ?? "",
+  profileImageUrl: u.profile_picture ?? "",
   createdAt: new Date().toISOString(),
 });
 

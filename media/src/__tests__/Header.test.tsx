@@ -44,6 +44,11 @@ jest.mock("@/store/authStore", () => ({
 describe("Header Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    localStorage.setItem("auth_user_id", "testuser");
+  });
+
+  afterEach(() => {
+    localStorage.clear();
   });
 
   describe("Rendering", () => {
@@ -300,17 +305,9 @@ describe("Header Component", () => {
   });
 
   describe("Avatar Prop", () => {
-    test("uses custom avatar URL when provided", () => {
-      const customAvatarUrl = "https://example.com/avatar.jpg";
-      render(<Header isLoggedIn={true} avatarUrl={customAvatarUrl} />);
-      
-      const avatarImage = screen.getByAltText("User avatar") as HTMLImageElement;
-      expect(avatarImage.src).toContain("example.com/avatar.jpg");
-    });
-
-    test("uses default avatar URL when not provided", () => {
+    test("uses pravatar fallback when no user profile image", () => {
       render(<Header isLoggedIn={true} />);
-      
+
       const avatarImage = screen.getByAltText("User avatar") as HTMLImageElement;
       expect(avatarImage.src).toContain("pravatar.cc");
     });

@@ -42,9 +42,8 @@ export default function Home() {
         <LoginModal
           onClose={() => {
             setIsModalOpen(false);
-            if (window.localStorage.getItem("auth_token")) {
-              redirectToProfile();
-            }
+            const userId = authUser?.id ?? window.localStorage.getItem("auth_user_id");
+            if (userId) redirectToProfile();
           }}
         />
       )}

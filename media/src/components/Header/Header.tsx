@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { IMenuItem } from "@/types/ui.types";
 import { useAuthStore } from "@/store/authStore";
+import KeyboardShortcutsModal from "@/components/KeyboardShortcutsModal/KeyboardShortcutsModal";
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -221,35 +222,58 @@ function DropdownMenu({
         overflow: "hidden",
       }}
     >
-      {items.map((item, i) => (
-        <div key={i}>
-          {item.dividerBefore && (
-            <div style={{ height: "1px", background: "rgba(80, 80, 80)", margin: "0" }} />
-          )}
-          <Link
-            href={item.href}
-            onClick={() => { item.onClick?.(); onClose(); }}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
-              padding: "10px 16px",
-              color: item.orange ? "#f50" : "#ddd",
-              textDecoration: "none",
-              fontSize: "14px",
-              fontWeight: 500,
-              transition: "background 0.1s",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#2a2a2a")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-          >
-            <span style={{ color: item.orange ? "#f50" : "#aaa", display: "flex", alignItems: "center" }}>
-              {item.icon}
-            </span>
-            {item.label}
-          </Link>
-        </div>
-      ))}
+      {items.map((item, i) => {
+        const sharedStyle: React.CSSProperties = {
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          padding: "10px 16px",
+          color: item.orange ? "#f50" : "#ddd",
+          textDecoration: "none",
+          fontSize: "14px",
+          fontWeight: 500,
+          transition: "background 0.1s",
+          width: "100%",
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          textAlign: "left",
+          boxSizing: "border-box",
+        };
+        return (
+          <div key={i}>
+            {item.dividerBefore && (
+              <div style={{ height: "1px", background: "rgba(80, 80, 80)", margin: "0" }} />
+            )}
+            {item.noNav ? (
+              <button
+                onClick={() => { item.onClick?.(); onClose(); }}
+                style={sharedStyle}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "#2a2a2a")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+              >
+                <span style={{ color: item.orange ? "#f50" : "#aaa", display: "flex", alignItems: "center" }}>
+                  {item.icon}
+                </span>
+                {item.label}
+              </button>
+            ) : (
+              <Link
+                href={item.href}
+                onClick={() => { item.onClick?.(); onClose(); }}
+                style={sharedStyle}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "#2a2a2a")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+              >
+                <span style={{ color: item.orange ? "#f50" : "#aaa", display: "flex", alignItems: "center" }}>
+                  {item.icon}
+                </span>
+                {item.label}
+              </Link>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -257,54 +281,71 @@ function DropdownMenu({
 // ── Header component ──────────────────────────────────────────────────────────
 
 export default function Header({
-  avatarUrl = "https://i.pravatar.cc/32",
   isLoggedIn: isLoggedInProp,
 }: {
-  avatarUrl?: string;
   isLoggedIn?: boolean;
 }) {
   const [query, setQuery]             = useState("");
   const [activeNav, setActiveNav]     = useState("Home");
   const [avatarOpen, setAvatarOpen]   = useState(false);
   const [dotsOpen, setDotsOpen]       = useState(false);
+  const [hasToken, setHasToken]             = useState(false);
+  const [storedUserId, setStoredUserId]     = useState<string | null>(null);
+  const [shortcutsOpen, setShortcutsOpen]   = useState(false);
   const authUser        = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const storeLogin      = useAuthStore((state) => state.login);
   const logout          = useAuthStore((state) => state.logout);
   const router          = useRouter();
 
-  // Re-hydrate auth store from localStorage on page refresh
   useEffect(() => {
-    if (isAuthenticated) return;
-    const token = typeof window !== "undefined" ? window.localStorage.getItem("auth_token") : null;
-    if (!token) return;
+    const token = window.localStorage.getItem("auth_token");
+    const userId = window.localStorage.getItem("auth_user_id");
+    if (token) setHasToken(true);
+    if (userId) setStoredUserId(userId);
+    if (isAuthenticated || !token) return;
     import("@/services").then(({ AuthService: authService }) => {
       authService.getCurrentUser(token)
         .then((user) => storeLogin(user, token))
-        .catch(() => {
-          window.localStorage.removeItem("auth_token");
-          window.localStorage.removeItem("refresh_token");
+        .catch((err: unknown) => {
+          const msg = err instanceof Error ? err.message : "";
+          if (msg.includes("401") || msg.includes("unauthorized") || msg.includes("Failed to fetch user") || msg.includes("Invalid token")) {
+            window.localStorage.removeItem("auth_token");
+            window.localStorage.removeItem("refresh_token");
+            setHasToken(false);
+          }
         });
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const authDerived = isAuthenticated || (typeof window !== "undefined" && !!window.localStorage.getItem("auth_token"));
-  const isLoggedIn = isLoggedInProp !== undefined ? isLoggedInProp : authDerived;
+  const isLoggedIn = isLoggedInProp !== undefined ? isLoggedInProp : (isAuthenticated || hasToken);
 
   const avatarRef = useRef<HTMLDivElement>(null);
   const dotsRef   = useRef<HTMLDivElement>(null);
-  const profileHref = authUser?.username ? `/${encodeURIComponent(authUser.username)}` : "/testuser";
+  const profileHref = authUser?.id
+    ? `/${authUser.id}`
+    : storedUserId
+    ? `/${storedUserId}`
+    : "/";
 
   const handleSignOut = () => {
     logout();
+    window.localStorage.removeItem("auth_token");
+    window.localStorage.removeItem("refresh_token");
+    window.localStorage.removeItem("auth_user_id");
+    window.localStorage.removeItem("auth_username");
+    setHasToken(false);
+    setStoredUserId(null);
     router.push("/login");
   };
 
-  // Enrich module-level DOTS_MENU with runtime onClick for Sign out
-  const dotsMenu = DOTS_MENU.map((item) =>
-    item.label === "Sign out" ? { ...item, onClick: handleSignOut } : item
-  );
+  // Enrich module-level DOTS_MENU with runtime onClick handlers
+  const dotsMenu = DOTS_MENU.map((item) => {
+    if (item.label === "Sign out")           return { ...item, onClick: handleSignOut };
+    if (item.label === "Keyboard shortcuts") return { ...item, noNav: true, onClick: () => setShortcutsOpen(true) };
+    return item;
+  });
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -317,6 +358,7 @@ export default function Header({
   }, []);
 
   return (
+    <>
     <header
       style={{
         background: "rgba(18, 18, 18)",
@@ -437,7 +479,7 @@ export default function Header({
                   aria-label="Go to profile"
                   style={{ display: "flex", alignItems: "center", textDecoration: "none" }}
                 >
-                  <Image src={avatarUrl} alt="User avatar" width={28} height={28} style={{ borderRadius: "50%", objectFit: "cover" }} />
+                  <Image src={(authUser?.profileImageUrl?.startsWith("http") ? authUser.profileImageUrl : null) || "https://i.pravatar.cc/32"} alt="User avatar" width={28} height={28} style={{ borderRadius: "50%", objectFit: "cover" }} />
                 </Link>
                 <button
                   aria-label="Open profile menu"
@@ -483,5 +525,8 @@ export default function Header({
         )}
       </div>
     </header>
+
+    {shortcutsOpen && <KeyboardShortcutsModal onClose={() => setShortcutsOpen(false)} />}
+    </>
   );
 } 

@@ -66,11 +66,11 @@ describe("Home Component (Landing Page)", () => {
 
   test("redirects to profile if auth_token exists", async () => {
     localStorage.setItem("auth_token", "fake-token");
-    localStorage.setItem("auth_user_id", "user-123");
+    localStorage.setItem("auth_user_id", "testuser");
     await act(async () => {
       render(<Home />);
     });
-    expect(mockPush).toHaveBeenCalledWith("/user-123");
+    expect(mockPush).toHaveBeenCalledWith("/testuser");
   });
 
   test("renders the marketing tagline from API", async () => {

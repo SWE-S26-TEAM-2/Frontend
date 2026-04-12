@@ -66,28 +66,28 @@ export const realUserProfileService: IUserProfileService = {
   },
   async getUserTracks(userId: string): Promise<ITrack[]> {
     const res = await fetch(`${ENV.API_BASE_URL}/users/${userId}/tracks`);
-    if (!res.ok) throw new Error(`Could not fetch tracks for user "${userId}"`);
+    if (!res.ok) return [];
     const tracks = (await res.json()) as IUserProfileTrack[];
     return tracks.map(toCanonicalTrack);
   },
   async getUserLikes(userId: string): Promise<ILikedTrack[]> {
     const res = await fetch(`${ENV.API_BASE_URL}/users/${userId}/likes`);
-    if (!res.ok) throw new Error(`Could not fetch likes for user "${userId}"`);
+    if (!res.ok) return [];
     return res.json();
   },
   async getFansAlsoLike(userId: string): Promise<IFanUser[]> {
     const res = await fetch(`${ENV.API_BASE_URL}/users/${userId}/fans`);
-    if (!res.ok) throw new Error(`Could not fetch fans for user "${userId}"`);
+    if (!res.ok) return [];
     return res.json();
   },
   async getFollowers(userId: string): Promise<IFollower[]> {
     const res = await fetch(`${ENV.API_BASE_URL}/users/${userId}/followers`);
-    if (!res.ok) throw new Error(`Could not fetch followers for user "${userId}"`);
+    if (!res.ok) return [];
     return res.json();
   },
   async getFollowing(userId: string): Promise<IFollowing[]> {
     const res = await fetch(`${ENV.API_BASE_URL}/users/${userId}/following`);
-    if (!res.ok) throw new Error(`Could not fetch following for user "${userId}"`);
+    if (!res.ok) return [];
     return res.json();
   },
 };

@@ -191,10 +191,10 @@ describe("realUserProfileService", () => {
     expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining("/users/user123/tracks"));
   });
 
-  it("getUserTracks throws when response is not ok", async () => {
+  it("getUserTracks returns empty array when response is not ok", async () => {
     mockFetch.mockResolvedValueOnce({ ok: false });
-    await expect(realUserProfileService.getUserTracks("user123"))
-      .rejects.toThrow("Could not fetch tracks");
+    const result = await realUserProfileService.getUserTracks("user123");
+    expect(result).toEqual([]);
   });
 
   it("getUserLikes calls correct endpoint", async () => {
@@ -203,10 +203,10 @@ describe("realUserProfileService", () => {
     expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining("/users/user123/likes"));
   });
 
-  it("getUserLikes throws when response is not ok", async () => {
+  it("getUserLikes returns empty array when response is not ok", async () => {
     mockFetch.mockResolvedValueOnce({ ok: false });
-    await expect(realUserProfileService.getUserLikes("user123"))
-      .rejects.toThrow("Could not fetch likes");
+    const result = await realUserProfileService.getUserLikes("user123");
+    expect(result).toEqual([]);
   });
 
   it("getFansAlsoLike calls correct endpoint", async () => {
