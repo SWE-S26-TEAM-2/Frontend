@@ -1,1 +1,9 @@
 export { default as StudioEmptyState } from './StudioEmptyState';
+export { default as StudioStatsBar } from './StudioStatsBar';
+export { default as StudioTabs } from './StudioTabs';
+export { default as StudioActionButtons } from './StudioActionButtons';
+export { default as StudioTrackList } from './StudioTrackList';
+export { default as StudioTrackRow } from './StudioTrackRow';
+export { default as StudioTrackMenu } from './StudioTrackMenu';
+export { default as StudioDeleteModal } from './StudioDeleteModal';
+export type { StudioTab } from './StudioTabs';
