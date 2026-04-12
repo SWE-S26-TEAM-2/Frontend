@@ -42,7 +42,7 @@ export default function UploadQuotaBar({ quota }: IUploadQuotaBarProps) {
               aria-valuemin={0}
               aria-valuemax={100}
               aria-label="Upload quota used"
-              className="flex-1 max-w-[200px] h-[3px] bg-[#3a3a3a] rounded-full overflow-hidden"
+              className="flex-1 max-w-50 h-0.75 bg-[#3a3a3a] rounded-full overflow-hidden"
             >
               <div
                 className="h-full bg-white rounded-full transition-all duration-500"
@@ -61,11 +61,7 @@ export default function UploadQuotaBar({ quota }: IUploadQuotaBarProps) {
 
       <button
         type="button"
-        className="
-          ml-6 px-5 py-2 rounded-full border border-white text-white text-sm font-semibold
-          hover:bg-white hover:text-black transition-colors duration-200 whitespace-nowrap
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-white
-        "
+        className="ml-6 px-5 py-2 rounded-full border border-white text-white text-sm font-semibold hover:bg-white hover:text-black transition-colors duration-200 whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
       >
         Get unlimited uploads
       </button>

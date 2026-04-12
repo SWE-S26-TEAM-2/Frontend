@@ -12,7 +12,7 @@ export const realUploadService: IUploadService = {
       method: 'GET',
       credentials: 'include',
     });
-    if (!res.ok) throw new Error('Failed to fetch upload quota');
+    if (!res.ok) return { usedMinutes: 0, totalMinutes: 180, usedPercentage: 0, isUnlimited: false };
     return res.json();
   },
  

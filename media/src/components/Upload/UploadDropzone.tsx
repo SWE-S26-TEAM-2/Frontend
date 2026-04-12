@@ -47,10 +47,8 @@ export default function UploadDropzone({ onFilesSelected, isDisabled }: IUploadD
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    console.log('[Dropzone] handleDrop fired');  //check
     e.preventDefault();
     setIsDraggingOver(false);
-    console.log('[Dropzone] dropped files:', e.dataTransfer.files);  //check
     if (!isDisabled) handleFiles(e.dataTransfer.files);
   };
 
@@ -73,17 +71,11 @@ export default function UploadDropzone({ onFilesSelected, isDisabled }: IUploadD
       onDrop={handleDrop}
       //onClick={handleChooseFiles}
       onKeyDown={(e) => e.key === 'Enter' && handleChooseFiles()}
-      className={`
-        relative flex flex-col items-center justify-center
-        min-h-[320px] rounded-md border-2 border-dashed
-        transition-colors duration-200 select-none
-        ${isDisabled
-          ? 'opacity-50 cursor-not-allowed border-[#333]'
-          : isDraggingOver
-            ? 'border-white bg-[#252525] cursor-copy'
-            : 'border-[#444] bg-transparent hover:border-[#666] cursor-pointer'
-        }
-      `}
+      className={`relative flex flex-col items-center justify-center min-h-80 rounded-md border-2 border-dashed transition-colors duration-200 select-none ${isDisabled
+        ? 'opacity-50 cursor-not-allowed border-[#333]'
+        : isDraggingOver
+          ? 'border-white bg-[#252525] cursor-copy'
+          : 'border-[#444] bg-transparent hover:border-[#666] cursor-pointer'}`}
     >
       {/* Cloud upload icon */}
       <div className="mb-5 pointer-events-none" aria-hidden="true">
@@ -131,12 +123,7 @@ export default function UploadDropzone({ onFilesSelected, isDisabled }: IUploadD
           handleChooseFiles();
         }}
         disabled={isDisabled}
-        className="
-          px-8 py-2.5 rounded-full bg-white text-black font-semibold text-sm
-          hover:bg-[#e0e0e0] active:scale-95 transition-all duration-150
-          disabled:opacity-50 disabled:cursor-not-allowed
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black
-        "
+        className="px-8 py-2.5 rounded-full bg-white text-black font-semibold text-sm hover:bg-[#e0e0e0] active:scale-95 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
       >
         Choose files
       </button>

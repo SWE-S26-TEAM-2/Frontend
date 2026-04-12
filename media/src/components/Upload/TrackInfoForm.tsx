@@ -95,7 +95,6 @@ export default function TrackInfoForm({
       return;
     }
     setError('');
-    console.log('[TrackInfoForm] submitting metadata:', metadata); // check
     onUpload(metadata);
   };
 

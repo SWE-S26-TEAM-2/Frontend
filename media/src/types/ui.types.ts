@@ -51,6 +51,8 @@ export interface IMenuItem {
   href: string;
   orange?: boolean;
   dividerBefore?: boolean;
+  onClick?: () => void;
+  noNav?: boolean;
 }
 
 export interface ITrackPageProps {
@@ -64,3 +66,10 @@ export type IActiveTab =
   | "Albums"
   | "Playlists"
   | "Reposts";
+
+
+  export interface IVerifyEmailStepProps {
+    email: string;
+    onBack: () => void;
+    onVerified: () => void;
+  }

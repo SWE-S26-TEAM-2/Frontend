@@ -3,6 +3,17 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import Header from "@/components/Header/Header";
 import "@testing-library/jest-dom";
 
+// Mock next/navigation (required because Header uses useRouter for sign out)
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+    back: jest.fn(),
+    prefetch: jest.fn(),
+  }),
+  usePathname: () => "/",
+}));
+
 // Mock next/link
 jest.mock("next/link", () => {
   const MockedLink = ({ children, href, onClick }: { children: React.ReactNode; href: string; onClick?: (e: React.MouseEvent) => void }) => (
@@ -22,9 +33,22 @@ jest.mock("next/image", () => ({
   },
 }));
 
+// Mock useAuthStore so isLoggedIn prop controls the authenticated state in tests
+jest.mock("@/store/authStore", () => ({
+  useAuthStore: (selector?: (s: { user: null; isAuthenticated: boolean; login: jest.Mock; logout: jest.Mock }) => unknown) => {
+    const state = { user: null, isAuthenticated: false, login: jest.fn(), logout: jest.fn() };
+    return typeof selector === "function" ? selector(state) : state;
+  },
+}));
+
 describe("Header Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    localStorage.setItem("auth_user_id", "testuser");
+  });
+
+  afterEach(() => {
+    localStorage.clear();
   });
 
   describe("Rendering", () => {
@@ -281,17 +305,9 @@ describe("Header Component", () => {
   });
 
   describe("Avatar Prop", () => {
-    test("uses custom avatar URL when provided", () => {
-      const customAvatarUrl = "https://example.com/avatar.jpg";
-      render(<Header isLoggedIn={true} avatarUrl={customAvatarUrl} />);
-      
-      const avatarImage = screen.getByAltText("User avatar") as HTMLImageElement;
-      expect(avatarImage.src).toContain("example.com/avatar.jpg");
-    });
-
-    test("uses default avatar URL when not provided", () => {
+    test("uses pravatar fallback when no user profile image", () => {
       render(<Header isLoggedIn={true} />);
-      
+
       const avatarImage = screen.getByAltText("User avatar") as HTMLImageElement;
       expect(avatarImage.src).toContain("pravatar.cc");
     });
@@ -328,7 +344,7 @@ describe("Header Component", () => {
     test("Upload link has correct href", () => {
       render(<Header />);
       const link = screen.getByText("Upload").closest("a");
-      expect(link).toHaveAttribute("href", "/upload");
+      expect(link).toHaveAttribute("href", "/creator/upload");
     });
 
     test("logo link navigates to home", () => {

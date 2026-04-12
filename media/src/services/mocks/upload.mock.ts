@@ -15,7 +15,6 @@ const MOCK_QUOTA: IUploadQuota = {
  
 export const mockUploadService: IUploadService = {
   async getQuota(): Promise<IUploadQuota> {
-    console.log('[MOCK] getQuota called');  // check
     await new Promise((r) => setTimeout(r, 300));  
     return { ...MOCK_QUOTA };
   },
@@ -26,7 +25,6 @@ export const mockUploadService: IUploadService = {
     onProgress: (progress: number) => void
   ): Promise<IUploadResponse> {
     // Simulate upload progress
-    console.log('[MOCK] uploadTrack called', { file, payload });  //check
     await new Promise<void>((resolve) => {
       let progress = 0;
       const interval = setInterval(() => {

@@ -91,7 +91,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   // Privacy Control
   if (user.isPrivate && !user.isOwner) return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
-      <Header avatarUrl={undefined} isLoggedIn={true}/>
+      <Header isLoggedIn={true}/>
       <div className="max-w-7xl mx-auto bg-[#111]">
         <Banner user={user}/>
       </div>
@@ -108,7 +108,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans pb-15">
-      <Header avatarUrl={user.avatarUrl ?? undefined} isLoggedIn={true}/>
+      <Header isLoggedIn={true}/>
 
       <div className="max-w-7xl mx-auto bg-[#111]">
         <Banner user={user}/>

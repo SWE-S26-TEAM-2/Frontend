@@ -1,5 +1,5 @@
 // src/services/mocks/auth.mock.ts
-import { ILoginResponse, IUser , ICheckEmailResponse, IRegisterResponse} from "@/types/auth.types";
+import { ILoginResponse, IUser , ICheckEmailResponse, IRegisterResponse, IUpdateProfileRequest, IUpdateProfileResponse, IResendVerificationResponse} from "@/types/auth.types";
 
 /**
  * Mock authentication service for development/testing
@@ -15,14 +15,14 @@ export const MockAuthService = {
 
     // Fake database validation
     const mockUser: IUser = {
-      id: "user-123",
-      username: emailOrProfileUrl,
+      id: "testuser",
+      username: "testuser",
       email: emailOrProfileUrl,
       profileImageUrl: "/default-avatar.png",
       createdAt: new Date().toISOString(),
     };
 
-    if (emailOrProfileUrl === "test@example.com" && password === "pass123") {
+    if ((emailOrProfileUrl === "test@example.com"|| emailOrProfileUrl === "soundcloud.com/testuser")  && password === "pass123") {
       return {
         success: true,
         token: "fake-jwt-token-12345-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
@@ -39,10 +39,10 @@ export const MockAuthService = {
     await new Promise((resolve) => setTimeout(resolve, 500));
     return {
       success: true,
-      token: "fake-google-jwt-" + Date.now(),
+      token: "fake-google-jwt-testuser",
       user: {
-        id: "google-user-" + Date.now(),
-        username: "Google User",
+        id: "testuser",
+        username: "testuser",
         email: "googleuser@gmail.com",
         profileImageUrl: "/default-avatar.png",
         createdAt: new Date().toISOString(),
@@ -84,6 +84,30 @@ export const MockAuthService = {
   },
 
 
+  updateProfile: async (data: IUpdateProfileRequest): Promise<IUpdateProfileResponse> => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return {
+      success: true,
+      user: {
+        id: "testuser",
+        username: data.displayName,
+        email: "test@example.com",
+        profileImageUrl: "/default-avatar.png",
+        createdAt: new Date().toISOString(),
+      },
+    };
+  },
+
+
+  resendVerification: async (email: string): Promise<IResendVerificationResponse> => {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    
+    if (!email) {
+      throw new Error("Email is required");
+    }
+  
+    return { success: true };
+  },
 
   /**
    * Mock logout - clears session
@@ -99,15 +123,14 @@ export const MockAuthService = {
   getCurrentUser: async (token: string): Promise<IUser> => {
     await new Promise((resolve) => setTimeout(resolve, 200));
 
-    if (token.startsWith("fake-jwt-token")) {
-      return {
-        id: "user-123",
-        username: "testuser",
-        email: "testuser@example.com",
-        profileImageUrl: "/default-avatar.png",
-        createdAt: new Date().toISOString(),
-      };
-    }
-    throw new Error("Invalid token");
+    if (!token) throw new Error("401 Unauthorized");
+    // In mock mode, accept any non-empty token (real or fake)
+    return {
+      id: "testuser",
+      username: "testuser",
+      email: "testuser@example.com",
+      profileImageUrl: "/default-avatar.png",
+      createdAt: new Date().toISOString(),
+    };
   },
 };

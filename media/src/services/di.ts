@@ -47,6 +47,10 @@ import type { IUploadService } from "@/types/upload.types";
 import { mockStudioService } from "./mocks/studio.mock";
 import { realStudioService } from "./api/studio.api";
 import type { IStudioService } from "@/types/studio.types";
+// store
+import { mockStoreService } from "./mocks/store.mock";
+import { realStoreService } from "./api/store.api";
+import type { IStoreService } from "@/types/store.types";
 
 /**
  * Authentication Service
@@ -81,6 +85,11 @@ export const uploadService: IUploadService = ENV.USE_MOCK_API
 export const studioService: IStudioService = ENV.USE_MOCK_API
   ? mockStudioService
   : realStudioService;
+ * Store Service
+ */
+export const storeService: IStoreService = ENV.USE_MOCK_API
+  ? mockStoreService
+  : realStoreService;
 
 /**
  * Settings - Privacy Service

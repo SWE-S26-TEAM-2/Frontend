@@ -1,113 +1,212 @@
-// src/services/api/auth.api.ts
 import { ENV } from "../../config/env";
-import { ILoginRequest, ILoginResponse, IUser, ICheckEmailResponse, IRegisterResponse } from "@/types/auth.types";
+import {
+  ILoginResponse,
+  IUser,
+  ICheckEmailResponse,
+  IRegisterResponse,
+  IUpdateProfileRequest,
+  IUpdateProfileResponse,
+  IResendVerificationResponse,
+} from "@/types/auth.types";
 
-const getAuthTokenFromStorage = (): string | null => {
-  let token: string | null = null;
-  if (typeof window !== "undefined") {
-    token = window.localStorage.getItem("auth_token");
-  }
-  return token;
+const getAccessToken = (): string | null => {
+  if (typeof window === "undefined") return null;
+  return window.localStorage.getItem("auth_token");
 };
 
-/**
- * Real authentication API service
- * Makes actual HTTP requests to the backend
- */
-export const RealAuthService = {
-  /**
-   * Login user with credentials
-   * @throws Error if login fails
-   */
-  login: async (emailOrProfileUrl: string, password: string): Promise<ILoginResponse> => {
-    const payload: ILoginRequest = { emailOrProfileUrl, password };
+const getRefreshToken = (): string | null => {
+  if (typeof window === "undefined") return null;
+  return window.localStorage.getItem("refresh_token");
+};
 
+const saveTokens = (accessToken: string, refreshToken: string) => {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem("auth_token", accessToken);
+  window.localStorage.setItem("refresh_token", refreshToken);
+};
+
+const saveUserMeta = (user: { id: string | number; username: string }) => {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem("auth_user_id", String(user.id));
+  window.localStorage.setItem("auth_username", user.username);
+};
+
+const clearTokens = () => {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem("auth_token");
+  window.localStorage.removeItem("refresh_token");
+  window.localStorage.removeItem("auth_user_id");
+  window.localStorage.removeItem("auth_username");
+};
+
+const normalizeUser = (u: {
+  user_id: string;
+  display_name: string;
+  account_type: string;
+  is_premium: boolean;
+  profile_picture?: string;
+  email?: string;
+}): IUser => ({
+  id: u.user_id,
+  username: u.display_name,
+  email: u.email ?? "",
+  profileImageUrl: u.profile_picture ?? "",
+  createdAt: new Date().toISOString(),
+});
+
+export const RealAuthService = {
+  login: async (emailOrProfileUrl: string, password: string): Promise<ILoginResponse> => {
     const response = await fetch(`${ENV.API_BASE_URL}/auth/login`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: emailOrProfileUrl, password }),
     });
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
-      throw new Error(error?.message || "Invalid email or password");
+      throw new Error(error?.detail || "Invalid email or password");
     }
 
-    return response.json();
+    const json = await response.json();
+    const { access_token: accessToken, refresh_token: refreshToken, user } = json.data;
+    const normalized = normalizeUser(user);
+
+    saveTokens(accessToken, refreshToken);
+    saveUserMeta(normalized);
+
+    return { success: true, token: accessToken, user: normalized };
   },
-  
+
   googleLogin: async (token: string): Promise<ILoginResponse> => {
     const response = await fetch(`${ENV.API_BASE_URL}/auth/google`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token }),
+      body: JSON.stringify({ google_token: token }),
     });
-    if (!response.ok) throw new Error("Google login failed");
-    return response.json();
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error?.detail || "Google login failed");
+    }
+
+    const json = await response.json();
+    const { access_token: accessToken, refresh_token: refreshToken, user } = json.data;
+    const normalized = normalizeUser(user);
+
+    saveTokens(accessToken, refreshToken);
+    saveUserMeta(normalized);
+
+    return { success: true, token: accessToken, user: normalized };
   },
 
   register: async (emailOrProfileUrl: string, password: string): Promise<IRegisterResponse> => {
+    const defaultDisplayName = emailOrProfileUrl.includes("@")
+      ? emailOrProfileUrl.split("@")[0]
+      : emailOrProfileUrl;
+
     const response = await fetch(`${ENV.API_BASE_URL}/auth/register`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ emailOrProfileUrl, password }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: emailOrProfileUrl,
+        password,
+        display_name: defaultDisplayName,
+        account_type: "listener",
+      }),
     });
-  
+
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
-      throw new Error(error?.message || "Registration failed");
+      throw new Error(error?.detail || "Registration failed");
     }
-  
-    return response.json();
+
+    const json = await response.json();
+
+    return {
+      success: true,
+      token: "",
+      user: {
+        id: json.data.user_id,
+        username: json.data.display_name,
+        email: json.data.email,
+        profileImageUrl: "",
+        createdAt: new Date().toISOString(),
+      },
+    };
   },
 
-  checkEmail: async (emailOrProfileUrl: string): Promise<ICheckEmailResponse> => {
-    const response = await fetch(`${ENV.API_BASE_URL}/auth/check-email`, {
-      method: "POST",
+  // POST /auth/check-email not implemented in backend yet — returns safe default
+  checkEmail: async (_emailOrProfileUrl: string): Promise<ICheckEmailResponse> => {
+    return { isExisting: false };
+  },
+
+  updateProfile: async (data: IUpdateProfileRequest): Promise<IUpdateProfileResponse> => {
+    const token = getAccessToken();
+
+    const response = await fetch(`${ENV.API_BASE_URL}/users/me`, {
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ emailOrProfileUrl }),
+      body: JSON.stringify({ display_name: data.displayName }),
     });
-  
+
     if (!response.ok) {
-      throw new Error("Failed to check email");
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error?.detail || "Failed to update profile");
     }
-  
-    return response.json();
+
+    const json = await response.json();
+
+    return {
+      success: true,
+      user: {
+        id: json.user_id ?? "",
+        username: json.display_name ?? data.displayName,
+        email: json.email ?? "",
+        profileImageUrl: json.profile_picture ?? "",
+        createdAt: json.created_at ?? new Date().toISOString(),
+      },
+    };
   },
 
-  /**
-   * Logout user and invalidate token
-   */
+  resendVerification: async (email: string): Promise<IResendVerificationResponse> => {
+    const response = await fetch(`${ENV.API_BASE_URL}/auth/resend-verification`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error?.detail || "Failed to resend verification email");
+    }
+
+    return { success: true };
+  },
+
   logout: async (): Promise<{ success: boolean }> => {
-    const token = getAuthTokenFromStorage();
+    const accessToken = getAccessToken();
+    const refreshToken = getRefreshToken();
 
     const response = await fetch(`${ENV.API_BASE_URL}/auth/logout`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${accessToken}`,
       },
+      body: JSON.stringify({ refresh_token: refreshToken }),
     });
 
-    if (!response.ok) {
-      throw new Error("Logout failed");
-    }
+    clearTokens();
 
-    return response.json();
+    if (!response.ok) return { success: false };
+    return { success: true };
   },
 
-  /**
-   * Get current user info from token
-   * @throws Error if token is invalid
-   */
   getCurrentUser: async (token: string): Promise<IUser> => {
-    const response = await fetch(`${ENV.API_BASE_URL}/auth/me`, {
+    const response = await fetch(`${ENV.API_BASE_URL}/users/me`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -115,30 +214,36 @@ export const RealAuthService = {
       },
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch user data");
-    }
+    if (!response.ok) throw new Error("Failed to fetch user data");
 
-    const data = await response.json();
-    return data.user || data;
+    const json = await response.json();
+    const data = json.data ?? json;
+
+    return {
+      id: data.user_id ?? data.id,
+      username: data.display_name ?? data.username,
+      email: data.email ?? "",
+      profileImageUrl: data.profile_picture ?? "",
+      createdAt: data.created_at ?? "",
+    };
   },
 
-  /**
-   * Refresh authentication token
-   */
-  refreshToken: async (token: string): Promise<{ token: string }> => {
+  refreshToken: async (_token: string): Promise<{ token: string }> => {
+    const storedRefresh = getRefreshToken();
+
     const response = await fetch(`${ENV.API_BASE_URL}/auth/refresh`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: storedRefresh }),
     });
 
-    if (!response.ok) {
-      throw new Error("Token refresh failed");
-    }
+    if (!response.ok) throw new Error("Token refresh failed");
 
-    return response.json();
+    const json = await response.json();
+    const { access_token: accessToken, refresh_token: newRefreshToken } = json.data;
+
+    saveTokens(accessToken, newRefreshToken);
+
+    return { token: accessToken };
   },
 };
