@@ -11,9 +11,9 @@ const STAT_ACTIONS = [
     label: 'Insights',
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <line x1="18" y1="20" x2="18" y2="10" />
-        <line x1="12" y1="20" x2="12" y2="4" />
-        <line x1="6" y1="20" x2="6" y2="14" />
+        <rect x="2" y="13" width="4" height="8" rx="1" />
+        <rect x="9" y="8" width="4" height="13" rx="1" />
+        <rect x="16" y="3" width="4" height="18" rx="1" />
       </svg>
     ),
   },
@@ -22,7 +22,9 @@ const STAT_ACTIONS = [
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <circle cx="12" cy="12" r="10" />
-        <path d="M12 6v12M9 9h4.5a2.5 2.5 0 0 1 0 5H9a2.5 2.5 0 0 0 0 5H14" />
+        <path d="M8 12c0-2.5 1.5-4 4-4s4 1.5 4 3-1.5 2.5-4 2.5S8 14.5 8 16s1.5 3 4 3 4-1.5 4-4" />
+        <line x1="12" y1="6" x2="12" y2="8" />
+        <line x1="12" y1="18" x2="12" y2="20" />
       </svg>
     ),
   },
@@ -32,6 +34,8 @@ const STAT_ACTIONS = [
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        <line x1="9" y1="10" x2="15" y2="10" />
+        <line x1="9" y1="13" x2="13" y2="13" />
       </svg>
     ),
   },
@@ -40,10 +44,10 @@ const STAT_ACTIONS = [
     hasBadge: true,
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
         <circle cx="9" cy="7" r="4" />
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        <line x1="19" y1="8" x2="19" y2="14" />
+        <line x1="16" y1="11" x2="22" y2="11" />
       </svg>
     ),
   },
@@ -52,9 +56,9 @@ const STAT_ACTIONS = [
     hasBadge: true,
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <path d="M20 12V22H4V12" />
-        <path d="M22 7H2v5h20V7z" />
-        <path d="M12 22V7" />
+        <polyline points="20 12 20 22 4 22 4 12" />
+        <rect x="2" y="7" width="20" height="5" />
+        <line x1="12" y1="22" x2="12" y2="7" />
         <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z" />
         <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" />
       </svg>
@@ -80,12 +84,12 @@ export default function StudioStatsBar({ stats }: IStudioStatsBarProps) {
       </div>
 
       {/* Stats row */}
-      <div className="flex items-center gap-0">
+      <div className="flex items-center">
         {/* Numeric stats */}
         {statNumbers.map((stat, idx) => (
           <div
             key={stat.label}
-            className={`flex flex-col px-6 ${idx > 0 ? 'border-l border-[#2a2a2a]' : 'pl-0'}`}
+            className={`flex flex-col px-6 ${idx === 0 ? 'pl-0' : 'border-l border-[#2a2a2a]'}`}
           >
             <span className="text-white text-xl font-bold">{stat.value}</span>
             <span className="text-[#999] text-xs mt-0.5">{stat.label}</span>
@@ -93,10 +97,10 @@ export default function StudioStatsBar({ stats }: IStudioStatsBarProps) {
         ))}
 
         {/* Divider */}
-        <div className="h-10 w-px bg-[#2a2a2a] mx-6" aria-hidden="true" />
+        <div className="h-10 w-px bg-[#2a2a2a] mx-6 shrink-0" aria-hidden="true" />
 
         {/* Action icons */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-8">
           {STAT_ACTIONS.map((action) => (
             <button
               key={action.label}
@@ -110,7 +114,7 @@ export default function StudioStatsBar({ stats }: IStudioStatsBarProps) {
                 </span>
                 {action.hasBadge && (
                   <span
-                    className="absolute -top-1 -right-1 w-3 h-3 bg-[#f5a623] rounded-full border border-[#181818]"
+                    className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#f5a623] rounded-full border border-[#181818]"
                     aria-hidden="true"
                   />
                 )}

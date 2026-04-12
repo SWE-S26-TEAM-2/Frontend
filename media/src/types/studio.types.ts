@@ -23,9 +23,16 @@ export interface IStudioTracksResponse {
   pageSize: number;
 }
  
+export interface IStudioStats {
+  scPlays: number;
+  reposts: number;
+  downloads: number;
+  likes: number;
+  comments: number;
+}
+ 
 export interface IStudioService {
   getTracks(page: number, pageSize: number): Promise<IStudioTracksResponse>;
   deleteTrack(trackId: string): Promise<void>;
   updateVisibility(trackId: string, visibility: TrackVisibility): Promise<IStudioTrack>;
 }
- 

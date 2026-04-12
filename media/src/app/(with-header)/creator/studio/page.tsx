@@ -2,43 +2,122 @@
 
 // src/app/(with-header)/creator/studio/page.tsx
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { StudioEmptyState } from '@/components/Studio';
-import { studioService } from '@/services';
-import { useAuthStore } from '@/store/authStore';
-import type { IStudioTracksResponse } from '@/types/studio.types';
+import {
+  StudioEmptyState,
+  StudioStatsBar,
+  StudioTabs,
+  StudioActionButtons,
+  StudioTrackList,
+} from '@/components/Studio';
+import type { StudioTab } from '@/components/Studio';
+import StudioSortDropdown from '@/components/Studio/StudioSortDropdown';
+import type { SortOption } from '@/components/Studio/StudioSortDropdown';
+import { UploadQuotaBar } from '@/components/Upload';
+import { studioService, uploadService } from '@/services';
+import type { IStudioTrack, IStudioStats } from '@/types/studio.types';
+import type { IUploadQuota } from '@/types/upload.types';
 
 const PAGE_SIZE = 10;
 
+const STUB_STATS: IStudioStats = {
+  scPlays: 0,
+  reposts: 0,
+  downloads: 0,
+  likes: 0,
+  comments: 0,
+};
+
+type VisibilityFilter = 'all' | 'public' | 'private';
+
+const SORT_LABELS: Record<SortOption, string> = {
+  date: 'Date',
+  plays: 'Plays',
+  duration: 'Duration',
+  likes: 'Likes',
+};
+
 export default function StudioPage() {
-  // const { isAuthenticated } = useAuthStore(); // uncomment when auth is wired
+  // const { isAuthenticated } = useAuthStore();
   const isAuthenticated = true;
   const router = useRouter();
 
-  const [data, setData] = useState<IStudioTracksResponse | null>(null);
+  const [tracks, setTracks] = useState<IStudioTrack[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [activeTab, setActiveTab] = useState<StudioTab>('tracks');
+  const [quota, setQuota] = useState<IUploadQuota | null>(null);
+
+  // Filter + sort state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [visibilityFilter, setVisibilityFilter] = useState<VisibilityFilter>('all');
+  const [activeSort, setActiveSort] = useState<SortOption>('date');
+  const [isSortOpen, setIsSortOpen] = useState(false);
+  const sortButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const fetchTracks = async () => {
+    const fetchData = async () => {
       setIsLoading(true);
       setError('');
       try {
-        const res = await studioService.getTracks(1, PAGE_SIZE);
-        setData(res);
+        const [tracksRes, quotaRes] = await Promise.all([
+          studioService.getTracks(1, PAGE_SIZE),
+          uploadService.getQuota(),
+        ]);
+        setTracks(tracksRes.tracks);
+        setQuota(quotaRes);
       } catch (err) {
-        console.error('[Studio] failed to fetch tracks:', err);
+        console.error('[Studio] failed to fetch data:', err);
         setError('Something went wrong. Please try again.');
       } finally {
         setIsLoading(false);
       }
     };
 
-    void fetchTracks();
+    void fetchData();
   }, [isAuthenticated]);
+
+  // ── Client-side filter + sort ─────────────────────────────────────────────
+  const filteredAndSorted = useMemo(() => {
+    let result = [...tracks];
+
+    // Search filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        (t) =>
+          t.title.toLowerCase().includes(q) ||
+          t.genre?.toLowerCase().includes(q)
+      );
+    }
+
+    // Visibility filter
+    if (visibilityFilter === 'public') {
+      result = result.filter((t) => t.visibility === 'public');
+    } else if (visibilityFilter === 'private') {
+      result = result.filter((t) => t.visibility === 'private');
+    }
+
+    // Sort
+    result.sort((a, b) => {
+      switch (activeSort) {
+        case 'plays':
+          return b.plays - a.plays;
+        case 'duration':
+          return b.duration - a.duration;
+        case 'likes':
+          return b.likes - a.likes;
+        case 'date':
+        default:
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      }
+    });
+
+    return result;
+  }, [tracks, searchQuery, visibilityFilter, activeSort]);
 
   // ── No-auth ───────────────────────────────────────────────────────────────
   if (!isAuthenticated) {
@@ -50,10 +129,10 @@ export default function StudioPage() {
   if (isLoading) {
     return (
       <div className="bg-[#121212] text-white min-h-[calc(100vh-48px-56px)] flex flex-col">
-        <div className="max-w-4xl w-full mx-auto px-6 py-8 flex flex-col gap-4">
-          {/* Header skeleton */}
-          <div className="h-8 w-48 bg-[#1a1a1a] rounded animate-pulse" />
-          {/* Row skeletons */}
+        <div className="w-full px-8 py-8 flex flex-col gap-4">
+          <div className="h-[58px] rounded-md bg-[#1a1a1a] animate-pulse" />
+          <div className="h-36 rounded-md bg-[#1a1a1a] animate-pulse" />
+          <div className="h-10 rounded-md bg-[#1a1a1a] animate-pulse" />
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="h-16 bg-[#1a1a1a] rounded animate-pulse" />
           ))}
@@ -71,33 +150,169 @@ export default function StudioPage() {
     );
   }
 
-  const isEmpty = !data || data.total === 0;
-  console.log({ data, isLoading, isEmpty }); //check
+  const isEmpty = filteredAndSorted.length === 0;
+
   // ── Main ──────────────────────────────────────────────────────────────────
   return (
     <div className="bg-[#121212] text-white flex flex-col min-h-[calc(100vh-48px-56px)]">
-      <main className="flex-1 max-w-4xl w-full mx-auto px-6 py-8 flex flex-col">
+      <main className="flex-1 w-full px-8 py-8 flex flex-col gap-6">
 
-        {/* Page header */}
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-white text-2xl font-bold">Your tracks</h1>
-          <button
-            type="button"
-            onClick={() => router.push('/creator/upload')}
-            className="
-              px-5 py-2 rounded-full bg-white text-black font-semibold text-sm
-              hover:bg-[#e0e0e0] active:scale-95 transition-all duration-150
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-white
-            "
-          >
-            Upload a track
-          </button>
-        </div>
+        {/* Quota bar */}
+        {quota && <UploadQuotaBar quota={quota} />}
 
-        {/* Empty state */}
-        {isEmpty && <StudioEmptyState />}
+        {/* Artist Studio stats bar */}
+        <StudioStatsBar stats={STUB_STATS} />
 
-        {/* Track list will be added in Phase 2 */}
+        {/* Tabs */}
+        <StudioTabs activeTab={activeTab} onTabChange={setActiveTab} />
+
+        {/* SoundCloud Tracks tab */}
+        {activeTab === 'tracks' && (
+          <div className="flex flex-col gap-4">
+
+            {/* Action buttons */}
+            <StudioActionButtons />
+
+            {/* Search + filter + sort row */}
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+
+                {/* Search — functional */}
+                <div className="flex items-center gap-2 bg-transparent border border-[#2a2a2a] rounded-full px-4 py-2 w-56 focus-within:border-[#555] transition-colors">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                  <input
+                    type="text"
+                    placeholder="Search tracks"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="bg-transparent text-sm text-white placeholder-[#555] outline-none w-full"
+                    aria-label="Search tracks"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      aria-label="Clear search"
+                      className="text-[#666] hover:text-white transition-colors shrink-0"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                        <line x1="1" y1="1" x2="11" y2="11" />
+                        <line x1="11" y1="1" x2="1" y2="11" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+
+                {/* Public filter */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setVisibilityFilter((prev) => (prev === 'public' ? 'all' : 'public'))
+                  }
+                  className={`
+                    px-5 py-2 rounded-full text-sm font-semibold transition-colors duration-150
+                    ${visibilityFilter === 'public'
+                      ? 'bg-white text-black'
+                      : 'border border-[#444] text-white hover:border-[#666]'
+                    }
+                  `}
+                >
+                  Public
+                </button>
+
+                {/* Private filter */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setVisibilityFilter((prev) => (prev === 'private' ? 'all' : 'private'))
+                  }
+                  className={`
+                    px-5 py-2 rounded-full text-sm font-semibold transition-colors duration-150
+                    ${visibilityFilter === 'private'
+                      ? 'bg-white text-black'
+                      : 'border border-[#444] text-white hover:border-[#666]'
+                    }
+                  `}
+                >
+                  Private
+                </button>
+              </div>
+
+              {/* Track count + sort dropdown */}
+              <div className="flex items-center gap-3 text-[#999] text-sm shrink-0">
+                <span>
+                  {filteredAndSorted.length}{' '}
+                  {filteredAndSorted.length === 1 ? 'track' : 'tracks'}
+                </span>
+
+                <div className="relative">
+                  <button
+                    ref={sortButtonRef}
+                    type="button"
+                    onClick={() => setIsSortOpen((prev) => !prev)}
+                    aria-expanded={isSortOpen}
+                    aria-label="Sort tracks"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#333] hover:border-[#555] transition-colors text-white text-sm font-semibold"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <line x1="8" y1="6" x2="21" y2="6" />
+                      <line x1="8" y1="12" x2="21" y2="12" />
+                      <line x1="8" y1="18" x2="21" y2="18" />
+                      <line x1="3" y1="6" x2="3.01" y2="6" />
+                      <line x1="3" y1="12" x2="3.01" y2="12" />
+                      <line x1="3" y1="18" x2="3.01" y2="18" />
+                    </svg>
+                    {SORT_LABELS[activeSort]}
+                  </button>
+
+                  {isSortOpen && (
+                    <StudioSortDropdown
+                      activeSort={activeSort}
+                      onSortChange={setActiveSort}
+                      onClose={() => setIsSortOpen(false)}
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Track list or empty state */}
+            {isEmpty ? (
+              tracks.length === 0 ? (
+                <StudioEmptyState />
+              ) : (
+                <div className="flex items-center justify-center py-16">
+                  <p className="text-[#555] text-sm">No tracks match your search.</p>
+                </div>
+              )
+            ) : (
+              <div className="rounded-md border border-[#2a2a2a] overflow-hidden">
+                <StudioTrackList
+                  tracks={filteredAndSorted}
+                  total={filteredAndSorted.length}
+                  onTracksChange={(updated) => setTracks(updated)}
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Distribution tab — stub */}
+        {activeTab === 'distribution' && (
+          <div className="flex items-center justify-center py-24">
+            <p className="text-[#555] text-sm">Distribution coming soon.</p>
+          </div>
+        )}
+
+        {/* Vinyl Records tab — stub */}
+        {activeTab === 'vinyl' && (
+          <div className="flex items-center justify-center py-24">
+            <p className="text-[#555] text-sm">Vinyl Records coming soon.</p>
+          </div>
+        )}
 
       </main>
     </div>

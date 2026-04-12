@@ -6,4 +6,6 @@ export { default as StudioTrackList } from './StudioTrackList';
 export { default as StudioTrackRow } from './StudioTrackRow';
 export { default as StudioTrackMenu } from './StudioTrackMenu';
 export { default as StudioDeleteModal } from './StudioDeleteModal';
+export { default as StudioSortDropdown } from './StudioSortDropdown';
 export type { StudioTab } from './StudioTabs';
+export type { SortOption } from './StudioSortDropdown';
