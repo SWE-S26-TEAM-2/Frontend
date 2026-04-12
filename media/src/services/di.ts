@@ -85,7 +85,7 @@ export const uploadService: IUploadService = ENV.USE_MOCK_API
 export const studioService: IStudioService = ENV.USE_MOCK_API
   ? mockStudioService
   : realStudioService;
- * Store Service
+ /* Store Service
  */
 export const storeService: IStoreService = ENV.USE_MOCK_API
   ? mockStoreService
