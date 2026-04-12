@@ -10,7 +10,7 @@ export default function LoginPage() {
 
   const handleClose = () => {
     setIsOpen(false);
-    router.push("/");
+    router.push("/stream");
   };
 
   return (

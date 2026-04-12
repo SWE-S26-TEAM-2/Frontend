@@ -64,13 +64,13 @@ describe("Home Component (Landing Page)", () => {
     localStorage.clear();
   });
 
-  test("redirects to profile if auth_token exists", async () => {
+  test("redirects to stream if auth_token exists", async () => {
     localStorage.setItem("auth_token", "fake-token");
     localStorage.setItem("auth_user_id", "testuser");
     await act(async () => {
       render(<Home />);
     });
-    expect(mockPush).toHaveBeenCalledWith("/testuser");
+    expect(mockPush).toHaveBeenCalledWith("/stream");
   });
 
   test("renders the marketing tagline from API", async () => {

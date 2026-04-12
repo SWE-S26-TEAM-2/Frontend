@@ -1,0 +1,85 @@
+/* ============================================================
+   SoundCloud Clone — Design Tokens
+   All colours/spacing consumed via var(--sc-*) in components.
+   Dark theme is the default (SoundCloud is dark-first).
+   Toggle by setting data-theme="light" on <html>.
+   ============================================================ */
+
+/* ── Dark theme (default) ─────────────────────────────────── */
+:root,
+[data-theme="dark"] {
+  /* Backgrounds */
+  --sc-bg:            #121212;   /* page background          */
+  --sc-bg-elevated:   #1a1a1a;   /* cards, modals            */
+  --sc-bg-surface:    #212121;   /* sidebar, inputs, toolbar */
+  --sc-bg-hover:      #2a2a2a;   /* hover state on rows      */
+
+  /* Borders */
+  --sc-border:        #262626;
+
+  /* Text */
+  --sc-text:          #ffffff;   /* headings, body           */
+  --sc-text-muted:    #999999;   /* timestamps, counts       */
+  --sc-text-subtle:   #666666;   /* placeholder, disabled    */
+
+  /* Brand orange */
+  --sc-orange:        #ff5500;
+  --sc-orange-hover:  #e64d00;
+  --sc-orange-muted:  rgba(255, 85, 0, 0.15);
+  --sc-link:          #ff5500;
+
+  /* Waveform */
+  --sc-waveform-bg:   #333333;
+  --sc-waveform-fg:   #ff5500;
+
+  /* Status */
+  --sc-success:       #1db954;
+  --sc-error:         #e53e3e;
+
+  /* Overlays */
+  --sc-overlay:       rgba(0, 0, 0, 0.7);
+
+  /* Layout */
+  --sc-header-h:      46px;
+  --sc-player-h:      50px;
+  --sc-sidebar-w:     220px;
+}
+
+/* ── Light theme ──────────────────────────────────────────── */
+[data-theme="light"] {
+  /* Backgrounds */
+  --sc-bg:            #f2f2f2;
+  --sc-bg-elevated:   #ffffff;
+  --sc-bg-surface:    #e8e8e8;
+  --sc-bg-hover:      #dedede;
+
+  /* Borders */
+  --sc-border:        #cccccc;
+
+  /* Text */
+  --sc-text:          #333333;
+  --sc-text-muted:    #666666;
+  --sc-text-subtle:   #999999;
+
+  /* Brand orange — same in both modes */
+  --sc-orange:        #ff5500;
+  --sc-orange-hover:  #e64d00;
+  --sc-orange-muted:  rgba(255, 85, 0, 0.10);
+  --sc-link:          #ff5500;
+
+  /* Waveform */
+  --sc-waveform-bg:   #cccccc;
+  --sc-waveform-fg:   #ff5500;
+
+  /* Status */
+  --sc-success:       #1db954;
+  --sc-error:         #e53e3e;
+
+  /* Overlays */
+  --sc-overlay:       rgba(0, 0, 0, 0.5);
+
+  /* Layout — unchanged */
+  --sc-header-h:      46px;
+  --sc-player-h:      50px;
+  --sc-sidebar-w:     220px;
+}

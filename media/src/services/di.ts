@@ -48,6 +48,41 @@ import { mockStoreService } from "./mocks/store.mock";
 import { realStoreService } from "./api/store.api";
 import type { IStoreService } from "@/types/store.types";
 
+// feed
+import { mockFeedService } from "./mocks/feed.mock";
+import { realFeedService } from "./api/feed.api";
+import type { IFeedService } from "@/types/feed.types";
+
+// playlist
+import { mockPlaylistService } from "./mocks/playlist.mock";
+import { realPlaylistService } from "./api/playlist.api";
+import type { IPlaylistService } from "@/types/playlist.types";
+
+// comment
+import { mockCommentService } from "./mocks/comment.mock";
+import { realCommentService } from "./api/comment.api";
+import type { ICommentService } from "@/types/comment.types";
+
+// message
+import { mockMessageService } from "./mocks/message.mock";
+import { realMessageService } from "./api/message.api";
+import type { IMessageService } from "@/types/message.types";
+
+// chart
+import { mockChartService } from "./mocks/chart.mock";
+import { realChartService } from "./api/chart.api";
+import type { IChartService } from "@/types/chart.types";
+
+// notification (new — page-level; distinct from settings notificationService)
+import { mockNotificationService } from "./mocks/notification.mock";
+import { realNotificationService } from "./api/notification.api";
+import type { INotificationService } from "@/types/notification.types";
+
+// admin
+import { mockAdminService } from "./mocks/admin.mock";
+import { realAdminService } from "./api/admin.api";
+import type { IAdminService } from "@/types/admin.types";
+
 /**
  * Authentication Service
  * Automatically switches between mock and real based on USE_MOCK_API flag
@@ -140,6 +175,55 @@ export const twoFactorService = {
   getSettings: ENV.USE_MOCK_API ? getMockTwoFactorSettings : getTwoFactorSettingsFromAPI,
   updateSettings: ENV.USE_MOCK_API ? updateMockTwoFactorSettings : updateTwoFactorSettingsOnAPI,
 };
+
+/**
+ * Feed Service
+ */
+export const feedService: IFeedService = ENV.USE_MOCK_API
+  ? mockFeedService
+  : realFeedService;
+
+/**
+ * Playlist Service
+ */
+export const playlistService: IPlaylistService = ENV.USE_MOCK_API
+  ? mockPlaylistService
+  : realPlaylistService;
+
+/**
+ * Comment Service
+ */
+export const commentService: ICommentService = ENV.USE_MOCK_API
+  ? mockCommentService
+  : realCommentService;
+
+/**
+ * Message Service
+ */
+export const messageService: IMessageService = ENV.USE_MOCK_API
+  ? mockMessageService
+  : realMessageService;
+
+/**
+ * Chart Service
+ */
+export const chartService: IChartService = ENV.USE_MOCK_API
+  ? mockChartService
+  : realChartService;
+
+/**
+ * Activity Notification Service (page-level — distinct from settings notificationService)
+ */
+export const activityNotificationService: INotificationService = ENV.USE_MOCK_API
+  ? mockNotificationService
+  : realNotificationService;
+
+/**
+ * Admin Service
+ */
+export const adminService: IAdminService = ENV.USE_MOCK_API
+  ? mockAdminService
+  : realAdminService;
 
 /**
  * Service Status
