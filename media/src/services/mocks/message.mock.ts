@@ -31,4 +31,15 @@ export const mockMessageService: IMessageService = {
     );
     return newMsg;
   },
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  createConversation: async (_participantId: string): Promise<{ conversationId: string }> => {
+    await new Promise((r) => setTimeout(r, 300));
+    return { conversationId: `conv-${Date.now()}` };
+  },
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  markMessageRead: async (_conversationId: string, _messageId: string): Promise<void> => {
+    await new Promise((r) => setTimeout(r, 100));
+  },
 };

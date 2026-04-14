@@ -94,12 +94,16 @@ export default function TrackInfoForm({
       setError('Track title is required.');
       return;
     }
+    if (!metadata.description.trim()) {
+      setError('Description is required.');
+      return;
+    }
     setError('');
     onUpload(metadata);
   };
 
   return (
-    <div className="min-h-screen bg-[#121212] text-white flex flex-col">
+    <div className="min-h-screen bg-[#121212] text-white flex flex-col mb-20">
 
       {/* ── Header ── */}
       <header className="flex items-center justify-between px-6 py-4 border-b border-[#2a2a2a] shrink-0">
@@ -299,7 +303,6 @@ export default function TrackInfoForm({
                 className="w-full bg-transparent border-b border-[#444] text-white text-sm py-2 outline-none focus:border-white transition-colors"
                 placeholder="Track title"
               />
-              {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
             </div>
 
             {/* Track link */}
@@ -359,7 +362,10 @@ export default function TrackInfoForm({
 
             {/* Description */}
             <div>
-              <label className="text-white text-sm font-bold mb-2 block">Description</label>
+              <label className="text-white text-sm font-bold mb-2 flex items-center gap-1">
+                Description
+                <span className="text-red-500">*</span>
+              </label>
               <textarea
                 value={metadata.description}
                 onChange={(e) => handleChange('description', e.target.value)}
@@ -488,11 +494,14 @@ export default function TrackInfoForm({
 
       {/* ── Footer ── */}
       <footer className="shrink-0 px-6 py-4 border-t border-[#2a2a2a] flex items-center justify-between bg-[#121212]">
-        <p className="text-[#999] text-xs">
-          By uploading, you confirm that your sounds comply with our{' '}
-          <a href="#" className="underline hover:text-white">Terms of Use</a>
-          {' '}and you don&apos;t infringe anyone else&apos;s rights.
-        </p>
+        <div>
+          <p className="text-[#999] text-xs">
+            By uploading, you confirm that your sounds comply with our{' '}
+            <a href="#" className="underline hover:text-white">Terms of Use</a>
+            {' '}and you don&apos;t infringe anyone else&apos;s rights.
+          </p>
+          {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+        </div>
 
         {/* Upload button with progress */}
         <button

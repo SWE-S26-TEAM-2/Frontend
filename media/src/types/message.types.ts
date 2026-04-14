@@ -11,6 +11,8 @@ export interface IMessage {
   body: string;
   createdAt: string;
   isRead: boolean;
+  trackAttachment?: { id: string; title: string; fileUrl: string } | null;
+  playlistAttachment?: { id: string; name: string } | null;
 }
 
 export interface IMessageThread {
@@ -34,4 +36,6 @@ export interface IMessageService {
   getInbox: () => Promise<IInboxItem[]>;
   getThread: (threadId: string) => Promise<IMessageThread>;
   sendMessage: (threadId: string, body: string) => Promise<IMessage>;
+  createConversation: (participantId: string) => Promise<{ conversationId: string }>;
+  markMessageRead: (conversationId: string, messageId: string) => Promise<void>;
 }

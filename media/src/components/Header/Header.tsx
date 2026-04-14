@@ -422,6 +422,12 @@ export default function Header({
             placeholder="Search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && query.trim()) {
+                router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+                setQuery("");
+              }
+            }}
             style={{
               width: "200px",
               height: "30px",

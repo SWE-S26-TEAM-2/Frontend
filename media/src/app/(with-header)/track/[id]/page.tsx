@@ -1,26 +1,54 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, notFound } from "next/navigation";
 import { trackService } from "@/services";
-import { notFound } from "next/navigation";
 
 import TrackPlayer from "@/components/Track/TrackPlayer";
 import TrackActions from "@/components/Track/TrackActions";
 import RelatedTracks from "@/components/Track/RelatedTracks";
 import CommentSection from "@/components/Track/CommentSection";
-import type { ITrackPageProps } from "@/types/ui.types";
+import type { ITrack } from "@/types/track.types";
 
-export default async function TrackPage({ params }: ITrackPageProps) {
-  const { id } = await params;
+export default function TrackPage() {
+  const params = useParams();
+  const id = params?.id as string;
 
-  let track;
-  let related;
+  const [track, setTrack] = useState<ITrack | null>(null);
+  const [related, setRelated] = useState<ITrack[]>([]);
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  try {
-    track = await trackService.getById(id);
-    related = await trackService.getRelated(id);
-  } catch {
-    return notFound();
+  useEffect(() => {
+    if (!id) return;
+
+    async function fetchTrack() {
+      try {
+        const [t, r] = await Promise.all([
+          trackService.getById(id),
+          trackService.getRelated(id),
+        ]);
+        setTrack(t);
+        setRelated(r);
+      } catch {
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchTrack();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="bg-(--sc-bg) min-h-screen flex items-center justify-center">
+        <div className="text-white opacity-60">Loading...</div>
+      </div>
+    );
   }
 
-  if (!track) return notFound();
+  if (error || !track) return notFound();
 
   return (
     <div className="bg-(--sc-bg)">

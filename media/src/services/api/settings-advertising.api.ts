@@ -1,13 +1,14 @@
-import { IAdvertisingSettings } from "@/types/settings-advertising.types";
+import type { IAdvertisingSettings } from "@/types/settings-advertising.types";
+import { getMockAdvertisingSettings, updateMockAdvertisingSettings } from "../mocks/settings-advertising.mock";
 
 export const getAdvertisingSettingsFromAPI = async (): Promise<IAdvertisingSettings> => {
-  console.error("🔵 API call: getAdvertisingSettings");
-  throw new Error("API not implemented yet");
+  console.warn("[settings] Advertising settings not implemented on backend — using mock");
+  return getMockAdvertisingSettings();
 };
 
 export const updateAdvertisingSettingsOnAPI = async (
   settings: Partial<IAdvertisingSettings>
 ): Promise<IAdvertisingSettings> => {
-  console.error("🔵 API call: updateAdvertisingSettings", settings);
-  throw new Error("API not implemented yet");
+  console.warn("[settings] Advertising settings not implemented on backend — using mock");
+  return updateMockAdvertisingSettings(settings);
 };

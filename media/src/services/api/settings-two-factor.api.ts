@@ -1,13 +1,14 @@
-import { ITwoFactorSettings } from "@/types/settings-two-factor.types";
+import type { ITwoFactorSettings } from "@/types/settings-two-factor.types";
+import { getMockTwoFactorSettings, updateMockTwoFactorSettings } from "../mocks/settings-two-factor.mock";
 
 export const getTwoFactorSettingsFromAPI = async (): Promise<ITwoFactorSettings> => {
-  console.error("🔵 API call: getTwoFactorSettings");
-  throw new Error("API not implemented yet");
+  console.warn("[settings] Two-factor settings not implemented on backend — using mock");
+  return getMockTwoFactorSettings();
 };
 
 export const updateTwoFactorSettingsOnAPI = async (
   settings: Partial<ITwoFactorSettings>
 ): Promise<ITwoFactorSettings> => {
-  console.error("🔵 API call: updateTwoFactorSettings", settings);
-  throw new Error("API not implemented yet");
+  console.warn("[settings] Two-factor settings not implemented on backend — using mock");
+  return updateMockTwoFactorSettings(settings);
 };

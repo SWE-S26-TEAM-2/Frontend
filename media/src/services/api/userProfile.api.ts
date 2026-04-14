@@ -1,7 +1,8 @@
 // src/services/api/userProfile.api.ts
 import { ENV } from "@/config/env";
-import type { IUserProfileService, IUser, IUserProfileTrack, ILikedTrack, IFanUser, IFollower, IFollowing } from "@/types/userProfile.types";
+import type { IUserProfileService, IUser, IUserProfileTrack, ILikedTrack, IFanUser, IFollower, IFollowing, ISearchUser } from "@/types/userProfile.types";
 import type { ITrack } from "@/types/track.types";
+import { apiPost, apiDelete, apiGet } from "./apiClient";
 
 function toCanonicalTrack(track: IUserProfileTrack): ITrack {
   const durationInSeconds = track.duration.includes(":")
@@ -89,5 +90,28 @@ export const realUserProfileService: IUserProfileService = {
     const res = await fetch(`${ENV.API_BASE_URL}/users/${userId}/following`);
     if (!res.ok) return [];
     return res.json();
+  },
+
+  async followUser(userId: string): Promise<void> {
+    await apiPost(`${ENV.API_BASE_URL}/users/${userId}/follow`);
+  },
+
+  async unfollowUser(userId: string): Promise<void> {
+    await apiDelete(`${ENV.API_BASE_URL}/users/${userId}/follow`);
+  },
+
+  async searchUsers(query: string): Promise<ISearchUser[]> {
+    const data = await apiGet<{ users: Record<string, unknown>[] }>(
+      `${ENV.API_BASE_URL}/search/users?keyword=${encodeURIComponent(query.trim())}`,
+      { skipAuth: true }
+    );
+    return (data.users ?? []).map((u) => ({
+      id: u.user_id as string,
+      username: u.display_name as string,
+      role: (u.account_type as string) === "artist" ? "artist" : "listener",
+      avatarUrl: (u.profile_picture as string) ?? null,
+      followerCount: (u.follower_count as number) ?? 0,
+      isVerified: (u.is_verified as boolean) ?? false,
+    }));
   },
 };
