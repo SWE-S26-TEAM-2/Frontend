@@ -4,8 +4,6 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import type { IBannerProps } from "@/types/ui.types";
 
-const AVATAR_SIZE = 180;
-
 export function Banner({ user, onAvatarChange, onHeaderChange }: IBannerProps) {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatarUrl);
   const [headerPreview, setHeaderPreview] = useState<string | null>(user.headerUrl);
@@ -30,14 +28,21 @@ export function Banner({ user, onAvatarChange, onHeaderChange }: IBannerProps) {
   };
 
   return (
-    <div
-      className="relative overflow-hidden h-62.5"
-      style={{
-        background: headerPreview
-          ? `url(${headerPreview}) center/cover`
-          : "linear-gradient(160deg, #3d7080 0%, #4d909f 40%, #3d7888 100%)",
-      }}
-    >
+    <div className="relative overflow-hidden h-62.5">
+
+      {/* ── Background layer ── */}
+      {headerPreview ? (
+        <Image
+          src={headerPreview}
+          alt="header"
+          fill
+          className="object-cover"
+          priority
+        />
+      ) : (
+        <div className="absolute inset-0 bg-linear-to-br from-[#3d7080] via-[#4d909f] to-[#3d7888]" />
+      )}
+
       {/* Upload header — owner only */}
       {user.isOwner && (
         <>
@@ -58,23 +63,19 @@ export function Banner({ user, onAvatarChange, onHeaderChange }: IBannerProps) {
       )}
 
       {/* Avatar circle */}
-      <div
-        className="absolute left-5 top-1/2 -translate-y-1/2 rounded-full bg-[#4a4a4a] overflow-hidden z-10 group"
-        style={{ width: AVATAR_SIZE, height: AVATAR_SIZE }}
-      >
+      <div className="absolute left-5 top-1/2 -translate-y-1/2 w-45 h-45 rounded-full bg-[#4a4a4a] overflow-hidden z-10 group">
         {avatarPreview ? (
           <Image
             src={avatarPreview}
             alt={user.username}
-            width={AVATAR_SIZE}
-            height={AVATAR_SIZE}
+            fill
             className="object-cover"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-           <span className="text-6xl font-bold text-white select-none">
-          {(user.displayName ?? user.username)[0].toUpperCase()}
-        </span>
+            <span className="text-6xl font-bold text-white select-none">
+              {(user.displayName ?? user.username)[0].toUpperCase()}
+            </span>
           </div>
         )}
 
