@@ -2,14 +2,14 @@
 
 type Tab = "tracks" | "people";
 
-interface SearchTabsProps {
+interface ISearchTabsProps {
   active: Tab;
   trackCount: number;
   peopleCount: number;
   onTabChange: (tab: Tab) => void;
 }
 
-export default function SearchTabs({ active, trackCount, peopleCount, onTabChange }: SearchTabsProps) {
+export default function SearchTabs({ active, trackCount, peopleCount, onTabChange }: ISearchTabsProps) {
   const tabs: { id: Tab; label: string; count: number }[] = [
     { id: "tracks", label: "Tracks", count: trackCount },
     { id: "people", label: "People", count: peopleCount },

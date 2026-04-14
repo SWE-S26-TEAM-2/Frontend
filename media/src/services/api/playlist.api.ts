@@ -1,12 +1,12 @@
 import { ENV } from "@/config/env";
-import { apiGet, apiPost, apiPatch, apiDelete } from "./apiClient";
+import { apiGet, apiPost, apiDelete } from "./apiClient";
 import type { IPlaylist, IPlaylistService, IPlaylistTrack } from "@/types/playlist.types";
 import type { ITrack } from "@/types/track.types";
 import { mockPlaylistService } from "../mocks/playlist.mock";
 
 // ── Normalizer ───────────────────────────────────────────────────────────────
 
-interface BackendTrack {
+interface IBackendTrack {
   track_id: string;
   title: string;
   file_url?: string;
@@ -14,15 +14,15 @@ interface BackendTrack {
   user_id?: string;
 }
 
-interface BackendPlaylist {
+interface IBackendPlaylist {
   playlist_id: string;
   user_id: string;
   name: string;
   description?: string | null;
-  tracks?: BackendTrack[];
+  tracks?: IBackendTrack[];
 }
 
-function normalizeTrack(t: BackendTrack, index: number): IPlaylistTrack {
+function normalizeTrack(t: IBackendTrack, index: number): IPlaylistTrack {
   const track: ITrack = {
     id: t.track_id,
     title: t.title,
@@ -38,7 +38,7 @@ function normalizeTrack(t: BackendTrack, index: number): IPlaylistTrack {
   return { position: index + 1, track };
 }
 
-function normalizePlaylist(d: BackendPlaylist): IPlaylist {
+function normalizePlaylist(d: IBackendPlaylist): IPlaylist {
   const tracks = (d.tracks ?? []).map(normalizeTrack);
   return {
     id: d.playlist_id,
@@ -63,13 +63,13 @@ function normalizePlaylist(d: BackendPlaylist): IPlaylist {
 export const realPlaylistService: IPlaylistService = {
   // GET /playlists/{id} — real backend
   getPlaylistById: async (playlistId: string): Promise<IPlaylist> => {
-    const data = await apiGet<BackendPlaylist>(`${ENV.API_BASE_URL}/playlists/${playlistId}`);
+    const data = await apiGet<IBackendPlaylist>(`${ENV.API_BASE_URL}/playlists/${playlistId}`);
     return normalizePlaylist(data);
   },
 
   // POST /playlists/ — real backend
   createPlaylist: async (name: string, description?: string): Promise<IPlaylist> => {
-    const data = await apiPost<BackendPlaylist>(`${ENV.API_BASE_URL}/playlists/`, {
+    const data = await apiPost<IBackendPlaylist>(`${ENV.API_BASE_URL}/playlists/`, {
       name,
       ...(description ? { description } : {}),
     });

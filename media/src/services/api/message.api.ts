@@ -7,22 +7,22 @@ const getCurrentUserId = (): string | null =>
 
 // ── Normalizers ──────────────────────────────────────────────────────────────
 
-interface BackendUser {
+interface IBackendUser {
   user_id: string;
   display_name: string;
   profile_picture?: string | null;
 }
 
-interface BackendConversation {
+interface IBackendConversation {
   conversation_id: string;
   user1_id: string;
   user2_id: string;
-  user1: BackendUser;
-  user2: BackendUser;
+  user1: IBackendUser;
+  user2: IBackendUser;
   created_at: string;
 }
 
-interface BackendMessage {
+interface IBackendMessage {
   message_id: string;
   conversation_id: string;
   sender_id: string;
@@ -36,7 +36,7 @@ interface BackendMessage {
   created_at: string;
 }
 
-function normalizeConversation(conv: BackendConversation): IInboxItem {
+function normalizeConversation(conv: IBackendConversation): IInboxItem {
   const meId = getCurrentUserId();
   const other = conv.user1_id === meId ? conv.user2 : conv.user1;
   return {
@@ -52,7 +52,7 @@ function normalizeConversation(conv: BackendConversation): IInboxItem {
   };
 }
 
-function normalizeMessage(msg: BackendMessage): IMessage {
+function normalizeMessage(msg: IBackendMessage): IMessage {
   return {
     id: msg.message_id,
     threadId: msg.conversation_id,
@@ -74,18 +74,18 @@ function normalizeMessage(msg: BackendMessage): IMessage {
 export const realMessageService: IMessageService = {
   // GET /conversations
   getInbox: async (): Promise<IInboxItem[]> => {
-    const data = await apiGet<BackendConversation[]>(`${ENV.API_BASE_URL}/conversations`);
+    const data = await apiGet<IBackendConversation[]>(`${ENV.API_BASE_URL}/conversations`);
     return (Array.isArray(data) ? data : []).map(normalizeConversation);
   },
 
   // GET /conversations/{id}/messages → build IMessageThread
   getThread: async (conversationId: string): Promise<IMessageThread> => {
     const [inbox, messages] = await Promise.all([
-      apiGet<BackendConversation[]>(`${ENV.API_BASE_URL}/conversations`),
-      apiGet<BackendMessage[]>(`${ENV.API_BASE_URL}/conversations/${conversationId}/messages`),
+      apiGet<IBackendConversation[]>(`${ENV.API_BASE_URL}/conversations`),
+      apiGet<IBackendMessage[]>(`${ENV.API_BASE_URL}/conversations/${conversationId}/messages`),
     ]);
     const conv = (Array.isArray(inbox) ? inbox : []).find(
-      (c: BackendConversation) => c.conversation_id === conversationId
+      (c: IBackendConversation) => c.conversation_id === conversationId
     );
     const meId = getCurrentUserId();
     const other = conv
@@ -107,7 +107,7 @@ export const realMessageService: IMessageService = {
 
   // POST /conversations/{id}/messages
   sendMessage: async (conversationId: string, body: string): Promise<IMessage> => {
-    const data = await apiPost<BackendMessage>(
+    const data = await apiPost<IBackendMessage>(
       `${ENV.API_BASE_URL}/conversations/${conversationId}/messages`,
       { content: body }
     );

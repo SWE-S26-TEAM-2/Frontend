@@ -39,20 +39,20 @@ async function doRefresh(): Promise<string> {
     });
     if (!res.ok) throw new Error("Refresh failed");
     const json = await res.json();
-    const { access_token, refresh_token } = json.data;
-    saveTokens(access_token, refresh_token);
-    return access_token;
+    const { access_token: accessToken, refresh_token: refreshToken } = json.data;
+    saveTokens(accessToken, refreshToken);
+    return accessToken;
   } finally {
     isRefreshing = false;
   }
 }
 
 // ── Core request function ────────────────────────────────────────────────────
-interface ApiOptions extends RequestInit {
+interface IApiOptions extends RequestInit {
   skipAuth?: boolean;
 }
 
-async function request<T>(url: string, options: ApiOptions = {}): Promise<T> {
+async function request<T>(url: string, options: IApiOptions = {}): Promise<T> {
   const { skipAuth = false, headers: extraHeaders, ...rest } = options;
 
   const buildHeaders = (token: string | null): Record<string, string> => {
@@ -93,10 +93,10 @@ async function request<T>(url: string, options: ApiOptions = {}): Promise<T> {
 }
 
 // ── Convenience methods ──────────────────────────────────────────────────────
-export const apiGet = <T>(url: string, opts?: ApiOptions): Promise<T> =>
+export const apiGet = <T>(url: string, opts?: IApiOptions): Promise<T> =>
   request<T>(url, { method: "GET", ...opts });
 
-export const apiPost = <T>(url: string, body?: unknown, opts?: ApiOptions): Promise<T> =>
+export const apiPost = <T>(url: string, body?: unknown, opts?: IApiOptions): Promise<T> =>
   request<T>(url, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...(opts?.headers as object) },
@@ -104,7 +104,7 @@ export const apiPost = <T>(url: string, body?: unknown, opts?: ApiOptions): Prom
     ...opts,
   });
 
-export const apiPatch = <T>(url: string, body?: unknown, opts?: ApiOptions): Promise<T> =>
+export const apiPatch = <T>(url: string, body?: unknown, opts?: IApiOptions): Promise<T> =>
   request<T>(url, {
     method: "PATCH",
     headers: { "Content-Type": "application/json", ...(opts?.headers as object) },
@@ -112,7 +112,7 @@ export const apiPatch = <T>(url: string, body?: unknown, opts?: ApiOptions): Pro
     ...opts,
   });
 
-export const apiPut = <T>(url: string, body?: unknown, opts?: ApiOptions): Promise<T> =>
+export const apiPut = <T>(url: string, body?: unknown, opts?: IApiOptions): Promise<T> =>
   request<T>(url, {
     method: "PUT",
     headers: { "Content-Type": "application/json", ...(opts?.headers as object) },
@@ -120,5 +120,5 @@ export const apiPut = <T>(url: string, body?: unknown, opts?: ApiOptions): Promi
     ...opts,
   });
 
-export const apiDelete = <T = void>(url: string, opts?: ApiOptions): Promise<T> =>
+export const apiDelete = <T = void>(url: string, opts?: IApiOptions): Promise<T> =>
   request<T>(url, { method: "DELETE", ...opts });
