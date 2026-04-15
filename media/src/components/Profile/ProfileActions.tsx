@@ -1,13 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { type IUser } from "@/types/userProfile.types";
+import type { IProfileActionsProps } from "@/types/ui.types";
 import { ShareIcon } from "@/components/Icons/TrackIcons";
 import { ShareModal } from "@/components/Share/Share";
-
-interface IProfileActionsProps {
-  user: IUser;
-}
 
 const StationIcon = () => (
   <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>

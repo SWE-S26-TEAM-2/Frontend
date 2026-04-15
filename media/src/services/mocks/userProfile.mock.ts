@@ -5,12 +5,38 @@
 // ─────────────────────────────────────────────────────────────
 
 import { seededWaveform } from "@/utils/seededWaveform";
+import type { ITrack } from "@/types/track.types";
 import type {
-  IUserProfileService, IUser, ITrack, ILikedTrack,
-  IFanUser, IFollower, IFollowing,
+  IUserProfileService, IUser, IUserProfileTrack, ILikedTrack,
+  IFanUser, IFollower, IFollowing, ISearchUser,
 } from "@/types/userProfile.types";
 
 const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+function toCanonicalTrack(track: IUserProfileTrack): ITrack {
+  const durationInSeconds = track.duration.includes(":")
+    ? track.duration
+        .split(":")
+        .map((v) => parseInt(v, 10) || 0)
+        .reduce((acc, part) => acc * 60 + part, 0)
+    : parseInt(track.duration, 10) || 0;
+
+  return {
+    id: track.id.toString(),
+    title: track.title,
+    artist: track.artist,
+    albumArt: track.coverUrl || "",
+    genre: track.genre || undefined,
+    url: "",
+    duration: durationInSeconds,
+    likes: track.likes,
+    plays: track.plays,
+    commentsCount: track.comments,
+    isLiked: track.isLiked,
+    createdAt: track.createdAt,
+    updatedAt: track.createdAt,
+  };
+}
 
 // ─────────────────────────────────────────────────────────────
 // FAKE DATABASE
@@ -60,7 +86,7 @@ const MOCK_USERS: IUser[] = [
   },
 ];
 
-const MOCK_TRACKS: ITrack[] = [
+const MOCK_TRACKS: IUserProfileTrack[] = [
   {
     id: 1,
     title: "Une vie à t'aimer",
@@ -131,10 +157,10 @@ const MOCK_FOLLOWING: IFollowing[] = [
 // ─────────────────────────────────────────────────────────────
 export const mockUserProfileService: IUserProfileService = {
 
-  async getUserProfile(username: string): Promise<IUser> {
+  async getUserProfile(userId: string): Promise<IUser> {
     await delay(300);
-    const user = MOCK_USERS.find(u => u.username === username);
-    if (!user) throw new Error(`User "${username}" not found`);
+    const user = MOCK_USERS.find(u => u.id === userId || u.username === userId);
+    if (!user) throw new Error(`User "${userId}" not found`);
     return user;
   },
 
@@ -142,7 +168,7 @@ export const mockUserProfileService: IUserProfileService = {
     await delay(300);
     // Owner has no tracks yet — shows empty state
     if (userId === "testuser") return [];
-    return MOCK_TRACKS;
+    return MOCK_TRACKS.map(toCanonicalTrack);
   },
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -169,4 +195,28 @@ export const mockUserProfileService: IUserProfileService = {
     return MOCK_FOLLOWING;
   },
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async followUser(_userId: string): Promise<void> {
+    await delay(200);
+  },
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async unfollowUser(_userId: string): Promise<void> {
+    await delay(200);
+  },
+
+  async searchUsers(query: string): Promise<ISearchUser[]> {
+    await delay(250);
+    const q = query.toLowerCase();
+    return MOCK_USERS
+      .filter((u) => u.username.toLowerCase().includes(q))
+      .map((u) => ({
+        id: u.id,
+        username: u.username,
+        role: u.role,
+        avatarUrl: u.avatarUrl,
+        followerCount: u.followers,
+        isVerified: false,
+      }));
+  },
 };

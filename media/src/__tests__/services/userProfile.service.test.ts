@@ -53,28 +53,29 @@ describe("mockUserProfileService", () => {
       expect(track).toHaveProperty("id");
       expect(track).toHaveProperty("title");
       expect(track).toHaveProperty("artist");
+      expect(track).toHaveProperty("albumArt");
+      expect(track).toHaveProperty("url");
       expect(track).toHaveProperty("duration");
-      expect(track).toHaveProperty("waveform");
-      expect(track).toHaveProperty("playedPercent");
+      expect(track).toHaveProperty("likes");
+      expect(track).toHaveProperty("plays");
+      expect(track).toHaveProperty("commentsCount");
       expect(track).toHaveProperty("isLiked");
       expect(track).toHaveProperty("createdAt");
+      expect(track).toHaveProperty("updatedAt");
     });
 
-    it("waveform values are between 0 and 1", async () => {
+    it("duration is a non-negative number", async () => {
       const tracks = await mockUserProfileService.getUserTracks("testartist");
       tracks.forEach(track => {
-        track.waveform.forEach(v => {
-          expect(v).toBeGreaterThanOrEqual(0);
-          expect(v).toBeLessThanOrEqual(1);
-        });
+        expect(typeof track.duration).toBe("number");
+        expect(track.duration).toBeGreaterThanOrEqual(0);
       });
     });
 
-    it("playedPercent is between 0 and 1", async () => {
+    it("id is normalized as a string", async () => {
       const tracks = await mockUserProfileService.getUserTracks("testartist");
       tracks.forEach(track => {
-        expect(track.playedPercent).toBeGreaterThanOrEqual(0);
-        expect(track.playedPercent).toBeLessThanOrEqual(1);
+        expect(typeof track.id).toBe("string");
       });
     });
   });
@@ -168,10 +169,13 @@ describe("realUserProfileService", () => {
   it("getUserProfile calls correct endpoint", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ id: "1", username: "testuser" }),
+      json: async () => ({ user_id: "1", display_name: "testuser" }),
     });
     const user = await realUserProfileService.getUserProfile("testuser");
-    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining("/users/testuser"));
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining("/users/testuser"),
+      expect.objectContaining({ headers: expect.any(Object) })
+    );
     expect(user.username).toBe("testuser");
   });
 
@@ -187,10 +191,10 @@ describe("realUserProfileService", () => {
     expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining("/users/user123/tracks"));
   });
 
-  it("getUserTracks throws when response is not ok", async () => {
+  it("getUserTracks returns empty array when response is not ok", async () => {
     mockFetch.mockResolvedValueOnce({ ok: false });
-    await expect(realUserProfileService.getUserTracks("user123"))
-      .rejects.toThrow("Could not fetch tracks");
+    const result = await realUserProfileService.getUserTracks("user123");
+    expect(result).toEqual([]);
   });
 
   it("getUserLikes calls correct endpoint", async () => {
@@ -199,10 +203,10 @@ describe("realUserProfileService", () => {
     expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining("/users/user123/likes"));
   });
 
-  it("getUserLikes throws when response is not ok", async () => {
+  it("getUserLikes returns empty array when response is not ok", async () => {
     mockFetch.mockResolvedValueOnce({ ok: false });
-    await expect(realUserProfileService.getUserLikes("user123"))
-      .rejects.toThrow("Could not fetch likes");
+    const result = await realUserProfileService.getUserLikes("user123");
+    expect(result).toEqual([]);
   });
 
   it("getFansAlsoLike calls correct endpoint", async () => {

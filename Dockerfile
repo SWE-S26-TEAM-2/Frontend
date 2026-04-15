@@ -2,20 +2,25 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy dependency files
 COPY media/package*.json ./
-
-# Install dependencies
 RUN npm ci
 
-# Copy project source
 COPY media/ .
 
-# Build Next.js app
+ARG NEXT_PUBLIC_GOOGLE_CLIENT_ID=placeholder
+ENV NEXT_PUBLIC_GOOGLE_CLIENT_ID=$NEXT_PUBLIC_GOOGLE_CLIENT_ID
+
+ARG NEXT_PUBLIC_API_URL=http://localhost:8000/api
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
+ARG NEXT_PUBLIC_RECAPTCHA_SITE_KEY=placeholder
+ENV NEXT_PUBLIC_RECAPTCHA_SITE_KEY=$NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+
+ARG NEXT_PUBLIC_USE_MOCK=false
+ENV NEXT_PUBLIC_USE_MOCK=$NEXT_PUBLIC_USE_MOCK
+
 RUN npm run build
 
-# Expose Next.js port
 EXPOSE 3000
 
-# Start production server
 CMD ["npx", "next", "start"]

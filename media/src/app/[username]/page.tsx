@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { userProfileService } from "@/services/userProfile.service";
-import { type IUser, type ITrack, type ILikedTrack, type IFanUser, type IFollower, type IFollowing } from "@/types/userProfile.types";
+import { userProfileService } from "@/services/di";
+import { type ITrack } from "@/types/track.types";
+import { type IUser, type ILikedTrack, type IFanUser, type IFollower, type IFollowing } from "@/types/userProfile.types";
+import type { IActiveTab } from "@/types/ui.types";
 import { Banner } from "@/components/Banner/Banner";
 import { TrackCard } from "@/components/Track/TrackCard";
 import { ProfileSidebar } from "@/components/Profile/ProfileSidebar";
@@ -11,11 +13,10 @@ import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
 
 const TABS = ["All", "Popular tracks", "Tracks", "Albums", "Playlists", "Reposts"] as const;
-type TActiveTab = typeof TABS[number];
 
 export default function UserProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = React.use(params);
-  const [activeTab, setActiveTab] = useState<TActiveTab>(TABS[0]);
+  const [activeTab, setActiveTab] = useState<IActiveTab>(TABS[0]);
   const [user, setUser]           = useState<IUser | null>(null);
   const [tracks, setTracks]       = useState<ITrack[]>([]);
   const [likes, setLikes]         = useState<ILikedTrack[]>([]);
@@ -52,19 +53,19 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
     loadData();
   }, [username]);
 
-  const handleTabChange = (tab: TActiveTab) => setActiveTab(tab);
+  const handleTabChange = (tab: IActiveTab) => setActiveTab(tab);
 
   // ── Tab filtering logic ──
-  function getFilteredTracks(tab: TActiveTab): ITrack[] {
+  function getFilteredTracks(tab: IActiveTab): ITrack[] {
     switch (tab) {
       case "All":
         return tracks;
       case "Popular tracks":
         return [...tracks].sort((a, b) => b.plays - a.plays);
       case "Tracks":
-        return tracks.filter(t => t.repostedBy === null);
+        return tracks;
       case "Reposts":
-        return tracks.filter(t => t.repostedBy !== null);
+        return [];
       case "Albums":
       case "Playlists":
         return []; // will be populated when backend provides album/playlist data
@@ -90,7 +91,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   // Privacy Control
   if (user.isPrivate && !user.isOwner) return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
-      <Header avatarUrl={undefined} isLoggedIn={true}/>
+      <Header isLoggedIn={true}/>
       <div className="max-w-7xl mx-auto bg-[#111]">
         <Banner user={user}/>
       </div>
@@ -107,7 +108,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans pb-15">
-      <Header avatarUrl={user.avatarUrl ?? undefined} isLoggedIn={true}/>
+      <Header isLoggedIn={true}/>
 
       <div className="max-w-7xl mx-auto bg-[#111]">
         <Banner user={user}/>

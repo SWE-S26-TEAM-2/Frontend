@@ -1,5 +1,6 @@
 // src/app/[username]/components/Icons.tsx
 import { formatNumber } from "@/utils/formatNumber";
+import type { IIconBtnProps } from "@/types/ui.types";
 
 export const HeartIcon = ({ isFilled }: { isFilled: boolean }) => (
   <svg width={14} height={14} viewBox="0 0 24 24"
@@ -41,14 +42,6 @@ export const MoreIcon = () => (
     <circle cx="19" cy="12" r="2"/>
   </svg>
 );
-
-export interface IIconBtnProps {
-  icon: React.ReactNode;
-  label?: string;
-  active?: boolean;
-  count?: number;
-  onClick?: () => void;
-}
 
 export function IconBtn({ icon, label, active = false, count, onClick }: IIconBtnProps) {
   return (

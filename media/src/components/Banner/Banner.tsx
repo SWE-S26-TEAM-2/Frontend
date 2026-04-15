@@ -1,13 +1,9 @@
 // src/components/Banner/Banner.tsx
 import Image from "next/image";
-import { type IUser } from "@/types/userProfile.types";
+import type { IBannerProps } from "@/types/ui.types";
 
 const AVATAR_SIZE = 180;
 const AVATAR_LEFT = 20;
-
-interface IBannerProps {
-  user: IUser;
-}
 
 export function Banner({ user }: IBannerProps) {
   return (
