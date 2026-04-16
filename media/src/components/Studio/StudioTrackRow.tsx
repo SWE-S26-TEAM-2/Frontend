@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Image from 'next/image';
 import StudioTrackMenu from './StudioTrackMenu';
 import type { IStudioTrack } from '@/types/studio.types';
@@ -10,6 +10,12 @@ interface IStudioTrackRowProps {
   isSelected: boolean;
   onSelect: (trackId: string, checked: boolean) => void;
   onDeleteRequest: (track: IStudioTrack) => void;
+}
+
+interface IMenuPosition {
+  top?: number;
+  bottom?: number;
+  right: number;
 }
 
 function formatDuration(seconds: number): string {
@@ -26,6 +32,8 @@ function formatDate(isoString: string): string {
   });
 }
 
+const MENU_HEIGHT = 320;
+
 export default function StudioTrackRow({
   track,
   isSelected,
@@ -33,6 +41,25 @@ export default function StudioTrackRow({
   onDeleteRequest,
 }: IStudioTrackRowProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [menuPos, setMenuPos] = useState<IMenuPosition>({ top: 0, right: 0 });
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  const handleMenuToggle = () => {
+    if (!isMenuOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const right = window.innerWidth - rect.right;
+
+      if (spaceBelow < MENU_HEIGHT) {
+        // Open upward: anchor bottom of menu to top of button
+        setMenuPos({ bottom: window.innerHeight - rect.top, right });
+      } else {
+        // Open downward: anchor top of menu to bottom of button
+        setMenuPos({ top: rect.bottom + 4, right });
+      }
+    }
+    setIsMenuOpen((prev) => !prev);
+  };
 
   return (
     <div
@@ -66,8 +93,6 @@ export default function StudioTrackRow({
             </svg>
           </div>
         )}
-
-        {/* Private lock badge */}
         {track.visibility === 'private' && (
           <div className="absolute bottom-0 right-0 bg-black/70 rounded-tl-sm p-0.5" aria-label="Private track">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="white" aria-hidden="true">
@@ -78,23 +103,17 @@ export default function StudioTrackRow({
         )}
       </div>
 
-      {/* Title + artist */}
+      {/* Title + genre */}
       <div className="flex-1 min-w-0">
         <p className="text-white text-sm font-semibold truncate">{track.title}</p>
         <p className="text-[#999] text-xs truncate mt-0.5">
-          {track.processingStatus === 'processing' ? (
-            <span className="text-[#f5a623]">Processing…</span>
-          ) : (
-            track.genre || <span className="text-[#555]">No genre</span>
-          )}
+          {track.genre || <span className="text-[#555]">No genre</span>}
         </p>
       </div>
 
       {/* Duration */}
       <div className="shrink-0 w-20 text-center">
-        <span className="text-[#999] text-sm">
-          {track.processingStatus === 'processing' ? '—' : formatDuration(track.duration)}
-        </span>
+        <span className="text-[#999] text-sm">{formatDuration(track.duration)}</span>
       </div>
 
       {/* Date */}
@@ -104,23 +123,18 @@ export default function StudioTrackRow({
 
       {/* Engagements */}
       <div className="shrink-0 w-52 flex items-center justify-center gap-4">
-        {/* Likes */}
         <div className="flex items-center gap-1 text-[#999] text-xs">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
           </svg>
           <span>{track.likes > 0 ? track.likes : '—'}</span>
         </div>
-
-        {/* Comments */}
         <div className="flex items-center gap-1 text-[#999] text-xs">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
           <span>—</span>
         </div>
-
-        {/* Reposts */}
         <div className="flex items-center gap-1 text-[#999] text-xs">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <polyline points="17 1 21 5 17 9" />
@@ -130,8 +144,6 @@ export default function StudioTrackRow({
           </svg>
           <span>—</span>
         </div>
-
-        {/* Downloads */}
         <div className="flex items-center gap-1 text-[#999] text-xs">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="10" />
@@ -147,11 +159,12 @@ export default function StudioTrackRow({
         <span className="text-white text-sm font-semibold">{track.plays}</span>
       </div>
 
-      {/* Three-dots menu */}
+      {/* Three-dots button */}
       <div className="shrink-0 relative">
         <button
+          ref={buttonRef}
           type="button"
-          onClick={() => setIsMenuOpen((prev) => !prev)}
+          onClick={handleMenuToggle}
           aria-label="Track options"
           aria-expanded={isMenuOpen}
           className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#2a2a2a] transition-colors"
@@ -166,6 +179,7 @@ export default function StudioTrackRow({
         {isMenuOpen && (
           <StudioTrackMenu
             trackId={track.id}
+            position={menuPos}
             onDelete={() => onDeleteRequest(track)}
             onClose={() => setIsMenuOpen(false)}
           />

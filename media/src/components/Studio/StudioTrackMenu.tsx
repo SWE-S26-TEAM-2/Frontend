@@ -2,17 +2,22 @@
 
 import { useEffect, useRef } from 'react';
 
+interface IMenuPosition {
+  top?: number;
+  bottom?: number;
+  right: number;
+}
+
 interface IStudioTrackMenuProps {
   trackId: string;
+  position: IMenuPosition;
   onDelete: (trackId: string) => void;
   onClose: () => void;
 }
 
-const MENU_ITEMS = [
+const TOP_MENU_ITEMS = [
   {
     label: 'Edit',
-    isDestructive: false,
-    isStub: true,
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -22,8 +27,6 @@ const MENU_ITEMS = [
   },
   {
     label: 'Add to playlist',
-    isDestructive: false,
-    isStub: true,
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <rect x="3" y="3" width="18" height="18" rx="2" />
@@ -32,13 +35,11 @@ const MENU_ITEMS = [
       </svg>
     ),
   },
-] as const;
+];
 
-const MENU_ITEMS_DIVIDER = [
+const MIDDLE_MENU_ITEMS = [
   {
     label: 'Monetize',
-    isDestructive: false,
-    isStub: true,
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <circle cx="12" cy="12" r="10" />
@@ -48,8 +49,6 @@ const MENU_ITEMS_DIVIDER = [
   },
   {
     label: 'Master',
-    isDestructive: false,
-    isStub: true,
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <line x1="4" y1="21" x2="4" y2="14" /><line x1="4" y1="10" x2="4" y2="3" />
@@ -61,8 +60,6 @@ const MENU_ITEMS_DIVIDER = [
   },
   {
     label: 'Distribute',
-    isDestructive: false,
-    isStub: true,
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
@@ -72,8 +69,6 @@ const MENU_ITEMS_DIVIDER = [
   },
   {
     label: 'Track insights',
-    isDestructive: false,
-    isStub: true,
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" />
@@ -82,8 +77,6 @@ const MENU_ITEMS_DIVIDER = [
   },
   {
     label: 'Download file',
-    isDestructive: false,
-    isStub: true,
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <circle cx="12" cy="12" r="10" />
@@ -94,8 +87,6 @@ const MENU_ITEMS_DIVIDER = [
   },
   {
     label: 'Copy link',
-    isDestructive: false,
-    isStub: true,
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
@@ -105,27 +96,22 @@ const MENU_ITEMS_DIVIDER = [
   },
 ];
 
-export default function StudioTrackMenu({ trackId, onDelete, onClose }: IStudioTrackMenuProps) {
+export default function StudioTrackMenu({ trackId, position, onDelete, onClose }: IStudioTrackMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Close on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        onClose();
-      }
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) onClose();
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [onClose]);
-
-  // Close on Escape
-  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
+    document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, [onClose]);
 
   return (
@@ -133,59 +119,67 @@ export default function StudioTrackMenu({ trackId, onDelete, onClose }: IStudioT
       ref={menuRef}
       role="menu"
       aria-label="Track options"
-      className="absolute right-8 z-50 w-52 bg-[#1a1a1a] border border-[#2a2a2a] rounded-md shadow-xl py-1 overflow-hidden"
-      style={{ top: '100%' }}
+      className="fixed z-[9999] w-52 bg-[#1a1a1a] border border-[#2a2a2a] rounded-md shadow-xl overflow-hidden"
+      style={{
+        top: position.top !== undefined ? position.top : undefined,
+        bottom: position.bottom !== undefined ? position.bottom : undefined,
+        right: position.right,
+      }}
     >
-      {/* Top group: Edit, Add to playlist */}
-      {MENU_ITEMS.map((item) => (
+      {/* Top group */}
+      <div className="py-1">
+        {TOP_MENU_ITEMS.map((item) => (
+          <button
+            key={item.label}
+            type="button"
+            role="menuitem"
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-white hover:bg-[#2a2a2a] transition-colors duration-100 text-left"
+          >
+            <span className="shrink-0">{item.icon}</span>
+            {item.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="border-t border-[#2a2a2a]" aria-hidden="true" />
+
+      {/* Middle group */}
+      <div className="py-1">
+        {MIDDLE_MENU_ITEMS.map((item) => (
+          <button
+            key={item.label}
+            type="button"
+            role="menuitem"
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-white hover:bg-[#2a2a2a] transition-colors duration-100 text-left"
+          >
+            <span className="shrink-0">{item.icon}</span>
+            {item.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="border-t border-[#2a2a2a]" aria-hidden="true" />
+
+      {/* Delete */}
+      <div className="py-1">
         <button
-          key={item.label}
           type="button"
           role="menuitem"
-          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-white hover:bg-[#2a2a2a] transition-colors duration-100 text-left"
+          onClick={() => {
+            onDelete(trackId);
+            onClose();
+          }}
+          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#e5383b] hover:bg-[#2a2a2a] transition-colors duration-100 text-left"
         >
-          <span className="text-white shrink-0">{item.icon}</span>
-          {item.label}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+            <path d="M10 11v6" /><path d="M14 11v6" />
+            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+          </svg>
+          Delete track
         </button>
-      ))}
-
-      {/* Divider */}
-      <div className="my-1 border-t border-[#2a2a2a]" aria-hidden="true" />
-
-      {/* Middle group: Monetize, Master, Distribute, Track insights, Download file, Copy link */}
-      {MENU_ITEMS_DIVIDER.map((item) => (
-        <button
-          key={item.label}
-          type="button"
-          role="menuitem"
-          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-white hover:bg-[#2a2a2a] transition-colors duration-100 text-left"
-        >
-          <span className="text-white shrink-0">{item.icon}</span>
-          {item.label}
-        </button>
-      ))}
-
-      {/* Divider */}
-      <div className="my-1 border-t border-[#2a2a2a]" aria-hidden="true" />
-
-      {/* Delete — functional */}
-      <button
-        type="button"
-        role="menuitem"
-        onClick={() => {
-          onDelete(trackId);
-          onClose();
-        }}
-        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#e5383b] hover:bg-[#2a2a2a] transition-colors duration-100 text-left"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <polyline points="3 6 5 6 21 6" />
-          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-          <path d="M10 11v6" /><path d="M14 11v6" />
-          <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-        </svg>
-        Delete track
-      </button>
+      </div>
     </div>
   );
 }

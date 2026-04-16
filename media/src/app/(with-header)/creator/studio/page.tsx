@@ -43,6 +43,7 @@ export default function StudioPage() {
   const isAuthenticated = true;
   const router = useRouter();
 
+  // Source of truth — full unfiltered list from the service
   const [tracks, setTracks] = useState<IStudioTrack[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -54,7 +55,6 @@ export default function StudioPage() {
   const [visibilityFilter, setVisibilityFilter] = useState<VisibilityFilter>('all');
   const [activeSort, setActiveSort] = useState<SortOption>('date');
   const [isSortOpen, setIsSortOpen] = useState(false);
-  const sortButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -80,11 +80,15 @@ export default function StudioPage() {
     void fetchData();
   }, [isAuthenticated]);
 
-  // ── Client-side filter + sort ─────────────────────────────────────────────
+  // ── Delete: remove from source array so useMemo recomputes correctly ──────
+  const handleDeleteTrack = (trackId: string) => {
+    setTracks((prev) => prev.filter((t) => t.id !== trackId));
+  };
+
+  // ── Client-side filter + sort derived from source tracks ──────────────────
   const filteredAndSorted = useMemo(() => {
     let result = [...tracks];
 
-    // Search filter
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       result = result.filter(
@@ -94,25 +98,19 @@ export default function StudioPage() {
       );
     }
 
-    // Visibility filter
     if (visibilityFilter === 'public') {
       result = result.filter((t) => t.visibility === 'public');
     } else if (visibilityFilter === 'private') {
       result = result.filter((t) => t.visibility === 'private');
     }
 
-    // Sort
     result.sort((a, b) => {
       switch (activeSort) {
-        case 'plays':
-          return b.plays - a.plays;
-        case 'duration':
-          return b.duration - a.duration;
-        case 'likes':
-          return b.likes - a.likes;
+        case 'plays':    return b.plays - a.plays;
+        case 'duration': return b.duration - a.duration;
+        case 'likes':    return b.likes - a.likes;
         case 'date':
-        default:
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        default:         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       }
     });
 
@@ -150,38 +148,29 @@ export default function StudioPage() {
     );
   }
 
-  const isEmpty = filteredAndSorted.length === 0;
-
   // ── Main ──────────────────────────────────────────────────────────────────
   return (
     <div className="bg-[#121212] text-white flex flex-col min-h-[calc(100vh-48px-56px)]">
       <main className="flex-1 w-full px-8 py-8 flex flex-col gap-6">
 
-        {/* Quota bar */}
         {quota && <UploadQuotaBar quota={quota} />}
 
-        {/* Artist Studio stats bar */}
         <StudioStatsBar stats={STUB_STATS} />
 
-        {/* Tabs */}
         <StudioTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-        {/* SoundCloud Tracks tab */}
         {activeTab === 'tracks' && (
           <div className="flex flex-col gap-4">
-
-            {/* Action buttons */}
             <StudioActionButtons />
 
-            {/* Search + filter + sort row */}
+            {/* Search + filter + sort */}
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
 
-                {/* Search — functional */}
+                {/* Search */}
                 <div className="flex items-center gap-2 bg-transparent border border-[#2a2a2a] rounded-full px-4 py-2 w-56 focus-within:border-[#555] transition-colors">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
                   </svg>
                   <input
                     type="text"
@@ -199,58 +188,47 @@ export default function StudioPage() {
                       className="text-[#666] hover:text-white transition-colors shrink-0"
                     >
                       <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                        <line x1="1" y1="1" x2="11" y2="11" />
-                        <line x1="11" y1="1" x2="1" y2="11" />
+                        <line x1="1" y1="1" x2="11" y2="11" /><line x1="11" y1="1" x2="1" y2="11" />
                       </svg>
                     </button>
                   )}
                 </div>
 
-                {/* Public filter */}
+                {/* Public */}
                 <button
                   type="button"
-                  onClick={() =>
-                    setVisibilityFilter((prev) => (prev === 'public' ? 'all' : 'public'))
-                  }
-                  className={`
-                    px-5 py-2 rounded-full text-sm font-semibold transition-colors duration-150
-                    ${visibilityFilter === 'public'
+                  onClick={() => setVisibilityFilter((prev) => prev === 'public' ? 'all' : 'public')}
+                  className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors duration-150 ${
+                    visibilityFilter === 'public'
                       ? 'bg-white text-black'
                       : 'border border-[#444] text-white hover:border-[#666]'
-                    }
-                  `}
+                  }`}
                 >
                   Public
                 </button>
 
-                {/* Private filter */}
+                {/* Private */}
                 <button
                   type="button"
-                  onClick={() =>
-                    setVisibilityFilter((prev) => (prev === 'private' ? 'all' : 'private'))
-                  }
-                  className={`
-                    px-5 py-2 rounded-full text-sm font-semibold transition-colors duration-150
-                    ${visibilityFilter === 'private'
+                  onClick={() => setVisibilityFilter((prev) => prev === 'private' ? 'all' : 'private')}
+                  className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors duration-150 ${
+                    visibilityFilter === 'private'
                       ? 'bg-white text-black'
                       : 'border border-[#444] text-white hover:border-[#666]'
-                    }
-                  `}
+                  }`}
                 >
                   Private
                 </button>
               </div>
 
-              {/* Track count + sort dropdown */}
+              {/* Track count + sort */}
               <div className="flex items-center gap-3 text-[#999] text-sm shrink-0">
                 <span>
                   {filteredAndSorted.length}{' '}
                   {filteredAndSorted.length === 1 ? 'track' : 'tracks'}
                 </span>
-
                 <div className="relative">
                   <button
-                    ref={sortButtonRef}
                     type="button"
                     onClick={() => setIsSortOpen((prev) => !prev)}
                     aria-expanded={isSortOpen}
@@ -258,16 +236,11 @@ export default function StudioPage() {
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#333] hover:border-[#555] transition-colors text-white text-sm font-semibold"
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <line x1="8" y1="6" x2="21" y2="6" />
-                      <line x1="8" y1="12" x2="21" y2="12" />
-                      <line x1="8" y1="18" x2="21" y2="18" />
-                      <line x1="3" y1="6" x2="3.01" y2="6" />
-                      <line x1="3" y1="12" x2="3.01" y2="12" />
-                      <line x1="3" y1="18" x2="3.01" y2="18" />
+                      <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" />
+                      <line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
                     </svg>
                     {SORT_LABELS[activeSort]}
                   </button>
-
                   {isSortOpen && (
                     <StudioSortDropdown
                       activeSort={activeSort}
@@ -279,35 +252,31 @@ export default function StudioPage() {
               </div>
             </div>
 
-            {/* Track list or empty state */}
-            {isEmpty ? (
-              tracks.length === 0 ? (
-                <StudioEmptyState />
-              ) : (
-                <div className="flex items-center justify-center py-16">
-                  <p className="text-[#555] text-sm">No tracks match your search.</p>
-                </div>
-              )
+            {/* Track list or empty states */}
+            {tracks.length === 0 ? (
+              <StudioEmptyState />
+            ) : filteredAndSorted.length === 0 ? (
+              <div className="flex items-center justify-center py-16">
+                <p className="text-[#555] text-sm">No tracks match your search.</p>
+              </div>
             ) : (
               <div className="rounded-md border border-[#2a2a2a] overflow-hidden">
                 <StudioTrackList
                   tracks={filteredAndSorted}
                   total={filteredAndSorted.length}
-                  onTracksChange={(updated) => setTracks(updated)}
+                  onDeleteTrack={handleDeleteTrack}
                 />
               </div>
             )}
           </div>
         )}
 
-        {/* Distribution tab — stub */}
         {activeTab === 'distribution' && (
           <div className="flex items-center justify-center py-24">
             <p className="text-[#555] text-sm">Distribution coming soon.</p>
           </div>
         )}
 
-        {/* Vinyl Records tab — stub */}
         {activeTab === 'vinyl' && (
           <div className="flex items-center justify-center py-24">
             <p className="text-[#555] text-sm">Vinyl Records coming soon.</p>

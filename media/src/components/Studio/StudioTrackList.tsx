@@ -9,10 +9,10 @@ import type { IStudioTrack } from '@/types/studio.types';
 interface IStudioTrackListProps {
   tracks: IStudioTrack[];
   total: number;
-  onTracksChange: (updatedTracks: IStudioTrack[]) => void;
+  onDeleteTrack: (trackId: string) => void;
 }
 
-export default function StudioTrackList({ tracks, total, onTracksChange }: IStudioTrackListProps) {
+export default function StudioTrackList({ tracks, total, onDeleteTrack }: IStudioTrackListProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [trackToDelete, setTrackToDelete] = useState<IStudioTrack | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -38,8 +38,8 @@ export default function StudioTrackList({ tracks, total, onTracksChange }: IStud
     setIsDeleting(true);
     try {
       await studioService.deleteTrack(trackToDelete.id);
-      const updated = tracks.filter((t) => t.id !== trackToDelete.id);
-      onTracksChange(updated);
+      // Notify parent to remove from source array
+      onDeleteTrack(trackToDelete.id);
       setSelectedIds((prev) => {
         const next = new Set(prev);
         next.delete(trackToDelete.id);
@@ -57,7 +57,6 @@ export default function StudioTrackList({ tracks, total, onTracksChange }: IStud
     <div className="flex flex-col">
       {/* Column header / bulk toolbar */}
       <div className="flex items-center gap-4 px-4 py-3 border-b border-[#2a2a2a]">
-        {/* Select-all checkbox */}
         <div className="shrink-0 w-6 flex items-center justify-center">
           <input
             type="checkbox"
@@ -69,13 +68,11 @@ export default function StudioTrackList({ tracks, total, onTracksChange }: IStud
         </div>
 
         {someSelected ? (
-          /* ── Bulk action toolbar ── */
           <>
             <span className="text-white text-sm font-bold">
               {selectedIds.size} SELECTED
             </span>
-
-            {/* Edit (stub) */}
+            {/* Edit stub */}
             <button
               type="button"
               aria-label="Edit selected"
@@ -86,8 +83,7 @@ export default function StudioTrackList({ tracks, total, onTracksChange }: IStud
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
               </svg>
             </button>
-
-            {/* Add to playlist (stub) */}
+            {/* Add to playlist stub */}
             <button
               type="button"
               aria-label="Add selected to playlist"
@@ -101,7 +97,6 @@ export default function StudioTrackList({ tracks, total, onTracksChange }: IStud
             </button>
           </>
         ) : (
-          /* ── Column headers ── */
           <>
             <span className="flex-1 text-[#999] text-xs font-bold tracking-widest uppercase">
               Tracks
@@ -115,10 +110,9 @@ export default function StudioTrackList({ tracks, total, onTracksChange }: IStud
             <div className="shrink-0 w-52 text-center text-[#999] text-xs font-bold tracking-widest uppercase">
               Engagements
             </div>
-            <div className="shrink-0 w-12 text-center text-[#999] text-xs font-bold tracking-widest uppercase">
+            <div className="shrink-0 w-12 text-center text-[#999] text-xs font-bold tracking-widests uppercase">
               Plays
             </div>
-            {/* Spacer for three-dots column */}
             <div className="shrink-0 w-8" aria-hidden="true" />
           </>
         )}
