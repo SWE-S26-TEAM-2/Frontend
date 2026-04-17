@@ -140,7 +140,7 @@ const MOCK_PLAYLISTS: IPlaylist[] = [
  
 // In-memory copy so mutations (delete, visibility) persist during the session
 let mockTracks = [...MOCK_TRACKS];
-let mockPlaylists = [...MOCK_PLAYLISTS];
+const mockPlaylists = [...MOCK_PLAYLISTS];
  
 export const mockStudioService: IStudioService = {
   async getTracks(page: number, pageSize: number): Promise<IStudioTracksResponse> {
