@@ -108,7 +108,9 @@ export default function StudioAddToPlaylistPanel({
         visibility: createForm.privacy,
       };
 
-      await studioService.addTracksToPlaylist(newPlaylist.id, selectedIds);
+      // The playlist is created with the tracks already included (trackCount set above).
+      // No need to call addTracksToPlaylist — the playlist didn't exist in the service
+      // before this moment, so we just prepend it locally and mark it as added.
 
       // Prepend to list and mark as added, then go back to list view
       setPlaylists((prev) => [newPlaylist, ...prev]);

@@ -7,16 +7,11 @@ export default function StudioActionButtons() {
 
   return (
     <div className="flex flex-wrap gap-3">
-      {/* Upload — functional */}
+      {/* Upload — navigates to upload page */}
       <button
         type="button"
         onClick={() => router.push('/creator/upload')}
-        className="
-          flex items-center gap-2 px-4 py-2.5 rounded-sm border border-[#333]
-          bg-[#1a1a1a] text-white text-sm font-semibold
-          hover:border-[#555] hover:bg-[#222] transition-colors duration-150
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-white
-        "
+        className="flex items-center gap-2 px-4 py-2.5 rounded-sm border border-[#333] bg-[#1a1a1a] text-white text-sm font-semibold hover:border-[#555] hover:bg-[#222] transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
       >
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <line x1="12" y1="5" x2="12" y2="19" />
@@ -25,15 +20,11 @@ export default function StudioActionButtons() {
         Upload or drop tracks
       </button>
 
-      {/* Distribute — stub */}
+      {/* Distribute — navigates to distribute page */}
       <button
         type="button"
-        className="
-          flex items-center gap-2 px-4 py-2.5 rounded-sm border border-[#333]
-          bg-[#1a1a1a] text-white text-sm font-semibold
-          hover:border-[#555] hover:bg-[#222] transition-colors duration-150
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-white
-        "
+        onClick={() => window.open('/creator/distribute', '_blank')}
+        className="flex items-center gap-2 px-4 py-2.5 rounded-sm border border-[#333] bg-[#1a1a1a] text-white text-sm font-semibold hover:border-[#555] hover:bg-[#222] transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
       >
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <circle cx="18" cy="5" r="3" />
@@ -45,15 +36,11 @@ export default function StudioActionButtons() {
         Distribute tracks
       </button>
 
-      {/* Monetize — stub */}
+      {/* Monetize — navigates to monetize page */}
       <button
         type="button"
-        className="
-          flex items-center gap-2 px-4 py-2.5 rounded-sm border border-[#333]
-          bg-[#1a1a1a] text-white text-sm font-semibold
-          hover:border-[#555] hover:bg-[#222] transition-colors duration-150
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-white
-        "
+        onClick={() => window.open('/creator/monetize', '_blank')}
+        className="flex items-center gap-2 px-4 py-2.5 rounded-sm border border-[#333] bg-[#1a1a1a] text-white text-sm font-semibold hover:border-[#555] hover:bg-[#222] transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
       >
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <circle cx="12" cy="12" r="10" />
@@ -63,15 +50,10 @@ export default function StudioActionButtons() {
         Monetize tracks
       </button>
 
-      {/* Master — stub */}
+      {/* Master — stub (no navigation yet) */}
       <button
         type="button"
-        className="
-          flex items-center gap-2 px-4 py-2.5 rounded-sm border border-[#333]
-          bg-[#1a1a1a] text-white text-sm font-semibold
-          hover:border-[#555] hover:bg-[#222] transition-colors duration-150
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-white
-        "
+        className="flex items-center gap-2 px-4 py-2.5 rounded-sm border border-[#333] bg-[#1a1a1a] text-white text-sm font-semibold hover:border-[#555] hover:bg-[#222] transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
       >
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <line x1="4" y1="21" x2="4" y2="14" />
