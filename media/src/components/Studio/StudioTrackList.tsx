@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import StudioTrackRow from './StudioTrackRow';
 import StudioDeleteModal from './StudioDeleteModal';
+import StudioBulkEditPanel from './StudioBulkEditPanel';
+import StudioAddToPlaylistPanel from './StudioAddToPlaylistPanel';
 import { studioService } from '@/services';
 import type { IStudioTrack } from '@/types/studio.types';
 
@@ -10,12 +12,21 @@ interface IStudioTrackListProps {
   tracks: IStudioTrack[];
   total: number;
   onDeleteTrack: (trackId: string) => void;
+  onBulkApplied: () => void;
 }
 
-export default function StudioTrackList({ tracks, total, onDeleteTrack }: IStudioTrackListProps) {
+type BulkPanel = 'edit' | 'playlist' | null;
+
+export default function StudioTrackList({
+  tracks,
+  total,
+  onDeleteTrack,
+  onBulkApplied,
+}: IStudioTrackListProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [trackToDelete, setTrackToDelete] = useState<IStudioTrack | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [openPanel, setOpenPanel] = useState<BulkPanel>(null);
 
   const allSelected = tracks.length > 0 && selectedIds.size === tracks.length;
   const someSelected = selectedIds.size > 0;
@@ -38,7 +49,6 @@ export default function StudioTrackList({ tracks, total, onDeleteTrack }: IStudi
     setIsDeleting(true);
     try {
       await studioService.deleteTrack(trackToDelete.id);
-      // Notify parent to remove from source array
       onDeleteTrack(trackToDelete.id);
       setSelectedIds((prev) => {
         const next = new Set(prev);
@@ -52,6 +62,14 @@ export default function StudioTrackList({ tracks, total, onDeleteTrack }: IStudi
       setTrackToDelete(null);
     }
   };
+
+  const handleBulkApplied = () => {
+    setOpenPanel(null);
+    setSelectedIds(new Set());
+    onBulkApplied();
+  };
+
+  const selectedIdsArray = Array.from(selectedIds);
 
   return (
     <div className="flex flex-col">
@@ -72,10 +90,12 @@ export default function StudioTrackList({ tracks, total, onDeleteTrack }: IStudi
             <span className="text-white text-sm font-bold">
               {selectedIds.size} SELECTED
             </span>
-            {/* Edit stub */}
+
+            {/* Pencil — bulk edit */}
             <button
               type="button"
-              aria-label="Edit selected"
+              onClick={() => setOpenPanel('edit')}
+              aria-label="Edit selected tracks"
               className="w-8 h-8 flex items-center justify-center rounded hover:bg-[#2a2a2a] transition-colors text-white"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -83,10 +103,12 @@ export default function StudioTrackList({ tracks, total, onDeleteTrack }: IStudi
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
               </svg>
             </button>
-            {/* Add to playlist stub */}
+
+            {/* Plus — add to playlist */}
             <button
               type="button"
-              aria-label="Add selected to playlist"
+              onClick={() => setOpenPanel('playlist')}
+              aria-label="Add selected tracks to playlist"
               className="w-8 h-8 flex items-center justify-center rounded hover:bg-[#2a2a2a] transition-colors text-white"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -141,6 +163,25 @@ export default function StudioTrackList({ tracks, total, onDeleteTrack }: IStudi
           isDeleting={isDeleting}
           onConfirm={handleDeleteConfirm}
           onCancel={() => setTrackToDelete(null)}
+        />
+      )}
+
+      {/* Bulk edit panel */}
+      {openPanel === 'edit' && (
+        <StudioBulkEditPanel
+          selectedCount={selectedIds.size}
+          selectedIds={selectedIdsArray}
+          onClose={() => setOpenPanel(null)}
+          onApplied={handleBulkApplied}
+        />
+      )}
+
+      {/* Add to playlist panel */}
+      {openPanel === 'playlist' && (
+        <StudioAddToPlaylistPanel
+          selectedCount={selectedIds.size}
+          selectedIds={selectedIdsArray}
+          onClose={() => setOpenPanel(null)}
         />
       )}
     </div>

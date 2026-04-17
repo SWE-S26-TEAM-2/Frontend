@@ -31,8 +31,34 @@ export interface IStudioStats {
   comments: number;
 }
  
+// ── Playlist ──────────────────────────────────────────────────────────────────
+ 
+export interface IPlaylist {
+  id: string;
+  title: string;
+  trackCount: number;
+  artworkUrl?: string;
+  visibility: TrackVisibility;
+}
+ 
+// ── Bulk edit ─────────────────────────────────────────────────────────────────
+ 
+export type BulkPrivacyOption = 'no-change' | 'public' | 'private';
+ 
+export interface IBulkEditPayload {
+  genre?: string;
+  tags?: string[];
+  artwork?: File;
+  privacy: BulkPrivacyOption;
+}
+ 
+// ── Service ───────────────────────────────────────────────────────────────────
+ 
 export interface IStudioService {
   getTracks(page: number, pageSize: number): Promise<IStudioTracksResponse>;
   deleteTrack(trackId: string): Promise<void>;
   updateVisibility(trackId: string, visibility: TrackVisibility): Promise<IStudioTrack>;
+  bulkEditTracks(trackIds: string[], payload: IBulkEditPayload): Promise<void>;
+  getPlaylists(): Promise<IPlaylist[]>;
+  addTracksToPlaylist(playlistId: string, trackIds: string[]): Promise<void>;
 }

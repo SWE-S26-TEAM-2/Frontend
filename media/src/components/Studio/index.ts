@@ -1,11 +1,14 @@
+export { default as StudioActionButtons } from './StudioActionButtons';
+export { default as StudioDeleteModal } from './StudioDeleteModal';
 export { default as StudioEmptyState } from './StudioEmptyState';
+export { default as StudioSortDropdown } from './StudioSortDropdown';
 export { default as StudioStatsBar } from './StudioStatsBar';
 export { default as StudioTabs } from './StudioTabs';
-export { default as StudioActionButtons } from './StudioActionButtons';
 export { default as StudioTrackList } from './StudioTrackList';
-export { default as StudioTrackRow } from './StudioTrackRow';
 export { default as StudioTrackMenu } from './StudioTrackMenu';
-export { default as StudioDeleteModal } from './StudioDeleteModal';
-export { default as StudioSortDropdown } from './StudioSortDropdown';
+export { default as StudioTrackRow } from './StudioTrackRow';
+export { default as StudioBulkEditPanel } from './StudioBulkEditPanel';
+export { default as StudioAddToPlaylistPanel } from './StudioAddToPlaylistPanel';
+export { default as StudioApplyChangesModal } from './StudioApplyChangesModal';
 export type { StudioTab } from './StudioTabs';
 export type { SortOption } from './StudioSortDropdown';

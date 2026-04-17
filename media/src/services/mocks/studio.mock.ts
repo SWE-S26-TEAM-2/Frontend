@@ -1,4 +1,6 @@
 import type {
+  IBulkEditPayload,
+  IPlaylist,
   IStudioService,
   IStudioTrack,
   IStudioTracksResponse,
@@ -63,7 +65,7 @@ const MOCK_TRACKS: IStudioTrack[] = [
     title: 'Your Track Title',
     genre: 'Pop',
     format: 'mp3',
-    duration: 185,        // in seconds
+    duration: 185,
     visibility: 'public',
     processingStatus: 'finished',
     plays: 320,
@@ -112,13 +114,37 @@ const MOCK_TRACKS: IStudioTrack[] = [
   },
 ];
  
+const MOCK_PLAYLISTS: IPlaylist[] = [
+  {
+    id: 'mock-playlist-1',
+    title: 'Late Night Vibes',
+    trackCount: 5,
+    artworkUrl: undefined,
+    visibility: 'public',
+  },
+  {
+    id: 'mock-playlist-2',
+    title: 'Work Sessions',
+    trackCount: 12,
+    artworkUrl: undefined,
+    visibility: 'private',
+  },
+  {
+    id: 'mock-playlist-3',
+    title: 'Demo Collection',
+    trackCount: 0,
+    artworkUrl: undefined,
+    visibility: 'public',
+  },
+];
+ 
 // In-memory copy so mutations (delete, visibility) persist during the session
 let mockTracks = [...MOCK_TRACKS];
+let mockPlaylists = [...MOCK_PLAYLISTS];
  
 export const mockStudioService: IStudioService = {
   async getTracks(page: number, pageSize: number): Promise<IStudioTracksResponse> {
-    console.log('[MOCK] studioService.getTracks called', { page, pageSize });  //check
-    await new Promise((r) => setTimeout(r, 400));
+    console.log('[MOCK] studioService.getTracks called', { page, pageSize });
     const start = (page - 1) * pageSize;
     const paginated = mockTracks.slice(start, start + pageSize);
     return {
@@ -130,17 +156,41 @@ export const mockStudioService: IStudioService = {
   },
  
   async deleteTrack(trackId: string): Promise<void> {
-    console.log('[MOCK] studioService.deleteTrack called', { trackId });  //check
-    await new Promise((r) => setTimeout(r, 300));
+    console.log('[MOCK] studioService.deleteTrack called', { trackId });
     mockTracks = mockTracks.filter((t) => t.id !== trackId);
   },
  
   async updateVisibility(trackId: string, visibility: TrackVisibility): Promise<IStudioTrack> {
-    console.log('[MOCK] studioService.updateVisibility called', { trackId, visibility });  //check
-    await new Promise((r) => setTimeout(r, 300));
+    console.log('[MOCK] studioService.updateVisibility called', { trackId, visibility });
     const track = mockTracks.find((t) => t.id === trackId);
     if (!track) throw new Error(`Track ${trackId} not found`);
     track.visibility = visibility;
     return { ...track };
+  },
+ 
+  async bulkEditTracks(trackIds: string[], payload: IBulkEditPayload): Promise<void> {
+    console.log('[MOCK] studioService.bulkEditTracks called', { trackIds, payload });
+    mockTracks = mockTracks.map((t) => {
+      if (!trackIds.includes(t.id)) return t;
+      return {
+        ...t,
+        ...(payload.genre ? { genre: payload.genre } : {}),
+        ...(payload.privacy !== 'no-change'
+          ? { visibility: payload.privacy as TrackVisibility }
+          : {}),
+      };
+    });
+  },
+ 
+  async getPlaylists(): Promise<IPlaylist[]> {
+    console.log('[MOCK] studioService.getPlaylists called');
+    return [...mockPlaylists];
+  },
+ 
+  async addTracksToPlaylist(playlistId: string, trackIds: string[]): Promise<void> {
+    console.log('[MOCK] studioService.addTracksToPlaylist called', { playlistId, trackIds });
+    const playlist = mockPlaylists.find((p) => p.id === playlistId);
+    if (!playlist) throw new Error(`Playlist ${playlistId} not found`);
+    playlist.trackCount += trackIds.length;
   },
 };

@@ -85,6 +85,16 @@ export default function StudioPage() {
     setTracks((prev) => prev.filter((t) => t.id !== trackId));
   };
 
+  const handleBulkApplied = async () => {
+  // Re-fetch tracks so the list reflects the bulk changes
+  try {
+    const tracksRes = await studioService.getTracks(1, PAGE_SIZE);
+    setTracks(tracksRes.tracks);
+  } catch (err) {
+    console.error('[Studio] re-fetch after bulk edit failed:', err);
+  }
+};
+
   // ── Client-side filter + sort derived from source tracks ──────────────────
   const filteredAndSorted = useMemo(() => {
     let result = [...tracks];
@@ -265,6 +275,7 @@ export default function StudioPage() {
                   tracks={filteredAndSorted}
                   total={filteredAndSorted.length}
                   onDeleteTrack={handleDeleteTrack}
+                  onBulkApplied={handleBulkApplied}
                 />
               </div>
             )}
