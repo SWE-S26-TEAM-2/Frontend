@@ -2,6 +2,8 @@ import type { AudioFormat, TrackVisibility } from './upload.types';
  
 export type TrackProcessingStatus = 'processing' | 'finished' | 'error';
  
+export type StudioTab = 'tracks' | 'distribution' | 'vinyl' | 'comments' | 'promotions';
+ 
 export interface IStudioTrack {
   id: string;
   title: string;

@@ -12,3 +12,7 @@ export { default as StudioAddToPlaylistPanel } from './StudioAddToPlaylistPanel'
 export { default as StudioApplyChangesModal } from './StudioApplyChangesModal';
 export type { StudioTab } from './StudioTabs';
 export type { SortOption } from './StudioSortDropdown';
+export { default as StudioDistributionTab } from './StudioDistributionTab';
+export { default as StudioVinylTab } from './StudioVinylTab';
+export { default as StudioCommentsTab } from './StudioCommentsTab';
+export { default as StudioPromotionsTab } from './StudioPromotionsTab';

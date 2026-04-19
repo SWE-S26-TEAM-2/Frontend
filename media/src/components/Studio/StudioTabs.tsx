@@ -1,6 +1,6 @@
 'use client';
 
-export type StudioTab = 'tracks' | 'distribution' | 'vinyl';
+import type { StudioTab } from '@/types/studio.types';
 
 interface IStudioTabsProps {
   activeTab: StudioTab;
@@ -11,6 +11,8 @@ const TABS: { id: StudioTab; label: string }[] = [
   { id: 'tracks', label: 'SoundCloud Tracks' },
   { id: 'distribution', label: 'Distribution' },
   { id: 'vinyl', label: 'Vinyl Records' },
+  { id: 'comments', label: 'Comments' },
+  { id: 'promotions', label: 'Promotions' },
 ];
 
 export default function StudioTabs({ activeTab, onTabChange }: IStudioTabsProps) {
@@ -25,7 +27,7 @@ export default function StudioTabs({ activeTab, onTabChange }: IStudioTabsProps)
             aria-selected={activeTab === tab.id}
             role="tab"
             className={`
-              px-5 py-3 text-sm font-semibold transition-colors duration-150 border-b-2 -mb-px
+              px-5 py-3 text-sm font-semibold transition-colors duration-150 border-b-2 -mb-px whitespace-nowrap
               ${activeTab === tab.id
                 ? 'text-white border-white'
                 : 'text-[#999] border-transparent hover:text-white'

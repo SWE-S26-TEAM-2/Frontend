@@ -2,7 +2,7 @@
 
 // src/app/(with-header)/creator/studio/page.tsx
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   StudioEmptyState,
@@ -11,9 +11,13 @@ import {
   StudioActionButtons,
   StudioTrackList,
 } from '@/components/Studio';
-import type { StudioTab } from '@/components/Studio';
+import type { StudioTab } from '@/types/studio.types';
 import StudioSortDropdown from '@/components/Studio/StudioSortDropdown';
 import type { SortOption } from '@/components/Studio/StudioSortDropdown';
+import StudioDistributionTab from '@/components/Studio/StudioDistributionTab';
+import StudioVinylTab from '@/components/Studio/StudioVinylTab';
+import StudioCommentsTab from '@/components/Studio/StudioCommentsTab';
+import StudioPromotionsTab from '@/components/Studio/StudioPromotionsTab';
 import { UploadQuotaBar } from '@/components/Upload';
 import { studioService, uploadService } from '@/services';
 import type { IStudioTrack, IStudioStats } from '@/types/studio.types';
@@ -86,14 +90,13 @@ export default function StudioPage() {
   };
 
   const handleBulkApplied = async () => {
-  // Re-fetch tracks so the list reflects the bulk changes
-  try {
-    const tracksRes = await studioService.getTracks(1, PAGE_SIZE);
-    setTracks(tracksRes.tracks);
-  } catch (err) {
-    console.error('[Studio] re-fetch after bulk edit failed:', err);
-  }
-};
+    try {
+      const tracksRes = await studioService.getTracks(1, PAGE_SIZE);
+      setTracks(tracksRes.tracks);
+    } catch (err) {
+      console.error('[Studio] re-fetch after bulk edit failed:', err);
+    }
+  };
 
   // ── Client-side filter + sort derived from source tracks ──────────────────
   const filteredAndSorted = useMemo(() => {
@@ -169,6 +172,7 @@ export default function StudioPage() {
 
         <StudioTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
+        {/* ── Tracks tab ── */}
         {activeTab === 'tracks' && (
           <div className="flex flex-col gap-4">
             <StudioActionButtons />
@@ -282,17 +286,17 @@ export default function StudioPage() {
           </div>
         )}
 
-        {activeTab === 'distribution' && (
-          <div className="flex items-center justify-center py-24">
-            <p className="text-[#555] text-sm">Distribution coming soon.</p>
-          </div>
-        )}
+        {/* ── Distribution tab ── */}
+        {activeTab === 'distribution' && <StudioDistributionTab />}
 
-        {activeTab === 'vinyl' && (
-          <div className="flex items-center justify-center py-24">
-            <p className="text-[#555] text-sm">Vinyl Records coming soon.</p>
-          </div>
-        )}
+        {/* ── Vinyl tab ── */}
+        {activeTab === 'vinyl' && <StudioVinylTab />}
+
+        {/* ── Comments tab ── */}
+        {activeTab === 'comments' && <StudioCommentsTab />}
+
+        {/* ── Promotions tab ── */}
+        {activeTab === 'promotions' && <StudioPromotionsTab />}
 
       </main>
     </div>
