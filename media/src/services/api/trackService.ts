@@ -1,9 +1,8 @@
 import type { ITrack, ITrackListResponse, ITrackService } from "@/types/track.types";
 import { ENV } from "@/config/env";
 import { apiGet } from "./apiClient";
-import { mockTrackService } from "../mocks/trackService";
+import { unsupportedApiFeature } from "./apiMode";
 
-// Backend Track → ITrack normalizer
 function normalizeTrack(d: Record<string, unknown>): ITrack {
   return {
     id: (d.track_id ?? d.id) as string,
@@ -23,13 +22,11 @@ function normalizeTrack(d: Record<string, unknown>): ITrack {
 }
 
 export const realTrackService: ITrackService = {
-  // GET /tracks/{id} — implemented in backend
   async getById(id: string): Promise<ITrack> {
     const data = await apiGet<Record<string, unknown>>(`${ENV.API_BASE_URL}/tracks/${id}`);
     return normalizeTrack(data);
   },
 
-  // GET /search/tracks?keyword= — implemented in backend
   async search(query: string): Promise<ITrack[]> {
     const data = await apiGet<{ tracks: Record<string, unknown>[] }>(
       `${ENV.API_BASE_URL}/search/tracks?keyword=${encodeURIComponent(query.trim())}`
@@ -37,29 +34,29 @@ export const realTrackService: ITrackService = {
     return (data.tracks ?? []).map(normalizeTrack);
   },
 
-  // Not implemented on backend — fall back to mock
   async getAll(): Promise<ITrack[]> {
-    console.warn("[trackService] getAll() not implemented on backend — using mock data");
-    return mockTrackService.getAll();
+    unsupportedApiFeature("trackService.getAll()");
   },
 
   async getAllPaginated(page = 1, pageSize = 10): Promise<ITrackListResponse> {
-    console.warn("[trackService] getAllPaginated() not implemented on backend — using mock data");
-    return mockTrackService.getAllPaginated(page, pageSize);
+    void page;
+    void pageSize;
+    unsupportedApiFeature("trackService.getAllPaginated()");
   },
 
   async getByGenre(genre: string): Promise<ITrack[]> {
-    console.warn("[trackService] getByGenre() not implemented on backend — using mock data");
-    return mockTrackService.getByGenre(genre);
+    void genre;
+    unsupportedApiFeature("trackService.getByGenre()");
   },
 
   async getTrending(limit = 10): Promise<ITrack[]> {
-    console.warn("[trackService] getTrending() not implemented on backend — using mock data");
-    return mockTrackService.getTrending(limit);
+    void limit;
+    unsupportedApiFeature("trackService.getTrending()");
   },
 
   async getRelated(trackId: string, limit = 5): Promise<ITrack[]> {
-    console.warn("[trackService] getRelated() not implemented on backend — using mock data");
-    return mockTrackService.getRelated(trackId, limit);
+    void trackId;
+    void limit;
+    unsupportedApiFeature("trackService.getRelated()");
   },
 };

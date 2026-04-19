@@ -57,10 +57,10 @@ describe("Header Component", () => {
       expect(screen.getByText("soundcloud")).toBeInTheDocument();
     });
 
-    test("renders navigation items (Home, Feed, Library)", () => {
+    test("renders navigation items (Stream, Discover, Library)", () => {
       render(<Header />);
-      expect(screen.getByText("Home")).toBeInTheDocument();
-      expect(screen.getByText("Feed")).toBeInTheDocument();
+      expect(screen.getByText("Stream")).toBeInTheDocument();
+      expect(screen.getByText("Discover")).toBeInTheDocument();
       expect(screen.getByText("Library")).toBeInTheDocument();
     });
 
@@ -115,11 +115,11 @@ describe("Header Component", () => {
     test("navigation links navigate to correct paths", () => {
       render(<Header />);
       
-      const homeLink = screen.getAllByText("Home")[0].closest("a");
-      expect(homeLink).toHaveAttribute("href", "/");
+      const streamLink = screen.getAllByText("Stream")[0].closest("a");
+      expect(streamLink).toHaveAttribute("href", "/stream");
       
-      const feedLink = screen.getAllByText("Feed")[0].closest("a");
-      expect(feedLink).toHaveAttribute("href", "/feed");
+      const discoverLink = screen.getAllByText("Discover")[0].closest("a");
+      expect(discoverLink).toHaveAttribute("href", "/discover");
       
       const libraryLink = screen.getAllByText("Library")[0].closest("a");
       expect(libraryLink).toHaveAttribute("href", "/library");
@@ -127,17 +127,17 @@ describe("Header Component", () => {
 
     test("highlights active nav item", () => {
       render(<Header />);
-      const homeLink = screen.getAllByText("Home")[0].closest("a");
+      const streamLink = screen.getAllByText("Stream")[0].closest("a");
 
-      expect(homeLink).toHaveAttribute("href", "/");
+      expect(streamLink).toHaveAttribute("href", "/stream");
     });
 
     test("changes active nav item on click", () => {
       render(<Header />);
-      const feedLink = screen.getAllByText("Feed")[0].closest("a") as HTMLAnchorElement;
+      const discoverLink = screen.getAllByText("Discover")[0].closest("a") as HTMLAnchorElement;
 
-      fireEvent.click(feedLink);
-      expect(feedLink).toHaveAttribute("href", "/feed");
+      fireEvent.click(discoverLink);
+      expect(discoverLink).toHaveAttribute("href", "/discover");
     });
   });
 

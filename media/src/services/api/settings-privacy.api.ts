@@ -1,14 +1,13 @@
 import type { IPrivacySettings } from "@/types/settings-privacy.types";
-import { getMockPrivacySettings, updateMockPrivacySettings } from "../mocks/settings-privacy.mock";
+import { unsupportedApiFeature } from "./apiMode";
 
 export const getPrivacySettingsFromAPI = async (): Promise<IPrivacySettings> => {
-  console.warn("[settings] Privacy settings not implemented on backend — using mock");
-  return getMockPrivacySettings();
+  unsupportedApiFeature("settings.privacy.getSettings()");
 };
 
 export const updatePrivacySettingsOnAPI = async (
   settings: Partial<IPrivacySettings>
 ): Promise<IPrivacySettings> => {
-  console.warn("[settings] Privacy settings not implemented on backend — using mock");
-  return updateMockPrivacySettings(settings);
+  void settings;
+  unsupportedApiFeature("settings.privacy.updateSettings()");
 };

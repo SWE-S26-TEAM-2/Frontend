@@ -1,10 +1,8 @@
 import { ENV } from "@/config/env";
-import { apiGet, apiPost, apiDelete } from "./apiClient";
+import { apiDelete, apiGet, apiPost } from "./apiClient";
+import { unsupportedApiFeature } from "./apiMode";
 import type { IPlaylist, IPlaylistService, IPlaylistTrack } from "@/types/playlist.types";
 import type { ITrack } from "@/types/track.types";
-import { mockPlaylistService } from "../mocks/playlist.mock";
-
-// ── Normalizer ───────────────────────────────────────────────────────────────
 
 interface IBackendTrack {
   track_id: string;
@@ -19,6 +17,7 @@ interface IBackendPlaylist {
   user_id: string;
   name: string;
   description?: string | null;
+  cover_photo_url?: string | null;
   tracks?: IBackendTrack[];
 }
 
@@ -47,7 +46,7 @@ function normalizePlaylist(d: IBackendPlaylist): IPlaylist {
     title: d.name,
     type: "playlist",
     owner: { id: d.user_id, username: "", avatarUrl: "" },
-    artworkUrl: "",
+    artworkUrl: d.cover_photo_url ?? "",
     description: d.description ?? undefined,
     isPrivate: false,
     trackCount: tracks.length,
@@ -58,16 +57,12 @@ function normalizePlaylist(d: IBackendPlaylist): IPlaylist {
   };
 }
 
-// ── Service ──────────────────────────────────────────────────────────────────
-
 export const realPlaylistService: IPlaylistService = {
-  // GET /playlists/{id} — real backend
   getPlaylistById: async (playlistId: string): Promise<IPlaylist> => {
     const data = await apiGet<IBackendPlaylist>(`${ENV.API_BASE_URL}/playlists/${playlistId}`);
     return normalizePlaylist(data);
   },
 
-  // POST /playlists/ — real backend
   createPlaylist: async (name: string, description?: string): Promise<IPlaylist> => {
     const data = await apiPost<IBackendPlaylist>(`${ENV.API_BASE_URL}/playlists/`, {
       name,
@@ -76,29 +71,27 @@ export const realPlaylistService: IPlaylistService = {
     return normalizePlaylist(data);
   },
 
-  // POST /playlists/{id}/tracks — real backend
   addTrackToPlaylist: async (playlistId: string, trackId: string): Promise<void> => {
     await apiPost(`${ENV.API_BASE_URL}/playlists/${playlistId}/tracks`, { track_id: trackId });
   },
 
-  // DELETE /playlists/{id}/tracks/{trackId} — real backend
   removeTrackFromPlaylist: async (playlistId: string, trackId: string): Promise<void> => {
     await apiDelete(`${ENV.API_BASE_URL}/playlists/${playlistId}/tracks/${trackId}`);
   },
 
-  // Not implemented on backend — fall back to mock
   getPlaylist: async (username: string, slug: string): Promise<IPlaylist> => {
-    console.warn("[playlistService] getPlaylist(username, slug) not implemented on backend — using mock");
-    return mockPlaylistService.getPlaylist(username, slug);
+    void username;
+    void slug;
+    unsupportedApiFeature("playlistService.getPlaylist(username, slug)");
   },
 
   getUserPlaylists: async (username: string): Promise<IPlaylist[]> => {
-    console.warn("[playlistService] getUserPlaylists() not implemented on backend — using mock");
-    return mockPlaylistService.getUserPlaylists(username);
+    void username;
+    unsupportedApiFeature("playlistService.getUserPlaylists()");
   },
 
   search: async (query: string): Promise<IPlaylist[]> => {
-    console.warn("[playlistService] search() not implemented on backend — using mock");
-    return mockPlaylistService.search(query);
+    void query;
+    unsupportedApiFeature("playlistService.search()");
   },
 };

@@ -1,14 +1,13 @@
 import type { INotificationSettings } from "@/types/settings-notification.types";
-import { getMockNotificationSettings, updateMockNotificationSettings } from "../mocks/settings-notification.mock";
+import { unsupportedApiFeature } from "./apiMode";
 
 export const getNotificationSettingsFromAPI = async (): Promise<INotificationSettings> => {
-  console.warn("[settings] Notification settings not implemented on backend — using mock");
-  return getMockNotificationSettings();
+  unsupportedApiFeature("settings.notification.getSettings()");
 };
 
 export const updateNotificationSettingsOnAPI = async (
   settings: Partial<INotificationSettings>
 ): Promise<INotificationSettings> => {
-  console.warn("[settings] Notification settings not implemented on backend — using mock");
-  return updateMockNotificationSettings(settings);
+  void settings;
+  unsupportedApiFeature("settings.notification.updateSettings()");
 };

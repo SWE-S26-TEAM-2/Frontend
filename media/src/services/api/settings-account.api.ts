@@ -1,14 +1,13 @@
 import type { IAccountSettings } from "@/types/settings-account.types";
-import { getMockAccountSettings, updateMockAccountSettings } from "../mocks/settings-account.mock";
+import { unsupportedApiFeature } from "./apiMode";
 
 export const getAccountSettingsFromAPI = async (): Promise<IAccountSettings> => {
-  console.warn("[settings] Account settings not implemented on backend — using mock");
-  return getMockAccountSettings();
+  unsupportedApiFeature("settings.account.getSettings()");
 };
 
 export const updateAccountSettingsOnAPI = async (
   settings: Partial<IAccountSettings>
 ): Promise<IAccountSettings> => {
-  console.warn("[settings] Account settings not implemented on backend — using mock");
-  return updateMockAccountSettings(settings);
+  void settings;
+  unsupportedApiFeature("settings.account.updateSettings()");
 };
