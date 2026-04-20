@@ -90,7 +90,7 @@ export default function TrackPlayer({ track }: { track: ITrack }) {
 
         <div className="mx-auto flex w-full max-w-85 items-center justify-center lg:justify-end">
           <Image
-            src={track.albumArt}
+            src={track.albumArt || "/covers/default.jpg"}
             alt={track.title}
             width={340}
             height={340}

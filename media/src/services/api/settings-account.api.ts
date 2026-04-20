@@ -1,13 +1,13 @@
-import { IAccountSettings } from "@/types/settings-account.types";
+import type { IAccountSettings } from "@/types/settings-account.types";
+import { unsupportedApiFeature } from "./apiMode";
 
 export const getAccountSettingsFromAPI = async (): Promise<IAccountSettings> => {
-  console.error("🔵 API call: getAccountSettings");
-  throw new Error("API not implemented yet");
+  unsupportedApiFeature("settings.account.getSettings()");
 };
 
 export const updateAccountSettingsOnAPI = async (
   settings: Partial<IAccountSettings>
 ): Promise<IAccountSettings> => {
-  console.error("🔵 API call: updateAccountSettings", settings);
-  throw new Error("API not implemented yet");
+  void settings;
+  unsupportedApiFeature("settings.account.updateSettings()");
 };

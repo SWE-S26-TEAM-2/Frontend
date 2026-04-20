@@ -1,22 +1,25 @@
 import { ENV } from "@/config/env";
 import type { IProduct, IProductCategory, IStoreService } from "@/types/store.types";
+import { apiGet } from "./apiClient";
 
 export const realStoreService: IStoreService = {
   getProducts: async (): Promise<IProduct[]> => {
-    const res = await fetch(`${ENV.API_BASE_URL}/store/products`);
-    if (!res.ok) throw new Error("Failed to fetch products");
-    return res.json();
+    try {
+      return await apiGet<IProduct[]>(`${ENV.API_BASE_URL}/store/products`);
+    } catch {
+      return [];
+    }
   },
 
   getProductById: async (id: string): Promise<IProduct> => {
-    const res = await fetch(`${ENV.API_BASE_URL}/store/products/${id}`);
-    if (!res.ok) throw new Error(`Product ${id} not found`);
-    return res.json();
+    return apiGet<IProduct>(`${ENV.API_BASE_URL}/store/products/${id}`);
   },
 
   getProductsByCategory: async (category: IProductCategory): Promise<IProduct[]> => {
-    const res = await fetch(`${ENV.API_BASE_URL}/store/products?category=${category}`);
-    if (!res.ok) throw new Error("Failed to fetch products by category");
-    return res.json();
+    try {
+      return await apiGet<IProduct[]>(`${ENV.API_BASE_URL}/store/products?category=${category}`);
+    } catch {
+      return [];
+    }
   },
 };

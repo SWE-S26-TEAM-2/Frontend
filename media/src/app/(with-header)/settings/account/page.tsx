@@ -3,10 +3,12 @@
 import { useState, useEffect } from "react";
 import { accountService } from "@/services/di";
 import { IAccountSettings, ITheme } from "@/types/settings-account.types";
+import { useTheme } from "@/hooks/useTheme";
 
 export default function AccountSettings() {
   const [settings, setSettings] = useState<IAccountSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { setTheme } = useTheme();
 
   useEffect(() => {
     loadSettings();
@@ -26,15 +28,16 @@ export default function AccountSettings() {
 
   const handleThemeChange = async (theme: ITheme) => {
     if (!settings) return;
-    //console.error("Changing theme to:", theme);  // check
 
     const previousSettings = { ...settings };
     setSettings({ ...settings, theme });
+    setTheme(theme); // apply to DOM immediately
 
     try {
       await accountService.updateSettings({ theme });
     } catch (error) {
       setSettings(previousSettings);
+      setTheme(previousSettings.theme); // revert DOM on failure
       console.error("Failed to update theme:", error);
     }
   };

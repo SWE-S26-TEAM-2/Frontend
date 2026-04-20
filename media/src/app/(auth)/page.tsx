@@ -20,14 +20,13 @@ export default function Home() {
   const [content, setContent] = useState<ILandingData | null>(null);
   const [tracks, setTracks] = useState<ITrack[]>([]);
 
-  const redirectToProfile = () => {
-    const userId = authUser?.id ?? window.localStorage.getItem("auth_user_id");
-    router.push(userId ? `/${userId}` : "/settings/account");
+  const redirectAfterLogin = () => {
+    router.push("/stream");
   };
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.localStorage.getItem("auth_token")) {
-      redirectToProfile();
+      redirectAfterLogin();
     }
     LandingApiService.getLandingData().then(setContent);
     LandingApiService.getTrendingTracks().then(setTracks);
@@ -42,8 +41,7 @@ export default function Home() {
         <LoginModal
           onClose={() => {
             setIsModalOpen(false);
-            const userId = authUser?.id ?? window.localStorage.getItem("auth_user_id");
-            if (userId) redirectToProfile();
+            redirectAfterLogin();
           }}
         />
       )}
