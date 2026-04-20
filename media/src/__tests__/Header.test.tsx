@@ -305,11 +305,11 @@ describe("Header Component", () => {
   });
 
   describe("Avatar Prop", () => {
-    test("uses pravatar fallback when no user profile image", () => {
+    test("uses local avatar fallback when no user profile image", () => {
       render(<Header isLoggedIn={true} />);
 
       const avatarImage = screen.getByAltText("User avatar") as HTMLImageElement;
-      expect(avatarImage.src).toContain("pravatar.cc");
+      expect(avatarImage.src).toContain("your-avatar.jpg");
     });
   });
 

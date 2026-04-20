@@ -4,6 +4,7 @@
  */
 
 import { ENV } from "@/config/env";
+import { clearAuthCookie, setAuthCookie } from "@/lib/authCookie";
 
 // ── Token helpers (SSR-safe) ────────────────────────────────────────────────
 const getAccessToken = (): string | null =>
@@ -16,6 +17,7 @@ const saveTokens = (access: string, refresh: string) => {
   if (typeof window === "undefined") return;
   window.localStorage.setItem("auth_token", access);
   window.localStorage.setItem("refresh_token", refresh);
+  setAuthCookie(access);
 };
 
 const clearTokens = () => {
@@ -23,6 +25,7 @@ const clearTokens = () => {
   ["auth_token", "refresh_token", "auth_user_id", "auth_username"].forEach((k) =>
     window.localStorage.removeItem(k)
   );
+  clearAuthCookie();
 };
 
 // ── Token refresh (calls backend directly to avoid circular imports) ─────────

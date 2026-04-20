@@ -11,11 +11,14 @@ import { ProfileSidebar } from "@/components/Profile/ProfileSidebar";
 import { ProfileActions } from "@/components/Profile/ProfileActions";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
+import { useAuthStore } from "@/store/authStore";
 
 const TABS = ["All", "Popular tracks", "Tracks", "Albums", "Playlists", "Reposts"] as const;
 
 export default function UserProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = React.use(params);
+  const authStoreUser = useAuthStore((state) => state.user);
+  const storeLogin = useAuthStore((state) => state.login);
   const [activeTab, setActiveTab] = useState<IActiveTab>(TABS[0]);
   const [user, setUser]           = useState<IUser | null>(null);
   const [tracks, setTracks]       = useState<ITrack[]>([]);
@@ -55,6 +58,24 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
 
   const handleTabChange = (tab: IActiveTab) => setActiveTab(tab);
 
+  const handleAvatarUpload = async (file: File) => {
+    const updated = await userProfileService.uploadAvatar(file);
+    setUser(updated);
+
+    const token = typeof window !== "undefined" ? window.localStorage.getItem("auth_token") : null;
+    if (updated.isOwner && token && authStoreUser) {
+      storeLogin({
+        ...authStoreUser,
+        profileImageUrl: updated.avatarUrl ?? authStoreUser.profileImageUrl,
+      }, token);
+    }
+  };
+
+  const handleCoverUpload = async (file: File) => {
+    const updated = await userProfileService.uploadCover(file);
+    setUser(updated);
+  };
+
   // ── Tab filtering logic ──
   function getFilteredTracks(tab: IActiveTab): ITrack[] {
     switch (tab) {
@@ -91,7 +112,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   // Privacy Control
   if (user.isPrivate && !user.isOwner) return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
-      <Header isLoggedIn={true}/>
+      <Header />
       <div className="max-w-7xl mx-auto bg-[#111]">
         <Banner user={user}/>
       </div>
@@ -108,10 +129,14 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans pb-15">
-      <Header isLoggedIn={true}/>
+      <Header />
 
       <div className="max-w-7xl mx-auto bg-[#111]">
-        <Banner user={user}/>
+        <Banner
+          user={user}
+          onUploadAvatar={handleAvatarUpload}
+          onUploadCover={handleCoverUpload}
+        />
       </div>
 
       <div className="h-2"/>

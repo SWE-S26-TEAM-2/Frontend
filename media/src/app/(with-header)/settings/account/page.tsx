@@ -6,19 +6,15 @@ import { IAccountSettings, ITheme } from "@/types/settings-account.types";
 import { useTheme } from "@/hooks/useTheme";
 
 export default function AccountSettings() {
-  const [settings, setSettings] = useState<IAccountSettings | null>(null);
+  const [settings,  setSettings]  = useState<IAccountSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { setTheme } = useTheme();
 
-  useEffect(() => {
-    loadSettings();
-  }, []);
+  useEffect(() => { void loadSettings(); }, []);
 
   const loadSettings = async () => {
     try {
-      const data = await accountService.getSettings();
-      //console.error("Loaded account settings:", data);  // check
-      setSettings(data);
+      setSettings(await accountService.getSettings());
     } catch (error) {
       console.error("Failed to load account settings:", error);
     } finally {
@@ -28,133 +24,93 @@ export default function AccountSettings() {
 
   const handleThemeChange = async (theme: ITheme) => {
     if (!settings) return;
-
-    const previousSettings = { ...settings };
+    const previous = { ...settings };
     setSettings({ ...settings, theme });
-    setTheme(theme); // apply to DOM immediately
-
+    setTheme(theme);
     try {
       await accountService.updateSettings({ theme });
     } catch (error) {
-      setSettings(previousSettings);
-      setTheme(previousSettings.theme); // revert DOM on failure
+      setSettings(previous);
+      setTheme(previous.theme);
       console.error("Failed to update theme:", error);
     }
   };
 
-  if (isLoading) {
-    return (
-      <div style={{ color: "#fff", padding: "40px" }}>
-        Loading...
-      </div>
-    );
-  }
-
-  if (!settings) {
-    return (
-      <div style={{ color: "#fff", padding: "40px" }}>
-        Failed to load settings
-      </div>
-    );
-  }
+  if (isLoading) return <div className="p-10 text-white">Loading…</div>;
+  if (!settings)  return <div className="p-10 text-white">Failed to load settings</div>;
 
   return (
-    <div style={{ padding: "40px", color: "#fff" }}>
+    <div className="p-10 text-white">
 
-      {/* Change theme */}
-      <div style={{ marginBottom: "40px" }}>
-        <h2 style={{ marginBottom: "20px" }}>Change theme</h2>
-        {(["light", "dark", "automatic"] as ITheme[]).map((option) => (
-          <label
-            key={option}
-            style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px", cursor: "pointer" }}
-          >
-            <input
-              type="radio"
-              name="theme"
-              value={option}
-              checked={settings.theme === option}
-              onChange={() => handleThemeChange(option)}
-              style={{ width: "18px", height: "18px", cursor: "pointer" }}
-            />
-            <span style={{ textTransform: "capitalize" }}>{option}</span>
-          </label>
-        ))}
-      </div>
+      {/* ── Change theme ── */}
+      <section className="mb-10">
+        <h2 className="text-lg font-semibold mb-5">Change theme</h2>
+        <div className="flex flex-col gap-3">
+          {(["light", "dark", "automatic"] as ITheme[]).map((option) => (
+            <label key={option} className="flex items-center gap-2.5 cursor-pointer">
+              <input
+                type="radio"
+                name="theme"
+                value={option}
+                checked={settings.theme === option}
+                onChange={() => void handleThemeChange(option)}
+                className="w-[18px] h-[18px] accent-[#ff5500] cursor-pointer"
+              />
+              <span className="capitalize text-sm">{option}</span>
+            </label>
+          ))}
+        </div>
+      </section>
 
-      {/* Email addresses */}
-      <div style={{ marginBottom: "40px" }}>
-        <h2 style={{ marginBottom: "16px" }}>Email addresses</h2>
-        {settings.emails.map((email) => (
-          <p key={email.address} style={{ marginBottom: "16px" }}>
-            {email.address}{" "}
-            {email.isPrimary && <span style={{ color: "#aaa" }}>(Primary)</span>}
-          </p>
-        ))}
-        <button
-          style={{
-            padding: "10px 18px",
-            background: "#333",
-            color: "#fff",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontSize: "14px",
-          }}
-        >
+      {/* ── Email addresses ── */}
+      <section className="mb-10">
+        <h2 className="text-lg font-semibold mb-4">Email addresses</h2>
+        <div className="flex flex-col gap-4 mb-4">
+          {settings.emails.map((email) => (
+            <p key={email.address} className="text-sm">
+              {email.address}{" "}
+              {email.isPrimary && <span className="text-[#aaa]">(Primary)</span>}
+            </p>
+          ))}
+        </div>
+        <button className="px-4 py-2.5 bg-[#333] hover:bg-[#444] text-white text-sm rounded-md border-none cursor-pointer transition-colors">
           Add an email address
         </button>
-      </div>
+      </section>
 
-      {/* Sign in with social networks */}
-      <div>
-        <h2 style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+      {/* ── Social logins ── */}
+      <section>
+        <h2 className="flex items-center gap-2 text-lg font-semibold mb-3">
           Sign in with other social networks
-          <span style={{
-            width: "16px", height: "16px", borderRadius: "50%",
-            background: "#555", display: "inline-flex",
-            alignItems: "center", justifyContent: "center",
-            fontSize: "11px", cursor: "pointer"
-          }}>i</span>
+          <span className="w-4 h-4 rounded-full bg-[#555] inline-flex items-center justify-center text-[11px] cursor-pointer">
+            i
+          </span>
         </h2>
+
         {!settings.linkedAccounts.facebook && !settings.linkedAccounts.google && !settings.linkedAccounts.apple && (
-          <p style={{ color: "#aaa", marginBottom: "20px" }}>
+          <p className="text-[#aaa] text-sm mb-5">
             You have not linked social accounts to your SoundCloud account.
           </p>
         )}
-        <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+
+        <div className="flex gap-3 flex-wrap">
           {!settings.linkedAccounts.facebook && (
-            <button style={{
-              display: "flex", alignItems: "center", gap: "8px",
-              padding: "10px 18px", background: "#1877F2",
-              color: "#fff", border: "none", borderRadius: "6px",
-              cursor: "pointer", fontSize: "14px",
-            }}>
-              <span>f</span> Add Facebook account
+            <button className="flex items-center gap-2 px-4 py-2.5 bg-[#1877F2] hover:bg-[#166fe5] text-white text-sm rounded-md border-none cursor-pointer transition-colors">
+              <span className="font-bold">f</span> Add Facebook account
             </button>
           )}
           {!settings.linkedAccounts.google && (
-            <button style={{
-              display: "flex", alignItems: "center", gap: "8px",
-              padding: "10px 18px", background: "#fff",
-              color: "#000", border: "1px solid #ddd", borderRadius: "6px",
-              cursor: "pointer", fontSize: "14px",
-            }}>
-              <span>G</span> Add Google account
+            <button className="flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-gray-100 text-black text-sm rounded-md border border-[#ddd] cursor-pointer transition-colors">
+              <span className="font-bold">G</span> Add Google account
             </button>
           )}
           {!settings.linkedAccounts.apple && (
-            <button style={{
-              display: "flex", alignItems: "center", gap: "8px",
-              padding: "10px 18px", background: "#000",
-              color: "#fff", border: "1px solid #555", borderRadius: "6px",
-              cursor: "pointer", fontSize: "14px",
-            }}>
+            <button className="flex items-center gap-2 px-4 py-2.5 bg-black hover:bg-[#111] text-white text-sm rounded-md border border-[#555] cursor-pointer transition-colors">
               <span></span> Add Apple account
             </button>
           )}
         </div>
-      </div>
+      </section>
 
     </div>
   );

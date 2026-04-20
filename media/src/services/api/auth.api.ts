@@ -8,6 +8,7 @@ import {
   IUpdateProfileResponse,
   IResendVerificationResponse,
 } from "@/types/auth.types";
+import { clearAuthCookie, setAuthCookie } from "@/lib/authCookie";
 
 const getAccessToken = (): string | null => {
   if (typeof window === "undefined") return null;
@@ -23,6 +24,7 @@ const saveTokens = (accessToken: string, refreshToken: string) => {
   if (typeof window === "undefined") return;
   window.localStorage.setItem("auth_token", accessToken);
   window.localStorage.setItem("refresh_token", refreshToken);
+  setAuthCookie(accessToken);
 };
 
 const saveUserMeta = (user: { id: string | number; username: string }) => {
@@ -37,7 +39,34 @@ const clearTokens = () => {
   window.localStorage.removeItem("refresh_token");
   window.localStorage.removeItem("auth_user_id");
   window.localStorage.removeItem("auth_username");
+  clearAuthCookie();
 };
+
+const resolveBackendMediaUrl = (value: string | undefined): string => {
+  const raw = value?.trim();
+  if (!raw) return "";
+  if (raw.startsWith("http://") || raw.startsWith("https://") || raw.startsWith("data:")) return raw;
+
+  const base = ENV.API_BASE_URL.replace(/\/$/, "");
+  const origin = base.endsWith("/api") ? base.slice(0, -4) : base;
+
+  if (raw.startsWith("/api/") || raw.startsWith("/uploads/")) {
+    return `${origin}${raw}`;
+  }
+
+  return raw.startsWith("/") ? `${origin}${raw}` : `${origin}/${raw}`;
+};
+
+const resolveProfileImage = (u: {
+  profile_picture?: string;
+  profileImageUrl?: string;
+  avatar_url?: string;
+  avatarUrl?: string;
+  picture?: string;
+}): string =>
+  resolveBackendMediaUrl(
+    u.profile_picture ?? u.profileImageUrl ?? u.avatar_url ?? u.avatarUrl ?? u.picture
+  );
 
 const normalizeUser = (u: {
   user_id: string;
@@ -45,12 +74,16 @@ const normalizeUser = (u: {
   account_type: string;
   is_premium: boolean;
   profile_picture?: string;
+  profileImageUrl?: string;
+  avatar_url?: string;
+  avatarUrl?: string;
+  picture?: string;
   email?: string;
 }): IUser => ({
   id: u.user_id,
   username: u.display_name,
   email: u.email ?? "",
-  profileImageUrl: u.profile_picture ?? "",
+  profileImageUrl: resolveProfileImage(u),
   createdAt: new Date().toISOString(),
 });
 
@@ -149,7 +182,11 @@ export const RealAuthService = {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ display_name: data.displayName }),
+      body: JSON.stringify({
+        display_name: data.displayName,
+        ...(data.bio      !== undefined && { bio: data.bio }),
+        ...(data.location !== undefined && { location: data.location }),
+      }),
     });
 
     if (!response.ok) {
@@ -224,7 +261,7 @@ export const RealAuthService = {
       id: data.user_id ?? data.id,
       username: data.display_name ?? data.username,
       email: data.email ?? "",
-      profileImageUrl: data.profile_picture ?? "",
+      profileImageUrl: resolveProfileImage(data),
       createdAt: data.created_at ?? "",
     };
   },

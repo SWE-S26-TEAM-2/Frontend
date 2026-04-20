@@ -95,6 +95,8 @@ export interface IUserProfileService {
   getFansAlsoLike(userId: string): Promise<IFanUser[]>;
   getFollowers(userId: string): Promise<IFollower[]>;
   getFollowing(userId: string): Promise<IFollowing[]>;
+  uploadAvatar(file: File): Promise<IUser>;
+  uploadCover(file: File): Promise<IUser>;
   followUser(userId: string): Promise<void>;
   unfollowUser(userId: string): Promise<void>;
   searchUsers(query: string): Promise<ISearchUser[]>;

@@ -195,6 +195,22 @@ export const mockUserProfileService: IUserProfileService = {
     return MOCK_FOLLOWING;
   },
 
+  async uploadAvatar(file: File): Promise<IUser> {
+    await delay(250);
+    const owner = MOCK_USERS.find((u) => u.isOwner);
+    if (!owner) throw new Error("Owner profile not found");
+    owner.avatarUrl = URL.createObjectURL(file);
+    return { ...owner };
+  },
+
+  async uploadCover(file: File): Promise<IUser> {
+    await delay(250);
+    const owner = MOCK_USERS.find((u) => u.isOwner);
+    if (!owner) throw new Error("Owner profile not found");
+    owner.headerUrl = URL.createObjectURL(file);
+    return { ...owner };
+  },
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async followUser(_userId: string): Promise<void> {
     await delay(200);

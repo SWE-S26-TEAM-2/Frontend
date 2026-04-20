@@ -35,6 +35,38 @@ const getAuthToken = () =>
 const getStoredUserId = () =>
   typeof window !== "undefined" ? window.localStorage.getItem("auth_user_id") : null;
 
+const resolveMediaUrl = (value: unknown): string | null => {
+  if (!value || typeof value !== "string") return null;
+  const raw = value.trim();
+  if (!raw) return null;
+  if (raw.startsWith("http://") || raw.startsWith("https://") || raw.startsWith("data:")) return raw;
+
+  const base = ENV.API_BASE_URL.replace(/\/$/, "");
+  const origin = base.endsWith("/api") ? base.slice(0, -4) : base;
+
+  if (raw.startsWith("/api/") || raw.startsWith("/uploads/")) {
+    return `${origin}${raw}`;
+  }
+
+  return raw.startsWith("/") ? `${origin}${raw}` : `${origin}/${raw}`;
+};
+
+const fetchWithTimeout = async (input: RequestInfo | URL, init: RequestInit, timeoutMs = 15000): Promise<Response> => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
+const addCacheBuster = (value: unknown): string | undefined => {
+  if (!value || typeof value !== "string") return undefined;
+  const ts = Date.now();
+  return value.includes("?") ? `${value}&v=${ts}` : `${value}?v=${ts}`;
+};
+
 function normalizeUser(d: Record<string, unknown>, requestedId: string): IUser {
   return {
     id: (d.user_id as string) ?? requestedId,
@@ -43,8 +75,8 @@ function normalizeUser(d: Record<string, unknown>, requestedId: string): IUser {
     bio: (d.bio as string) ?? undefined,
     role: ((d.account_type as string) === "artist" ? "artist" : "listener"),
     isPrivate: (d.is_private as boolean) ?? false,
-    avatarUrl: (d.profile_picture as string) ?? null,
-    headerUrl: (d.cover_photo as string) ?? null,
+    avatarUrl: resolveMediaUrl(d.profile_picture),
+    headerUrl: resolveMediaUrl(d.cover_photo),
     followers: (d.follower_count as number) ?? 0,
     following: (d.following_count as number) ?? 0,
     tracks: 0,
@@ -90,6 +122,60 @@ export const realUserProfileService: IUserProfileService = {
     const res = await fetch(`${ENV.API_BASE_URL}/users/${userId}/following`);
     if (!res.ok) return [];
     return res.json();
+  },
+
+  async uploadAvatar(file: File): Promise<IUser> {
+    const token = getAuthToken();
+    if (!token) throw new Error("You must be logged in to upload an avatar");
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetchWithTimeout(`${ENV.API_BASE_URL}/users/me/avatar`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({}));
+      throw new Error(error?.detail || "Failed to upload avatar");
+    }
+
+    const json = await res.json();
+    const data = (json.data ?? json) as Record<string, unknown>;
+    const bustedAvatar = addCacheBuster(data.profile_picture);
+    if (bustedAvatar) data.profile_picture = bustedAvatar;
+    return normalizeUser(data, (data.user_id as string) ?? getStoredUserId() ?? "");
+  },
+
+  async uploadCover(file: File): Promise<IUser> {
+    const token = getAuthToken();
+    if (!token) throw new Error("You must be logged in to upload a cover image");
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetchWithTimeout(`${ENV.API_BASE_URL}/users/me/cover`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({}));
+      throw new Error(error?.detail || "Failed to upload cover image");
+    }
+
+    const json = await res.json();
+    const data = (json.data ?? json) as Record<string, unknown>;
+    const bustedCover = addCacheBuster(data.cover_photo);
+    if (bustedCover) data.cover_photo = bustedCover;
+    return normalizeUser(data, (data.user_id as string) ?? getStoredUserId() ?? "");
   },
 
   async followUser(userId: string): Promise<void> {

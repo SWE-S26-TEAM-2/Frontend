@@ -7,6 +7,8 @@ export interface ILoginModalProps {
 
 export interface IBannerProps {
   user: IUser;
+  onUploadAvatar?: (file: File) => Promise<void>;
+  onUploadCover?: (file: File) => Promise<void>;
 }
 
 export interface IToggleProps {
