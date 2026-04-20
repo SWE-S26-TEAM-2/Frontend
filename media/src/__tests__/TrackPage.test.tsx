@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 import TrackPage from "@/app/(with-header)/track/[id]/page";
@@ -15,6 +15,7 @@ jest.mock("@/services", () => ({
 
 jest.mock("next/navigation", () => ({
   notFound: jest.fn(),
+  useParams: jest.fn(() => ({ id: "123" })),
 }));
 
 jest.mock("@/components/Track/TrackPlayer", () => {
@@ -39,6 +40,14 @@ jest.mock("@/components/Track/RelatedTracks", () => {
   }
   DummyRelatedTracks.displayName = "DummyRelatedTracks";
   return DummyRelatedTracks;
+});
+
+jest.mock("@/components/Track/CommentSection", () => {
+  function DummyCommentSection() {
+    return <div data-testid="comment-section" />;
+  }
+  DummyCommentSection.displayName = "DummyCommentSection";
+  return DummyCommentSection;
 });
 
 const mockedTrackService = trackService as jest.Mocked<typeof trackService>;
@@ -67,38 +76,45 @@ describe("TrackPage", () => {
     mockedTrackService.getById.mockResolvedValue(track);
     mockedTrackService.getRelated.mockResolvedValue([]);
 
-    await TrackPage({ params: Promise.resolve({ id: "123" }) });
+    render(<TrackPage />);
 
-    expect(mockedTrackService.getById).toHaveBeenCalledWith("123");
-    expect(mockedTrackService.getRelated).toHaveBeenCalledWith("123");
+    await waitFor(() => {
+      expect(mockedTrackService.getById).toHaveBeenCalledWith("123");
+      expect(mockedTrackService.getRelated).toHaveBeenCalledWith("123");
+    });
   });
 
   it("renders child sections when data fetch succeeds", async () => {
     mockedTrackService.getById.mockResolvedValue(track);
     mockedTrackService.getRelated.mockResolvedValue([track]);
 
-    const page = await TrackPage({ params: Promise.resolve({ id: "123" }) });
-    render(page);
+    render(<TrackPage />);
 
-    expect(screen.getByTestId("track-player")).toHaveTextContent("Test Track");
-    expect(screen.getByTestId("track-actions")).toHaveTextContent("123");
-    expect(screen.getByTestId("related-tracks")).toHaveTextContent("1");
+    await waitFor(() => {
+      expect(screen.getByTestId("track-player")).toHaveTextContent("Test Track");
+      expect(screen.getByTestId("track-actions")).toHaveTextContent("123");
+      expect(screen.getByTestId("related-tracks")).toHaveTextContent("1");
+    });
   });
 
   it("calls notFound when track does not exist", async () => {
     mockedTrackService.getById.mockResolvedValue(null as unknown as ITrack);
     mockedTrackService.getRelated.mockResolvedValue([]);
 
-    await TrackPage({ params: Promise.resolve({ id: "missing" }) });
+    render(<TrackPage />);
 
-    expect(mockedNotFound).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(mockedNotFound).toHaveBeenCalled();
+    });
   });
 
   it("calls notFound when service throws", async () => {
     mockedTrackService.getById.mockRejectedValue(new Error("network"));
 
-    await TrackPage({ params: Promise.resolve({ id: "123" }) });
+    render(<TrackPage />);
 
-    expect(mockedNotFound).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(mockedNotFound).toHaveBeenCalled();
+    });
   });
 });

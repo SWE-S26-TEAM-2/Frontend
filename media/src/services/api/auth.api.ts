@@ -158,15 +158,16 @@ export const RealAuthService = {
     }
 
     const json = await response.json();
+    const d = json.data ?? json;
 
     return {
       success: true,
       user: {
-        id: json.user_id ?? "",
-        username: json.display_name ?? data.displayName,
-        email: json.email ?? "",
-        profileImageUrl: json.profile_picture ?? "",
-        createdAt: json.created_at ?? new Date().toISOString(),
+        id: d.user_id ?? "",
+        username: d.display_name ?? data.displayName,
+        email: d.email ?? "",
+        profileImageUrl: d.profile_picture ?? "",
+        createdAt: d.created_at ?? new Date().toISOString(),
       },
     };
   },

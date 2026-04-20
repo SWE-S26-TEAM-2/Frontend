@@ -148,9 +148,9 @@ const SignOutIcon = () => (
 // ── Data ──────────────────────────────────────────────────────────────────────
 
 const NAV_ITEMS = [
-  { label: "Home",    href: "/" },
-  { label: "Feed",    href: "/feed" },
-  { label: "Library", href: "/library" },
+  { label: "Stream",   href: "/stream" },
+  { label: "Discover", href: "/discover" },
+  { label: "Library",  href: "/library" },
 ];
 
 const getAvatarMenu = (profileHref: string): IMenuItem[] => [
@@ -422,6 +422,12 @@ export default function Header({
             placeholder="Search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && query.trim()) {
+                router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+                setQuery("");
+              }
+            }}
             style={{
               width: "200px",
               height: "30px",
@@ -493,7 +499,10 @@ export default function Header({
             </div>
 
             {/* Bell */}
-            <button style={iconBtnStyle} aria-label="Notifications"
+            <button
+              style={iconBtnStyle}
+              aria-label="Notifications"
+              onClick={() => router.push("/notifications")}
               onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
               onMouseLeave={(e) => (e.currentTarget.style.color = "#999")}
             >
@@ -501,7 +510,10 @@ export default function Header({
             </button>
 
             {/* Mail */}
-            <button style={iconBtnStyle} aria-label="Messages"
+            <button
+              style={iconBtnStyle}
+              aria-label="Messages"
+              onClick={() => router.push("/messages")}
               onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
               onMouseLeave={(e) => (e.currentTarget.style.color = "#999")}
             >
