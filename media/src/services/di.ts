@@ -83,6 +83,11 @@ import { mockAdminService } from "./mocks/admin.mock";
 import { realAdminService } from "./api/admin.api";
 import type { IAdminService } from "@/types/admin.types";
 
+// insights
+import { mockInsightsService } from './mocks/insights.mock';
+import { realInsightsService } from './api/insights.api';
+import type { IInsightsService } from '@/types/insights.types';
+
 /**
  * Authentication Service
  * Automatically switches between mock and real based on USE_MOCK_API flag
@@ -235,6 +240,13 @@ export const serviceStatus = {
   mode: ENV.USE_MOCK_API ? "MOCK" : "REAL",
 };
 
+/**
+ * Insights Service
+ */
+export const insightsService: IInsightsService = ENV.USE_MOCK_API
+  ? mockInsightsService
+  : realInsightsService;
+
 // Export individual services for direct imports if needed
 export {
   RealAuthService,
@@ -249,4 +261,6 @@ export {
   realUserProfileService,
   mockUploadService,
   realUploadService,
+  mockInsightsService, 
+  realInsightsService
 };
