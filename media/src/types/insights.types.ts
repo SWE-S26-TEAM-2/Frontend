@@ -4,7 +4,30 @@ export type InsightTab = 'soundcloud' | 'all-platforms';
  
 export type InsightMetric = 'plays' | 'likes' | 'comments' | 'reposts' | 'downloads';
  
-export type InsightTimeRange = '7d' | '30d' | '90d' | '1y';
+export type InsightTimeRange = 'today' | '7d' | '30d' | '1y' | 'alltime';
+ 
+// ── Chart ─────────────────────────────────────────────────────────────────────
+ 
+export interface IInsightsChartBar {
+  label: string;   // x-axis label e.g. "Apr 14", "18:00", "May", "2024"
+  value: number;   // metric count for that bar
+  isCurrentPeriod: boolean; // true = orange bar
+}
+ 
+export interface IInsightsChartData {
+  bars: IInsightsChartBar[];
+}
+ 
+// ── Top Tracks ────────────────────────────────────────────────────────────────
+ 
+export interface IInsightsTopTrack {
+  id: string;
+  title: string;
+  plays: number;
+  artworkUrl?: string;
+}
+ 
+// ── Metric Data ───────────────────────────────────────────────────────────────
  
 export interface IInsightsMetricData {
   plays: number;
@@ -14,19 +37,22 @@ export interface IInsightsMetricData {
   downloads: number;
 }
  
+// ── API Response ──────────────────────────────────────────────────────────────
+ 
 export interface IInsightsData {
   metrics: IInsightsMetricData;
-  dateRangeLabel: string; // e.g. "Mar 21 - Apr 19"
+  chartData: Record<InsightMetric, IInsightsChartData>;
+  topTracks: IInsightsTopTrack[];
+  dateRangeLabel: string; // e.g. "Apr 14 - Apr 20", "Apr 2025 - Apr 2026", "2016 - Present"
 }
+ 
+// ── Service ───────────────────────────────────────────────────────────────────
  
 export interface IInsightsService {
   getInsights(timeRange: InsightTimeRange): Promise<IInsightsData>;
 }
  
-export interface IInsightsMetricPill {
-  metric: InsightMetric;
-  count: number;
-}
+// ── Component Props ───────────────────────────────────────────────────────────
  
 export interface IInsightsTabs {
   activeTab: InsightTab;
@@ -39,8 +65,25 @@ export interface IInsightsHeadlineStat {
   timeRange: InsightTimeRange;
 }
  
+export interface IInsightsMetricPillsProps {
+  metrics: IInsightsMetricData;
+  activeMetric: InsightMetric;
+  onMetricChange: (metric: InsightMetric) => void;
+}
+ 
 export interface IInsightsEmptyState {
-  onSwitchToYearly: () => void;
+  timeRange: InsightTimeRange;
+  onSwitchRange: (range: InsightTimeRange) => void;
+}
+ 
+export interface IInsightsChartProps {
+  chartData: IInsightsChartData;
+}
+ 
+export interface IInsightsTimeRangeDropdown {
+  activeRange: InsightTimeRange;
+  onRangeChange: (range: InsightTimeRange) => void;
+  onClose: () => void;
 }
  
 export interface IInsightsPremiumCard {
@@ -49,5 +92,6 @@ export interface IInsightsPremiumCard {
 }
  
 export interface IInsightsTopTracksCard {
+  tracks: IInsightsTopTrack[];
   timeRangeLabel: string;
 }

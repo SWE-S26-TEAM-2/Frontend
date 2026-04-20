@@ -2,35 +2,82 @@
 
 // src/components/Insights/InsightsTopTracksCard.tsx
 
+import Image from 'next/image';
 import type { IInsightsTopTracksCard } from '@/types/insights.types';
 
-const SKELETON_ROWS = [
-  { titleWidth: 'w-32', subtitleWidth: 'w-44' },
-  { titleWidth: 'w-36', subtitleWidth: 'w-40' },
-  { titleWidth: 'w-28', subtitleWidth: 'w-36' },
-];
-
-export default function InsightsTopTracksCard({ timeRangeLabel }: IInsightsTopTracksCard) {
+export default function InsightsTopTracksCard({ tracks, timeRangeLabel }: IInsightsTopTracksCard) {
   return (
     <div className="flex flex-col rounded-lg border border-[#2a2a2a] bg-[#181818] overflow-hidden">
       {/* Card body */}
       <div className="flex-1 p-6">
-        <h2 className="text-white text-lg font-bold mb-1">Top tracks</h2>
+        <div className="flex items-center justify-between mb-1">
+          <h2 className="text-white text-lg font-bold">Top tracks</h2>
+          <button
+            type="button"
+            className="text-[#999] text-sm hover:text-white transition-colors font-semibold"
+          >
+            See all
+          </button>
+        </div>
+
         <p className="text-[#999] text-sm mb-5">{timeRangeLabel}</p>
 
-        <div className="flex flex-col gap-4">
-          {SKELETON_ROWS.map((row, i) => (
-            <div key={i} className="flex items-center gap-4">
-              {/* Artwork skeleton */}
-              <div className="shrink-0 w-12 h-12 rounded-sm bg-[#2a2a2a]" aria-hidden="true" />
-              {/* Text skeletons */}
-              <div className="flex flex-col gap-2">
-                <div className={`h-3 rounded bg-[#2a2a2a] ${row.titleWidth}`} aria-hidden="true" />
-                <div className={`h-2.5 rounded bg-[#222] ${row.subtitleWidth}`} aria-hidden="true" />
+        {tracks.length === 0 ? (
+          <p className="text-[#555] text-sm">No track data for this period.</p>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {tracks.map((track) => (
+              <div key={track.id} className="flex items-center gap-4">
+                {/* Artwork */}
+                <div className="shrink-0 w-12 h-12 rounded-sm bg-[#2a2a2a] overflow-hidden relative">
+                  {track.artworkUrl ? (
+                    <Image
+                      src={track.artworkUrl}
+                      alt={track.title}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#555"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M9 18V5l12-2v13" />
+                        <circle cx="6" cy="18" r="3" />
+                        <circle cx="18" cy="16" r="3" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+
+                {/* Info */}
+                <div className="flex flex-col min-w-0">
+                  <p className="text-white text-sm font-semibold truncate">{track.title}</p>
+                  <div className="flex items-center gap-1 text-[#999] text-xs mt-0.5">
+                    <svg
+                      width="11"
+                      height="11"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <polygon points="5,3 19,12 5,21" />
+                    </svg>
+                    <span>{track.plays} plays</span>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Footer */}

@@ -4,25 +4,36 @@
 
 import type { IInsightsHeadlineStat, InsightTimeRange } from '@/types/insights.types';
 
-const TIME_RANGE_LABELS: Record<InsightTimeRange, string> = {
-  '7d': 'last 7 days',
-  '30d': 'last 30 days',
-  '90d': 'last 90 days',
-  '1y': 'last 12 months',
-};
+function buildHeadlineText(metric: string, count: number, timeRange: InsightTimeRange): string {
+  switch (timeRange) {
+    case 'today':
+      return `${count} ${metric} today`;
+    case '7d':
+      return `${count} ${metric} in the last 7 days`;
+    case '30d':
+      return `${count} ${metric} in the last 30 days`;
+    case '1y':
+      return `${count} ${metric} in the last 12 months`;
+    case 'alltime':
+      return `${count} ${metric} since 2016`;
+    default:
+      return `${count} ${metric}`;
+  }
+}
 
 export default function InsightsHeadlineStat({
   metric,
   count,
   timeRange,
 }: IInsightsHeadlineStat) {
-  const rangeLabel = TIME_RANGE_LABELS[timeRange];
+  const text = buildHeadlineText(metric, count, timeRange);
 
   return (
     <h1 className="text-4xl font-bold text-white leading-tight">
-      {count.toLocaleString()} {metric}{' '}
-      <span className="font-bold">in the {rangeLabel}</span>{' '}
-      <span className="text-[#999] font-bold">(0%)</span>
+      {text}
+      {count === 0 && (
+        <span className="text-[#999] font-bold"> (0%)</span>
+      )}
     </h1>
   );
 }

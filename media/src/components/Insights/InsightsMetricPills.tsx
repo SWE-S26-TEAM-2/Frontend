@@ -2,13 +2,7 @@
 
 // src/components/Insights/InsightsMetricPills.tsx
 
-import type { InsightMetric, IInsightsMetricData } from '@/types/insights.types';
-
-interface IInsightsMetricPillsProps {
-  metrics: IInsightsMetricData;
-  activeMetric: InsightMetric;
-  onMetricChange: (metric: InsightMetric) => void;
-}
+import type { InsightMetric, IInsightsMetricData, IInsightsMetricPillsProps } from '@/types/insights.types';
 
 type PillConfig = {
   metric: InsightMetric;
@@ -70,10 +64,10 @@ const PILL_CONFIGS: PillConfig[] = [
 ];
 
 const METRIC_KEYS: Record<InsightMetric, keyof IInsightsMetricData> = {
-  plays: 'plays',
-  likes: 'likes',
-  comments: 'comments',
-  reposts: 'reposts',
+  plays:     'plays',
+  likes:     'likes',
+  comments:  'comments',
+  reposts:   'reposts',
   downloads: 'downloads',
 };
 

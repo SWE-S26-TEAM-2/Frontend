@@ -5,18 +5,18 @@
 import type { IInsightsPremiumCard, InsightMetric } from '@/types/insights.types';
 
 const CARD_TITLES: Record<InsightMetric, string> = {
-  plays: 'Top listeners',
-  likes: 'Who liked',
-  comments: 'Who commented',
-  reposts: 'Who reposted',
+  plays:     'Top listeners',
+  likes:     'Who liked',
+  comments:  'Who commented',
+  reposts:   'Who reposted',
   downloads: 'Who downloaded',
 };
 
 const CARD_UPGRADE_TEXT: Record<InsightMetric, string> = {
-  plays: 'Know who your fans are—see your top listeners with Artist Pro.',
-  likes: 'Know who your fans are—see who liked your tracks with Artist Pro.',
-  comments: 'Know who your fans are—see who commented on your tracks with Artist Pro.',
-  reposts: 'Know who your fans are—see who reposted your tracks with Artist Pro.',
+  plays:     'Know who your fans are—see your top listeners with Artist Pro.',
+  likes:     'Know who your fans are—see who liked your tracks with Artist Pro.',
+  comments:  'Know who your fans are—see who commented on your tracks with Artist Pro.',
+  reposts:   'Know who your fans are—see who reposted your tracks with Artist Pro.',
   downloads: 'Know who your fans are—see who downloaded your tracks with Artist Pro.',
 };
 
@@ -26,10 +26,7 @@ const SKELETON_ROWS = [
   { nameWidth: 'w-32', subWidth: 'w-28' },
 ];
 
-export default function InsightsPremiumCard({
-  metric,
-  timeRangeLabel,
-}: IInsightsPremiumCard) {
+export default function InsightsPremiumCard({ metric, timeRangeLabel }: IInsightsPremiumCard) {
   const title = CARD_TITLES[metric];
   const upgradeText = CARD_UPGRADE_TEXT[metric];
 
@@ -37,7 +34,6 @@ export default function InsightsPremiumCard({
     <div className="flex flex-col rounded-lg border border-[#2a2a2a] bg-[#181818] overflow-hidden">
       {/* Card body */}
       <div className="flex-1 p-6">
-        {/* Header */}
         <div className="flex items-center justify-between mb-1">
           <h2 className="text-white text-lg font-bold">{title}</h2>
           <button
@@ -59,9 +55,7 @@ export default function InsightsPremiumCard({
         <div className="flex flex-col gap-4">
           {SKELETON_ROWS.map((row, i) => (
             <div key={i} className="flex items-center gap-4">
-              {/* Avatar skeleton */}
               <div className="shrink-0 w-12 h-12 rounded-full bg-[#2a2a2a]" aria-hidden="true" />
-              {/* Text skeletons */}
               <div className="flex flex-col gap-2">
                 <div className={`h-3 rounded bg-[#2a2a2a] ${row.nameWidth}`} aria-hidden="true" />
                 <div className={`h-2.5 rounded bg-[#222] ${row.subWidth}`} aria-hidden="true" />
