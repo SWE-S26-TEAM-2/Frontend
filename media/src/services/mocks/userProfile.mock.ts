@@ -8,7 +8,7 @@ import { seededWaveform } from "@/utils/seededWaveform";
 import type { ITrack } from "@/types/track.types";
 import type {
   IUserProfileService, IUser, IUserProfileTrack, ILikedTrack,
-  IFanUser, IFollower, IFollowing,
+  IFanUser, IFollower, IFollowing, ISearchUser,
 } from "@/types/userProfile.types";
 
 const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
@@ -195,4 +195,28 @@ export const mockUserProfileService: IUserProfileService = {
     return MOCK_FOLLOWING;
   },
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async followUser(_userId: string): Promise<void> {
+    await delay(200);
+  },
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async unfollowUser(_userId: string): Promise<void> {
+    await delay(200);
+  },
+
+  async searchUsers(query: string): Promise<ISearchUser[]> {
+    await delay(250);
+    const q = query.toLowerCase();
+    return MOCK_USERS
+      .filter((u) => u.username.toLowerCase().includes(q))
+      .map((u) => ({
+        id: u.id,
+        username: u.username,
+        role: u.role,
+        avatarUrl: u.avatarUrl,
+        followerCount: u.followers,
+        isVerified: false,
+      }));
+  },
 };

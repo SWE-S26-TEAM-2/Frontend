@@ -1,83 +1,62 @@
-import { ITrack, ITrackListResponse } from "@/types/track.types";
-import { ITrackService } from "@/types/track.types";
+import type { ITrack, ITrackListResponse, ITrackService } from "@/types/track.types";
 import { ENV } from "@/config/env";
+import { apiGet } from "./apiClient";
+import { unsupportedApiFeature } from "./apiMode";
+
+function normalizeTrack(d: Record<string, unknown>): ITrack {
+  return {
+    id: (d.track_id ?? d.id) as string,
+    title: d.title as string,
+    artist: (d.artist ?? d.user_id ?? "") as string,
+    albumArt: (d.artwork_url ?? d.albumArt ?? "") as string,
+    genre: d.genre as string | undefined,
+    url: (d.file_url ?? d.url ?? "") as string,
+    duration: (d.duration ?? 0) as number,
+    likes: (d.likes ?? 0) as number,
+    plays: (d.plays ?? 0) as number,
+    commentsCount: (d.comments_count ?? d.commentsCount ?? 0) as number,
+    isLiked: (d.is_liked ?? d.isLiked ?? false) as boolean,
+    createdAt: (d.created_at ?? d.createdAt ?? new Date().toISOString()) as string,
+    updatedAt: (d.updated_at ?? d.updatedAt ?? new Date().toISOString()) as string,
+  };
+}
 
 export const realTrackService: ITrackService = {
-  async getAll(): Promise<ITrack[]> {
-    const res = await fetch(`${ENV.API_BASE_URL}/tracks`);
-
-    if (!res.ok) throw new Error("Failed to fetch tracks");
-
-    const data = await res.json();
-    return data.items ?? data;
-  },
-
-  async getAllPaginated(
-    page: number = 1,
-    pageSize: number = 10
-  ): Promise<ITrackListResponse> {
-    const res = await fetch(
-      `${ENV.API_BASE_URL}/tracks?page=${page}&pageSize=${pageSize}`
-    );
-
-    if (!res.ok) throw new Error("Failed to fetch tracks");
-
-    return res.json();
-  },
-
   async getById(id: string): Promise<ITrack> {
-    const res = await fetch(`${ENV.API_BASE_URL}/tracks/${id}`);
-
-    if (!res.ok) {
-      throw new Error("Track not found"); 
-    }
-
-    const data = await res.json();
-
-    return data.track ?? data; // normalize
-  },
-
-  async getByGenre(genre: string): Promise<ITrack[]> {
-    const res = await fetch(
-      `${ENV.API_BASE_URL}/tracks?genre=${encodeURIComponent(genre)}`
-    );
-
-    if (!res.ok) throw new Error("Failed to fetch tracks");
-
-    const data = await res.json();
-    return data.items ?? data;
+    const data = await apiGet<Record<string, unknown>>(`${ENV.API_BASE_URL}/tracks/${id}`);
+    return normalizeTrack(data);
   },
 
   async search(query: string): Promise<ITrack[]> {
-    const res = await fetch(
-      `${ENV.API_BASE_URL}/tracks/search?q=${encodeURIComponent(query.trim())}`
+    const data = await apiGet<{ tracks: Record<string, unknown>[] }>(
+      `${ENV.API_BASE_URL}/search/tracks?keyword=${encodeURIComponent(query.trim())}`
     );
-
-    if (!res.ok) throw new Error("Search failed");
-
-    const data = await res.json();
-    return data.items ?? data;
+    return (data.tracks ?? []).map(normalizeTrack);
   },
 
-  async getTrending(limit: number = 10): Promise<ITrack[]> {
-    const res = await fetch(
-      `${ENV.API_BASE_URL}/tracks/trending?limit=${limit}`
-    );
-
-    if (!res.ok) throw new Error("Failed to fetch trending");
-
-    const data = await res.json();
-    return data.items ?? data;
+  async getAll(): Promise<ITrack[]> {
+    unsupportedApiFeature("trackService.getAll()");
   },
 
-  async getRelated(trackId: string, limit: number = 5): Promise<ITrack[]> {
-    const res = await fetch(
-      `${ENV.API_BASE_URL}/tracks/${trackId}/related?limit=${limit}`
-    );
+  async getAllPaginated(page = 1, pageSize = 10): Promise<ITrackListResponse> {
+    void page;
+    void pageSize;
+    unsupportedApiFeature("trackService.getAllPaginated()");
+  },
 
-    if (!res.ok) return [];
+  async getByGenre(genre: string): Promise<ITrack[]> {
+    void genre;
+    unsupportedApiFeature("trackService.getByGenre()");
+  },
 
-    const data = await res.json();
-    return data.items ?? data;
+  async getTrending(limit = 10): Promise<ITrack[]> {
+    void limit;
+    unsupportedApiFeature("trackService.getTrending()");
+  },
+
+  async getRelated(trackId: string, limit = 5): Promise<ITrack[]> {
+    void trackId;
+    void limit;
+    unsupportedApiFeature("trackService.getRelated()");
   },
 };
