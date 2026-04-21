@@ -96,3 +96,7 @@ export interface IUpdateProfileResponse {
 export interface IResendVerificationResponse {
   success: boolean;
 }
+
+export interface IVerifyEmailResponse {
+  success: boolean;
+}

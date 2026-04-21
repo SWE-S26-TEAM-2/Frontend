@@ -7,6 +7,7 @@ import {
   IUpdateProfileRequest,
   IUpdateProfileResponse,
   IResendVerificationResponse,
+  IVerifyEmailResponse,
 } from "@/types/auth.types";
 import { clearAuthCookie, setAuthCookie } from "@/lib/authCookie";
 
@@ -170,9 +171,29 @@ export const RealAuthService = {
     };
   },
 
-  // POST /auth/check-email not implemented in backend yet — returns safe default
-  checkEmail: async (_emailOrProfileUrl: string): Promise<ICheckEmailResponse> => {
-    return { isExisting: false };
+  checkEmail: async (emailOrProfileUrl: string): Promise<ICheckEmailResponse> => {
+    const response = await fetch(apiUrl("/auth/check-email"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: emailOrProfileUrl }),
+    });
+
+    // Some deployments do not expose this endpoint yet.
+    // Fall back to registration flow instead of blocking auth UX.
+    if (response.status === 404) {
+      return { isExisting: false };
+    }
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error?.detail || "Failed to check account status");
+    }
+
+    const json = await response.json();
+    const data = json.data ?? json;
+    return {
+      isExisting: Boolean(data?.isExisting ?? data?.is_existing),
+    };
   },
 
   updateProfile: async (data: IUpdateProfileRequest): Promise<IUpdateProfileResponse> => {
@@ -221,6 +242,21 @@ export const RealAuthService = {
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
       throw new Error(error?.detail || "Failed to resend verification email");
+    }
+
+    return { success: true };
+  },
+
+  verifyEmail: async (email: string, token: string): Promise<IVerifyEmailResponse> => {
+    const response = await fetch(apiUrl("/auth/verify-email"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, token }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error?.detail || "Invalid or expired code.");
     }
 
     return { success: true };
