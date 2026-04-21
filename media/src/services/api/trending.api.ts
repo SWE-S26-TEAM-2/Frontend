@@ -1,20 +1,20 @@
-import { ITrack } from "../../types/track.types";
-import { MOCK_CURATED, MOCK_EMERGING, MOCK_POWER } from "../mocks/trending.mock";
+import { ITrack } from "@/types/track.types";
+import { ENV } from "@/config/env";
 
-// Simulating a network delay for a professional feel
-const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
-
-export const getCuratedTracks = async (): Promise<ITrack[]> => {
-  await delay(300); 
-  return MOCK_CURATED;
+export const getCuratedTracksAPI = async (): Promise<ITrack[]> => {
+  const res = await fetch(`${ENV.API_BASE_URL}/tracks/curated`);
+  if (!res.ok) throw new Error("Failed curated tracks");
+  return res.json();
 };
 
-export const getEmergingTracks = async (): Promise<ITrack[]> => {
-  await delay(300);
-  return MOCK_EMERGING;
+export const getEmergingTracksAPI = async (): Promise<ITrack[]> => {
+  const res = await fetch(`${ENV.API_BASE_URL}/tracks/emerging`);
+  if (!res.ok) throw new Error("Failed emerging tracks");
+  return res.json();
 };
 
-export const getPowerPlaylists = async (): Promise<ITrack[]> => {
-  await delay(300);
-  return MOCK_POWER;
+export const getPowerPlaylistsAPI = async (): Promise<ITrack[]> => {
+  const res = await fetch(`${ENV.API_BASE_URL}/tracks/power`);
+  if (!res.ok) throw new Error("Failed power playlists");
+  return res.json();
 };

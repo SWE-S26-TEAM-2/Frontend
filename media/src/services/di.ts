@@ -154,3 +154,23 @@ export {
   mockUploadService,
   realUploadService,
 };
+
+
+// trending
+import {
+  getCuratedTracks,
+  getEmergingTracks,
+  getPowerPlaylists,
+} from "./mocks/trending.mock"; 
+
+import {
+  getCuratedTracksAPI,
+  getEmergingTracksAPI,
+  getPowerPlaylistsAPI,
+} from "./api/trending.api";
+
+export const trendingService = {
+  getCurated: ENV.USE_MOCK_API ? getCuratedTracks : getCuratedTracksAPI,
+  getEmerging: ENV.USE_MOCK_API ? getEmergingTracks : getEmergingTracksAPI,
+  getPower: ENV.USE_MOCK_API ? getPowerPlaylists : getPowerPlaylistsAPI,
+};

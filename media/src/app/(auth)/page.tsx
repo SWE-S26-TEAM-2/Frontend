@@ -10,6 +10,7 @@ import HoverButton from "@/components/HoverButton/HoverButton";
 import { LandingApiService } from "@/services/api/landing.api";
 import { ILandingData } from "@/types/landing.types";
 import type { ITrack } from "@/types/track.types";
+import TrackSlider from "@/components/Track/TrackSlider";
 
 export default function Home() {
   const router = useRouter();
@@ -20,7 +21,7 @@ export default function Home() {
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.localStorage.getItem("auth_token")) {
-      router.push("/discover"); 
+      router.push("/discover");
     }
     LandingApiService.getLandingData().then(setContent);
     LandingApiService.getTrendingTracks().then(setTracks);
@@ -31,71 +32,71 @@ export default function Home() {
   return (
     <>
       {isModalOpen && <LoginModal onClose={() => setIsModalOpen(false)} />}
-      
-      <div className="bg-[#141212] min-h-screen flex justify-center text-white pb-20 selection:bg-orange-500 selection:text-white">
-        <main className="p-12 w-full max-w-[1400px]">
-          <div className="flex flex-col items-center relative"> {/* Added relative here */}
-            
-            {/* --- HEADER (Now Absolute to sit ON the slider) --- */}
-            <header className="absolute top-6 w-[1100px] flex justify-between items-center z-50 px-4">
-              <div className="flex items-center gap-2">
-                <Image src="/logo1.png" alt="Logo" width={45} height={45} className="brightness-110" />
-                <h1 className="text-2xl font-black tracking-tighter uppercase text-white">SoundCloud</h1>
-              </div>
-              <div className="flex gap-3">
-                <HoverButton 
-                  className="px-5 py-1.5 bg-white text-black rounded font-bold border-none text-sm"
-                  onClick={() => setIsModalOpen(true)}
-                >
-                  Sign in
-                </HoverButton>
-                <HoverButton 
-                  className="px-5 py-1.5 bg-black text-white border-none border-gray-600 rounded font-bold text-sm"
-                  onClick={() => setIsModalOpen(true)}
-                >
-                  Create account
-                </HoverButton>
-              </div>
-            </header>
 
-            <SlideShow />
+      <div className="bg-[#141212] min-h-screen flex justify-center text-white pb-20 selection:bg-orange-500 selection:text-white">
+        <main className="px-6 md:px-12 py-10 w-full max-w-[1400px]">
+
+
+          <div className="flex flex-col items-center">
+            <div className="relative w-full flex justify-center">
+              <SlideShow />
+            </div>
 
             {/* Search Input Area */}
-            <div className="mt-10 flex items-center gap-5">
-              <div className="relative group">
-                <input
-                  type="text"
-                  placeholder="Search for artists, bands, tracks..."
-                  className="w-[650px] h-[55px] rounded-md bg-[#222] border border-transparent focus:border-gray-500 focus:bg-[#333] transition-all px-6 text-lg outline-none"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)} 
-                />
-                {searchQuery && (
-                  <div className="absolute top-[65px] w-full bg-[#1a1a1a] rounded-lg border border-gray-800 z-50 p-2 shadow-2xl">
-                    {tracks
-                      .filter(t => t.title.toLowerCase().includes(searchQuery.toLowerCase()))
-                      .map(t => (
-                        <div key={`${t.id}-${t.title}`} className="p-4 hover:bg-[#333] rounded-md cursor-pointer flex justify-between items-center transition-colors">
-                          <span className="font-semibold">{t.title}</span>
-                          <span className="text-xs text-gray-500 uppercase tracking-widest">{t.artist}</span>
-                        </div>
-                      ))}
-                  </div>
-                )}
-              </div>
-              <span className="text-xl font-light italic text-gray-500">or</span>
-              <HoverButton 
-                onClick={() => router.push('/Upload')} 
-                className="h-[55px] px-[35px] bg-white text-black rounded-md font-bold text-[1.1rem] border-none"
-              >
-                Upload your own
-              </HoverButton>
-            </div>
+            <div className="mt-10 w-full flex justify-center">
+  
+  <div className="flex items-center gap-3 w-full max-w-[780px]">
+
+    {/* Search Input */}
+    <div className="flex-1 h-[52px] bg-[#222] rounded-md border border-transparent focus-within:border-gray-500 transition-all flex items-center px-4">
+      <input
+        type="text"
+        placeholder="Search for artists, bands, tracks..."
+        className="w-full bg-transparent outline-none text-[16px] text-white placeholder:text-gray-500"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+      />
+
+      <div className="text-gray-400 flex items-center justify-center pointer-events-none">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="11" cy="11" r="8" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </svg>
+  </div>
+    </div>
+
+    {/* Upload Button */}
+    <HoverButton
+      onClick={() => router.push('/Upload')}
+      className="h-[52px] px-6 bg-white text-black rounded-md font-bold whitespace-nowrap flex items-center justify-center text-[15px]"
+    >
+      Upload your own
+    </HoverButton>
+
+  </div>
+</div>
 
             <section className="mt-16 text-center">
               <h2 className="text-3xl font-medium mb-8">{content.trendingTagline}</h2>
-              <HoverButton 
-                onClick={() => router.push('/discover')} 
+
+
+<TrackSlider
+  title=""
+  subtitle=""
+  tracks={tracks}
+  showFollow={true}
+/>
+              <HoverButton
+                onClick={() => router.push('/discover')}
                 className="px-10 py-[14px] bg-white text-black rounded font-bold text-base border-none"
               >
                 Explore trending playlists
@@ -103,33 +104,36 @@ export default function Home() {
             </section>
 
             {/* --- ZERO GAP IMAGE SECTION --- */}
-            <div className="mt-20 w-[1200px] flex flex-col">
-               {/* Top Image (Ad) */}
-               <Image 
-                  src="/ad.png" 
-                  alt="Ad" 
-                  width={1200} 
-                  height={200} 
-                  className="w-full rounded-t-lg shadow-lg hover:brightness-110 transition-all cursor-pointer block" 
-               />
-               
-               {/* Bottom Image (Creator Section) - Margin set to 0 to remove gap */}
-               <div className="relative w-full rounded-b-xl overflow-hidden shadow-2xl">
-                  <Image src="/beffooter.png" alt="Creator Background" width={1200} height={450} className="w-full object-cover block" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent flex flex-col justify-center px-16">
-                    <h2 className="text-5xl font-bold mb-4">{content.creatorSection.title}</h2>
-                    <p className="text-xl max-w-[500px] mb-8 text-gray-200 leading-relaxed font-semibold">
-                      {content.creatorSection.text}
-                    </p>
-                    <HoverButton className="px-8 py-3 bg-white text-black rounded font-bold w-fit border-none">
-                      {content.creatorSection.button}
-                    </HoverButton>
-                  </div>
-               </div>
+            <div className="mt-20 w-full max-w-[1200px] mx-auto flex flex-col px-4 md:px-0">               {/* Top Image (Ad) */}
+              <Image
+                src="/ad.png"
+                alt="Ad"
+                width={1200}
+                height={200}
+                className="w-full h-auto rounded-t-lg shadow-lg hover:brightness-110 transition-all cursor-pointer block"
+              />
+
+              {/* Bottom Image (Creator Section) - Margin set to 0 to remove gap */}
+              <div className="relative w-full rounded-b-xl overflow-hidden shadow-2xl">
+                <Image
+                  src="/beffooter.png"
+                  alt="Creator Background"
+                  width={1200}
+                  height={450}
+                  className="w-full h-auto object-cover block"
+                />                  <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent flex flex-col justify-center px-16">
+                  <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">{content.creatorSection.title}</h2>
+                  <p className="text-sm md:text-base lg:text-xl max-w-[500px] mb-8 text-gray-200 leading-relaxed font-semibold">                      {content.creatorSection.text}
+                  </p>
+                  <HoverButton className="px-8 py-3 bg-white text-black rounded font-bold w-fit border-none">
+                    {content.creatorSection.button}
+                  </HoverButton>
+                </div>
+              </div>
             </div>
 
             {/* CTA SECTION */}
-            <section className="flex flex-col items-center py-24 text-center">
+            <section className="flex flex-col items-center py-28 text-center">
               <h1 className="text-4xl font-semibold mb-4 tracking-tight">
                 Thanks for listening. Now join in.
               </h1>

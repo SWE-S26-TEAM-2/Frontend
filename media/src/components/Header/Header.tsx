@@ -298,6 +298,7 @@ export default function Header({
         fontFamily: "'Helvetica Neue', Arial, sans-serif",
       }}
     >
+      
       <div style={{ display: "flex", alignItems: "center", gap: "4px", width: "100%", maxWidth: "1280px" }}>
 
         {/* Logo */}
@@ -451,3 +452,4 @@ export default function Header({
     </header>
   );
 } 
+

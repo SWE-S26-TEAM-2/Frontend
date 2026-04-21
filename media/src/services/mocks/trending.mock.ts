@@ -36,4 +36,20 @@ export const MOCK_POWER: ITrack[] = [
   { id: "15", title: "Party Anthems", artist: "Various Artists", albumArt: "/test.png", ...mockMetadata },
 ];
 
-// ... (DOTS_MENU_DATA remains the same)
+// Simulated delay
+const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+export const getCuratedTracks = async () => {
+  await delay(300);
+  return MOCK_CURATED;
+};
+
+export const getEmergingTracks = async () => {
+  await delay(300);
+  return MOCK_EMERGING;
+};
+
+export const getPowerPlaylists = async () => {
+  await delay(300);
+  return MOCK_POWER;
+};
