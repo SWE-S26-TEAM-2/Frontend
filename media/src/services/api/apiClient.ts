@@ -3,7 +3,7 @@
  * Handles: Bearer token injection, {success, data} envelope unwrapping, 401 auto-refresh.
  */
 
-import { ENV } from "@/config/env";
+import { ENV, normalizeApiUrl } from "@/config/env";
 import { clearAuthCookie, setAuthCookie } from "@/lib/authCookie";
 
 // ── Token helpers (SSR-safe) ────────────────────────────────────────────────
@@ -35,7 +35,7 @@ async function doRefresh(): Promise<string> {
   if (isRefreshing) throw new Error("Already refreshing");
   isRefreshing = true;
   try {
-    const res = await fetch(`${ENV.API_BASE_URL}/auth/refresh`, {
+    const res = await fetch(normalizeApiUrl(`${ENV.API_BASE_URL}/auth/refresh`), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ refresh_token: getRefreshToken() }),
@@ -57,6 +57,7 @@ interface IApiOptions extends RequestInit {
 
 async function request<T>(url: string, options: IApiOptions = {}): Promise<T> {
   const { skipAuth = false, headers: extraHeaders, ...rest } = options;
+  const requestUrl = normalizeApiUrl(url);
 
   const buildHeaders = (token: string | null): Record<string, string> => {
     const h: Record<string, string> = {};
@@ -70,13 +71,13 @@ async function request<T>(url: string, options: IApiOptions = {}): Promise<T> {
 
   // First attempt
   let token = getAccessToken();
-  let res = await fetch(url, { ...rest, headers: buildHeaders(token) });
+  let res = await fetch(requestUrl, { ...rest, headers: buildHeaders(token) });
 
   // Auto-refresh on 401
   if (res.status === 401 && !skipAuth) {
     try {
       token = await doRefresh();
-      res = await fetch(url, { ...rest, headers: buildHeaders(token) });
+      res = await fetch(requestUrl, { ...rest, headers: buildHeaders(token) });
     } catch {
       clearTokens();
       // Redirect to login if in browser

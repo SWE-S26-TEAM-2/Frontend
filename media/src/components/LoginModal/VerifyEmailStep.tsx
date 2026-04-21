@@ -4,7 +4,7 @@ import { useState } from "react";
 import { FaGoogle } from "react-icons/fa";
 import { IoMdMail } from "react-icons/io";
 import { AuthService } from "@/services";
-import { ENV } from "@/config/env";
+import { getApiBaseUrl, normalizeApiUrl } from "@/config/env";
 
 export default function VerifyEmailStep({
   email,
@@ -30,7 +30,7 @@ export default function VerifyEmailStep({
     try {
       setIsVerifying(true);
       setVerifyError("");
-      const res = await fetch(`${ENV.API_BASE_URL}/auth/verify-email`, {
+      const res = await fetch(normalizeApiUrl(`${getApiBaseUrl()}/auth/verify-email`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: code.trim() }),

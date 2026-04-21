@@ -1,4 +1,4 @@
-import { ENV } from "../../config/env";
+import { getApiBaseUrl, normalizeApiUrl } from "../../config/env";
 import {
   ILoginResponse,
   IUser,
@@ -9,6 +9,8 @@ import {
   IResendVerificationResponse,
 } from "@/types/auth.types";
 import { clearAuthCookie, setAuthCookie } from "@/lib/authCookie";
+
+const apiUrl = (path: string): string => normalizeApiUrl(`${getApiBaseUrl()}${path}`);
 
 const getAccessToken = (): string | null => {
   if (typeof window === "undefined") return null;
@@ -47,7 +49,7 @@ const resolveBackendMediaUrl = (value: string | undefined): string => {
   if (!raw) return "";
   if (raw.startsWith("http://") || raw.startsWith("https://") || raw.startsWith("data:")) return raw;
 
-  const base = ENV.API_BASE_URL.replace(/\/$/, "");
+  const base = getApiBaseUrl().replace(/\/$/, "");
   const origin = base.endsWith("/api") ? base.slice(0, -4) : base;
 
   if (raw.startsWith("/api/") || raw.startsWith("/uploads/")) {
@@ -89,7 +91,7 @@ const normalizeUser = (u: {
 
 export const RealAuthService = {
   login: async (emailOrProfileUrl: string, password: string): Promise<ILoginResponse> => {
-    const response = await fetch(`${ENV.API_BASE_URL}/auth/login`, {
+    const response = await fetch(apiUrl("/auth/login"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: emailOrProfileUrl, password }),
@@ -111,7 +113,7 @@ export const RealAuthService = {
   },
 
   googleLogin: async (token: string): Promise<ILoginResponse> => {
-    const response = await fetch(`${ENV.API_BASE_URL}/auth/google`, {
+    const response = await fetch(apiUrl("/auth/google"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ google_token: token }),
@@ -137,7 +139,7 @@ export const RealAuthService = {
       ? emailOrProfileUrl.split("@")[0]
       : emailOrProfileUrl;
 
-    const response = await fetch(`${ENV.API_BASE_URL}/auth/register`, {
+    const response = await fetch(apiUrl("/auth/register"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -176,7 +178,7 @@ export const RealAuthService = {
   updateProfile: async (data: IUpdateProfileRequest): Promise<IUpdateProfileResponse> => {
     const token = getAccessToken();
 
-    const response = await fetch(`${ENV.API_BASE_URL}/users/me`, {
+    const response = await fetch(apiUrl("/users/me"), {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -210,7 +212,7 @@ export const RealAuthService = {
   },
 
   resendVerification: async (email: string): Promise<IResendVerificationResponse> => {
-    const response = await fetch(`${ENV.API_BASE_URL}/auth/resend-verification`, {
+    const response = await fetch(apiUrl("/auth/resend-verification"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
@@ -228,7 +230,7 @@ export const RealAuthService = {
     const accessToken = getAccessToken();
     const refreshToken = getRefreshToken();
 
-    const response = await fetch(`${ENV.API_BASE_URL}/auth/logout`, {
+    const response = await fetch(apiUrl("/auth/logout"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -244,7 +246,7 @@ export const RealAuthService = {
   },
 
   getCurrentUser: async (token: string): Promise<IUser> => {
-    const response = await fetch(`${ENV.API_BASE_URL}/users/me`, {
+    const response = await fetch(apiUrl("/users/me"), {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -269,7 +271,7 @@ export const RealAuthService = {
   refreshToken: async (_token: string): Promise<{ token: string }> => {
     const storedRefresh = getRefreshToken();
 
-    const response = await fetch(`${ENV.API_BASE_URL}/auth/refresh`, {
+    const response = await fetch(apiUrl("/auth/refresh"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ refresh_token: storedRefresh }),

@@ -17,7 +17,13 @@ jest.mock("next/navigation", () => ({
 // Mock next/link
 jest.mock("next/link", () => {
   const MockedLink = ({ children, href, onClick }: { children: React.ReactNode; href: string; onClick?: (e: React.MouseEvent) => void }) => (
-    <a href={href} onClick={onClick}>
+    <a
+      href={href}
+      onClick={(e) => {
+        e.preventDefault();
+        onClick?.(e);
+      }}
+    >
       {children}
     </a>
   );
@@ -29,7 +35,9 @@ jest.mock("next/link", () => {
 jest.mock("next/image", () => ({
   __esModule: true,
   default: (props: Record<string, unknown>) => {
-    return <img alt="" {...props} />;
+    const rest = { ...props };
+    delete rest.unoptimized;
+    return <img alt="" {...rest} />;
   },
 }));
 
@@ -318,13 +326,13 @@ describe("Header Component", () => {
       render(<Header />);
       const header = screen.getByText("soundcloud").closest("header");
       expect(header).toBeInTheDocument();
-      expect(header).toHaveStyle({ display: "flex" });
+      expect(header).toHaveClass("flex", "items-center", "justify-center");
     });
 
     test("search input has fixed width", () => {
       render(<Header />);
       const searchInput = screen.getByPlaceholderText("Search");
-      expect(searchInput).toHaveStyle({ width: "200px" });
+      expect(searchInput).toHaveClass("w-[200px]");
     });
   });
 

@@ -1,8 +1,10 @@
 // src/services/api/userProfile.api.ts
-import { ENV } from "@/config/env";
+import { ENV, getApiBaseUrl, normalizeApiUrl } from "@/config/env";
 import type { IUserProfileService, IUser, IUserProfileTrack, ILikedTrack, IFanUser, IFollower, IFollowing, ISearchUser } from "@/types/userProfile.types";
 import type { ITrack } from "@/types/track.types";
 import { apiPost, apiDelete, apiGet } from "./apiClient";
+
+const apiUrl = (path: string): string => normalizeApiUrl(`${getApiBaseUrl()}${path}`);
 
 function toCanonicalTrack(track: IUserProfileTrack): ITrack {
   const durationInSeconds = track.duration.includes(":")
@@ -41,7 +43,7 @@ const resolveMediaUrl = (value: unknown): string | null => {
   if (!raw) return null;
   if (raw.startsWith("http://") || raw.startsWith("https://") || raw.startsWith("data:")) return raw;
 
-  const base = ENV.API_BASE_URL.replace(/\/$/, "");
+  const base = getApiBaseUrl().replace(/\/$/, "");
   const origin = base.endsWith("/api") ? base.slice(0, -4) : base;
 
   if (raw.startsWith("/api/") || raw.startsWith("/uploads/")) {
@@ -55,7 +57,8 @@ const fetchWithTimeout = async (input: RequestInfo | URL, init: RequestInit, tim
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    return await fetch(input, { ...init, signal: controller.signal });
+    const requestUrl = typeof input === "string" ? normalizeApiUrl(input) : input;
+    return await fetch(requestUrl, { ...init, signal: controller.signal });
   } finally {
     clearTimeout(timer);
   }
@@ -91,35 +94,35 @@ export const realUserProfileService: IUserProfileService = {
     const headers: Record<string, string> = {};
     if (token) headers["Authorization"] = `Bearer ${token}`;
 
-    const res = await fetch(`${ENV.API_BASE_URL}/users/${userId}`, { headers });
+    const res = await fetch(apiUrl(`/users/${userId}`), { headers });
     if (!res.ok) throw new Error(`User "${userId}" not found`);
     const json = await res.json();
     const data = json.data ?? json;
     return normalizeUser(data as Record<string, unknown>, userId);
   },
   async getUserTracks(userId: string): Promise<ITrack[]> {
-    const res = await fetch(`${ENV.API_BASE_URL}/users/${userId}/tracks`);
+    const res = await fetch(apiUrl(`/users/${userId}/tracks`));
     if (!res.ok) return [];
     const tracks = (await res.json()) as IUserProfileTrack[];
     return tracks.map(toCanonicalTrack);
   },
   async getUserLikes(userId: string): Promise<ILikedTrack[]> {
-    const res = await fetch(`${ENV.API_BASE_URL}/users/${userId}/likes`);
+    const res = await fetch(apiUrl(`/users/${userId}/likes`));
     if (!res.ok) return [];
     return res.json();
   },
   async getFansAlsoLike(userId: string): Promise<IFanUser[]> {
-    const res = await fetch(`${ENV.API_BASE_URL}/users/${userId}/fans`);
+    const res = await fetch(apiUrl(`/users/${userId}/fans`));
     if (!res.ok) return [];
     return res.json();
   },
   async getFollowers(userId: string): Promise<IFollower[]> {
-    const res = await fetch(`${ENV.API_BASE_URL}/users/${userId}/followers`);
+    const res = await fetch(apiUrl(`/users/${userId}/followers`));
     if (!res.ok) return [];
     return res.json();
   },
   async getFollowing(userId: string): Promise<IFollowing[]> {
-    const res = await fetch(`${ENV.API_BASE_URL}/users/${userId}/following`);
+    const res = await fetch(apiUrl(`/users/${userId}/following`));
     if (!res.ok) return [];
     return res.json();
   },
@@ -131,7 +134,7 @@ export const realUserProfileService: IUserProfileService = {
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await fetchWithTimeout(`${ENV.API_BASE_URL}/users/me/avatar`, {
+    const res = await fetchWithTimeout(apiUrl("/users/me/avatar"), {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -158,7 +161,7 @@ export const realUserProfileService: IUserProfileService = {
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await fetchWithTimeout(`${ENV.API_BASE_URL}/users/me/cover`, {
+    const res = await fetchWithTimeout(apiUrl("/users/me/cover"), {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,

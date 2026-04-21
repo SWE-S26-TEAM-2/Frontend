@@ -1,4 +1,4 @@
-import { ENV } from "@/config/env";
+import { getApiBaseUrl, normalizeApiUrl } from "@/config/env";
 import type { IUploadQuota, IUploadResponse, IUploadService, IUploadTrackPayload } from "@/types/upload.types";
 
 export const realUploadService: IUploadService = {
@@ -58,7 +58,7 @@ export const realUploadService: IUploadService = {
       xhr.addEventListener("abort", () => reject(new Error("Upload aborted")));
 
       // Use ENV.API_BASE_URL — not hardcoded /api/tracks
-      xhr.open("POST", `${ENV.API_BASE_URL}/tracks/`);
+      xhr.open("POST", normalizeApiUrl(`${getApiBaseUrl()}/tracks/`));
 
       // Use Bearer token (not withCredentials)
       const token = typeof window !== "undefined" ? window.localStorage.getItem("auth_token") : null;
