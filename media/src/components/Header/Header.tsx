@@ -236,6 +236,7 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
   const [hasToken, setHasToken]         = useState(false);
   const [storedUserId, setStoredUserId] = useState<string | null>(null);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [avatarError, setAvatarError]   = useState(false);
 
   const authUser        = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -273,7 +274,7 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
 
   const avatarSrc = (() => {
     const raw = authUser?.profileImageUrl?.trim();
-    if (!raw) return "/your-avatar.jpg";
+    if (!raw) return null;
 
     const isHttp = raw.startsWith("http://") || raw.startsWith("https://");
     const isData = raw.startsWith("data:");
@@ -283,15 +284,17 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
       /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(raw) ||
       (raw.startsWith("/") && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(raw.slice(1)));
 
-    if (looksLikeUuid || raw === String(authUser?.id ?? "")) return "/your-avatar.jpg";
+    if (looksLikeUuid || raw === String(authUser?.id ?? "")) return null;
     // isHttp must be checked before hasImageExt — otherwise https:// URLs get a "/" prepended
     if (isHttp) {
       if (hasImageExt || /googleusercontent|gravatar|pravatar|cloudinary|imgur|duckdns/i.test(raw)) return raw;
-      return "/your-avatar.jpg";
+      return null;
     }
     if (isData || isKnownUploadPath || hasImageExt) return raw.startsWith("/") || isData ? raw : `/${raw}`;
-    return "/your-avatar.jpg";
+    return null;
   })();
+
+  useEffect(() => { setAvatarError(false); }, [avatarSrc]);
 
   const avatarRef  = useRef<HTMLDivElement>(null);
   const dotsRef    = useRef<HTMLDivElement>(null);
@@ -402,14 +405,21 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
               <div ref={avatarRef} className="relative shrink-0">
                 <div className="flex items-center gap-1">
                   <Link href={profileHref} aria-label="Go to profile" className="flex items-center no-underline">
-                    <Image
-                      src={avatarSrc}
-                      alt="User avatar"
-                      width={28}
-                      height={28}
-                      className="rounded-full object-cover"
-                      unoptimized
-                    />
+                    {avatarSrc && !avatarError ? (
+                      <Image
+                        src={avatarSrc}
+                        alt="User avatar"
+                        width={28}
+                        height={28}
+                        className="rounded-full object-cover"
+                        unoptimized
+                        onError={() => setAvatarError(true)}
+                      />
+                    ) : (
+                      <div className="w-7 h-7 rounded-full bg-[#ff5500] flex items-center justify-center text-white text-xs font-bold select-none">
+                        {(authUser?.username?.[0] ?? "?").toUpperCase()}
+                      </div>
+                    )}
                   </Link>
                   <button
                     aria-label="Open profile menu"

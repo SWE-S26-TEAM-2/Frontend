@@ -7,8 +7,6 @@ import type { IBannerProps } from "@/types/ui.types";
 // AVATAR_SIZE / AVATAR_LEFT are JS constants used for layout math — the derived
 // Tailwind values (left-5, w-[180px], left-[60px], left-[224px]) are hardcoded
 // from these constants so they stay in sync without needing a CSS-in-JS approach.
-const FALLBACK_AVATAR = "/your-avatar.jpg";
-
 export function Banner({ user, onUploadAvatar, onUploadCover }: IBannerProps) {
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef  = useRef<HTMLInputElement>(null);
@@ -29,7 +27,7 @@ export function Banner({ user, onUploadAvatar, onUploadCover }: IBannerProps) {
     return () => { if (coverPreview?.startsWith("blob:")) URL.revokeObjectURL(coverPreview); };
   }, [coverPreview]);
 
-  const effectiveAvatarSrc = avatarPreview ?? user.avatarUrl ?? FALLBACK_AVATAR;
+  const effectiveAvatarSrc = avatarPreview ?? user.avatarUrl ?? null;
   const effectiveCoverUrl  = coverPreview  ?? user.headerUrl  ?? null;
 
   const handleAvatarFile = async (file: File) => {
@@ -93,23 +91,28 @@ export function Banner({ user, onUploadAvatar, onUploadCover }: IBannerProps) {
 
       {/* Avatar — left-5 = AVATAR_LEFT(20px), w/h-[180px] = AVATAR_SIZE */}
       <div className="absolute left-5 top-1/2 -translate-y-1/2 w-[180px] h-[180px] rounded-full bg-[#4a4a4a] overflow-hidden z-10 ring-4 ring-[#121212]">
-        {avatarPreview ? (
-          // Blob URLs bypass Next.js image optimisation; use plain <img> to avoid errors
+        {/* Blob URLs (preview or mock upload result) must use plain <img> — Next.js Image refuses blob: */}
+        {(avatarPreview ?? effectiveAvatarSrc)?.startsWith("blob:") ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={avatarPreview}
+            src={avatarPreview ?? effectiveAvatarSrc!}
             alt={user.username}
             className="w-full h-full object-cover"
           />
-        ) : (
+        ) : effectiveAvatarSrc ? (
           <Image
             src={effectiveAvatarSrc}
             alt={user.username}
             width={180}
             height={180}
             className="object-cover w-full h-full"
-            onError={(e) => { (e.currentTarget as HTMLImageElement).src = FALLBACK_AVATAR; }}
           />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-[#4a4a4a]">
+            <span className="text-6xl font-bold text-white select-none">
+              {user.username[0].toUpperCase()}
+            </span>
+          </div>
         )}
 
         {/* Loading overlay while uploading */}
