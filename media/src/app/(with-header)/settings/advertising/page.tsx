@@ -1,5 +1,5 @@
 "use client";
-
+// advertising page
 import { useState, useEffect } from "react";
 import { advertisingService } from "@/services/di";
 import { IAdvertisingSettings } from "@/types/settings-advertising.types";

@@ -1,5 +1,5 @@
 "use client";
-
+// notifications page
 import { useState, useEffect } from "react";
 import { notificationService } from "@/services/di";
 import { INotificationSettings, INotificationRow, IDevicesValue } from "@/types/settings-notification.types";

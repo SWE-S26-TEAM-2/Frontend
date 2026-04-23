@@ -1,5 +1,5 @@
 "use client";
-
+// account page
 import { useState, useEffect } from "react";
 import { accountService } from "@/services/di";
 import { IAccountSettings, ITheme } from "@/types/settings-account.types";

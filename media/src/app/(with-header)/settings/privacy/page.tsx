@@ -1,5 +1,5 @@
 "use client";
-
+// privacy page
 import { useState, useEffect } from "react";
 import Toggle from "@/components/Toggle/Toggle";
 import { privacyService } from "@/services/di";

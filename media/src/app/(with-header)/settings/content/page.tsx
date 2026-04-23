@@ -1,5 +1,5 @@
 "use client";
-
+// content page
 import { useState, useEffect } from "react";
 import { contentService } from "@/services/di";
 import { IContentSettings, IEmailDisplay } from "@/types/settings-content.types";
