@@ -70,6 +70,11 @@ export interface IInsightsMetricPillsProps {
   activeMetric: InsightMetric;
   onMetricChange: (metric: InsightMetric) => void;
 }
+
+export interface IInsightsMetricPill {
+  metric: InsightMetric;
+  count: number;
+}
  
 export interface IInsightsEmptyState {
   timeRange: InsightTimeRange;
@@ -94,4 +99,8 @@ export interface IInsightsPremiumCard {
 export interface IInsightsTopTracksCard {
   tracks: IInsightsTopTrack[];
   timeRangeLabel: string;
+}
+
+export interface IInsightsAboutModal {
+  onClose: () => void;
 }
