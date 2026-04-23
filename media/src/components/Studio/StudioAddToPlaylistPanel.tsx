@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import { studioService } from '@/services';
+import { studioService, playlistService } from '@/services';
 import type { IPlaylist } from '@/types/studio.types';
 import type { TrackVisibility } from '@/types/upload.types';
 
@@ -100,19 +100,24 @@ export default function StudioAddToPlaylistPanel({
     setIsSaving(true);
     setCreateError('');
     try {
+      const created = await playlistService.createPlaylist(
+        createForm.title.trim(),
+        createForm.description.trim() || undefined,
+      );
+
+      // Add selected tracks to the newly created playlist
+      if (selectedIds.length > 0) {
+        await studioService.addTracksToPlaylist(created.id, selectedIds);
+      }
+
       const newPlaylist: IPlaylist = {
-        id: `playlist-${Date.now()}`,
-        title: createForm.title.trim(),
+        id: created.id,
+        title: created.title,
         trackCount: selectedIds.length,
-        artworkUrl: artworkPreview ?? undefined,
+        artworkUrl: created.artworkUrl ?? artworkPreview ?? undefined,
         visibility: createForm.privacy,
       };
 
-      // The playlist is created with the tracks already included (trackCount set above).
-      // No need to call addTracksToPlaylist — the playlist didn't exist in the service
-      // before this moment, so we just prepend it locally and mark it as added.
-
-      // Prepend to list and mark as added, then go back to list view
       setPlaylists((prev) => [newPlaylist, ...prev]);
       setAddedIds((prev) => new Set(prev).add(newPlaylist.id));
       setCreateForm(DEFAULT_CREATE_FORM);

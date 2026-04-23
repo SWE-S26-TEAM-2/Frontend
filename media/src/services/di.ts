@@ -117,10 +117,14 @@ export const uploadService: IUploadService = ENV.USE_MOCK_API
 /**
  * Studio Service
  */
-export const studioService: IStudioService = ENV.USE_MOCK_API
-  ? mockStudioService
-  : realStudioService;
- /* Store Service
+/**
+ * Studio Service
+ * Hardcoded to mock — backend has no track-listing or bulk-edit endpoints yet.
+ */
+export const studioService: IStudioService = mockStudioService;
+
+/**
+ * Store Service
  */
 export const storeService: IStoreService = ENV.USE_MOCK_API
   ? mockStoreService

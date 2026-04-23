@@ -2,8 +2,9 @@
 
 // src/app/(with-header)/creator/studio/page.tsx
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/authStore';
 import {
   StudioEmptyState,
   StudioStatsBar,
@@ -43,9 +44,13 @@ const SORT_LABELS: Record<SortOption, string> = {
 };
 
 export default function StudioPage() {
-  // const { isAuthenticated } = useAuthStore();
-  const isAuthenticated = true;
+  const { isAuthenticated } = useAuthStore();
   const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    setIsLoggedIn(isAuthenticated || !!localStorage.getItem('auth_token'));
+  }, [isAuthenticated]);
 
   // Source of truth — full unfiltered list from the service
   const [tracks, setTracks] = useState<IStudioTrack[]>([]);
@@ -59,9 +64,31 @@ export default function StudioPage() {
   const [visibilityFilter, setVisibilityFilter] = useState<VisibilityFilter>('all');
   const [activeSort, setActiveSort] = useState<SortOption>('date');
   const [isSortOpen, setIsSortOpen] = useState(false);
+  const sortDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close sort dropdown on outside click or Escape
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (sortDropdownRef.current && !sortDropdownRef.current.contains(e.target as Node)) {
+        setIsSortOpen(false);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsSortOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (isLoggedIn === false) {
+      router.replace('/');
+      return;
+    }
 
     const fetchData = async () => {
       setIsLoading(true);
@@ -131,10 +158,7 @@ export default function StudioPage() {
   }, [tracks, searchQuery, visibilityFilter, activeSort]);
 
   // ── No-auth ───────────────────────────────────────────────────────────────
-  if (!isAuthenticated) {
-    router.replace('/');
-    return null;
-  }
+  if (isLoggedIn === null || isLoggedIn === false) return null;
 
   // ── Loading ───────────────────────────────────────────────────────────────
   if (isLoading) {
@@ -241,7 +265,7 @@ export default function StudioPage() {
                   {filteredAndSorted.length}{' '}
                   {filteredAndSorted.length === 1 ? 'track' : 'tracks'}
                 </span>
-                <div className="relative">
+                <div className="relative" ref={sortDropdownRef}>
                   <button
                     type="button"
                     onClick={() => setIsSortOpen((prev) => !prev)}

@@ -1,73 +1,41 @@
 import type {
-  IBulkEditPayload,
   IPlaylist,
   IStudioService,
   IStudioTrack,
   IStudioTracksResponse,
 } from '@/types/studio.types';
 import type { TrackVisibility } from '@/types/upload.types';
- 
+import { apiDelete, apiGet, apiPut, apiPost } from './apiClient';
+
 export const realStudioService: IStudioService = {
-  async getTracks(page: number, pageSize: number): Promise<IStudioTracksResponse> {
-    const res = await fetch(`/api/users/me/tracks?page=${page}&pageSize=${pageSize}`, {
-      method: 'GET',
-      credentials: 'include',
-    });
-    if (!res.ok) throw new Error('Failed to fetch studio tracks');
-    return res.json();
+  async getTracks(): Promise<IStudioTracksResponse> {
+    // No backend listing endpoint yet — this service is hardcoded to mock in di.ts.
+    throw new Error('getTracks: no backend endpoint implemented');
   },
- 
+
   async deleteTrack(trackId: string): Promise<void> {
-    const res = await fetch(`/api/tracks/${trackId}`, {
-      method: 'DELETE',
-      credentials: 'include',
-    });
-    if (!res.ok) throw new Error(`Failed to delete track ${trackId}`);
+    await apiDelete(`/tracks/${trackId}`);
   },
- 
+
   async updateVisibility(trackId: string, visibility: TrackVisibility): Promise<IStudioTrack> {
-    const res = await fetch(`/api/tracks/${trackId}`, {
-      method: 'PATCH',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ isPrivate: visibility === 'private' }),
+    return apiPut<IStudioTrack>(`/tracks/${trackId}`, {
+      is_private: visibility === 'private',
     });
-    if (!res.ok) throw new Error(`Failed to update visibility for track ${trackId}`);
-    return res.json();
   },
- 
-  async bulkEditTracks(trackIds: string[], payload: IBulkEditPayload): Promise<void> {
-    const formData = new FormData();
-    formData.append('trackIds', JSON.stringify(trackIds));
-    formData.append('privacy', payload.privacy);
-    if (payload.genre) formData.append('genre', payload.genre);
-    if (payload.tags) formData.append('tags', JSON.stringify(payload.tags));
-    if (payload.artwork) formData.append('artwork', payload.artwork);
- 
-    const res = await fetch('/api/tracks/bulk', {
-      method: 'PATCH',
-      credentials: 'include',
-      body: formData,
-    });
-    if (!res.ok) throw new Error('Failed to bulk edit tracks');
+
+  async bulkEditTracks(): Promise<void> {
+    // No backend bulk endpoint yet — this service is hardcoded to mock in di.ts.
+    throw new Error('bulkEditTracks: no backend endpoint implemented');
   },
- 
+
   async getPlaylists(): Promise<IPlaylist[]> {
-    const res = await fetch('/api/users/me/playlists', {
-      method: 'GET',
-      credentials: 'include',
-    });
-    if (!res.ok) throw new Error('Failed to fetch playlists');
-    return res.json();
+    return apiGet<IPlaylist[]>('/playlists/liked');
   },
- 
+
   async addTracksToPlaylist(playlistId: string, trackIds: string[]): Promise<void> {
-    const res = await fetch(`/api/playlists/${playlistId}/tracks`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ trackIds }),
-    });
-    if (!res.ok) throw new Error(`Failed to add tracks to playlist ${playlistId}`);
+    // Backend accepts one track_id per request — fire sequentially.
+    for (const trackId of trackIds) {
+      await apiPost(`/playlists/${playlistId}/tracks`, { track_id: trackId });
+    }
   },
 };

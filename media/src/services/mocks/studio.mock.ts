@@ -144,7 +144,7 @@ const mockPlaylists = [...MOCK_PLAYLISTS];
  
 export const mockStudioService: IStudioService = {
   async getTracks(page: number, pageSize: number): Promise<IStudioTracksResponse> {
-    console.log('[MOCK] studioService.getTracks called', { page, pageSize });
+    console.warn('[MOCK] studioService.getTracks called', { page, pageSize });
     const start = (page - 1) * pageSize;
     const paginated = mockTracks.slice(start, start + pageSize);
     return {
@@ -156,12 +156,12 @@ export const mockStudioService: IStudioService = {
   },
  
   async deleteTrack(trackId: string): Promise<void> {
-    console.log('[MOCK] studioService.deleteTrack called', { trackId });
+    console.warn('[MOCK] studioService.deleteTrack called', { trackId });
     mockTracks = mockTracks.filter((t) => t.id !== trackId);
   },
  
   async updateVisibility(trackId: string, visibility: TrackVisibility): Promise<IStudioTrack> {
-    console.log('[MOCK] studioService.updateVisibility called', { trackId, visibility });
+    console.warn('[MOCK] studioService.updateVisibility called', { trackId, visibility });
     const track = mockTracks.find((t) => t.id === trackId);
     if (!track) throw new Error(`Track ${trackId} not found`);
     track.visibility = visibility;
@@ -169,7 +169,7 @@ export const mockStudioService: IStudioService = {
   },
  
   async bulkEditTracks(trackIds: string[], payload: IBulkEditPayload): Promise<void> {
-    console.log('[MOCK] studioService.bulkEditTracks called', { trackIds, payload });
+    console.warn('[MOCK] studioService.bulkEditTracks called', { trackIds, payload });
     mockTracks = mockTracks.map((t) => {
       if (!trackIds.includes(t.id)) return t;
       return {
@@ -183,12 +183,12 @@ export const mockStudioService: IStudioService = {
   },
  
   async getPlaylists(): Promise<IPlaylist[]> {
-    console.log('[MOCK] studioService.getPlaylists called');
+    console.warn('[MOCK] studioService.getPlaylists called');
     return [...mockPlaylists];
   },
  
   async addTracksToPlaylist(playlistId: string, trackIds: string[]): Promise<void> {
-    console.log('[MOCK] studioService.addTracksToPlaylist called', { playlistId, trackIds });
+    console.warn('[MOCK] studioService.addTracksToPlaylist called', { playlistId, trackIds });
     const playlist = mockPlaylists.find((p) => p.id === playlistId);
     if (!playlist) throw new Error(`Playlist ${playlistId} not found`);
     playlist.trackCount += trackIds.length;

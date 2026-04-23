@@ -23,7 +23,7 @@ export default function StudioActionButtons() {
       {/* Distribute — navigates to distribute page */}
       <button
         type="button"
-        onClick={() => window.open('/creator/distribute', '_blank')}
+        onClick={() => router.push('/creator/distribute')}
         className="flex items-center gap-2 px-4 py-2.5 rounded-sm border border-[#333] bg-[#1a1a1a] text-white text-sm font-semibold hover:border-[#555] hover:bg-[#222] transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
       >
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -39,7 +39,7 @@ export default function StudioActionButtons() {
       {/* Monetize — navigates to monetize page */}
       <button
         type="button"
-        onClick={() => window.open('/creator/monetize', '_blank')}
+        onClick={() => router.push('/creator/monetize')}
         className="flex items-center gap-2 px-4 py-2.5 rounded-sm border border-[#333] bg-[#1a1a1a] text-white text-sm font-semibold hover:border-[#555] hover:bg-[#222] transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
       >
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
