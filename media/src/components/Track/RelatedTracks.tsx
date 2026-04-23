@@ -54,7 +54,7 @@ export default function RelatedTracks({ tracks, sourceTrack }: IRelatedTracksPro
                       </span>
 
                       <Image
-                        src={track.albumArt}
+                        src={track.albumArt || "/covers/default.jpg"}
                         alt={track.title}
                         width={40}
                         height={40}

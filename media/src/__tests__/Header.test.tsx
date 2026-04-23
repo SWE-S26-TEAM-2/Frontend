@@ -3,10 +3,27 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import Header from "@/components/Header/Header";
 import "@testing-library/jest-dom";
 
+// Mock next/navigation (required because Header uses useRouter for sign out)
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+    back: jest.fn(),
+    prefetch: jest.fn(),
+  }),
+  usePathname: () => "/",
+}));
+
 // Mock next/link
 jest.mock("next/link", () => {
   const MockedLink = ({ children, href, onClick }: { children: React.ReactNode; href: string; onClick?: (e: React.MouseEvent) => void }) => (
-    <a href={href} onClick={onClick}>
+    <a
+      href={href}
+      onClick={(e) => {
+        e.preventDefault();
+        onClick?.(e);
+      }}
+    >
       {children}
     </a>
   );
@@ -18,13 +35,28 @@ jest.mock("next/link", () => {
 jest.mock("next/image", () => ({
   __esModule: true,
   default: (props: Record<string, unknown>) => {
-    return <img alt="" {...props} />;
+    const rest = { ...props };
+    delete rest.unoptimized;
+    return <img alt="" {...rest} />;
+  },
+}));
+
+// Mock useAuthStore so isLoggedIn prop controls the authenticated state in tests
+jest.mock("@/store/authStore", () => ({
+  useAuthStore: (selector?: (s: { user: null; isAuthenticated: boolean; login: jest.Mock; logout: jest.Mock }) => unknown) => {
+    const state = { user: null, isAuthenticated: false, login: jest.fn(), logout: jest.fn() };
+    return typeof selector === "function" ? selector(state) : state;
   },
 }));
 
 describe("Header Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    localStorage.setItem("auth_user_id", "testuser");
+  });
+
+  afterEach(() => {
+    localStorage.clear();
   });
 
   describe("Rendering", () => {
@@ -33,10 +65,10 @@ describe("Header Component", () => {
       expect(screen.getByText("soundcloud")).toBeInTheDocument();
     });
 
-    test("renders navigation items (Home, Feed, Library)", () => {
+    test("renders navigation items (Stream, Discover, Library)", () => {
       render(<Header />);
-      expect(screen.getByText("Home")).toBeInTheDocument();
-      expect(screen.getByText("Feed")).toBeInTheDocument();
+      expect(screen.getByText("Stream")).toBeInTheDocument();
+      expect(screen.getByText("Discover")).toBeInTheDocument();
       expect(screen.getByText("Library")).toBeInTheDocument();
     });
 
@@ -91,11 +123,11 @@ describe("Header Component", () => {
     test("navigation links navigate to correct paths", () => {
       render(<Header />);
       
-      const homeLink = screen.getAllByText("Home")[0].closest("a");
-      expect(homeLink).toHaveAttribute("href", "/");
+      const streamLink = screen.getAllByText("Stream")[0].closest("a");
+      expect(streamLink).toHaveAttribute("href", "/stream");
       
-      const feedLink = screen.getAllByText("Feed")[0].closest("a");
-      expect(feedLink).toHaveAttribute("href", "/feed");
+      const discoverLink = screen.getAllByText("Discover")[0].closest("a");
+      expect(discoverLink).toHaveAttribute("href", "/discover");
       
       const libraryLink = screen.getAllByText("Library")[0].closest("a");
       expect(libraryLink).toHaveAttribute("href", "/library");
@@ -103,17 +135,17 @@ describe("Header Component", () => {
 
     test("highlights active nav item", () => {
       render(<Header />);
-      const homeLink = screen.getAllByText("Home")[0].closest("a");
+      const streamLink = screen.getAllByText("Stream")[0].closest("a");
 
-      expect(homeLink).toHaveAttribute("href", "/");
+      expect(streamLink).toHaveAttribute("href", "/stream");
     });
 
     test("changes active nav item on click", () => {
       render(<Header />);
-      const feedLink = screen.getAllByText("Feed")[0].closest("a") as HTMLAnchorElement;
+      const discoverLink = screen.getAllByText("Discover")[0].closest("a") as HTMLAnchorElement;
 
-      fireEvent.click(feedLink);
-      expect(feedLink).toHaveAttribute("href", "/feed");
+      fireEvent.click(discoverLink);
+      expect(discoverLink).toHaveAttribute("href", "/discover");
     });
   });
 
@@ -281,19 +313,11 @@ describe("Header Component", () => {
   });
 
   describe("Avatar Prop", () => {
-    test("uses custom avatar URL when provided", () => {
-      const customAvatarUrl = "https://example.com/avatar.jpg";
-      render(<Header isLoggedIn={true} avatarUrl={customAvatarUrl} />);
-      
-      const avatarImage = screen.getByAltText("User avatar") as HTMLImageElement;
-      expect(avatarImage.src).toContain("example.com/avatar.jpg");
-    });
-
-    test("uses default avatar URL when not provided", () => {
+    test("uses local avatar fallback when no user profile image", () => {
       render(<Header isLoggedIn={true} />);
-      
+
       const avatarImage = screen.getByAltText("User avatar") as HTMLImageElement;
-      expect(avatarImage.src).toContain("pravatar.cc");
+      expect(avatarImage.src).toContain("your-avatar.jpg");
     });
   });
 
@@ -302,13 +326,13 @@ describe("Header Component", () => {
       render(<Header />);
       const header = screen.getByText("soundcloud").closest("header");
       expect(header).toBeInTheDocument();
-      expect(header).toHaveStyle({ display: "flex" });
+      expect(header).toHaveClass("flex", "items-center", "justify-center");
     });
 
     test("search input has fixed width", () => {
       render(<Header />);
       const searchInput = screen.getByPlaceholderText("Search");
-      expect(searchInput).toHaveStyle({ width: "200px" });
+      expect(searchInput).toHaveClass("w-[200px]");
     });
   });
 
@@ -328,7 +352,7 @@ describe("Header Component", () => {
     test("Upload link has correct href", () => {
       render(<Header />);
       const link = screen.getByText("Upload").closest("a");
-      expect(link).toHaveAttribute("href", "/upload");
+      expect(link).toHaveAttribute("href", "/creator/upload");
     });
 
     test("logo link navigates to home", () => {

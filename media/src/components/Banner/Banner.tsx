@@ -116,7 +116,6 @@ export function Banner({ user, onAvatarChange, onHeaderChange }: IBannerProps) {
           {user.location}
         </span>
 
-        {/* Role badge */}
         <span className={`inline-flex items-center gap-1 self-start rounded px-2 py-0.5 text-xs uppercase tracking-wider border ${
           user.role === "artist"
             ? "bg-orange-500/20 border-orange-500 text-orange-400"
@@ -125,12 +124,11 @@ export function Banner({ user, onAvatarChange, onHeaderChange }: IBannerProps) {
           {user.role === "artist" ? "⭐ Artist" : "🎧 Listener"}
         </span>
 
-        {/* Favorite genres */}
         {user.favoriteGenres && user.favoriteGenres.length > 0 && (
           <div className="flex gap-1 flex-wrap">
-            {user.favoriteGenres.map(genre => (
+            {user.favoriteGenres.map((genre) => (
               <span key={genre} className="bg-black/70 border border-white/10 rounded px-2 py-0.5 text-xs text-gray-400">
-                # {genre}
+                #{genre}
               </span>
             ))}
           </div>

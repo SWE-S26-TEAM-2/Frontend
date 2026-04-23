@@ -84,6 +84,15 @@ export interface IFollowing {
   isVerified?: boolean;
 }
 
+export interface ISearchUser {
+  id: string;
+  username: string;
+  role: "artist" | "listener";
+  avatarUrl: string | null;
+  followerCount: number;
+  isVerified: boolean;
+}
+
 export interface IUserProfileService {
   getUserProfile(username: string): Promise<IUser>;
   getUserTracks(userId: string): Promise<ITrack[]>;
@@ -92,22 +101,11 @@ export interface IUserProfileService {
   getFollowers(userId: string): Promise<IFollower[]>;
   getFollowing(userId: string): Promise<IFollowing[]>;
   updateProfile(userId: string, payload: IEditProfilePayload): Promise<IUser>;
-}
-
-
-export interface IFollower {
-  id: string;
-  username: string;
-  avatarUrl: string | null;
-}
-
-export interface IFollowing {
-  id: string;
-  username: string;
-  avatarUrl: string | null;
-  followers: number;
-  tracks: number;
-  isVerified?: boolean;
+  uploadAvatar(file: File): Promise<IUser>;
+  uploadCover(file: File): Promise<IUser>;
+  followUser(userId: string): Promise<void>;
+  unfollowUser(userId: string): Promise<void>;
+  searchUsers(query: string): Promise<ISearchUser[]>;
 }
 
 export interface IEditProfilePayload {

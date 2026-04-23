@@ -7,6 +7,8 @@ export interface ILoginModalProps {
 
 export interface IBannerProps {
   user: IUser;
+  onUploadAvatar?: (file: File) => Promise<void>;
+  onUploadCover?: (file: File) => Promise<void>;
   onAvatarChange?: (url: string) => void; 
   onHeaderChange?: (url: string) => void;
 }
@@ -54,6 +56,8 @@ export interface IMenuItem {
   href: string;
   orange?: boolean;
   dividerBefore?: boolean;
+  onClick?: () => void;
+  noNav?: boolean;
 }
 
 export interface ITrackPageProps {
@@ -78,4 +82,5 @@ export type IActiveTab =
   export interface IVerifyEmailStepProps {
     email: string;
     onBack: () => void;
+    onVerified: () => void;
   }

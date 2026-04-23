@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SoundCloud Clone",
+  title: "SOUNDCLOUD clone",
   description: "SoundCloud Clone — SWE S2026 Team 2",
 };
 

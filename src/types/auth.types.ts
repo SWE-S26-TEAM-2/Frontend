@@ -1,0 +1,28 @@
+
+
+export interface ILoginRequest {
+  username: string;
+  password: string;
+}
+
+export interface IUser {
+  id: string | number;
+  username: string;
+  email?: string;
+  profileImageUrl?: string;
+  createdAt?: string;
+}
+
+export interface ILoginResponse {
+  success: boolean;
+  token: string;
+  user: IUser;
+}
+
+export interface IAuthState {
+  isAuthenticated: boolean;
+  user: IUser | null;
+  token: string | null;
+  loading: boolean;
+  error: string | null;
+}

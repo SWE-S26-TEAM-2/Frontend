@@ -80,10 +80,12 @@ export interface IAuthState {
 
 export interface IUpdateProfileRequest {
   displayName: string;
-  month: string;
-  day: string;
-  year: string;
-  gender: string;
+  month?: string;
+  day?: string;
+  year?: string;
+  gender?: string;
+  bio?: string;
+  location?: string;
 }
 
 export interface IUpdateProfileResponse {
@@ -92,5 +94,9 @@ export interface IUpdateProfileResponse {
 }
 
 export interface IResendVerificationResponse {
+  success: boolean;
+}
+
+export interface IVerifyEmailResponse {
   success: boolean;
 }

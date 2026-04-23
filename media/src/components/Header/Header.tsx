@@ -3,8 +3,11 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter, usePathname } from "next/navigation";
 import type { IMenuItem } from "@/types/ui.types";
 import { useAuthStore } from "@/store/authStore";
+import KeyboardShortcutsModal from "@/components/KeyboardShortcutsModal/KeyboardShortcutsModal";
+import { clearAuthCookie } from "@/lib/authCookie";
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -146,24 +149,27 @@ const SignOutIcon = () => (
 // ── Data ──────────────────────────────────────────────────────────────────────
 
 const NAV_ITEMS = [
-  { label: "Home",    href: "/" },
-  { label: "Feed",    href: "/feed" },
-  { label: "Library", href: "/library" },
+  { label: "Stream",   href: "/stream" },
+  { label: "Discover", href: "/discover" },
+  { label: "Library",  href: "/library" },
 ];
+
+const ArtistProBadge = () => (
+  <span className="w-[15px] h-[15px] rounded-full bg-[#FF5500] inline-flex items-center justify-center text-[10px] text-white font-bold">★</span>
+);
 
 const getAvatarMenu = (profileHref: string): IMenuItem[] => [
   { icon: <ProfileIcon />,     label: "Profile",        href: profileHref },
   { icon: <LikesIcon />,       label: "Likes",          href: "/likes" },
   { icon: <StationsIcon />,    label: "Stations",       href: "/stations" },
   { icon: <WhoToFollowIcon />, label: "Who to follow",  href: "/who-to-follow", dividerBefore: true },
-  { icon: <span style={{ width: 15, height: 15, borderRadius: "50%", background: "#FF5500", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#fff", fontWeight: 700 }}>★</span>, label: "Try Artist Pro", href: "/artist-pro", orange: true },
+  { icon: <ArtistProBadge />,  label: "Try Artist Pro", href: "/artist-pro", orange: true },
   { icon: <TracksIcon />,      label: "Tracks",         href: "/tracks",      dividerBefore: true },
   { icon: <InsightsIcon />,    label: "Insights",       href: "/insights" },
   { icon: <DistributeIcon />,  label: "Distribute",     href: "/distribute" },
 ];
 
 const DOTS_MENU: IMenuItem[] = [
-
   { icon: <GlobeIcon />,        label: "About us",          href: "/about" },
   { icon: <GlobeIcon />,        label: "Legal",             href: "/legal" },
   { icon: <GlobeIcon />,        label: "Copyright",         href: "/copyright" },
@@ -180,73 +186,41 @@ const DOTS_MENU: IMenuItem[] = [
   { icon: <SignOutIcon />,      label: "Sign out",          href: "/" },
 ];
 
-// ── Shared styles ─────────────────────────────────────────────────────────────
-
-const iconBtnStyle: React.CSSProperties = {
-  background: "none",
-  border: "none",
-  cursor: "pointer",
-  color: "#999",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: "4px",
-  transition: "color 0.15s",
-  flexShrink: 0,
-  position: "relative",
-};
-
 // ── Dropdown component ────────────────────────────────────────────────────────
 
-function DropdownMenu({
-  items,
-  onClose,
-}: {
-  items: IMenuItem[];
-  onClose: () => void;
-}) {
+function DropdownMenu({ items, onClose }: { items: IMenuItem[]; onClose: () => void }) {
+  const itemClass = (orange?: boolean) =>
+    `flex items-center gap-3 px-4 py-2.5 text-sm font-medium w-full bg-transparent border-none cursor-pointer text-left transition-colors hover:bg-[#2a2a2a] no-underline ${
+      orange ? "text-[#ff5500]" : "text-[#ddd]"
+    }`;
+
   return (
-    <div
-      style={{
-        position: "absolute",
-        top: "calc(100% + 6px)",
-        right: 0,
-        background: "rgba(48, 48, 48)",
-        border: "1px solid rgba(80, 80, 80)",
-        borderRadius: "4px",
-        minWidth: "200px",
-        zIndex: 999,
-        boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
-        overflow: "hidden",
-      }}
-    >
+    <div className="absolute top-[calc(100%+6px)] right-0 bg-[#303030] border border-[#505050] rounded min-w-[200px] z-[999] shadow-[0_8px_24px_rgba(0,0,0,0.5)] overflow-hidden">
       {items.map((item, i) => (
         <div key={i}>
-          {item.dividerBefore && (
-            <div style={{ height: "1px", background: "rgba(80, 80, 80)", margin: "0" }} />
+          {item.dividerBefore && <div className="h-px bg-[#505050]" />}
+          {item.noNav ? (
+            <button
+              onClick={() => { item.onClick?.(); onClose(); }}
+              className={itemClass(item.orange)}
+            >
+              <span className={`flex items-center ${item.orange ? "text-[#ff5500]" : "text-[#aaa]"}`}>
+                {item.icon}
+              </span>
+              {item.label}
+            </button>
+          ) : (
+            <Link
+              href={item.href}
+              onClick={() => { item.onClick?.(); onClose(); }}
+              className={itemClass(item.orange)}
+            >
+              <span className={`flex items-center ${item.orange ? "text-[#ff5500]" : "text-[#aaa]"}`}>
+                {item.icon}
+              </span>
+              {item.label}
+            </Link>
           )}
-          <Link
-            href={item.href}
-            onClick={onClose}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
-              padding: "10px 16px",
-              color: item.orange ? "#f50" : "#ddd",
-              textDecoration: "none",
-              fontSize: "14px",
-              fontWeight: 500,
-              transition: "background 0.1s",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#2a2a2a")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-          >
-            <span style={{ color: item.orange ? "#f50" : "#aaa", display: "flex", alignItems: "center" }}>
-              {item.icon}
-            </span>
-            {item.label}
-          </Link>
         </div>
       ))}
     </div>
@@ -255,24 +229,92 @@ function DropdownMenu({
 
 // ── Header component ──────────────────────────────────────────────────────────
 
-export default function Header({
-  avatarUrl = "https://i.pravatar.cc/32",
-  isLoggedIn = true,
-}: {
-  avatarUrl?: string;
-  isLoggedIn?: boolean;
-}) {
-  const [query, setQuery]             = useState("");
-  const [activeNav, setActiveNav]     = useState("Home");
-  const [avatarOpen, setAvatarOpen]   = useState(false);
-  const [dotsOpen, setDotsOpen]       = useState(false);
-  const authUser = useAuthStore((state) => state.user);
+export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: boolean }) {
+  const [query, setQuery]               = useState("");
+  const [avatarOpen, setAvatarOpen]     = useState(false);
+  const [dotsOpen, setDotsOpen]         = useState(false);
+  const [hasToken, setHasToken]         = useState(false);
+  const [storedUserId, setStoredUserId] = useState<string | null>(null);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
-  const avatarRef = useRef<HTMLDivElement>(null);
-  const dotsRef   = useRef<HTMLDivElement>(null);
-  const profileHref = authUser?.username ? `/${encodeURIComponent(authUser.username)}` : "/testuser";
+  const authUser        = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const storeLogin      = useAuthStore((state) => state.login);
+  const logout          = useAuthStore((state) => state.logout);
+  const router          = useRouter();
+  const pathname        = usePathname();
 
-  // Close dropdowns on outside click
+  useEffect(() => {
+    const token  = window.localStorage.getItem("auth_token");
+    const userId = window.localStorage.getItem("auth_user_id");
+    if (token)  setHasToken(true);
+    if (userId) setStoredUserId(userId);
+    if (!token) return;
+
+    if (isAuthenticated && authUser?.profileImageUrl) return;
+
+    import("@/services").then(({ AuthService: authService }) => {
+      authService.getCurrentUser(token)
+        .then((user) => storeLogin(user, token))
+        .catch(() => {
+          window.localStorage.removeItem("auth_token");
+          window.localStorage.removeItem("refresh_token");
+          window.localStorage.removeItem("auth_user_id");
+          window.localStorage.removeItem("auth_username");
+          clearAuthCookie();
+          setHasToken(false);
+          setStoredUserId(null);
+        });
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, authUser?.profileImageUrl]);
+
+  const isLoggedIn = isLoggedInProp !== undefined ? isLoggedInProp : (isAuthenticated || hasToken);
+
+  const avatarSrc = (() => {
+    const raw = authUser?.profileImageUrl?.trim();
+    if (!raw) return "/your-avatar.jpg";
+
+    const isHttp = raw.startsWith("http://") || raw.startsWith("https://");
+    const isData = raw.startsWith("data:");
+    const isKnownUploadPath = raw.startsWith("/api/uploads/") || raw.startsWith("/uploads/");
+    const hasImageExt = /\.(png|jpe?g|webp|gif|svg)(\?.*)?$/i.test(raw);
+    const looksLikeUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(raw) ||
+      (raw.startsWith("/") && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(raw.slice(1)));
+
+    if (looksLikeUuid || raw === String(authUser?.id ?? "")) return "/your-avatar.jpg";
+    // isHttp must be checked before hasImageExt — otherwise https:// URLs get a "/" prepended
+    if (isHttp) {
+      if (hasImageExt || /googleusercontent|gravatar|pravatar|cloudinary|imgur|duckdns/i.test(raw)) return raw;
+      return "/your-avatar.jpg";
+    }
+    if (isData || isKnownUploadPath || hasImageExt) return raw.startsWith("/") || isData ? raw : `/${raw}`;
+    return "/your-avatar.jpg";
+  })();
+
+  const avatarRef  = useRef<HTMLDivElement>(null);
+  const dotsRef    = useRef<HTMLDivElement>(null);
+  const profileHref = authUser?.id ? `/${authUser.id}` : storedUserId ? `/${storedUserId}` : "/";
+
+  const handleSignOut = () => {
+    logout();
+    window.localStorage.removeItem("auth_token");
+    window.localStorage.removeItem("refresh_token");
+    window.localStorage.removeItem("auth_user_id");
+    window.localStorage.removeItem("auth_username");
+    clearAuthCookie();
+    setHasToken(false);
+    setStoredUserId(null);
+    router.push("/login");
+  };
+
+  const dotsMenu = DOTS_MENU.map((item) => {
+    if (item.label === "Sign out")           return { ...item, onClick: handleSignOut };
+    if (item.label === "Keyboard shortcuts") return { ...item, noNav: true, onClick: () => setShortcutsOpen(true) };
+    return item;
+  });
+
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (avatarRef.current && !avatarRef.current.contains(e.target as Node)) setAvatarOpen(false);
@@ -283,171 +325,156 @@ export default function Header({
   }, []);
 
   return (
-    <header
-      style={{
-        background: "rgba(18, 18, 18)",
-        borderBottom: "1px solid rgba(18,18,18)",
-        height: "48px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "0 16px",
-        position: "sticky",
-        top: 0,
-        zIndex: 100,
-        fontFamily: "'Helvetica Neue', Arial, sans-serif",
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: "4px", width: "100%", maxWidth: "1280px" }}>
+    <>
+      <header className="bg-[#121212] border-b border-[#121212] h-12 flex items-center justify-center px-4 sticky top-0 z-[100]">
+        <div className="flex items-center gap-1 w-full max-w-[1280px]">
 
-        {/* Logo */}
-        <Link href="/" style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none", flexShrink: 0, marginRight: "4px" }}>
-          <SoundCloudLogo />
-          <span style={{ color: "white", fontSize: "16px", fontWeight: 700, letterSpacing: "-0.3px" }}>
-            soundcloud
-          </span>
-        </Link>
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2 no-underline shrink-0 mr-1">
+            <SoundCloudLogo />
+            <span className="text-white text-base font-bold tracking-tight">soundcloud</span>
+          </Link>
 
-        {/* Nav */}
-        <nav style={{ display: "flex", alignItems: "stretch", height: "48px", flexShrink: 0 }}>
-          {NAV_ITEMS.map((item) => {
-            const isActive = activeNav === item.label;
-            return (
-              <Link
-                key={item.label}
-                href={item.href}
-                onClick={() => setActiveNav(item.label)}
-                style={{
-                  color: isActive ? "#fff" : "#aaa",
-                  textDecoration: "none",
-                  fontSize: "15px",
-                  fontWeight: isActive ? 600 : 400,
-                  padding: "0 10px",
-                  display: "flex",
-                  alignItems: "center",
-                  borderBottom: isActive ? "0.5px solid #fff" : "2px solid transparent",
-                  transition: "color 0.15s, border-color 0.15s",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Search */}
-        <div style={{ position: "relative", display: "flex", alignItems: "center", flexShrink: 0 }}>
-          <span style={{ position: "absolute", left: "10px", color: "#777", display: "flex", alignItems: "center", pointerEvents: "none" }}>
-            <SearchIcon />
-          </span>
-          <input
-            type="text"
-            placeholder="Search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            style={{
-              width: "200px",
-              height: "30px",
-              background: "#2a2a2a",
-              border: "1px solid #3a3a3a",
-              borderRadius: "3px",
-              color: "#fff",
-              fontSize: "14px",
-              paddingLeft: "32px",
-              paddingRight: "10px",
-              outline: "none",
-              transition: "border-color 0.15s",
-            }}
-            onFocus={(e) => (e.currentTarget.style.borderColor = "#666")}
-            onBlur={(e) => (e.currentTarget.style.borderColor = "#3a3a3a")}
-          />
-        </div>
-
-        {/* Spacer */}
-        <div style={{ flex: 1 }} />
-
-        {/* Try Artist Pro */}
-        <Link href="/artist-pro" style={{ color: "#f50", fontSize: "14px", fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap", padding: "0 6px", flexShrink: 0 }}>
-          Try Artist Pro
-        </Link>
-
-        {/* For Artists */}
-        <Link href="/for-artists"
-          style={{ color: "#ccc", fontSize: "14px", textDecoration: "none", whiteSpace: "nowrap", padding: "0 6px", flexShrink: 0 }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "#ccc")}
-        >
-          For Artists
-        </Link>
-
-        {/* Upload */}
-        <Link href="/upload"
-          style={{ color: "#ccc", fontSize: "14px", textDecoration: "none", whiteSpace: "nowrap", padding: "0 6px", flexShrink: 0 }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "#ccc")}
-        >
-          Upload
-        </Link>
-
-        {/* Divider */}
-        <div style={{ width: "1px", height: "20px", background: "rgba(80, 80, 80)", margin: "0 4px", flexShrink: 0 }} />
-
-        {isLoggedIn && (
-          <>
-            {/* Avatar dropdown */}
-            <div ref={avatarRef} style={{ position: "relative", flexShrink: 0 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          {/* Nav */}
+          <nav className="flex items-stretch h-12 shrink-0">
+            {NAV_ITEMS.map((item) => {
+              const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+              return (
                 <Link
-                  href={profileHref}
-                  aria-label="Go to profile"
-                  style={{ display: "flex", alignItems: "center", textDecoration: "none" }}
+                  key={item.label}
+                  href={item.href}
+                  className={`flex items-center px-2.5 text-[15px] whitespace-nowrap transition-colors border-b-2 ${
+                    isActive
+                      ? "text-white font-semibold border-white"
+                      : "text-[#aaa] font-normal border-transparent hover:text-white"
+                  }`}
                 >
-                  <Image src={avatarUrl} alt="User avatar" width={28} height={28} style={{ borderRadius: "50%", objectFit: "cover" }} />
+                  {item.label}
                 </Link>
-                <button
-                  aria-label="Open profile menu"
-                  onClick={() => { setAvatarOpen((o) => !o); setDotsOpen(false); }}
-                  style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", padding: "0 2px" }}
-                >
-                  <span style={{ color: "#888" }}><ChevronDown /></span>
-                </button>
+              );
+            })}
+          </nav>
+
+          {/* Search */}
+          <div className="relative flex items-center shrink-0 ml-1">
+            <span className="absolute left-2.5 text-[#777] flex items-center pointer-events-none">
+              <SearchIcon />
+            </span>
+            <input
+              type="text"
+              placeholder="Search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && query.trim()) {
+                  router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+                  setQuery("");
+                }
+              }}
+              className="w-[200px] h-[30px] bg-[#2a2a2a] border border-[#3a3a3a] rounded-[3px] text-white text-sm pl-8 pr-2.5 outline-none transition-colors focus:border-[#666]"
+            />
+          </div>
+
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* Try Artist Pro */}
+          <Link href="/artist-pro" className="text-[#ff5500] text-sm font-bold no-underline whitespace-nowrap px-1.5 shrink-0">
+            Try Artist Pro
+          </Link>
+
+          {/* For Artists */}
+          <Link href="/for-artists" className="text-[#ccc] text-sm no-underline whitespace-nowrap px-1.5 shrink-0 hover:text-white transition-colors">
+            For Artists
+          </Link>
+
+          {/* Upload */}
+          <Link href="/creator/upload" className="text-[#ccc] text-sm no-underline whitespace-nowrap px-1.5 shrink-0 hover:text-white transition-colors">
+            Upload
+          </Link>
+
+          {/* Divider */}
+          <div className="w-px h-5 bg-[#505050] mx-1 shrink-0" />
+
+          {isLoggedIn && (
+            <>
+              {/* Avatar dropdown */}
+              <div ref={avatarRef} className="relative shrink-0">
+                <div className="flex items-center gap-1">
+                  <Link href={profileHref} aria-label="Go to profile" className="flex items-center no-underline">
+                    <Image
+                      src={avatarSrc}
+                      alt="User avatar"
+                      width={28}
+                      height={28}
+                      className="rounded-full object-cover"
+                      unoptimized
+                    />
+                  </Link>
+                  <button
+                    aria-label="Open profile menu"
+                    onClick={() => { setAvatarOpen((o) => !o); setDotsOpen(false); }}
+                    className="bg-transparent border-none cursor-pointer flex items-center px-0.5"
+                  >
+                    <span className="text-[#888]"><ChevronDown /></span>
+                  </button>
+                </div>
+                {avatarOpen && <DropdownMenu items={getAvatarMenu(profileHref)} onClose={() => setAvatarOpen(false)} />}
               </div>
-              {avatarOpen && <DropdownMenu items={getAvatarMenu(profileHref)} onClose={() => setAvatarOpen(false)} />}
-            </div>
 
-            {/* Bell */}
-            <button style={iconBtnStyle} aria-label="Notifications"
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#999")}
-            >
-              <BellIcon />
-            </button>
-
-            {/* Mail */}
-            <button style={iconBtnStyle} aria-label="Messages"
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#999")}
-            >
-              <MailIcon />
-            </button>
-
-            {/* Dots dropdown */}
-            <div ref={dotsRef} style={{ position: "relative", flexShrink: 0 }}>
+              {/* Bell */}
               <button
-                onClick={() => { setDotsOpen((o) => !o); setAvatarOpen(false); }}
-                style={{ ...iconBtnStyle }}
-                aria-label="More options"
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "#999")}
+                aria-label="Notifications"
+                onClick={() => router.push("/notifications")}
+                className="bg-transparent border-none cursor-pointer text-[#999] flex items-center justify-center p-1 transition-colors shrink-0 hover:text-white"
               >
-                <DotsIcon />
+                <BellIcon />
               </button>
-              {dotsOpen && <DropdownMenu items={DOTS_MENU} onClose={() => setDotsOpen(false)} />}
+
+              {/* Mail */}
+              <button
+                aria-label="Messages"
+                onClick={() => router.push("/messages")}
+                className="bg-transparent border-none cursor-pointer text-[#999] flex items-center justify-center p-1 transition-colors shrink-0 hover:text-white"
+              >
+                <MailIcon />
+              </button>
+
+              {/* Dots dropdown */}
+              <div ref={dotsRef} className="relative shrink-0">
+                <button
+                  onClick={() => { setDotsOpen((o) => !o); setAvatarOpen(false); }}
+                  aria-label="More options"
+                  className="bg-transparent border-none cursor-pointer text-[#999] flex items-center justify-center p-1 transition-colors hover:text-white"
+                >
+                  <DotsIcon />
+                </button>
+                {dotsOpen && <DropdownMenu items={dotsMenu} onClose={() => setDotsOpen(false)} />}
+              </div>
+            </>
+          )}
+
+          {!isLoggedIn && (
+            <div className="flex items-center gap-2 shrink-0">
+              <Link
+                href="/login"
+                className="text-white no-underline text-[13px] border border-[#3a3a3a] rounded-[3px] px-2.5 py-1.5 leading-none hover:border-[#666] transition-colors"
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/login"
+                className="text-[#111] bg-white no-underline text-[13px] rounded-[3px] px-2.5 py-1.5 leading-none font-semibold hover:bg-gray-200 transition-colors"
+              >
+                Create account
+              </Link>
             </div>
-          </>
-        )}
-      </div>
-    </header>
+          )}
+
+        </div>
+      </header>
+
+      {shortcutsOpen && <KeyboardShortcutsModal onClose={() => setShortcutsOpen(false)} />}
+    </>
   );
-} 
+}

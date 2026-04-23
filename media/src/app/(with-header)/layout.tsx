@@ -8,7 +8,7 @@ export default function WithHeaderLayout({
 }) {
   return (
     <>
-      <SoundCloudHeader avatarUrl="/your-avatar.jpg" isLoggedIn={true} />
+      <SoundCloudHeader />
       <main className="flex-1">
         {children}
       </main>
