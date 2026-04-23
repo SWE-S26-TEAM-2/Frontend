@@ -1,6 +1,33 @@
 import { getApiBaseUrl, normalizeApiUrl } from "@/config/env";
 import type { IUploadQuota, IUploadResponse, IUploadService, IUploadTrackPayload } from "@/types/upload.types";
 
+const getUploadErrorMessage = (responseText: string, status: number): string => {
+  const fallback = `Upload failed with status ${status}`;
+
+  try {
+    const parsed = JSON.parse(responseText);
+    const detail = parsed?.detail;
+
+    if (typeof detail === "string" && detail.trim()) return detail;
+    if (Array.isArray(detail) && detail.length > 0) {
+      return detail
+        .map((item) => {
+          if (typeof item === "string") return item;
+          if (typeof item?.msg === "string") return item.msg;
+          return null;
+        })
+        .filter((value): value is string => Boolean(value))
+        .join(", ") || fallback;
+    }
+
+    if (typeof parsed?.message === "string" && parsed.message.trim()) return parsed.message;
+  } catch {
+    // Ignore parse failures and fall back to a generic status-based message.
+  }
+
+  return fallback;
+};
+
 export const realUploadService: IUploadService = {
   // Backend has no quota endpoint — return a static default
   async getQuota(): Promise<IUploadQuota> {
@@ -43,13 +70,14 @@ export const realUploadService: IUploadService = {
             reject(new Error("Failed to parse upload response"));
           }
         } else {
-          // Log the full backend response so we can see validation errors
-          console.error(`[upload] ${xhr.status} response:`, xhr.responseText);
-          let detail = `Upload failed with status ${xhr.status}`;
-          try {
-            const errJson = JSON.parse(xhr.responseText);
-            detail = errJson?.detail ?? errJson?.message ?? detail;
-          } catch { /* ignore parse errors */ }
+          const detail = getUploadErrorMessage(xhr.responseText, xhr.status);
+
+          if (xhr.status >= 500) {
+            console.error(`[upload] ${xhr.status} response:`, xhr.responseText);
+          } else {
+            console.warn(`[upload] ${xhr.status}: ${detail}`);
+          }
+
           reject(new Error(detail));
         }
       });

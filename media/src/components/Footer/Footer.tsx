@@ -20,6 +20,43 @@ function formatTime(seconds: number): string {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
+function TrackArtwork({
+  src,
+  alt,
+  size,
+}: {
+  src?: string | null;
+  alt: string;
+  size: number;
+}) {
+  const artworkSrc = typeof src === "string" && src.trim() ? src : null;
+
+  if (!artworkSrc) {
+    return (
+      <div
+        className="rounded-sm bg-[#3a3a3a] shrink-0 flex items-center justify-center text-white/55"
+        style={{ width: size, height: size }}
+        aria-hidden="true"
+      >
+        <svg width={Math.round(size * 0.42)} height={Math.round(size * 0.42)} viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 3a9 9 0 1 0 9 9 9.01 9.01 0 0 0-9-9Zm0 13a4 4 0 1 1 4-4 4 4 0 0 1-4 4Zm0-6.5A2.5 2.5 0 1 0 14.5 12 2.5 2.5 0 0 0 12 9.5Z" />
+        </svg>
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src={artworkSrc}
+      alt={alt}
+      width={size}
+      height={size}
+      className="rounded-sm object-cover shrink-0"
+      onError={(e) => { (e.currentTarget as HTMLImageElement).style.visibility = "hidden"; }}
+    />
+  );
+}
+
 // Reusable icon button class — base (no active state)
 const iconBtn =
   "bg-transparent border-none cursor-pointer text-white/80 flex items-center justify-center p-1 shrink-0 transition-colors hover:text-white";
@@ -192,14 +229,7 @@ export default function Footer() {
               aria-label={`Open ${currentTrack.title}`}
               className="flex items-center gap-2.5 bg-transparent border-none p-0 text-inherit cursor-pointer"
             >
-              <Image
-                src={currentTrack.albumArt}
-                alt={currentTrack.title}
-                width={38}
-                height={38}
-                className="rounded-sm object-cover shrink-0"
-                onError={(e) => { (e.currentTarget as HTMLImageElement).style.visibility = "hidden"; }}
-              />
+              <TrackArtwork src={currentTrack.albumArt} alt={currentTrack.title} size={38} />
               <div className="overflow-hidden max-w-[160px] text-left">
                 <div className="text-white text-xs font-medium truncate">{currentTrack.title}</div>
                 <div className="text-[#c8c8c8] text-[11px] truncate">{currentTrack.artist}</div>
@@ -267,14 +297,7 @@ export default function Footer() {
                       aria-label={`Play ${track.title}`}
                       className="bg-transparent border-none p-0 cursor-pointer flex items-center justify-center"
                     >
-                      <Image
-                        src={track.albumArt}
-                        alt={track.title}
-                        width={36}
-                        height={36}
-                        className="rounded-sm object-cover"
-                        onError={(e) => { (e.currentTarget as HTMLImageElement).style.visibility = "hidden"; }}
-                      />
+                      <TrackArtwork src={track.albumArt} alt={track.title} size={36} />
                     </button>
 
                     {/* Title */}
