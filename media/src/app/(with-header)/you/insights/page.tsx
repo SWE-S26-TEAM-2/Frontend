@@ -14,6 +14,7 @@ import {
   InsightsOnSoundCloudCard,
   InsightsAboutModal,
   InsightsAllPlatformsTab,
+  InsightsChart,        // add this
 } from '@/components/Insights';
 import { insightsService } from '@/services';
 import type {
@@ -21,6 +22,8 @@ import type {
   InsightMetric,
   InsightTimeRange,
   IInsightsMetricData,
+  IInsightsTopTrack, // Added IInsightsTopTrack
+  IInsightsData,       // add this
 } from '@/types/insights.types';
 
 // ── Time range config ─────────────────────────────────────────────────────────
@@ -38,20 +41,13 @@ const TIME_RANGE_OPTIONS: TimeRangeOption[] = [
   { value: '1y',  label: 'Last 12 months', dropdownLabel: 'Last 12 months' },
 ];
 
-// The "switch to" button cycles to the next range in the list.
-// If already on the last range, it stays (button is hidden by the empty state only when needed).
-const SWITCH_TO_LABELS: Record<InsightTimeRange, string> = {
-  '7d':  'Switch to last 30 days',
-  '30d': 'Switch to last 90 days',
-  '90d': 'Switch to last 12 months',
-  '1y':  'Switch to last 7 days',
-};
-
 const SWITCH_TO_RANGE: Record<InsightTimeRange, InsightTimeRange> = {
+  today:   '7d',
   '7d':  '30d',
-  '30d': '90d',
+  '30d': '1y',
   '90d': '1y',
-  '1y':  '7d',
+  '1y':  'alltime',
+  'alltime': '7d',
 };
 
 const DEFAULT_TIME_RANGE: InsightTimeRange = '30d';
@@ -83,6 +79,8 @@ export default function InsightsPage() {
   const [isRangeOpen, setIsRangeOpen]       = useState(false);
   const [isAboutOpen, setIsAboutOpen]       = useState(false);
   const [metrics, setMetrics]               = useState<IInsightsMetricData>(EMPTY_METRICS);
+  const [topTracks, setTopTracks]           = useState<IInsightsTopTrack[]>([]); // Added topTracks state
+  const [chartData, setChartData] = useState<IInsightsData['chartData'] | null>(null);  //add this
   const [dateRangeLabel, setDateRangeLabel] = useState('');
   const [isLoading, setIsLoading]           = useState(true);
   const [error, setError]                   = useState('');
@@ -116,6 +114,8 @@ export default function InsightsPage() {
         const data = await insightsService.getInsights(activeRange);
         setMetrics(data.metrics);
         setDateRangeLabel(data.dateRangeLabel);
+        setTopTracks(data.topTracks); // Added setTopTracks update
+        setChartData(data.chartData);  // add this
       } catch (err) {
         console.error('[Insights] failed to fetch:', err);
         setError('Something went wrong. Please try again.');
@@ -178,7 +178,6 @@ export default function InsightsPage() {
           <h1 className="text-3xl font-bold text-white">Insights</h1>
 
           <div className="flex items-center gap-3">
-            {/* "About these Insights" — only visible on All Platforms tab */}
             {activeTab === 'all-platforms' && (
               <button
                 type="button"
@@ -189,42 +188,25 @@ export default function InsightsPage() {
               </button>
             )}
 
-            {/* Time range dropdown */}
             <div className="relative" ref={rangeDropdownRef}>
               <button
                 type="button"
                 onClick={() => setIsRangeOpen((prev) => !prev)}
                 aria-expanded={isRangeOpen}
-                aria-label="Select time range"
                 className="flex items-center gap-2 px-4 py-2 rounded-md bg-[#1a1a1a] border border-[#333] text-white text-sm font-semibold hover:border-[#555] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
               >
                 {displayLabel}
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  className={`transition-transform duration-200 ${isRangeOpen ? 'rotate-180' : ''}`}
-                  aria-hidden="true"
-                >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className={`transition-transform duration-200 ${isRangeOpen ? 'rotate-180' : ''}`}>
                   <polyline points="6 9 12 15 18 9" />
                 </svg>
               </button>
 
               {isRangeOpen && (
-                <div
-                  role="menu"
-                  aria-label="Time range options"
-                  className="absolute right-0 top-full mt-2 z-50 w-48 bg-[#1a1a1a] border border-[#2a2a2a] rounded-md shadow-xl py-1 overflow-hidden"
-                >
+                <div role="menu" className="absolute right-0 top-full mt-2 z-50 w-48 bg-[#1a1a1a] border border-[#2a2a2a] rounded-md shadow-xl py-1 overflow-hidden">
                   {TIME_RANGE_OPTIONS.map((option) => (
                     <button
                       key={option.value}
                       type="button"
-                      role="menuitem"
                       onClick={() => handleRangeSelect(option.value)}
                       className="w-full flex items-center justify-between px-4 py-2.5 text-sm hover:bg-[#2a2a2a] transition-colors duration-100"
                     >
@@ -232,7 +214,7 @@ export default function InsightsPage() {
                         {option.dropdownLabel}
                       </span>
                       {activeRange === option.value && (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
                           <polyline points="20 6 9 17 4 12" />
                         </svg>
                       )}
@@ -244,24 +226,14 @@ export default function InsightsPage() {
           </div>
         </div>
 
-        {/* Tab strip */}
         <InsightsTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-        {/* ── SoundCloud tab ── */}
         {activeTab === 'soundcloud' && (
           <>
-            <InsightsHeadlineStat
-              metric={activeMetric}
-              count={activeCount}
-              timeRange={activeRange}
-            />
+            <InsightsHeadlineStat metric={activeMetric} count={activeCount} timeRange={activeRange} />
 
             <div className="flex items-center justify-between gap-4 flex-wrap">
-              <InsightsMetricPills
-                metrics={metrics}
-                activeMetric={activeMetric}
-                onMetricChange={setActiveMetric}
-              />
+              <InsightsMetricPills metrics={metrics} activeMetric={activeMetric} onMetricChange={setActiveMetric} />
               <div className="flex items-center gap-3 text-sm shrink-0">
                 <span className="text-[#999]">Data updates every 24 hours</span>
                 <span className="text-white font-semibold">{dateRangeLabel}</span>
@@ -269,19 +241,15 @@ export default function InsightsPage() {
             </div>
 
             {isEmpty ? (
-              <InsightsEmptyState onSwitchToYearly={handleSwitchRange} />
-            ) : (
-              <div className="flex items-center justify-center py-24">
-                <p className="text-[#555] text-sm">Chart coming in Phase 2.</p>
-              </div>
-            )}
+              <InsightsEmptyState timeRange={activeRange} onSwitchRange={handleSwitchRange} />
+            ) : chartData ? (
+              <InsightsChart chartData={chartData[activeMetric]} />
+            ) : null}
 
             <div className="grid grid-cols-2 gap-6">
-              <InsightsTopTracksCard timeRangeLabel={displayLabel} />
-              <InsightsPremiumCard
-                metric={activeMetric}
-                timeRangeLabel={displayLabel}
-              />
+              {/* Change 4: Passed tracks prop to InsightsTopTracksCard */}
+              <InsightsTopTracksCard tracks={topTracks} timeRangeLabel={displayLabel} />
+              <InsightsPremiumCard metric={activeMetric} timeRangeLabel={displayLabel} />
             </div>
 
             <InsightsTopLocationsCard timeRangeLabel={displayLabel} />
@@ -289,17 +257,10 @@ export default function InsightsPage() {
           </>
         )}
 
-        {/* ── All Platforms tab ── */}
-        {activeTab === 'all-platforms' && (
-          <InsightsAllPlatformsTab />
-        )}
-
+        {activeTab === 'all-platforms' && <InsightsAllPlatformsTab />}
       </main>
 
-      {/* About modal */}
-      {isAboutOpen && (
-        <InsightsAboutModal onClose={() => setIsAboutOpen(false)} />
-      )}
+      {isAboutOpen && <InsightsAboutModal onClose={() => setIsAboutOpen(false)} />}
     </div>
   );
 }

@@ -11,3 +11,4 @@ export { default as InsightsOnSoundCloudCard } from './InsightsOnSoundCloudCard'
 export { default as WorldMapSvg } from './WorldMapSvg';
 export { default as InsightsAboutModal } from './InsightsAboutModal';
 export { default as InsightsAllPlatformsTab } from './InsightsAllPlatformsTab';
+export { default as InsightsChart } from './InsightsChart';
