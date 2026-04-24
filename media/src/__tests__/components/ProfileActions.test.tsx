@@ -1,9 +1,8 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { ProfileActions } from "@/components/Profile/ProfileActions";
 import type { IUser } from "@/types/userProfile.types";
 
 const mockPush = jest.fn();
-const mockUpdateProfile = jest.fn();
 const mockFollowUser = jest.fn();
 const mockUnfollowUser = jest.fn();
 
@@ -21,9 +20,6 @@ jest.mock("@/components/Share/Share", () => ({
 }));
 
 jest.mock("@/services/di", () => ({
-  AuthService: {
-    updateProfile: (...args: unknown[]) => mockUpdateProfile(...args),
-  },
   userProfileService: {
     followUser: (...args: unknown[]) => mockFollowUser(...args),
     unfollowUser: (...args: unknown[]) => mockUnfollowUser(...args),
@@ -36,6 +32,7 @@ const ownerUser: IUser = {
   location: "Cairo, Egypt",
   bio: "Original bio",
   role: "listener",
+  isPrivate: false,        
   followers: 0,
   following: 0,
   tracks: 0,
@@ -48,67 +45,31 @@ const ownerUser: IUser = {
 describe("ProfileActions", () => {
   beforeEach(() => {
     mockPush.mockReset();
-    mockUpdateProfile.mockReset();
     mockFollowUser.mockReset();
     mockUnfollowUser.mockReset();
   });
 
-  it("saves profile edits through AuthService.updateProfile", async () => {
-    mockUpdateProfile.mockResolvedValue({
-      success: true,
-      user: {
-        id: "user-1",
-        username: "updated-name",
-        email: "test@example.com",
-        profileImageUrl: "",
-        createdAt: new Date().toISOString(),
-      },
-    });
+  //TEST 1: Edit button triggers callback
+  it("calls onEditOpen when Edit button is clicked", () => {
+    const mockOnEditOpen = jest.fn();
 
-    render(<ProfileActions user={ownerUser} />);
+    render(<ProfileActions user={ownerUser} onEditOpen={mockOnEditOpen} />);
 
     fireEvent.click(screen.getByRole("button", { name: /edit/i }));
 
-    const textboxes = screen.getAllByRole("textbox");
-
-    fireEvent.change(textboxes[0], {
-      target: { value: "updated-name" },
-    });
-    fireEvent.change(textboxes[1], {
-      target: { value: "New bio" },
-    });
-    fireEvent.change(textboxes[2], {
-      target: { value: "Alexandria, Egypt" },
-    });
-
-    fireEvent.click(screen.getByRole("button", { name: /^save$/i }));
-
-    await waitFor(() => {
-      expect(mockUpdateProfile).toHaveBeenCalledWith({
-        displayName: "updated-name",
-        bio: "New bio",
-        location: "Alexandria, Egypt",
-      });
-    });
-
-    await waitFor(() => {
-      expect(screen.queryByText(/edit profile/i)).not.toBeInTheDocument();
-    });
+    expect(mockOnEditOpen).toHaveBeenCalledTimes(1);
   });
 
-  it("keeps the edit modal text-only with no image upload controls", () => {
-    const { container } = render(<ProfileActions user={ownerUser} />);
+  //TEST 2: Share modal opens correctly
+  it("opens and closes the share modal", () => {
+    render(<ProfileActions user={ownerUser} />);
 
-    fireEvent.click(screen.getByRole("button", { name: /edit/i }));
+    fireEvent.click(screen.getByRole("button", { name: /share/i }));
 
-    const textboxes = screen.getAllByRole("textbox");
+    expect(screen.getByText(/share modal for testuser/i)).toBeInTheDocument();
 
-    expect(textboxes).toHaveLength(3);
-    expect(screen.getByText(/display name/i)).toBeInTheDocument();
-    expect(screen.getByText(/^bio$/i)).toBeInTheDocument();
-    expect(screen.getByText(/location/i)).toBeInTheDocument();
-    expect(screen.queryByText(/upload image/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/update image/i)).not.toBeInTheDocument();
-    expect(container.querySelector('input[type="file"]')).toBeNull();
+    fireEvent.click(screen.getByText(/close share/i));
+
+    expect(screen.queryByText(/share modal/i)).not.toBeInTheDocument();
   });
 });

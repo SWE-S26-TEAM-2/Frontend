@@ -23,48 +23,48 @@ describe("Banner", () => {
   });
 
   it("uploads an avatar file through the owner callback", async () => {
-    const onUploadAvatar = jest.fn().mockResolvedValue(undefined);
-    const onUploadCover = jest.fn().mockResolvedValue(undefined);
+    const onAvatarChange = jest.fn();
+    const onHeaderChange = jest.fn();
 
     const { container } = render(
       <Banner
         user={baseUser}
-        onUploadAvatar={onUploadAvatar}
-        onUploadCover={onUploadCover}
+        onAvatarChange={onAvatarChange}
+        onHeaderChange={onHeaderChange}
       />
     );
 
     const inputs = container.querySelectorAll('input[type="file"]');
-    const avatarInput = inputs[0] as HTMLInputElement;
+    const avatarInput = inputs[1] as HTMLInputElement;
     const file = new File(["avatar"], "avatar.png", { type: "image/png" });
 
     fireEvent.change(avatarInput, { target: { files: [file] } });
 
     await waitFor(() => {
-      expect(onUploadAvatar).toHaveBeenCalledWith(file);
+      expect(onAvatarChange).toHaveBeenCalledWith("blob:preview");
     });
   });
 
   it("uploads a cover file through the owner callback", async () => {
-    const onUploadAvatar = jest.fn().mockResolvedValue(undefined);
-    const onUploadCover = jest.fn().mockResolvedValue(undefined);
+    const onAvatarChange = jest.fn();
+    const onHeaderChange = jest.fn();
 
     const { container } = render(
       <Banner
         user={baseUser}
-        onUploadAvatar={onUploadAvatar}
-        onUploadCover={onUploadCover}
+        onAvatarChange={onAvatarChange}
+        onHeaderChange={onHeaderChange}
       />
     );
 
     const inputs = container.querySelectorAll('input[type="file"]');
-    const coverInput = inputs[1] as HTMLInputElement;
+    const coverInput = inputs[0] as HTMLInputElement;
     const file = new File(["cover"], "cover.png", { type: "image/png" });
 
     fireEvent.change(coverInput, { target: { files: [file] } });
 
     await waitFor(() => {
-      expect(onUploadCover).toHaveBeenCalledWith(file);
+      expect(onHeaderChange).toHaveBeenCalledWith("blob:preview");
     });
   });
 
@@ -72,8 +72,8 @@ describe("Banner", () => {
     render(
       <Banner
         user={{ ...baseUser, isOwner: false }}
-        onUploadAvatar={jest.fn()}
-        onUploadCover={jest.fn()}
+        onAvatarChange={jest.fn()}
+        onHeaderChange={jest.fn()}
       />
     );
 
