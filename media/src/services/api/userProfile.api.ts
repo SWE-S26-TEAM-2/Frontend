@@ -1,8 +1,12 @@
 // src/services/api/userProfile.api.ts
-import { ENV, getApiBaseUrl, normalizeApiUrl } from "@/config/env";
-import type { IUserProfileService, IUser, IUserProfileTrack, ILikedTrack, IFanUser, IFollower, IFollowing, ISearchUser } from "@/types/userProfile.types";
+import { ENV } from "@/config/env";
+import { getApiBaseUrl, normalizeApiUrl } from "@/config/env";
+import type {
+  IUserProfileService, IUser, IUserProfileTrack,
+  ILikedTrack, IFanUser, IFollower, IFollowing, ISearchUser,
+  IEditProfilePayload,
+} from "@/types/userProfile.types";
 import type { ITrack } from "@/types/track.types";
-import type { IEditProfilePayload } from "@/types/userProfile.types";
 import { apiPost, apiDelete, apiGet } from "./apiClient";
 
 const apiUrl = (path: string): string => normalizeApiUrl(`${getApiBaseUrl()}${path}`);
@@ -54,7 +58,11 @@ const resolveMediaUrl = (value: unknown): string | null => {
   return raw.startsWith("/") ? `${origin}${raw}` : `${origin}/${raw}`;
 };
 
-const fetchWithTimeout = async (input: RequestInfo | URL, init: RequestInit, timeoutMs = 15000): Promise<Response> => {
+const fetchWithTimeout = async (
+  input: RequestInfo | URL,
+  init: RequestInit,
+  timeoutMs = 15000,
+): Promise<Response> => {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -72,24 +80,33 @@ const addCacheBuster = (value: unknown): string | undefined => {
 };
 
 function normalizeUser(d: Record<string, unknown>, requestedId: string): IUser {
+  const location = (d.location as string) ?? "";
+  const parts = location.split(",").map((s) => s.trim());
+
   return {
-    id: (d.user_id as string) ?? requestedId,
-    username: (d.display_name as string) ?? "",
-    location: (d.location as string) ?? "",
-    bio: (d.bio as string) ?? undefined,
-    role: ((d.account_type as string) === "artist" ? "artist" : "listener"),
-    isPrivate: (d.is_private as boolean) ?? false,
-    avatarUrl: resolveMediaUrl(d.profile_picture),
-    headerUrl: resolveMediaUrl(d.cover_photo),
-    followers: (d.follower_count as number) ?? 0,
-    following: (d.following_count as number) ?? 0,
-    tracks: 0,
-    likes: 0,
-    isOwner: (d.user_id as string) === getStoredUserId(),
+    id:           (d.user_id as string)      ?? requestedId,
+    username:     (d.display_name as string) ?? "",
+    displayName:  (d.display_name as string) ?? undefined,
+    firstName:    (d.first_name as string)   ?? undefined,
+    lastName:     (d.last_name as string)    ?? undefined,
+    city:         (d.city as string)         ?? parts[0]  ?? undefined,
+    country:      (d.country as string)      ?? parts[1]  ?? undefined,
+    location,
+    bio:          (d.bio as string)          ?? undefined,
+    role:         (d.account_type as string) === "artist" ? "artist" : "listener",
+    isPrivate:    (d.is_private as boolean)  ?? false,
+    avatarUrl:    resolveMediaUrl(d.profile_picture),
+    headerUrl:    resolveMediaUrl(d.cover_photo),
+    followers:    (d.follower_count as number)  ?? 0,
+    following:    (d.following_count as number) ?? 0,
+    tracks:       0,
+    likes:        0,
+    isOwner:      (d.user_id as string) === getStoredUserId(),
   };
 }
 
 export const realUserProfileService: IUserProfileService = {
+
   async getUserProfile(userId: string): Promise<IUser> {
     const token = getAuthToken();
     const headers: Record<string, string> = {};
@@ -133,12 +150,13 @@ export const realUserProfileService: IUserProfileService = {
     return res.json();
   },
 
-  // FIX issue #6: no longer throws unconditionally — warns and returns current user as fallback.
-  // FIX issue #7: if payload contains avatarFile, upload it via uploadAvatar first.
-  async updateProfile(userId: string, payload: IEditProfilePayload): Promise<IUser> {
+
+  async updateProfile(_userId: string, payload: IEditProfilePayload): Promise<IUser> {
     const token = getAuthToken();
 
-    // If the user selected a new avatar, upload it first
+    // FIX issue #5: surface the auth error — don't silently swallow it
+    if (!token) throw new Error("You must be logged in to update your profile");
+
     if (payload.avatarFile) {
       try {
         await realUserProfileService.uploadAvatar(payload.avatarFile);
@@ -147,41 +165,35 @@ export const realUserProfileService: IUserProfileService = {
       }
     }
 
-    if (!token) {
-      console.warn("updateProfile: not implemented on real API yet — returning current profile");
-      return realUserProfileService.getUserProfile(userId);
+    const body: Record<string, unknown> = {
+      display_name: payload.displayName,
+      first_name:   payload.firstName,
+      last_name:    payload.lastName,
+      city:         payload.city,
+      country:      payload.country,
+      bio:          payload.bio,
+    };
+
+    Object.keys(body).forEach((k) => body[k] === undefined && delete body[k]);
+
+    const res = await fetchWithTimeout(apiUrl("/users/me"), {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({}));
+      throw new Error((error as { detail?: string }).detail || "Failed to update profile");
     }
 
-    try {
-      const body: Record<string, unknown> = {
-        display_name: payload.displayName,
-        bio:          payload.bio,
-        location:     [payload.city, payload.country].filter(Boolean).join(", ") || undefined,
-      };
-      // Remove undefined keys so the API doesn't receive nulls it doesn't expect
-      Object.keys(body).forEach(k => body[k] === undefined && delete body[k]);
-
-      const res = await fetchWithTimeout(apiUrl(`/users/${userId}`), {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(body),
-      });
-
-      if (!res.ok) {
-        console.warn(`updateProfile: API returned ${res.status}, falling back to current profile`);
-        return realUserProfileService.getUserProfile(userId);
-      }
-
-      const json = await res.json();
-      const data = (json.data ?? json) as Record<string, unknown>;
-      return normalizeUser(data, userId);
-    } catch (err) {
-      console.warn("updateProfile: request failed, falling back to current profile", err);
-      return realUserProfileService.getUserProfile(userId);
-    }
+    const json = await res.json();
+    const data = (json.data ?? json) as Record<string, unknown>;
+    const storedId = getStoredUserId() ?? "";
+    return normalizeUser(data, storedId);
   },
 
   async uploadAvatar(file: File): Promise<IUser> {
@@ -193,15 +205,13 @@ export const realUserProfileService: IUserProfileService = {
 
     const res = await fetchWithTimeout(apiUrl("/users/me/avatar"), {
       method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
       body: formData,
     });
 
     if (!res.ok) {
       const error = await res.json().catch(() => ({}));
-      throw new Error(error?.detail || "Failed to upload avatar");
+      throw new Error((error as { detail?: string }).detail || "Failed to upload avatar");
     }
 
     const json = await res.json();
@@ -220,15 +230,13 @@ export const realUserProfileService: IUserProfileService = {
 
     const res = await fetchWithTimeout(apiUrl("/users/me/cover"), {
       method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
       body: formData,
     });
 
     if (!res.ok) {
       const error = await res.json().catch(() => ({}));
-      throw new Error(error?.detail || "Failed to upload cover image");
+      throw new Error((error as { detail?: string }).detail || "Failed to upload cover image");
     }
 
     const json = await res.json();
@@ -249,15 +257,15 @@ export const realUserProfileService: IUserProfileService = {
   async searchUsers(query: string): Promise<ISearchUser[]> {
     const data = await apiGet<{ users: Record<string, unknown>[] }>(
       `${ENV.API_BASE_URL}/search/users?keyword=${encodeURIComponent(query.trim())}`,
-      { skipAuth: true }
+      { skipAuth: true },
     );
     return (data.users ?? []).map((u) => ({
-      id: u.user_id as string,
-      username: u.display_name as string,
-      role: (u.account_type as string) === "artist" ? "artist" : "listener",
-      avatarUrl: (u.profile_picture as string) ?? null,
-      followerCount: (u.follower_count as number) ?? 0,
-      isVerified: (u.is_verified as boolean) ?? false,
+      id:            u.user_id as string,
+      username:      u.display_name as string,
+      role:          (u.account_type as string) === "artist" ? "artist" : "listener",
+      avatarUrl:     (u.profile_picture as string) ?? null,
+      followerCount: (u.follower_count as number)  ?? 0,
+      isVerified:    (u.is_verified as boolean)    ?? false,
     }));
   },
 };

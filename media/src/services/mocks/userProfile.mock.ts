@@ -196,27 +196,28 @@ export const mockUserProfileService: IUserProfileService = {
     return MOCK_FOLLOWING;
   },
 
+  // FIX issue #6: corrected indentation to match the rest of the object literal
   async updateProfile(userId: string, payload: IEditProfilePayload): Promise<IUser> {
-  await delay(500);
-  const index = MOCK_USERS.findIndex(u => u.id === userId);
-  if (index === -1) throw new Error(`User "${userId}" not found`);
+    await delay(500);
+    const index = MOCK_USERS.findIndex(u => u.id === userId);
+    if (index === -1) throw new Error(`User "${userId}" not found`);
 
-  const updated: IUser = {
-    ...MOCK_USERS[index],
-    ...(payload.displayName !== undefined && { displayName: payload.displayName }),
-    ...(payload.firstName   !== undefined && { firstName:   payload.firstName }),
-    ...(payload.lastName    !== undefined && { lastName:    payload.lastName }),
-    ...(payload.city        !== undefined && { city:        payload.city }),
-    ...(payload.country     !== undefined && { country:     payload.country }),
-    ...(payload.bio         !== undefined && { bio:         payload.bio }),
-    ...(payload.links       !== undefined && { socialLinks: payload.links }),
-    location: [payload.city ?? MOCK_USERS[index].city, payload.country ?? MOCK_USERS[index].country]
-      .filter(Boolean).join(", ") || MOCK_USERS[index].location,
-  };
+    const updated: IUser = {
+      ...MOCK_USERS[index],
+      ...(payload.displayName !== undefined && { displayName: payload.displayName }),
+      ...(payload.firstName   !== undefined && { firstName:   payload.firstName }),
+      ...(payload.lastName    !== undefined && { lastName:    payload.lastName }),
+      ...(payload.city        !== undefined && { city:        payload.city }),
+      ...(payload.country     !== undefined && { country:     payload.country }),
+      ...(payload.bio         !== undefined && { bio:         payload.bio }),
+      ...(payload.links       !== undefined && { socialLinks: payload.links }),
+      location: [payload.city ?? MOCK_USERS[index].city, payload.country ?? MOCK_USERS[index].country]
+        .filter(Boolean).join(", ") || MOCK_USERS[index].location,
+    };
 
-  MOCK_USERS[index] = updated;
-  return updated;
-},
+    MOCK_USERS[index] = updated;
+    return updated;
+  },
 
   async uploadAvatar(file: File): Promise<IUser> {
     await delay(250);

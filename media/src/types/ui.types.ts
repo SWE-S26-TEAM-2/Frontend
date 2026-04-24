@@ -78,7 +78,6 @@ export type IActiveTab =
     onSave: (payload: IEditProfilePayload) => Promise<void>;
   }
 
-
   export interface IVerifyEmailStepProps {
     email: string;
     onBack: () => void;
