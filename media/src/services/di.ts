@@ -14,6 +14,20 @@ import type { IUserProfileService } from "@/types/userProfile.types";
 import type { IPrivacySettings } from "@/types/settings-privacy.types";
 //import { IPrivacySettings } from "@/types/privacy.types";
 
+
+// trending
+import {
+  getCuratedTracks,
+  getEmergingTracks,
+  getPowerPlaylists,
+} from "./mocks/trending.mock"; 
+
+import {
+  getCuratedTracksAPI,
+  getEmergingTracksAPI,
+  getPowerPlaylistsAPI,
+} from "./api/trending.api";
+
 // settings/privacy
 import { getMockPrivacySettings, updateMockPrivacySettings } from "./mocks/settings-privacy.mock";
 import { getPrivacySettingsFromAPI, updatePrivacySettingsOnAPI } from "./api/settings-privacy.api";
@@ -42,6 +56,11 @@ import { getTwoFactorSettingsFromAPI, updateTwoFactorSettingsOnAPI } from "./api
 import { mockUploadService } from "./mocks/upload.mock";
 import { realUploadService } from "./api/upload.api";
 import type { IUploadService } from "@/types/upload.types";
+
+
+
+import { mockHomeService, realHomeService } from "./api/home.api";
+import { IHomeService } from "@/types/home.types";
 
 /**
  * Authentication Service
@@ -156,21 +175,18 @@ export {
 };
 
 
-// trending
-import {
-  getCuratedTracks,
-  getEmergingTracks,
-  getPowerPlaylists,
-} from "./mocks/trending.mock"; 
 
-import {
-  getCuratedTracksAPI,
-  getEmergingTracksAPI,
-  getPowerPlaylistsAPI,
-} from "./api/trending.api";
 
 export const trendingService = {
   getCurated: ENV.USE_MOCK_API ? getCuratedTracks : getCuratedTracksAPI,
   getEmerging: ENV.USE_MOCK_API ? getEmergingTracks : getEmergingTracksAPI,
   getPower: ENV.USE_MOCK_API ? getPowerPlaylists : getPowerPlaylistsAPI,
 };
+
+
+
+
+export const homeService: IHomeService =
+  ENV.USE_MOCK_API
+    ? mockHomeService
+    : realHomeService;

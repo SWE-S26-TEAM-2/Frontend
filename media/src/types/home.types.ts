@@ -1,4 +1,5 @@
-import { ITrack } from './track.types';
+import { ITrack } from "./track.types";
+import type { ReactNode } from "react";
 
 export interface IArtist {
   id: string;
@@ -6,16 +7,15 @@ export interface IArtist {
   followers: string;
   tracksCount: number;
   imageUrl: string;
-  type: 'artist'; 
+  type: "artist";
 }
 
-// Discriminated Union: This is the key to removing (any)
-export type IRecentItem = 
-  | (ITrack & { type: 'track'; playedAt?: string }) 
-  | (IArtist & { type: 'artist'; playedAt?: string });
+export type IRecentItem =
+  | (ITrack & { type: "track"; playedAt?: string })
+  | (IArtist & { type: "artist"; playedAt?: string });
 
 export interface IToolItem {
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
   isGold?: boolean;
 }
@@ -32,4 +32,9 @@ export interface IHomePageData {
   discoverStations: ITrack[];
   followSuggestions: IArtist[];
   listeningHistory: ITrack[];
+}
+
+export interface IHomeService {
+  getHomePageData(username?: string): Promise<IHomePageData>;
+  refreshFollowSuggestions(): Promise<IArtist[]>;
 }

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import TrackSlider from '../../../components/Track/TrackSlider';
 import RecentlyPlayedGrid from '../../../components/Home/RecentlyPlayed';
 import RightSidebar from '../../../components/Home/SideBar'; 
-import { HomeAPI } from '../../../services/api/home.api';
+import { homeService } from '@/services';
 import { IHomePageData } from '../../../types/home.types';
 import Header from '../../../components/Header/Header';
 import Footer from '../../../components/Footer/Footer';
@@ -17,7 +17,7 @@ export default function HomePage() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const result = await HomeAPI.getHomePageData(username);
+const result = await homeService.getHomePageData(username);
         setData(result);
       } catch (error) {
         console.error("Failed to fetch home data:", error);
