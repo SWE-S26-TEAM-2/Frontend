@@ -6,7 +6,9 @@ export const getApiBaseUrl = (): string => {
   const configured = process.env.NEXT_PUBLIC_API_URL?.trim();
 
   if (typeof window === "undefined") {
-    return trimTrailingSlash(configured || DEFAULT_DEV_API_BASE);
+    // Inside Docker, use internal service URL to avoid external DNS resolution
+    const internal = process.env.INTERNAL_API_URL?.trim();
+    return trimTrailingSlash(internal || configured || DEFAULT_DEV_API_BASE);
   }
 
   if (!configured) {
