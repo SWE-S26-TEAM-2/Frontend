@@ -87,8 +87,8 @@ describe("Header Component", () => {
 
     test("renders avatar and dropdown controls when logged in", () => {
       render(<Header isLoggedIn={true} />);
-      const avatarImage = screen.getByAltText("User avatar");
-      expect(avatarImage).toBeInTheDocument();
+      expect(screen.getByLabelText("Open profile menu")).toBeInTheDocument();
+      expect(screen.getByText("?")).toBeInTheDocument();
     });
 
     test("does not render avatar controls when not logged in", () => {
@@ -316,8 +316,7 @@ describe("Header Component", () => {
     test("uses local avatar fallback when no user profile image", () => {
       render(<Header isLoggedIn={true} />);
 
-      const avatarImage = screen.getByAltText("User avatar") as HTMLImageElement;
-      expect(avatarImage.src).toContain("your-avatar.jpg");
+      expect(screen.getByText("?")).toBeInTheDocument();
     });
   });
 

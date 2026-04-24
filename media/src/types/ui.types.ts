@@ -72,14 +72,14 @@ export type IActiveTab =
   | "Playlists"
   | "Reposts";
 
-  export interface IEditProfileModalProps {
-    user: IUser;
-    onClose: () => void;
-    onSave: (payload: IEditProfilePayload) => Promise<void>;
-  }
+export interface IEditProfileModalProps {
+  user: IUser;
+  onClose: () => void;
+  onSave: (payload: IEditProfilePayload) => Promise<void>;
+}
 
-  export interface IVerifyEmailStepProps {
-    email: string;
-    onBack: () => void;
-    onVerified: () => void;
-  }
+export interface IVerifyEmailStepProps {
+  email: string;
+  onBack: () => void;
+  onVerified: () => void;
+}
