@@ -161,8 +161,8 @@ const MOCK_TOP_TRACKS: IInsightsTopTrack[] = [
 
 const MOCK_METRICS: Record<InsightTimeRange, IInsightsData['metrics']> = {
   today:   { plays: 0,    likes: 0,   comments: 0,  reposts: 0,  downloads: 0 },
-  '7d':    { plays: 0,    likes: 0,   comments: 0,  reposts: 0,  downloads: 0 },
-  '30d':   { plays: 0,    likes: 0,   comments: 0,  reposts: 0,  downloads: 0 },
+  '7d':    { plays: 0,    likes: 0,   comments: 50,  reposts: 0,  downloads: 0 },
+  '30d':   { plays: 50,    likes: 50,   comments: 50,  reposts: 50,  downloads: 50 },
   '90d':   { plays: 1240, likes: 87,  comments: 19, reposts: 34, downloads: 8 },
   '1y':    { plays: 3842, likes: 198, comments: 47, reposts: 83, downloads: 21 },
   alltime: { plays: 5340, likes: 312, comments: 94, reposts: 130, downloads: 45 },

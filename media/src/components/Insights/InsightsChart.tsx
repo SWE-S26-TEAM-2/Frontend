@@ -14,9 +14,16 @@ export default function InsightsChart({ chartData }: IInsightsChartProps) {
       <div className="flex items-end gap-1 h-64 w-full">
         {bars.map((bar, i) => {
           const heightPct = maxValue > 0 ? (bar.value / maxValue) * 100 : 0;
+
+          //before
           // Always render a minimum visible bar height so the chart looks full
-          const minHeightPct = 85;
-          const displayPct = bar.value > 0 ? Math.max(heightPct, minHeightPct) : minHeightPct;
+          //const minHeightPct = 85;
+          //const displayPct = bar.value > 0 ? Math.max(heightPct, minHeightPct) : minHeightPct;
+
+          //after
+          const MIN_VISIBLE_PCT = 3;
+          // Zero-value bars render flat; non-zero bars get at least MIN_VISIBLE_PCT
+          const displayPct = bar.value > 0 ? Math.max(heightPct, MIN_VISIBLE_PCT) : 0;
 
           return (
             <div

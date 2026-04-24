@@ -28,12 +28,23 @@ export default function InsightsHeadlineStat({
 }: IInsightsHeadlineStat) {
   const text = buildHeadlineText(metric, count, timeRange);
 
+  //before
+  // return (
+  //   <h1 className="text-4xl font-bold text-white leading-tight">
+  //     {text}
+  //     {count === 0 && (
+  //       <span className="text-[#999] font-bold"> (0%)</span>
+  //     )}
+  //   </h1>
+  // );
+
+  // AFTER — demote to <p> since page.tsx owns the <h1>
   return (
-    <h1 className="text-4xl font-bold text-white leading-tight">
+    <p className="text-4xl font-bold text-white leading-tight">
       {text}
       {count === 0 && (
         <span className="text-[#999] font-bold"> (0%)</span>
       )}
-    </h1>
+    </p>
   );
 }

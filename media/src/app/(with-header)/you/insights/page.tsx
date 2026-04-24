@@ -34,20 +34,37 @@ type TimeRangeOption = {
   dropdownLabel: string;
 };
 
+// const TIME_RANGE_OPTIONS: TimeRangeOption[] = [
+//   { value: '7d',  label: 'Last 7 days',    dropdownLabel: 'Last 7 days'    },
+//   { value: '30d', label: 'Last 30 days',   dropdownLabel: 'Last 30 days'   },
+//   { value: '90d', label: 'Last 90 days',   dropdownLabel: 'Last 90 days'   },
+//   { value: '1y',  label: 'Last 12 months', dropdownLabel: 'Last 12 months' },
+// ];
+
 const TIME_RANGE_OPTIONS: TimeRangeOption[] = [
-  { value: '7d',  label: 'Last 7 days',    dropdownLabel: 'Last 7 days'    },
-  { value: '30d', label: 'Last 30 days',   dropdownLabel: 'Last 30 days'   },
-  { value: '90d', label: 'Last 90 days',   dropdownLabel: 'Last 90 days'   },
-  { value: '1y',  label: 'Last 12 months', dropdownLabel: 'Last 12 months' },
+  { value: 'today', label: 'Today',          dropdownLabel: 'Today'          },
+  { value: '7d',    label: 'Last 7 days',    dropdownLabel: 'Last 7 days'    },
+  { value: '30d',   label: 'Last 30 days',   dropdownLabel: 'Last 30 days'   },
+  { value: '1y',    label: 'Last 12 months', dropdownLabel: 'Last 12 months' },
+  { value: 'alltime', label: 'All time',     dropdownLabel: 'All time'       },
 ];
+
+// const SWITCH_TO_RANGE: Record<InsightTimeRange, InsightTimeRange> = {
+//   today:   '7d',
+//   '7d':  '30d',
+//   '30d': '1y',
+//   '90d': '1y',
+//   '1y':  'alltime',
+//   'alltime': '7d',
+// };
 
 const SWITCH_TO_RANGE: Record<InsightTimeRange, InsightTimeRange> = {
   today:   '7d',
-  '7d':  '30d',
-  '30d': '1y',
-  '90d': '1y',
-  '1y':  'alltime',
-  'alltime': '7d',
+  '7d':    '30d',
+  '30d':   '1y',
+  '90d':   '1y',   // keep in type but skip in UI
+  '1y':    'alltime',
+  alltime: '7d',
 };
 
 const DEFAULT_TIME_RANGE: InsightTimeRange = '30d';
@@ -137,8 +154,14 @@ export default function InsightsPage() {
     setIsRangeOpen(false);
   };
 
-  const handleSwitchRange = () => {
-    setActiveRange(SWITCH_TO_RANGE[activeRange]);
+  //before
+  // const handleSwitchRange = () => {
+  //   setActiveRange(SWITCH_TO_RANGE[activeRange]);
+  // };
+
+  //after
+  const handleSwitchRange = (nextRange: InsightTimeRange) => {
+    setActiveRange(nextRange);
   };
 
   // ── Loading ─────────────────────────────────────────────────────────────────

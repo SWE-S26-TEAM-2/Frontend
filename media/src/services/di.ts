@@ -240,12 +240,20 @@ export const serviceStatus = {
   mode: ENV.USE_MOCK_API ? "MOCK" : "REAL",
 };
 
+// before
 /**
  * Insights Service
  */
-export const insightsService: IInsightsService = ENV.USE_MOCK_API
-  ? mockInsightsService
-  : realInsightsService;
+// export const insightsService: IInsightsService = ENV.USE_MOCK_API
+//   ? mockInsightsService
+//   : realInsightsService;
+
+// After:
+/**
+ * Insights Service
+ * Hardcoded to mock — backend /api/insights endpoint not implemented yet.
+ */
+export const insightsService: IInsightsService = mockInsightsService;
 
 // Export individual services for direct imports if needed
 export {
