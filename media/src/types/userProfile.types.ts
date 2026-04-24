@@ -6,22 +6,22 @@ import type { ITrack } from "@/types/track.types";
 export interface IUser {
   id: string;
   username: string;
-  displayName?: string;   
-  firstName?: string;     
-  lastName?: string;      
-  city?: string;         
-  country?: string;       
+  displayName?: string;
+  firstName?: string;
+  lastName?: string;
+  city?: string;
+  country?: string;
   location: string;
-  bio?: string;                         
-  favoriteGenres?: string[];          
-  role: "artist" | "listener";         
-  socialLinks?: {                       
+  bio?: string;
+  favoriteGenres?: string[];
+  role: "artist" | "listener";
+  socialLinks?: {
     website?: string;
     instagram?: string;
     twitter?: string;
     facebook?: string;
   };
-  isPrivate?: boolean;                  
+  isPrivate?: boolean;
   followers: number;
   following: number;
   tracks: number;
@@ -93,6 +93,23 @@ export interface ISearchUser {
   isVerified: boolean;
 }
 
+export interface IEditProfilePayload {
+  displayName?: string;
+  firstName?: string;
+  lastName?: string;
+  city?: string;
+  country?: string;
+  bio?: string;
+  profileUrl?: string;
+  avatarFile?: File; // FIX issue #7: carries the selected avatar file through to the service
+  links?: {
+    website?: string;
+    instagram?: string;
+    twitter?: string;
+    facebook?: string;
+  };
+}
+
 export interface IUserProfileService {
   getUserProfile(username: string): Promise<IUser>;
   getUserTracks(userId: string): Promise<ITrack[]>;
@@ -106,20 +123,4 @@ export interface IUserProfileService {
   followUser(userId: string): Promise<void>;
   unfollowUser(userId: string): Promise<void>;
   searchUsers(query: string): Promise<ISearchUser[]>;
-}
-
-export interface IEditProfilePayload {
-  displayName?: string;
-  firstName?: string;
-  lastName?: string;
-  city?: string;
-  country?: string;
-  bio?: string;
-  profileUrl?: string;
-  links?: {
-    website?: string;
-    instagram?: string;
-    twitter?: string;
-    facebook?: string;
-  };
 }

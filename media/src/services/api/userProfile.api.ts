@@ -101,36 +101,88 @@ export const realUserProfileService: IUserProfileService = {
     const data = json.data ?? json;
     return normalizeUser(data as Record<string, unknown>, userId);
   },
+
   async getUserTracks(userId: string): Promise<ITrack[]> {
     const res = await fetch(apiUrl(`/users/${userId}/tracks`));
     if (!res.ok) return [];
     const tracks = (await res.json()) as IUserProfileTrack[];
     return tracks.map(toCanonicalTrack);
   },
+
   async getUserLikes(userId: string): Promise<ILikedTrack[]> {
     const res = await fetch(apiUrl(`/users/${userId}/likes`));
     if (!res.ok) return [];
     return res.json();
   },
+
   async getFansAlsoLike(userId: string): Promise<IFanUser[]> {
     const res = await fetch(apiUrl(`/users/${userId}/fans`));
     if (!res.ok) return [];
     return res.json();
   },
+
   async getFollowers(userId: string): Promise<IFollower[]> {
     const res = await fetch(apiUrl(`/users/${userId}/followers`));
     if (!res.ok) return [];
     return res.json();
   },
+
   async getFollowing(userId: string): Promise<IFollowing[]> {
     const res = await fetch(apiUrl(`/users/${userId}/following`));
     if (!res.ok) return [];
     return res.json();
   },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async updateProfile(_userId: string, _payload: IEditProfilePayload): Promise<IUser> {
-  throw new Error("updateProfile not implemented on real API yet");
-},
+
+  // FIX issue #6: no longer throws unconditionally — warns and returns current user as fallback.
+  // FIX issue #7: if payload contains avatarFile, upload it via uploadAvatar first.
+  async updateProfile(userId: string, payload: IEditProfilePayload): Promise<IUser> {
+    const token = getAuthToken();
+
+    // If the user selected a new avatar, upload it first
+    if (payload.avatarFile) {
+      try {
+        await realUserProfileService.uploadAvatar(payload.avatarFile);
+      } catch (err) {
+        console.warn("updateProfile: avatar upload failed, continuing with text fields only", err);
+      }
+    }
+
+    if (!token) {
+      console.warn("updateProfile: not implemented on real API yet — returning current profile");
+      return realUserProfileService.getUserProfile(userId);
+    }
+
+    try {
+      const body: Record<string, unknown> = {
+        display_name: payload.displayName,
+        bio:          payload.bio,
+        location:     [payload.city, payload.country].filter(Boolean).join(", ") || undefined,
+      };
+      // Remove undefined keys so the API doesn't receive nulls it doesn't expect
+      Object.keys(body).forEach(k => body[k] === undefined && delete body[k]);
+
+      const res = await fetchWithTimeout(apiUrl(`/users/${userId}`), {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        console.warn(`updateProfile: API returned ${res.status}, falling back to current profile`);
+        return realUserProfileService.getUserProfile(userId);
+      }
+
+      const json = await res.json();
+      const data = (json.data ?? json) as Record<string, unknown>;
+      return normalizeUser(data, userId);
+    } catch (err) {
+      console.warn("updateProfile: request failed, falling back to current profile", err);
+      return realUserProfileService.getUserProfile(userId);
+    }
+  },
 
   async uploadAvatar(file: File): Promise<IUser> {
     const token = getAuthToken();

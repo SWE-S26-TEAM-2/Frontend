@@ -4,12 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import type { IEditProfilePayload } from "@/types/userProfile.types";
 import type { IEditProfileModalProps } from "@/types/ui.types";
-import {
-  WebIcon,
-  InstagramIcon,
-  TwitterIcon,
-  FacebookIcon,
-} from "@/components/Profile/ProfileSidebar";
+import { WebIcon, InstagramIcon, TwitterIcon, FacebookIcon } from "@/components/Icons/SocialIcons";
 
 interface ILink {
   id: number;
@@ -51,6 +46,7 @@ export function EditProfileModal({ user, onClose, onSave }: IEditProfileModalPro
   const [country,       setCountry]       = useState(user.country     ?? "");
   const [bio,           setBio]           = useState(user.bio         ?? "");
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatarUrl);
+  const [avatarFile,    setAvatarFile]    = useState<File | null>(null);
   const [showImageMenu, setShowImageMenu] = useState(false);
   const [saving,        setSaving]        = useState(false);
   const [links, setLinks] = useState<ILink[]>(() => {
@@ -96,6 +92,7 @@ export function EditProfileModal({ user, onClose, onSave }: IEditProfileModalPro
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setAvatarFile(file);
     setAvatarPreview(URL.createObjectURL(file));
   };
 
@@ -129,7 +126,19 @@ export function EditProfileModal({ user, onClose, onSave }: IEditProfileModalPro
         else if (label === "facebook")  builtLinks.facebook  = l.url;
         else                            builtLinks.website   = l.url;
       });
-      await onSave({ displayName, firstName, lastName, city, country, bio, links: builtLinks });
+
+      const payload: IEditProfilePayload = {
+        displayName,
+        firstName,
+        lastName,
+        city,
+        country,
+        bio,
+        links: builtLinks,
+        ...(avatarFile ? { avatarFile } : {}),
+      };
+
+      await onSave(payload);
       onClose();
     } finally {
       setSaving(false);
@@ -137,13 +146,11 @@ export function EditProfileModal({ user, onClose, onSave }: IEditProfileModalPro
   };
 
   return (
-    // ── Backdrop ──
     <div
       ref={backdropRef}
       onClick={handleBackdropClick}
       className="fixed inset-0 flex items-start justify-center bg-black/75 z-3000"
     >
-      {/* ── Modal box ── */}
       <div className="relative w-182 mt-19 mb-7.5 rounded-sm shadow-2xl bg-black border-[0.8px] border-white/15 max-h-[calc(100vh-106px)] overflow-y-auto scrollbar-thin scrollbar-track-[#121212] scrollbar-thumb-white/20 hover:scrollbar-thumb-white/35 transition-transform duration-300 ease-[cubic-bezier(0.13,1.07,0.5,1.01)]">
 
         {/* ── Header ── */}
@@ -163,8 +170,6 @@ export function EditProfileModal({ user, onClose, onSave }: IEditProfileModalPro
           {/* Avatar column */}
           <div className="shrink-0" ref={imageMenuRef}>
             <div className="relative">
-
-              {/* Circle */}
               <div
                 onClick={() => setShowImageMenu(prev => !prev)}
                 className="relative w-54 h-54 rounded-full overflow-hidden bg-[#2a2a2a] flex items-center justify-center group cursor-pointer shadow-[rgba(18,18,18,0.1)_0px_0px_0px_1px_inset]"
@@ -188,7 +193,6 @@ export function EditProfileModal({ user, onClose, onSave }: IEditProfileModalPro
                 </div>
               </div>
 
-              {/* Dropdown */}
               {showImageMenu && (
                 <div className="absolute top-[calc(100%-12px)] left-1/2 -translate-x-1/2 z-10 bg-[#121212] border border-white/15 rounded-sm shadow-xl overflow-hidden min-w-40">
                   <div className="bg-[#ff5500] px-4 py-2 text-white text-xs font-semibold text-center">
@@ -202,21 +206,19 @@ export function EditProfileModal({ user, onClose, onSave }: IEditProfileModalPro
                   </button>
                   <div className="border-t border-white/10" />
                   <button
-                    onClick={() => { setShowImageMenu(false); setAvatarPreview(null); }}
+                    onClick={() => { setShowImageMenu(false); setAvatarPreview(null); setAvatarFile(null); }}
                     className="w-full text-left px-4 py-2.5 text-sm text-white bg-transparent border-none cursor-pointer hover:bg-white/5 transition-colors"
                   >
                     Delete image
                   </button>
                 </div>
               )}
-
             </div>
           </div>
 
           {/* Fields column */}
           <div className="flex-1 flex flex-col gap-3">
 
-            {/* Display name */}
             <div className="flex flex-col gap-1">
               <label className="text-[#999] text-[11px] font-semibold tracking-wide">
                 Display name <span className="text-[#ff5500]">*</span>
@@ -228,7 +230,6 @@ export function EditProfileModal({ user, onClose, onSave }: IEditProfileModalPro
               />
             </div>
 
-            {/* Profile URL */}
             <div className="flex flex-col gap-1">
               <label className="text-[#999] text-[11px] font-semibold tracking-wide">
                 Profile URL <span className="text-[#ff5500]">*</span>
@@ -239,7 +240,6 @@ export function EditProfileModal({ user, onClose, onSave }: IEditProfileModalPro
               </div>
             </div>
 
-            {/* First & Last name */}
             <div className="flex gap-3">
               <div className="flex flex-col gap-1 flex-1">
                 <label className="text-[#999] text-[11px] font-semibold tracking-wide">First name</label>
@@ -259,7 +259,6 @@ export function EditProfileModal({ user, onClose, onSave }: IEditProfileModalPro
               </div>
             </div>
 
-            {/* City & Country */}
             <div className="flex gap-3">
               <div className="flex flex-col gap-1 flex-1">
                 <label className="text-[#999] text-[11px] font-semibold tracking-wide">City</label>
@@ -279,7 +278,6 @@ export function EditProfileModal({ user, onClose, onSave }: IEditProfileModalPro
               </div>
             </div>
 
-            {/* Bio */}
             <div className="flex flex-col gap-1">
               <label className="text-[#999] text-[11px] font-semibold tracking-wide">Bio</label>
               <textarea
@@ -336,7 +334,6 @@ export function EditProfileModal({ user, onClose, onSave }: IEditProfileModalPro
           </button>
         </div>
 
-        {/* Hidden file input */}
         <input
           ref={fileInputRef}
           type="file"
