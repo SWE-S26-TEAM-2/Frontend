@@ -43,6 +43,10 @@ import { mockUploadService } from "./mocks/upload.mock";
 import { realUploadService } from "./api/upload.api";
 import type { IUploadService } from "@/types/upload.types";
 
+// studio
+import { mockStudioService } from "./mocks/studio.mock";
+import { realStudioService } from "./api/studio.api";
+import type { IStudioService } from "@/types/studio.types";
 // store
 import { mockStoreService } from "./mocks/store.mock";
 import { realStoreService } from "./api/store.api";
@@ -109,6 +113,15 @@ export const userProfileService: IUserProfileService = ENV.USE_MOCK_API
 export const uploadService: IUploadService = ENV.USE_MOCK_API
   ? mockUploadService
   : realUploadService;
+
+/**
+ * Studio Service
+ */
+/**
+ * Studio Service
+ * Hardcoded to mock — backend has no track-listing or bulk-edit endpoints yet.
+ */
+export const studioService: IStudioService = mockStudioService;
 
 /**
  * Store Service
@@ -249,4 +262,6 @@ export {
   realUserProfileService,
   mockUploadService,
   realUploadService,
+  mockStudioService,
+  realStudioService,
 };
