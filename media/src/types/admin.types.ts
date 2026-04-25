@@ -43,3 +43,26 @@ export interface IAdminService {
   getTracks: () => Promise<IAdminTrack[]>;
   suspendUser: (userId: string) => Promise<void>;
 }
+
+// Add these to your existing admin.types.ts file
+
+export type IAdminTab = "analytics" | "users" | "tracks";
+
+export interface IAdminSideBarProps {
+  activeTab: IAdminTab;
+  onTabChange: (tab: IAdminTab) => void;
+}
+
+export interface IAdminAnalyticsProps {
+  stats: IAdminStats;
+  insights: IAdminInsightPoint[];
+}
+
+export interface IAdminUsersProps {
+  users: IAdminUser[];
+  onSuspend: (userId: string) => void;
+}
+
+export interface IAdminTracksProps {
+  tracks: IAdminTrack[];
+}
