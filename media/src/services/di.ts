@@ -87,6 +87,10 @@ import { mockAdminService } from "./mocks/admin.mock";
 import { realAdminService } from "./api/admin.api";
 import type { IAdminService } from "@/types/admin.types";
 
+// library
+import { mockLibraryService } from "./mocks/library.mock";
+import { realLibraryService } from "./api/library.api";
+import type { ILibraryService } from "@/types/library.types";
 /**
  * Authentication Service
  * Automatically switches between mock and real based on USE_MOCK_API flag
@@ -248,6 +252,15 @@ export const serviceStatus = {
   mode: ENV.USE_MOCK_API ? "MOCK" : "REAL",
 };
 
+/**
+ * Library Service
+ * Scoped to the authenticated user via the Bearer token in apiClient.
+ * Switches between mock and real based on USE_MOCK_API flag.
+ */
+export const libraryService: ILibraryService = ENV.USE_MOCK_API
+  ? mockLibraryService
+  : realLibraryService;
+  
 // Export individual services for direct imports if needed
 export {
   RealAuthService,
