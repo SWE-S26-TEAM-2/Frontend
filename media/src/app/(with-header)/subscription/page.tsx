@@ -1,6 +1,9 @@
 'use client';
+import { useRouter } from 'next/navigation';
 
 export default function SubscriptionPage() {
+    const router = useRouter();
+
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white px-8 py-10 flex gap-16">
       {/* Left: Main content */}
@@ -18,7 +21,7 @@ export default function SubscriptionPage() {
               Artist Pro plans include unlimited upload space and advanced features.
             </p>
           </div>
-          <button className="ml-8 shrink-0 rounded-sm bg-white px-5 py-2 text-sm font-semibold text-black transition-colors">
+          <button onClick={() => router.push('/subscription/artist-pro')} className="ml-8 shrink-0 rounded-sm bg-white px-5 py-2 text-sm font-semibold text-black transition-colors">
             Try Artist Pro
           </button>
         </div>
