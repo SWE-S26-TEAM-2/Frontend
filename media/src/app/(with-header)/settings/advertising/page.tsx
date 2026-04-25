@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { advertisingService } from "@/services/di";
 import { IAdvertisingSettings } from "@/types/settings-advertising.types";
-import SettingsFooter from "@/components/SettingsFooter/SettingsFooter";
+import SettingsFooter from "@/components/Settings/SettingsFooter";
 
 export default function AdvertisingSettings() {
   const [settings, setSettings] = useState<IAdvertisingSettings | null>(null);

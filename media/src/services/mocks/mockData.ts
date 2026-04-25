@@ -18,7 +18,8 @@ import { IAccountSettings } from '@/types/settings-account.types';
 import { IBirthDate, IConnectedApp, IGender, ILinkedAccountInfo } from '@/types/settings-account.types';
 
 // settings/notification
-import { INotificationSettings } from '@/types/settings-notification.types';
+//import { INotificationSettings } from '@/types/settings-notification.types';
+import { INotificationRow, INotificationSettings } from '@/types/settings-notification.types';
 
 // settings/content
 import { IContentSettings } from '@/types/settings-content.types';
@@ -126,22 +127,39 @@ export const MOCK_ACCOUNT_SETTINGS = {
 };
 
 // settings/notification
-export const MOCK_NOTIFICATION_SETTINGS = {
+// export const MOCK_NOTIFICATION_SETTINGS = {
+//   activities: [
+//     { name: 'New follower', email: false, devices: false },
+//     { name: 'Repost of your post', email: true, devices: false },
+//     { name: 'New post by followed user', email: true, devices: false },
+//     { name: 'Likes and plays on your post', email: false, devices: false },
+//     { name: 'Comment on your post', email: false, devices: false },
+//     { name: 'Recommended Content', email: true, devices: false },
+//     { name: 'New message', email: true, devices: 'Everyone' },
+//   ],
+//   soundcloudUpdates: [
+//     { name: 'SoundCloud Feature Updates & Education', email: true, devices: false },
+//     { name: 'Surveys and feedback', email: true, devices: false },
+//     { name: 'Promotional & Partnership Content', email: true, devices: false },
+//     { name: 'SoundCloud newsletter', email: true, devices: 'none' },
+//   ],
+// };
+export const MOCK_NOTIFICATION_SETTINGS: INotificationSettings = {
   activities: [
-    { name: 'New follower', email: false, devices: false },
-    { name: 'Repost of your post', email: true, devices: false },
-    { name: 'New post by followed user', email: true, devices: false },
-    { name: 'Likes and plays on your post', email: false, devices: false },
-    { name: 'Comment on your post', email: false, devices: false },
-    { name: 'Recommended Content', email: true, devices: false },
-    { name: 'New message', email: true, devices: 'Everyone' },
-  ],
+    { name: 'New follower',                email: false, devices: false },
+    { name: 'Repost of your post',         email: true,  devices: false },
+    { name: 'New post by followed user',   email: true,  devices: false },
+    { name: 'Likes and plays on your post',email: false, devices: false },
+    { name: 'Comment on your post',        email: false, devices: false },
+    { name: 'Recommended Content',         email: true,  devices: false },
+    { name: 'New message',                 email: true,  devices: 'Everyone' },
+  ] satisfies INotificationRow[],
   soundcloudUpdates: [
     { name: 'SoundCloud Feature Updates & Education', email: true, devices: false },
-    { name: 'Surveys and feedback', email: true, devices: false },
-    { name: 'Promotional & Partnership Content', email: true, devices: false },
-    { name: 'SoundCloud newsletter', email: true, devices: 'none' },
-  ],
+    { name: 'Surveys and feedback',                   email: true, devices: false },
+    { name: 'Promotional & Partnership Content',      email: true, devices: false },
+    { name: 'SoundCloud newsletter',                  email: true, devices: 'none' },
+  ] satisfies INotificationRow[],
 };
 
 // settings/content
