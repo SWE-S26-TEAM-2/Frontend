@@ -29,7 +29,7 @@ export default function SubscriptionPage() {
         {/* Student discount row */}
         <div className="rounded-md bg-[#1a1a1a] border border-[#2a2a2a] px-6 py-4 flex items-center justify-center gap-2 mb-10">
           <span className="text-sm text-gray-300">Are you a student?</span>
-          <button className="text-sm text-blue-400 hover:underline font-medium">
+          <button onClick={() => router.push('/subscription/go-plus')} className="text-sm text-blue-400 hover:underline font-medium">
             Get SoundCloud Go+ for 50% off
           </button>
         </div>
