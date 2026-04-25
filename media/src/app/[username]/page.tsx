@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { userProfileService } from "@/services/di";
 import { type ITrack } from "@/types/track.types";
 import { type IUser, type ILikedTrack, type IFanUser, type IFollower, type IFollowing, type IEditProfilePayload } from "@/types/userProfile.types";
@@ -18,9 +19,17 @@ const TABS = ["All", "Popular tracks", "Tracks", "Albums", "Playlists", "Reposts
 
 export default function UserProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = React.use(params);
+  const searchParams = useSearchParams();
   const authStoreUser = useAuthStore((state) => state.user);
   const storeLogin = useAuthStore((state) => state.login);
-  const [activeTab, setActiveTab] = useState<IActiveTab>(TABS[0]);
+
+  // Read ?tab= from URL, fall back to "All"
+  const initialTab = (): IActiveTab => {
+    const tab = searchParams.get("tab");
+    return (TABS as readonly string[]).includes(tab ?? "") ? (tab as IActiveTab) : "All";
+  };
+
+  const [activeTab, setActiveTab] = useState<IActiveTab>(initialTab);
   const [user, setUser]           = useState<IUser | null>(null);
   const [tracks, setTracks]       = useState<ITrack[]>([]);
   const [likes, setLikes]         = useState<ILikedTrack[]>([]);
@@ -30,6 +39,12 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState<string | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
+
+  // Keep tab in sync if user navigates back/forward
+  useEffect(() => {
+    setActiveTab(initialTab());
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   useEffect(() => {
     async function loadData() {
@@ -63,7 +78,6 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   const handleAvatarUpload = async (file: File) => {
     const updated = await userProfileService.uploadAvatar(file);
     setUser(updated);
-
     const token = typeof window !== "undefined" ? window.localStorage.getItem("auth_token") : null;
     if (updated.isOwner && token && authStoreUser) {
       storeLogin({
