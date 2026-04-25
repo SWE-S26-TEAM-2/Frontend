@@ -3,19 +3,23 @@
 import React, { useState, useEffect } from "react";
 import { userProfileService } from "@/services/di";
 import { type ITrack } from "@/types/track.types";
-import { type IUser, type ILikedTrack, type IFanUser, type IFollower, type IFollowing } from "@/types/userProfile.types";
+import { type IUser, type ILikedTrack, type IFanUser, type IFollower, type IFollowing, type IEditProfilePayload } from "@/types/userProfile.types";
 import type { IActiveTab } from "@/types/ui.types";
 import { Banner } from "@/components/Banner/Banner";
 import { TrackCard } from "@/components/Track/TrackCard";
 import { ProfileSidebar } from "@/components/Profile/ProfileSidebar";
 import { ProfileActions } from "@/components/Profile/ProfileActions";
+import { EditProfileModal } from "@/components/Profile/EditProfileModal";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
+import { useAuthStore } from "@/store/authStore";
 
 const TABS = ["All", "Popular tracks", "Tracks", "Albums", "Playlists", "Reposts"] as const;
 
 export default function UserProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = React.use(params);
+  const authStoreUser = useAuthStore((state) => state.user);
+  const storeLogin = useAuthStore((state) => state.login);
   const [activeTab, setActiveTab] = useState<IActiveTab>(TABS[0]);
   const [user, setUser]           = useState<IUser | null>(null);
   const [tracks, setTracks]       = useState<ITrack[]>([]);
@@ -25,6 +29,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   const [following, setFollowing] = useState<IFollowing[]>([]);
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState<string | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -55,22 +60,47 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
 
   const handleTabChange = (tab: IActiveTab) => setActiveTab(tab);
 
-  // ── Tab filtering logic ──
+  const handleAvatarUpload = async (file: File) => {
+    const updated = await userProfileService.uploadAvatar(file);
+    setUser(updated);
+
+    const token = typeof window !== "undefined" ? window.localStorage.getItem("auth_token") : null;
+    if (updated.isOwner && token && authStoreUser) {
+      storeLogin({
+        ...authStoreUser,
+        profileImageUrl: updated.avatarUrl ?? authStoreUser.profileImageUrl,
+      }, token);
+    }
+  };
+
+  const handleCoverUpload = async (file: File) => {
+    const updated = await userProfileService.uploadCover(file);
+    setUser(updated);
+  };
+
+  const handleSaveProfile = async (payload: IEditProfilePayload) => {
+    if (!user) return;
+    const updated = await userProfileService.updateProfile(user.id, payload);
+    setUser(updated);
+  };
+
+  const handleBannerAvatarChange = (url: string) => {
+    setUser(prev => prev ? { ...prev, avatarUrl: url } : prev);
+  };
+
+  const handleBannerHeaderChange = (url: string) => {
+    setUser(prev => prev ? { ...prev, headerUrl: url } : prev);
+  };
+
   function getFilteredTracks(tab: IActiveTab): ITrack[] {
     switch (tab) {
-      case "All":
-        return tracks;
-      case "Popular tracks":
-        return [...tracks].sort((a, b) => b.plays - a.plays);
-      case "Tracks":
-        return tracks;
-      case "Reposts":
-        return [];
+      case "All":            return tracks;
+      case "Popular tracks": return [...tracks].sort((a, b) => b.plays - a.plays);
+      case "Tracks":         return tracks;
+      case "Reposts":        return [];
       case "Albums":
-      case "Playlists":
-        return []; // will be populated when backend provides album/playlist data
-      default:
-        return tracks;
+      case "Playlists":      return [];
+      default:               return tracks;
     }
   }
 
@@ -91,9 +121,14 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   // Privacy Control
   if (user.isPrivate && !user.isOwner) return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
-      <Header avatarUrl={undefined} isLoggedIn={true}/>
+      <Header />
       <div className="max-w-7xl mx-auto bg-[#111]">
-        <Banner user={user}/>
+        <Banner
+          key={user.username}
+          user={user}
+          onAvatarChange={handleBannerAvatarChange}
+          onHeaderChange={handleBannerHeaderChange}
+        />
       </div>
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <span className="text-5xl">🔒</span>
@@ -108,10 +143,15 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans pb-15">
-      <Header avatarUrl={user.avatarUrl ?? undefined} isLoggedIn={true}/>
+      <Header />
 
       <div className="max-w-7xl mx-auto bg-[#111]">
-        <Banner user={user}/>
+        <Banner
+          key={user.username}
+          user={user}
+          onAvatarChange={handleBannerAvatarChange}
+          onHeaderChange={handleBannerHeaderChange}
+        />
       </div>
 
       <div className="h-2"/>
@@ -138,7 +178,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
                 </button>
               ))}
             </div>
-            <ProfileActions user={user}/>
+            <ProfileActions user={user} onEditOpen={() => setIsEditOpen(true)} />
           </div>
 
           {/* Track list or empty state */}
@@ -148,7 +188,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
           {filteredTracks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 gap-4">
               <span className="text-[#888] text-sm">
-                {activeTab === "Albums" ? "No albums yet" :
+                {activeTab === "Albums"    ? "No albums yet"    :
                  activeTab === "Playlists" ? "No playlists yet" :
                  "Seems a little quiet over here"}
               </span>
@@ -176,6 +216,15 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
       </div>
 
       <Footer/>
+
+      {/* Edit Profile Modal */}
+      {isEditOpen && (
+        <EditProfileModal
+          user={user}
+          onClose={() => setIsEditOpen(false)}
+          onSave={handleSaveProfile}
+        />
+      )}
     </div>
   );
 }

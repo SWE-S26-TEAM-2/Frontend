@@ -1,5 +1,5 @@
 import type { RefObject, ReactNode } from "react";
-import type { IUser, ILikedTrack, IFanUser, IFollower, IFollowing } from "@/types/userProfile.types";
+import type { IUser, ILikedTrack, IFanUser, IFollower, IFollowing, IEditProfilePayload } from "@/types/userProfile.types";
 
 export interface ILoginModalProps {
   onClose: () => void;
@@ -7,6 +7,10 @@ export interface ILoginModalProps {
 
 export interface IBannerProps {
   user: IUser;
+  onUploadAvatar?: (file: File) => Promise<void>;
+  onUploadCover?: (file: File) => Promise<void>;
+  onAvatarChange?: (url: string) => void; 
+  onHeaderChange?: (url: string) => void;
 }
 
 export interface IToggleProps {
@@ -27,6 +31,7 @@ export interface IProfileStatsProps {
 
 export interface IProfileActionsProps {
   user: IUser;
+  onEditOpen?: () => void;
 }
 
 export interface IProfileSidebarProps {
@@ -51,6 +56,8 @@ export interface IMenuItem {
   href: string;
   orange?: boolean;
   dividerBefore?: boolean;
+  onClick?: () => void;
+  noNav?: boolean;
 }
 
 export interface ITrackPageProps {
@@ -65,8 +72,14 @@ export type IActiveTab =
   | "Playlists"
   | "Reposts";
 
+export interface IEditProfileModalProps {
+  user: IUser;
+  onClose: () => void;
+  onSave: (payload: IEditProfilePayload) => Promise<void>;
+}
 
-  export interface IVerifyEmailStepProps {
-    email: string;
-    onBack: () => void;
-  }
+export interface IVerifyEmailStepProps {
+  email: string;
+  onBack: () => void;
+  onVerified: () => void;
+}

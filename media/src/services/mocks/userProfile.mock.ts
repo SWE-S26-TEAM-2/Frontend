@@ -8,8 +8,9 @@ import { seededWaveform } from "@/utils/seededWaveform";
 import type { ITrack } from "@/types/track.types";
 import type {
   IUserProfileService, IUser, IUserProfileTrack, ILikedTrack,
-  IFanUser, IFollower, IFollowing,
+  IFanUser, IFollower, IFollowing, ISearchUser,
 } from "@/types/userProfile.types";
+import type { IEditProfilePayload } from "@/types/userProfile.types";
 
 const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -157,10 +158,10 @@ const MOCK_FOLLOWING: IFollowing[] = [
 // ─────────────────────────────────────────────────────────────
 export const mockUserProfileService: IUserProfileService = {
 
-  async getUserProfile(username: string): Promise<IUser> {
+  async getUserProfile(userId: string): Promise<IUser> {
     await delay(300);
-    const user = MOCK_USERS.find(u => u.username === username);
-    if (!user) throw new Error(`User "${username}" not found`);
+    const user = MOCK_USERS.find(u => u.id === userId || u.username === userId);
+    if (!user) throw new Error(`User "${userId}" not found`);
     return user;
   },
 
@@ -195,4 +196,67 @@ export const mockUserProfileService: IUserProfileService = {
     return MOCK_FOLLOWING;
   },
 
+  // FIX issue #6: corrected indentation to match the rest of the object literal
+  async updateProfile(userId: string, payload: IEditProfilePayload): Promise<IUser> {
+    await delay(500);
+    const index = MOCK_USERS.findIndex(u => u.id === userId);
+    if (index === -1) throw new Error(`User "${userId}" not found`);
+
+    const updated: IUser = {
+      ...MOCK_USERS[index],
+      ...(payload.displayName !== undefined && { displayName: payload.displayName }),
+      ...(payload.firstName   !== undefined && { firstName:   payload.firstName }),
+      ...(payload.lastName    !== undefined && { lastName:    payload.lastName }),
+      ...(payload.city        !== undefined && { city:        payload.city }),
+      ...(payload.country     !== undefined && { country:     payload.country }),
+      ...(payload.bio         !== undefined && { bio:         payload.bio }),
+      ...(payload.links       !== undefined && { socialLinks: payload.links }),
+      location: [payload.city ?? MOCK_USERS[index].city, payload.country ?? MOCK_USERS[index].country]
+        .filter(Boolean).join(", ") || MOCK_USERS[index].location,
+    };
+
+    MOCK_USERS[index] = updated;
+    return updated;
+  },
+
+  async uploadAvatar(file: File): Promise<IUser> {
+    await delay(250);
+    const owner = MOCK_USERS.find((u) => u.isOwner);
+    if (!owner) throw new Error("Owner profile not found");
+    owner.avatarUrl = URL.createObjectURL(file);
+    return { ...owner };
+  },
+
+  async uploadCover(file: File): Promise<IUser> {
+    await delay(250);
+    const owner = MOCK_USERS.find((u) => u.isOwner);
+    if (!owner) throw new Error("Owner profile not found");
+    owner.headerUrl = URL.createObjectURL(file);
+    return { ...owner };
+  },
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async followUser(_userId: string): Promise<void> {
+    await delay(200);
+  },
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async unfollowUser(_userId: string): Promise<void> {
+    await delay(200);
+  },
+
+  async searchUsers(query: string): Promise<ISearchUser[]> {
+    await delay(250);
+    const q = query.toLowerCase();
+    return MOCK_USERS
+      .filter((u) => u.username.toLowerCase().includes(q))
+      .map((u) => ({
+        id: u.id,
+        username: u.username,
+        role: u.role,
+        avatarUrl: u.avatarUrl,
+        followerCount: u.followers,
+        isVerified: false,
+      }));
+  },
 };

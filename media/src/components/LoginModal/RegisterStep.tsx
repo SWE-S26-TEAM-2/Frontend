@@ -14,9 +14,9 @@ export default function RegisterStep({ emailOrProfileUrl, password, onPasswordCh
 
     
     return (
-        <div className="flex flex-col">
+        <form className="flex flex-col" onSubmit={(e) => { e.preventDefault(); onSubmit(); }}>
         <div className="flex items-center justify-center mb-6 relative">
-        <button onClick={onBack} className="absolute left-0 w-10 h-10 flex items-center justify-center bg-[#333333] rounded-full cursor-pointer border-none text-white text-lg">
+        <button type="button" onClick={onBack} className="absolute left-0 w-10 h-10 flex items-center justify-center bg-[#333333] rounded-full cursor-pointer border-none text-white text-lg">
           ←
         </button>
         <p className="text-white text-[20px] font-bold"> Create an account</p>
@@ -32,8 +32,10 @@ export default function RegisterStep({ emailOrProfileUrl, password, onPasswordCh
         className="bg-[#333333] text-white w-full p-3 rounded border border-[#444444] text-sm box-border"
         value={password}
         onChange={onPasswordChange}
+        autoFocus
         />
         <button
+        type="button"
         onClick={() => setShowPassword(!showPassword)}
         className="absolute right-3 top-1/2 -translate-y-1/2 bg-none border-none text-[#999] cursor-pointer"
         >
@@ -49,7 +51,7 @@ export default function RegisterStep({ emailOrProfileUrl, password, onPasswordCh
         />
 
         <button
-        onClick={onSubmit}
+        type="submit"
         disabled={isLoading}
         className="bg-[#555555] text-white w-full p-3 rounded cursor-pointer mb-3 text-[15px] font-semibold border-none"
         >
@@ -60,6 +62,6 @@ export default function RegisterStep({ emailOrProfileUrl, password, onPasswordCh
         Need help?
         </Link>
 
-        </div>
+        </form>
     );
 }

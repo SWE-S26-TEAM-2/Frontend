@@ -81,10 +81,12 @@ export interface IAuthState {
 
 export interface IUpdateProfileRequest {
   displayName: string;
-  month: string;
-  day: string;
-  year: string;
-  gender: string;
+  month?: string;
+  day?: string;
+  year?: string;
+  gender?: string;
+  bio?: string;
+  location?: string;
 }
 
 export interface IUpdateProfileResponse {
@@ -99,7 +101,13 @@ export interface IResendVerificationResponse {
 export interface IForgotPasswordStepProps {
   emailOrProfileUrl: string;
   onBack: () => void;
-  onSubmit: () => void;
+  onSubmit: (data: {
+    displayName: string;
+    month: string;
+    day: string;
+    year: string;
+    gender: string;
+  }) => void;
   isLoading: boolean;
 }
 
@@ -123,4 +131,8 @@ export interface IResetPasswordResponse {
 
 export interface ICheckYourEmailStepProps {
   onBack: () => void;
+}
+
+export interface IVerifyEmailResponse {
+  success: boolean;
 }
