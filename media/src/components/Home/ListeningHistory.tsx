@@ -3,6 +3,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useRouter } from "next/navigation";
+
 import {
   Heart,
   Repeat,
@@ -164,7 +166,8 @@ export default function ListeningHistory({ history }: { history: ITrack[] }) {
     <div style={styles.section}>
       <div style={styles.header}>
         <span style={styles.title}>Listening history</span>
-        <button className="view-all" style={styles.headerBtn}>
+        <button className="view-all"   onClick={() => alert("History page coming soon")}
+ style={styles.headerBtn}> 
           View all
         </button>
       </div>
