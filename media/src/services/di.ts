@@ -21,6 +21,8 @@ import { getPrivacySettingsFromAPI, updatePrivacySettingsOnAPI } from "./api/set
 // settings/account
 import { getMockAccountSettings, updateMockAccountSettings } from "./mocks/settings-account.mock";
 import { getAccountSettingsFromAPI, updateAccountSettingsOnAPI } from "./api/settings-account.api";
+import { sendMockPasswordResetEmail } from "./mocks/settings-account.mock";
+import { sendPasswordResetEmailFromAPI } from "./api/settings-account.api";
 
 // settings/notification
 import { getMockNotificationSettings, updateMockNotificationSettings } from "./mocks/settings-notification.mock";
@@ -155,6 +157,7 @@ export const updatePrivacySettings = async (
 export const accountService = {
   getSettings: ENV.USE_MOCK_API ? getMockAccountSettings : getAccountSettingsFromAPI,
   updateSettings: ENV.USE_MOCK_API ? updateMockAccountSettings : updateAccountSettingsOnAPI,
+  sendPasswordResetEmail: ENV.USE_MOCK_API ? sendMockPasswordResetEmail : sendPasswordResetEmailFromAPI,
 };
 
 /**

@@ -1,5 +1,5 @@
 "use client";
-
+// 2f page
 import { useState, useEffect } from "react";
 import { twoFactorService } from "@/services/di";
 import { ITwoFactorSettings } from "@/types/settings-two-factor.types";
