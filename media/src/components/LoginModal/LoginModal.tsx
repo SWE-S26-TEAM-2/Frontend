@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FaFacebook, FaApple } from "react-icons/fa";
+import { FaFacebook, FaApple, FaGoogle } from "react-icons/fa";
 import Link from "next/link";
 import { GoogleLogin } from "@react-oauth/google";
 import InputStep from "./InputStep";
@@ -16,6 +16,7 @@ import { useGoogleLogin } from "@react-oauth/google";
 import ForgotPasswordStep from "./ForgotPasswordStep";
 import CheckYourEmailStep from "./CheckYourEmailStep";
 import { useRouter } from "next/navigation";
+import { useRef } from "react";
 
 export default function LoginModal({ onClose }: ILoginModalProps) {
   const authStore = useAuthStore();
@@ -24,8 +25,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
   const [error, setError] = useState("");
   const [step, setStep] = useState<"main" | "input" | "register" | "signin"|"tell-us-more"|"verify-email"| "forgot-password" | "check-your-email">("main");
   const [password, setPassword] = useState("");
-
-
+  const googleButtonRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
@@ -83,6 +83,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       try {
         setIsLoading(true);
         const { isExisting } = await AuthService.checkEmail(emailOrProfileUrl);
+        //console.log("isExisting:", isExisting);
         setStep(isExisting ? "signin" : "register");
       } catch {
         setError("Something went wrong. Please try again.");
@@ -228,7 +229,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
               Continue with Facebook
             </button>
 
-            <div className="mb-3 [&>div]:w-full [&_iframe]:w-full">
+            <div className="hidden" ref={googleButtonRef}>
               <GoogleLogin
                 onSuccess={async (credentialResponse) => {
                   if (!credentialResponse.credential) return;
@@ -252,6 +253,14 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
                 width="400"
               />
             </div>
+
+            <button
+            onClick={() => googleButtonRef.current?.querySelector("div[role=button]")?.dispatchEvent(new MouseEvent("click", { bubbles: true }))}
+            className="bg-[#333333] text-white w-full p-3 rounded cursor-pointer mb-3 text-[15px] font-semibold border border-[#444444] flex items-center justify-center gap-2"
+            >
+            <FaGoogle size={20} />
+            Continue with Google
+            </button>
 
             <button className="bg-black text-white w-full p-3 rounded cursor-pointer mb-8 text-[15px] font-semibold border border-[#444444] flex items-center justify-center gap-2">
               <FaApple size={20} />
