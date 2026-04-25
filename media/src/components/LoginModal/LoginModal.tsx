@@ -177,11 +177,11 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
      await AuthService.forgotPassword(email); // (or your real API)
     setStep("check-your-email");
     } catch {
-         // error is handled locally in ForgotPasswordStep
+      setError("Failed to send reset link. Please try again.");
     } finally {
       setIsLoading(false);
     }
-    setStep("verify-email");
+   // setStep("verify-email");
   };
   const handleVerified = async () => {
     try {
@@ -220,8 +220,8 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
             <p className="text-white text-[35px] mb-4">Sign in or create an account</p>
             <p className="text-[#999999] text-sm leading-relaxed mb-8">
               By clicking on any of the &quot;Continue&quot; buttons below, you agree to SoundCloud&apos;s{" "}
-              <Link href="#">Terms of Use</Link> and acknowledge our{" "}
-              <Link href="#">Privacy Policy</Link>.
+              <Link href="https://soundcloud.com/terms-of-use">Terms of Use</Link> and acknowledge our{" "}
+              <Link href="https://soundcloud.com/pages/privacy">Privacy Policy</Link>.
             </p>
 
             <button className="bg-[#1877f2] text-white w-full p-3 rounded cursor-pointer mb-3 text-[15px] font-semibold border-none flex items-center justify-center gap-2">
@@ -290,7 +290,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
             </button>
             </form>
 
-        <Link href="#" className="text-[#4a90e2] text-sm cursor-pointer">
+        <Link href="https://help.soundcloud.com/hc/en-us/sections/46266771825691" className="text-[#4a90e2] text-sm cursor-pointer">
           Need help?
         </Link>
         </>

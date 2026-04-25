@@ -132,6 +132,7 @@ export const MockAuthService = {
     return { success: true };
   },
   
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   resetPassword: async (token: string, newPassword: string, signOutEverywhere: boolean): Promise<IResetPasswordResponse> => {
     await new Promise((resolve) => setTimeout(resolve, 800));
   
@@ -143,9 +144,7 @@ export const MockAuthService = {
       throw new Error("Password must be at least 8 characters");
     }
 
-    if(signOutEverywhere){
-      
-    }
+    
   
     return { success: true };
   },

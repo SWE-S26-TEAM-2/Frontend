@@ -58,7 +58,7 @@ export default function RegisterStep({ emailOrProfileUrl, password, onPasswordCh
         {isLoading ? "Loading..." : "Continue"}
         </button>
 
-        <Link href="#" className="text-[#4a90e2] text-sm cursor-pointer ">
+        <Link href="https://help.soundcloud.com/hc/en-us/sections/46266771825691" className="text-[#4a90e2] text-sm cursor-pointer ">
         Need help?
         </Link>
 

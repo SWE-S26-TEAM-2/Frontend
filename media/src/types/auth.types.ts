@@ -105,19 +105,13 @@ export interface IForgotPasswordStepProps {
   isLoading: boolean;
 }
 
-export interface IForgotPasswordRequest {
-  email: string;
-}
+
 
 export interface IForgotPasswordResponse {
   success: boolean;
 }
 
-export interface IResetPasswordRequest {
-  token: string;
-  newPassword: string;
-  signOutEverywhere: boolean;
-}
+
 
 export interface IResetPasswordResponse {
   success: boolean;

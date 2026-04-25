@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-//import Link from "next/link";
 import {ISignInStepProps} from "@/types/auth.types";
 
 

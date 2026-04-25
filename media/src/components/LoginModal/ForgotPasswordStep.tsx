@@ -5,15 +5,21 @@ import { useState } from "react";
 import { IForgotPasswordStepProps } from "@/types/auth.types";
 
 export default function ForgotPasswordStep({ emailOrProfileUrl, onBack, onSubmit, isLoading }: IForgotPasswordStepProps) {
+  const isEmail = /\S+@\S+\.\S+/.test(emailOrProfileUrl);
+  const [email, setEmail] = useState(isEmail ? emailOrProfileUrl : "");
   const [error, setError] = useState("");
 
   const handleSubmit = () => {
-    if (!emailOrProfileUrl) {
-      setError("No email address found.");
+    if (!isEmail && !email) {
+      setError("Please enter your email address.");
+      return;
+    }
+    if (!isEmail && !/\S+@\S+\.\S+/.test(email)) {
+      setError("Please enter a valid email address.");
       return;
     }
     setError("");
-    onSubmit(emailOrProfileUrl);
+    onSubmit(isEmail ? emailOrProfileUrl : email);
   };
 
   return (
@@ -25,14 +31,24 @@ export default function ForgotPasswordStep({ emailOrProfileUrl, onBack, onSubmit
         <p className="text-white text-[20px] font-bold">Reset password</p>
       </div>
 
-      <div className="bg-[#333333] p-3 rounded border border-[#444444] mb-4">
-        <p className="text-[#999999] text-xs mb-1">Your email address</p>
-        <p className="text-white text-[14px]">{emailOrProfileUrl}</p>
-      </div>
+      {isEmail ? (
+        <div className="bg-[#333333] p-3 rounded border border-[#444444] mb-4">
+          <p className="text-[#999999] text-xs mb-1">Your email address</p>
+          <p className="text-white text-[14px]">{emailOrProfileUrl}</p>
+        </div>
+      ) : (
+        <input
+          type="email"
+          placeholder=" Enter the email address associated with your account"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="bg-[#333333] text-white w-full p-3 rounded border border-[#444444] text-sm mb-3 box-border"
+        />
+      )}
 
       <p className="text-[#999999] text-sm mb-6">
         If the email address is in our database, we will send you an email to reset your password.{" "}
-        <Link href="#" className="text-[#4a90e2]">Need help? visit our Help Center.</Link>
+        <Link href="https://help.soundcloud.com" className="text-[#4a90e2]">Need help? visit our Help Center.</Link>
       </p>
 
       {error && <p className="text-red-500 text-sm mb-3">{error}</p>}

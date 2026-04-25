@@ -33,7 +33,7 @@ import {IInputStepProps} from "@/types/auth.types";
          {isLoading ? "Loading..." : "Continue"}
         </button>
 
-        <Link href="#" className="text-[#4a90e2] text-sm cursor-pointer">
+        <Link href="https://help.soundcloud.com" className="text-[#4a90e2] text-sm cursor-pointer">
         Need help?
         </Link>
         </form>

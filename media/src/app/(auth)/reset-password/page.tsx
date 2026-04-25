@@ -50,11 +50,11 @@ function ResetPasswordForm() {
 
   return (
     <div className="min-h-screen bg-[#111111] flex items-center justify-center">
-      <div className="bg-[#222222] w-125 rounded-lg p-10">
+      <div className="bg-[#222222] max-w-md rounded-lg p-10">
         <p className="text-white text-[24px] font-bold text-center mb-2">Change your password</p>
         <p className="text-[#999999] text-sm text-center mb-3">
           Choose a strong, unique password. For tips on choosing a secure password,{" "}
-          <a href="#" className="text-[#4a90e2]">visit our Help Center.</a>
+          <a href="https://help.soundcloud.com" className="text-[#4a90e2]">visit our Help Center.</a>
         </p>
 
         <p className="text-white text-sm mb-1">Type your new password</p>

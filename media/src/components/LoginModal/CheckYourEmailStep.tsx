@@ -28,7 +28,7 @@ export default function CheckYourEmailStep({ onBack }: ICheckYourEmailStepProps)
 
       <p className="text-[#999999] text-sm">
         Did not receive the email? Check your spam folder or{" "}
-        <Link href="#" className="text-[#4a90e2]">visit our Help Center</Link>.
+        <Link href="https://help.soundcloud.com" className="text-[#4a90e2]">visit our Help Center</Link>.
       </p>
     </div>
   );
