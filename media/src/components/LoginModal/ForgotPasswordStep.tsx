@@ -13,7 +13,7 @@ export default function ForgotPasswordStep({ emailOrProfileUrl, onBack, onSubmit
       return;
     }
     setError("");
-    onSubmit();
+    onSubmit(emailOrProfileUrl);
   };
 
   return (

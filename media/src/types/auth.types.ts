@@ -101,13 +101,7 @@ export interface IResendVerificationResponse {
 export interface IForgotPasswordStepProps {
   emailOrProfileUrl: string;
   onBack: () => void;
-  onSubmit: (data: {
-    displayName: string;
-    month: string;
-    day: string;
-    year: string;
-    gender: string;
-  }) => void;
+  onSubmit:(email: string) => void;
   isLoading: boolean;
 }
 

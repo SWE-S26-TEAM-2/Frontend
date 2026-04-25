@@ -168,11 +168,13 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
 
  
 
-  const handleForgotPassword = async (data: { displayName: string; month: string; day: string; year: string; gender: string }) => {
+  const handleForgotPassword = async (email: string) => {
     try {
       setIsLoading(true);
-      const finalDisplayName = data.displayName || emailOrProfileUrl.split("@")[0];
-      await AuthService.updateProfile({ ...data, displayName: finalDisplayName });
+      //const finalDisplayName = data.displayName || emailOrProfileUrl.split("@")[0];
+     // await AuthService.updateProfile({ ...data, displayName: finalDisplayName });
+     await AuthService.forgotPassword(email); // (or your real API)
+    setStep("check-your-email");
     } catch {
          // error is handled locally in ForgotPasswordStep
     } finally {
