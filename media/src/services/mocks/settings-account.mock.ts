@@ -19,3 +19,12 @@ export const updateMockAccountSettings = async (
     }, 500);
   });
 };
+
+export const sendMockPasswordResetEmail = async (email: string): Promise<void> => {
+  void email;
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, 500);
+  });
+};

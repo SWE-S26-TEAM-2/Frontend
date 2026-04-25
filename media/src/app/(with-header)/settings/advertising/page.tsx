@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { advertisingService } from "@/services/di";
 import { IAdvertisingSettings } from "@/types/settings-advertising.types";
+import SettingsFooter from "@/components/SettingsFooter/SettingsFooter";
 
 export default function AdvertisingSettings() {
   const [settings, setSettings] = useState<IAdvertisingSettings | null>(null);
@@ -15,7 +16,6 @@ export default function AdvertisingSettings() {
   const loadSettings = async () => {
     try {
       const data = await advertisingService.getSettings();
-      //console.error("Loaded advertising settings:", data); // check
       setSettings(data);
     } catch (error) {
       console.error("Failed to load advertising settings:", error);
@@ -25,57 +25,31 @@ export default function AdvertisingSettings() {
   };
 
   if (isLoading) {
-    return (
-      <div style={{ color: "#fff", padding: "40px" }}>
-        Loading...
-      </div>
-    );
+    return <div className="py-10 text-white">Loading...</div>;
   }
 
   if (!settings) {
-    return (
-      <div style={{ color: "#fff", padding: "40px" }}>
-        Failed to load settings
-      </div>
-    );
+    return <div className="py-10 text-white">Failed to load settings</div>;
   }
 
   return (
-    <div style={{ padding: "40px", color: "#fff" }}>
-      <h2 style={{ marginBottom: "16px" }}>Advertising Settings</h2>
-      <p style={{ color: "#aaa", maxWidth: "600px", lineHeight: "1.6", marginBottom: "24px" }}>
-        We work with trusted advertising partners to show you content and
-        advertisements for products and services you might like. Understand how
-        your data may be used, who our partners are and manage your consent options.
-      </p>
+    <div className="text-white pb-24">
+      <div className="py-8 max-w-5xl">
+        <h2 className="text-base font-semibold mb-4">Advertising Settings</h2>
+        <p className="text-[#aaa] text-sm max-w-xl leading-relaxed mb-6">
+          We work with trusted advertising partners to show you content and advertisements
+          for products and services you might like. Understand how your data may be used,
+          who our partners are and manage your consent options.
+        </p>
 
-      <a href={settings.partnersListUrl}>
-        <button
-          style={{
-            padding: "10px 18px",
-            background: "#333",
-            color: "#fff",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontWeight: "bold",
-          }}
-        >
-          Partners List
-        </button>
-      </a>
-
-      <div style={{ marginTop: "200px", color: "#aaa", fontSize: "13px" }}>
-        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>
-          {["Legal", "Privacy", "Cookie Policy", "Cookie Manager", "Imprint", "Artist Resources", "Newsroom", "Charts", "Transparency Reports"].map((link, index, arr) => (
-            <span key={link}>
-              <a href="#" style={{ color: "#aaa", textDecoration: "none" }}>{link}</a>
-              {index < arr.length - 1 && <span style={{ marginLeft: "8px" }}>·</span>}
-            </span>
-          ))}
-        </div>
-        <p>Language: <a href="#" style={{ color: "#0066cc" }}>{settings.language}</a></p>
+        <a href={settings.partnersListUrl}>
+          <button className="px-4 py-2 bg-[#333] hover:bg-[#444] text-white text-sm font-bold rounded border-none cursor-pointer transition-colors">
+            Partners List
+          </button>
+        </a>
       </div>
+
+      <SettingsFooter />
     </div>
   );
 }
