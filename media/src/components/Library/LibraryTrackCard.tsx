@@ -18,22 +18,26 @@ export function TrackListRow({ track }: ITrackListRowProps) {
   // Fix: use useEffect to safely read localStorage after mount (avoids SSR
   // hydration mismatch and window-is-undefined errors)
   const [userInitial, setUserInitial] = useState("?");
+  // Fix: Date.now() is an impure function — calling it during render produces
+  // unstable results (react-hooks/purity). Capture it once after mount instead.
+  const [nowMs, setNowMs] = useState<number>(0);
 
   useEffect(() => {
     const username = window.localStorage.getItem("auth_username") ?? "";
     setUserInitial(username.charAt(0).toUpperCase() || "?");
+    setNowMs(Date.now());
   }, []);
 
   const likedAgo = useMemo(() => {
-    if (!track.likedAt) return null;
-    const diffMs   = Date.now() - new Date(track.likedAt).getTime();
+    if (!track.likedAt || nowMs === 0) return null;
+    const diffMs   = nowMs - new Date(track.likedAt).getTime();
     const diffDays = Math.floor(diffMs / 86_400_000);
     if (diffDays < 1)   return "today";
     if (diffDays < 7)   return `${diffDays}d ago`;
     if (diffDays < 30)  return `${Math.floor(diffDays / 7)}w ago`;
     if (diffDays < 365) return `${Math.floor(diffDays / 30)}mo ago`;
     return `${Math.floor(diffDays / 365)}y ago`;
-  }, [track.likedAt]);
+  }, [track.likedAt, nowMs]);
 
   const handleCommentSubmit = () => {
     if (!commentText.trim()) return;

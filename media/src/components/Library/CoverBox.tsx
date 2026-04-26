@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { ReactNode } from "react";
 
 interface ICoverBoxProps {
@@ -25,7 +26,7 @@ export function CoverBox({
       style={{ width: size, height: size, minWidth: size, background: accentColor ?? "#1a1a1a" }}
     >
       {url
-        ? <img src={url} alt={alt} className="w-full h-full object-cover" />
+        ? <Image src={url} alt={alt} fill className="object-cover" />
         : children
       }
       {showPlayOverlay && (
