@@ -1,17 +1,25 @@
+import { apiGet, apiPost } from "@/services/api/apiClient";
 import { ENV } from "@/config/env";
-import type { INotification, INotificationService, INotificationType } from "@/types/notification.types";
-import { apiGet, apiPatch } from "./apiClient";
+import type {
+  INotificationsResponse,
+} from "@/types/notification.types";
 
-export const realNotificationService: INotificationService = {
-  getNotifications: async (filter: INotificationType | "all" = "all"): Promise<INotification[]> => {
-    return await apiGet<INotification[]>(`${ENV.API_BASE_URL}/notifications?filter=${filter}`);
+const BASE = `${ENV.API_BASE_URL}/notifications`;
+
+export const realNotificationService = {
+  async getNotifications(): Promise<INotificationsResponse> {
+    return apiGet<INotificationsResponse>(BASE);
   },
 
-  markAllRead: async (): Promise<void> => {
-    await apiPatch(`${ENV.API_BASE_URL}/notifications/read-all`);
+  async markAllAsRead(): Promise<void> {
+    await apiPost<void>(`${BASE}/mark-all-read`);
   },
 
-  markRead: async (id: string): Promise<void> => {
-    await apiPatch(`${ENV.API_BASE_URL}/notifications/${id}/read`);
+  async markAsRead(notificationId: string): Promise<void> {
+    await apiPost<void>(`${BASE}/${notificationId}/read`);
+  },
+
+  async toggleFollow(actorId: string): Promise<{ isFollowing: boolean }> {
+    return apiPost<{ isFollowing: boolean }>(`${ENV.API_BASE_URL}/users/${actorId}/follow`);
   },
 };
