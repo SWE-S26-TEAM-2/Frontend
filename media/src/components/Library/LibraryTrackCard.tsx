@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { formatNumber } from "@/utils/formatNumber";
 import { Waveform } from "@/components/Track/Waveform";
 import { HeartIcon, RepostIcon, ShareIcon } from "@/components/Icons/TrackIcons";
@@ -15,21 +15,18 @@ interface ITrackListRowProps {
 
 export function TrackListRow({ track }: ITrackListRowProps) {
   const [commentText, setCommentText] = useState("");
-  // Fix: use useEffect to safely read localStorage after mount (avoids SSR
-  // hydration mismatch and window-is-undefined errors)
-  const [userInitial, setUserInitial] = useState("?");
-  // Fix: Date.now() is an impure function — calling it during render produces
-  // unstable results (react-hooks/purity). Capture it once after mount instead.
-  const [nowMs, setNowMs] = useState<number>(0);
 
-  useEffect(() => {
+  // Lazy initialisers run once on the client (safe in "use client" components —
+  // no SSR execution) and never cause cascading renders, satisfying both
+  // react-hooks/purity and react-hooks/set-state-in-effect rules.
+  const [userInitial] = useState<string>(() => {
     const username = window.localStorage.getItem("auth_username") ?? "";
-    setUserInitial(username.charAt(0).toUpperCase() || "?");
-    setNowMs(Date.now());
-  }, []);
+    return username.charAt(0).toUpperCase() || "?";
+  });
+  const [nowMs] = useState<number>(() => Date.now());
 
   const likedAgo = useMemo(() => {
-    if (!track.likedAt || nowMs === 0) return null;
+    if (!track.likedAt) return null;
     const diffMs   = nowMs - new Date(track.likedAt).getTime();
     const diffDays = Math.floor(diffMs / 86_400_000);
     if (diffDays < 1)   return "today";
