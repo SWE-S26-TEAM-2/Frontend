@@ -7,7 +7,6 @@ jest.mock("next/navigation", () => ({
   useRouter: jest.fn(),
 }));
 
-// Mock at both possible import paths
 jest.mock("@/services", () => ({
   feedService: {
     getFeedPageData: jest.fn(),
@@ -20,13 +19,29 @@ jest.mock("@/services/api/feed.api", () => ({
   },
 }));
 
-jest.mock("@/components/Header/Header",   () => () => <div data-testid="header" />);
-jest.mock("@/components/Footer/Footer",   () => () => <div data-testid="footer" />);
-jest.mock("@/components/Home/SideBar",    () => () => <div data-testid="sidebar" />);
+// Named functions fix the "missing display name" ESLint error
+jest.mock("@/components/Header/Header", () => {
+  function MockHeader() { return <div data-testid="header" />; }
+  MockHeader.displayName = "MockHeader";
+  return MockHeader;
+});
+
+jest.mock("@/components/Footer/Footer", () => {
+  function MockFooter() { return <div data-testid="footer" />; }
+  MockFooter.displayName = "MockFooter";
+  return MockFooter;
+});
+
+jest.mock("@/components/Home/SideBar", () => {
+  function MockSidebar() { return <div data-testid="sidebar" />; }
+  MockSidebar.displayName = "MockSidebar";
+  return MockSidebar;
+});
+
 jest.mock("@/components/Track/TrackCard", () => ({
-  TrackCard: ({ track }: { track: { title: string } }) => (
-    <div data-testid="track-card">{track.title}</div>
-  ),
+  TrackCard: function MockTrackCard({ track }: { track: { title: string } }) {
+    return <div data-testid="track-card">{track.title}</div>;
+  },
 }));
 
 jest.mock("@/store/playerStore", () => ({
@@ -36,7 +51,6 @@ jest.mock("@/store/playerStore", () => ({
   }),
 }));
 
-// Import mocked service after jest.mock calls
 import { feedService } from "@/services";
 
 // ── Fixtures ──────────────────────────────────────────────────────────────────
@@ -76,26 +90,20 @@ describe("FeedPage", () => {
 
   test("renders header and footer", async () => {
     (feedService.getFeedPageData as jest.Mock).mockResolvedValue(MOCK_FEED_DATA);
-
     await act(async () => { render(<FeedPage />); });
-
     expect(screen.getByTestId("header")).toBeInTheDocument();
     expect(screen.getByTestId("footer")).toBeInTheDocument();
   });
 
-  test("shows loading state initially", async () => {
+  test("shows loading state initially", () => {
     (feedService.getFeedPageData as jest.Mock).mockReturnValue(new Promise(() => {}));
-
     render(<FeedPage />);
-
     expect(screen.getByText(/Loading Feed/i)).toBeInTheDocument();
   });
 
   test("renders feed tracks after loading", async () => {
     (feedService.getFeedPageData as jest.Mock).mockResolvedValue(MOCK_FEED_DATA);
-
     await act(async () => { render(<FeedPage />); });
-
     await waitFor(() => {
       expect(screen.getByText("Neon Skies")).toBeInTheDocument();
     });
@@ -103,34 +111,26 @@ describe("FeedPage", () => {
 
   test("renders page heading and subtitle", async () => {
     (feedService.getFeedPageData as jest.Mock).mockResolvedValue(MOCK_FEED_DATA);
-
     await act(async () => { render(<FeedPage />); });
-
     expect(screen.getByText("Your Feed")).toBeInTheDocument();
     expect(screen.getByText(/Hear the latest posts/i)).toBeInTheDocument();
   });
 
   test("shows empty state when no feed tracks", async () => {
     (feedService.getFeedPageData as jest.Mock).mockResolvedValue({
-      ...MOCK_FEED_DATA,
-      feedTracks: [],
+      ...MOCK_FEED_DATA, feedTracks: [],
     });
-
     await act(async () => { render(<FeedPage />); });
-
     await waitFor(() => {
       expect(screen.getByText(/Your feed is empty/i)).toBeInTheDocument();
     });
   });
 
-  test("shows explore button in empty state and navigates on click", async () => {
+  test("shows explore button and navigates on click", async () => {
     (feedService.getFeedPageData as jest.Mock).mockResolvedValue({
-      ...MOCK_FEED_DATA,
-      feedTracks: [],
+      ...MOCK_FEED_DATA, feedTracks: [],
     });
-
     await act(async () => { render(<FeedPage />); });
-
     await waitFor(() => {
       const btn = screen.getByText(/Find artists to follow/i);
       expect(btn).toBeInTheDocument();
@@ -144,28 +144,20 @@ describe("FeedPage", () => {
       ...MOCK_FEED_DATA,
       feedTracks: [MOCK_TRACK, { ...MOCK_TRACK, id: "feed-2", title: "City Rain" }],
     });
-
     await act(async () => { render(<FeedPage />); });
-
     await waitFor(() => {
       expect(screen.getAllByTestId("track-card")).toHaveLength(2);
     });
   });
 
-  test("handles API error gracefully — shows loading then nothing crashes", async () => {
-    (feedService.getFeedPageData as jest.Mock).mockRejectedValue(
-      new Error("Network error")
-    );
-
-    // The page renders null when data is null after error
-    // so we just verify it doesn't throw
+  test("handles API error gracefully without throwing", async () => {
+    (feedService.getFeedPageData as jest.Mock).mockRejectedValue(new Error("Network error"));
     let threw = false;
     try {
       await act(async () => { render(<FeedPage />); });
     } catch {
       threw = true;
     }
-
     expect(threw).toBe(false);
   });
 });
