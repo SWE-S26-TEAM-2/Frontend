@@ -307,7 +307,13 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
 
   const avatarRef  = useRef<HTMLDivElement>(null);
   const dotsRef    = useRef<HTMLDivElement>(null);
-  const profileHref = authUser?.username ? `/${authUser.username}` : storedUsername ? `/${storedUsername}` : "/";
+  const profileHref = authUser?.username
+    ? `/${authUser.username}`
+    : storedUsername
+      ? `/${storedUsername}`
+      : storedUserId
+        ? `/${storedUserId}`
+        : "/";
 
   const handleSignOut = () => {
     logout();
