@@ -23,6 +23,7 @@ export interface ISignInStepProps {
   onBack: () => void;
   error: string;
   isLoading: boolean;
+  subtitle?: string;
 }
 export interface IInputStepProps {
   emailOrProfileUrl: string;

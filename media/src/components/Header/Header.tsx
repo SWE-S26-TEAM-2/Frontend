@@ -235,6 +235,7 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
   const [dotsOpen, setDotsOpen]         = useState(false);
   const [hasToken, setHasToken]         = useState(false);
   const [storedUserId, setStoredUserId] = useState<string | null>(null);
+  const [storedAvatarUrl, setStoredAvatarUrl] = useState<string | null>(null);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [avatarError, setAvatarError]   = useState(false);
 
@@ -246,17 +247,22 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
   const pathname        = usePathname();
 
   useEffect(() => {
-    const token  = window.localStorage.getItem("auth_token");
-    const userId = window.localStorage.getItem("auth_user_id");
-    if (token)  setHasToken(true);
-    if (userId) setStoredUserId(userId);
+    const token      = window.localStorage.getItem("auth_token");
+    const userId     = window.localStorage.getItem("auth_user_id");
+    const savedImage = window.localStorage.getItem("auth_profile_image");
+    if (token)      setHasToken(true);
+    if (userId)     setStoredUserId(userId);
+    if (savedImage) setStoredAvatarUrl(savedImage);
     if (!token) return;
 
     if (isAuthenticated && authUser?.profileImageUrl) return;
 
     import("@/services").then(({ AuthService: authService }) => {
       authService.getCurrentUser(token)
-        .then((user) => storeLogin(user, token))
+        .then((user) => {
+          storeLogin(user, token);
+          if (user.profileImageUrl) setStoredAvatarUrl(user.profileImageUrl);
+        })
         .catch(() => {
           window.localStorage.removeItem("auth_token");
           window.localStorage.removeItem("refresh_token");
@@ -273,7 +279,7 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
   const isLoggedIn = isLoggedInProp !== undefined ? isLoggedInProp : (isAuthenticated || hasToken);
 
   const avatarSrc = (() => {
-    const raw = authUser?.profileImageUrl?.trim();
+    const raw = (authUser?.profileImageUrl ?? storedAvatarUrl ?? "").trim();
     if (!raw) return null;
 
     const isHttp = raw.startsWith("http://") || raw.startsWith("https://");

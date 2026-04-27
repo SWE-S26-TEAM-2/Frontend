@@ -218,7 +218,11 @@ export const realUserProfileService: IUserProfileService = {
     const data = (json.data ?? json) as Record<string, unknown>;
     const bustedAvatar = addCacheBuster(data.profile_picture);
     if (bustedAvatar) data.profile_picture = bustedAvatar;
-    return normalizeUser(data, (data.user_id as string) ?? getStoredUserId() ?? "");
+    const user = normalizeUser(data, (data.user_id as string) ?? getStoredUserId() ?? "");
+    if (typeof window !== "undefined" && user.avatarUrl) {
+      window.localStorage.setItem("auth_profile_image", user.avatarUrl);
+    }
+    return user;
   },
 
   async uploadCover(file: File): Promise<IUser> {
