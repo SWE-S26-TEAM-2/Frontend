@@ -12,6 +12,7 @@ export interface IPlayerState {
   repeat: boolean;
   setTrack: (track: ITrack) => void;
   setQueue: (tracks: ITrack[]) => void;
+  addToQueue: (track: ITrack) => void;
   playFromQueue: (index: number) => void;
   moveQueueItem: (fromIndex: number, toIndex: number) => void;
   play: () => void;

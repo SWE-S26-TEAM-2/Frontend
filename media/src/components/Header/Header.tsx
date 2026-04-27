@@ -161,12 +161,12 @@ const ArtistProBadge = () => (
 const getAvatarMenu = (profileHref: string): IMenuItem[] => [
   { icon: <ProfileIcon />,     label: "Profile",        href: profileHref },
   { icon: <LikesIcon />,       label: "Likes",          href: "/likes" },
-  { icon: <StationsIcon />,    label: "Stations",       href: "/stations" },
+  { icon: <StationsIcon />,    label: "Stations",       href: "/stream" },
   { icon: <WhoToFollowIcon />, label: "Who to follow",  href: "/who-to-follow", dividerBefore: true },
   { icon: <ArtistProBadge />,  label: "Try Artist Pro", href: "/artist-pro", orange: true },
-  { icon: <TracksIcon />,      label: "Tracks",         href: "/tracks",      dividerBefore: true },
-  { icon: <InsightsIcon />,    label: "Insights",       href: "/insights" },
-  { icon: <DistributeIcon />,  label: "Distribute",     href: "/distribute" },
+  { icon: <TracksIcon />,      label: "Tracks",         href: "/library",     dividerBefore: true },
+  { icon: <InsightsIcon />,    label: "Insights",       href: "/creator/studio" },
+  { icon: <DistributeIcon />,  label: "Distribute",     href: "/creator/distribute" },
 ];
 
 const DOTS_MENU: IMenuItem[] = [
