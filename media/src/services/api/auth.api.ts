@@ -79,6 +79,7 @@ const resolveProfileImage = (u: {
 
 const normalizeUser = (u: {
   user_id: string;
+  username?: string;
   display_name: string;
   account_type: string;
   is_premium: boolean;
@@ -90,7 +91,7 @@ const normalizeUser = (u: {
   email?: string;
 }): IUser => ({
   id: u.user_id,
-  username: u.display_name,
+  username: u.username ?? u.display_name,
   email: u.email ?? "",
   profileImageUrl: resolveProfileImage(u),
   createdAt: new Date().toISOString(),

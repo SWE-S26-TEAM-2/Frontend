@@ -235,6 +235,7 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
   const [dotsOpen, setDotsOpen]         = useState(false);
   const [hasToken, setHasToken]         = useState(false);
   const [storedUserId, setStoredUserId] = useState<string | null>(null);
+  const [storedUsername, setStoredUsername] = useState<string | null>(null);
   const [storedAvatarUrl, setStoredAvatarUrl] = useState<string | null>(null);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [avatarError, setAvatarError]   = useState(false);
@@ -249,9 +250,11 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
   useEffect(() => {
     const token      = window.localStorage.getItem("auth_token");
     const userId     = window.localStorage.getItem("auth_user_id");
+    const uname      = window.localStorage.getItem("auth_username");
     const savedImage = window.localStorage.getItem("auth_profile_image");
     if (token)      setHasToken(true);
     if (userId)     setStoredUserId(userId);
+    if (uname)      setStoredUsername(uname);
     if (savedImage) setStoredAvatarUrl(savedImage);
     if (!token) return;
 
@@ -304,7 +307,7 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
 
   const avatarRef  = useRef<HTMLDivElement>(null);
   const dotsRef    = useRef<HTMLDivElement>(null);
-  const profileHref = authUser?.id ? `/${authUser.id}` : storedUserId ? `/${storedUserId}` : "/";
+  const profileHref = authUser?.username ? `/${authUser.username}` : storedUsername ? `/${storedUsername}` : "/";
 
   const handleSignOut = () => {
     logout();

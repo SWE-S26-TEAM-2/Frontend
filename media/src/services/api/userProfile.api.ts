@@ -84,9 +84,9 @@ function normalizeUser(d: Record<string, unknown>, requestedId: string): IUser {
   const parts = location.split(",").map((s) => s.trim());
 
   return {
-    id:           (d.user_id as string)      ?? requestedId,
-    username:     (d.display_name as string) ?? "",
-    displayName:  (d.display_name as string) ?? undefined,
+    id:           (d.user_id as string)                                ?? requestedId,
+    username:     (d.username as string) ?? (d.display_name as string) ?? "",
+    displayName:  (d.display_name as string)                           ?? undefined,
     firstName:    (d.first_name as string)   ?? undefined,
     lastName:     (d.last_name as string)    ?? undefined,
     city:         (d.city as string)         ?? parts[0]  ?? undefined,
