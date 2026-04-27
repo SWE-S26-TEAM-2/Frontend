@@ -15,6 +15,19 @@ import type { IPrivacySettings } from "@/types/settings-privacy.types";
 //import { IPrivacySettings } from "@/types/privacy.types";
 
 
+import { mockStationService } from "./mocks/stations.mock";
+import { realStationService } from "./api/stations.api";
+import type { IStationService } from "@/types/station.types";
+
+
+
+import { mockSearchService } from "./mocks/search.mock";
+    import { realSearchService } from "./api/search.api";
+
+  import { mockFeedService } from "./mocks/feed.mock";
+import { realFeedService } from "./api/feed.api";
+import type { IFeedService } from "@/types/feed.types";
+
 // trending
 import {
   getCuratedTracks,
@@ -192,19 +205,23 @@ export const homeService: IHomeService =
     : realHomeService;
 
 
-    import { mockSearchService } from "./mocks/search.mock";
-    import { realSearchService } from "./api/search.api";
+    
     export const searchService = ENV.USE_MOCK_API
   ? mockSearchService
   : realSearchService;
 
 
 
-  import { mockFeedService } from "./mocks/feed.mock";
-import { realFeedService } from "./api/feed.api";
-import type { IFeedService } from "@/types/feed.types";
 
-// export
+
 export const feedService: IFeedService = ENV.USE_MOCK_API
   ? mockFeedService
   : realFeedService;
+
+
+
+
+
+export const stationService: IStationService = ENV.USE_MOCK_API
+  ? mockStationService
+  : realStationService;

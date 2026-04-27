@@ -3,22 +3,30 @@
 import React, { useEffect, useState } from 'react';
 import TrackSlider from '../../../components/Track/TrackSlider';
 import RecentlyPlayedGrid from '../../../components/Home/RecentlyPlayed';
-import RightSidebar from '../../../components/Home/SideBar'; 
+import RightSidebar from '../../../components/Home/SideBar';
+import StationSlider from '../../../components/Station/StationSlider';
 import { homeService } from '@/services';
+import { stationService } from '@/services';
 import { IHomePageData } from '../../../types/home.types';
+import type { IStation } from '@/types/station.types';
 import Header from '../../../components/Header/Header';
 import Footer from '../../../components/Footer/Footer';
 
 export default function HomePage() {
-  const [data, setData] = useState<IHomePageData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const username = "User"; 
+  const [data, setData]                   = useState<IHomePageData | null>(null);
+  const [discoverStations, setDiscoverStations] = useState<IStation[]>([]);
+  const [isLoading, setIsLoading]         = useState(true);
+  const username = "User";
 
   useEffect(() => {
     const loadData = async () => {
       try {
-const result = await homeService.getHomePageData(username);
-        setData(result);
+        const [homeData, stations] = await Promise.all([
+          homeService.getHomePageData(username),
+          stationService.getDiscoverStations(),
+        ]);
+        setData(homeData);
+        setDiscoverStations(stations);
       } catch (error) {
         console.error("Failed to fetch home data:", error);
       } finally {
@@ -40,9 +48,8 @@ const result = await homeService.getHomePageData(username);
 
   return (
     <>
-      <Header/>
-      
-      {/* NATIVE CSS MEDIA QUERIES (Professional approach for inline-style setups) */}
+      <Header />
+
       <style>{`
         .responsive-container {
           display: flex;
@@ -54,55 +61,53 @@ const result = await homeService.getHomePageData(username);
         }
         .responsive-main {
           flex: 1;
-          min-width: 0; /* CRITICAL: Prevents the Flexbox Blowout from the slider */
-          overflow: hidden; /* CRITICAL: Keeps everything inside the boundaries */
+          min-width: 0;
+          overflow: hidden;
         }
         .responsive-sidebar {
           width: 320px;
           flex-shrink: 0;
         }
-
-        /* When screen gets smaller than 1024px, stack them! */
         @media (max-width: 1024px) {
           .responsive-container {
             flex-direction: column;
             padding: 20px 15px;
           }
           .responsive-sidebar {
-            width: 100%; /* Sidebar takes full width at the bottom */
+            width: 100%;
           }
         }
       `}</style>
 
       <div style={styles.pageWrapper}>
         <div className="responsive-container">
-          
+
           <div className="responsive-main">
-            <TrackSlider 
-              title="More of what you like" 
+            <TrackSlider
+              title="More of what you like"
               subtitle="Suggestions based on your recent plays"
-              tracks={data.moreOfWhatYouLike} 
+              tracks={data.moreOfWhatYouLike}
             />
 
             <RecentlyPlayedGrid items={data.recentlyPlayed} />
 
-            <TrackSlider 
-              title={`Mixed for ${username}`} 
+            <TrackSlider
+              title={`Mixed for ${username}`}
               subtitle="Your personal daily music update"
-              tracks={data.mixedForUser} 
-              showFollow={false} 
+              tracks={data.mixedForUser}
+              showFollow={false}
             />
 
-            <TrackSlider 
-              title="Discover with stations" 
+            {/* Stations slider — replaces old discoverStations TrackSlider */}
+            <StationSlider
+              title="Discover with stations"
               subtitle="Pick a track and we'll play similar music"
-              tracks={data.discoverStations} 
-              showFollow={false} 
+              stations={discoverStations}
             />
           </div>
 
           <div className="responsive-sidebar">
-            <RightSidebar 
+            <RightSidebar
               followSuggestions={data.followSuggestions}
               listeningHistory={data.listeningHistory}
             />
@@ -110,6 +115,7 @@ const result = await homeService.getHomePageData(username);
 
         </div>
       </div>
+
       <Footer />
     </>
   );
@@ -117,10 +123,10 @@ const result = await homeService.getHomePageData(username);
 
 const styles: { [key: string]: React.CSSProperties } = {
   pageWrapper: {
-    backgroundColor: '#121212', 
+    backgroundColor: '#121212',
     minHeight: '100vh',
     width: '100%',
-    overflowX: 'hidden', // Extra safety net
+    overflowX: 'hidden',
   },
   loadingWrapper: {
     backgroundColor: '#121212',
@@ -130,12 +136,12 @@ const styles: { [key: string]: React.CSSProperties } = {
     justifyContent: 'center',
     color: '#ccc',
     fontSize: '14px',
-    fontFamily: 'Inter, sans-serif'
+    fontFamily: 'Inter, sans-serif',
   },
   spinner: {
     padding: '20px',
     border: '1px solid #333',
     borderRadius: '8px',
-    backgroundColor: '#1a1a1a'
-  }
+    backgroundColor: '#1a1a1a',
+  },
 };
