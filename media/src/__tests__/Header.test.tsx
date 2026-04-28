@@ -53,6 +53,7 @@ describe("Header Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     localStorage.setItem("auth_user_id", "testuser");
+    localStorage.setItem("auth_username", "testuser");
   });
 
   afterEach(() => {

@@ -363,9 +363,12 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
     window.localStorage.removeItem("refresh_token");
     window.localStorage.removeItem("auth_user_id");
     window.localStorage.removeItem("auth_username");
+    window.localStorage.removeItem("auth_profile_image");
     clearAuthCookie();
     setHasToken(false);
     setStoredUserId(null);
+    setStoredUsername(null);
+    setStoredAvatarUrl(null);
     router.push("/login");
   };
 

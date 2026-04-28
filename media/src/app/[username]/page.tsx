@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { userProfileService, playlistService } from "@/services/di";
 import { type ITrack } from "@/types/track.types";
 import { type IPlaylist } from "@/types/playlist.types";
@@ -23,10 +23,18 @@ const TABS = ["All", "Popular tracks", "Tracks", "Albums", "Playlists", "Reposts
 export default function UserProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = React.use(params);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const authStoreUser = useAuthStore((state) => state.user);
   const storeLogin = useAuthStore((state) => state.login);
   const { setQueue, setTrack } = usePlayerStore();
-  const [activeTab, setActiveTab] = useState<IActiveTab>(TABS[0]);
+
+  // Read ?tab= from URL, fall back to "All"
+  const initialTab = (): IActiveTab => {
+    const tab = searchParams.get("tab");
+    return (TABS as readonly string[]).includes(tab ?? "") ? (tab as IActiveTab) : "All";
+  };
+
+  const [activeTab, setActiveTab] = useState<IActiveTab>(initialTab);
   const [user, setUser]           = useState<IUser | null>(null);
   const [tracks, setTracks]       = useState<ITrack[]>([]);
   const [likes, setLikes]         = useState<ILikedTrack[]>([]);
@@ -38,6 +46,12 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   const [error, setError]         = useState<string | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
 
+  // Keep tab in sync if user navigates back/forward
+  useEffect(() => {
+    setActiveTab(initialTab());
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
   useEffect(() => {
     async function loadData() {
       try {
@@ -45,10 +59,10 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
         const fetchedUser = await userProfileService.getUserProfile(username);
         const [fetchedTracks, fetchedLikes, fetchedFans, fetchedFollowers, fetchedFollowing, fetchedPlaylists] = await Promise.all([
           userProfileService.getUserTracks(fetchedUser.username),
-          userProfileService.getUserLikes(fetchedUser.id),
+          userProfileService.getUserLikes(fetchedUser.username),
           userProfileService.getFansAlsoLike(fetchedUser.id),
-          userProfileService.getFollowers(fetchedUser.id),
-          userProfileService.getFollowing(fetchedUser.id),
+          userProfileService.getFollowers(fetchedUser.username),
+          userProfileService.getFollowing(fetchedUser.username),
           playlistService.getUserPlaylists(fetchedUser.username),
         ]);
         setUser(fetchedUser);
@@ -72,7 +86,6 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   const handleAvatarUpload = async (file: File) => {
     const updated = await userProfileService.uploadAvatar(file);
     setUser(updated);
-
     const token = typeof window !== "undefined" ? window.localStorage.getItem("auth_token") : null;
     if (updated.isOwner && token && authStoreUser) {
       storeLogin({

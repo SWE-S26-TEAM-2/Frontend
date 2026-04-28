@@ -188,7 +188,10 @@ describe("realUserProfileService", () => {
   it("getUserTracks calls correct endpoint", async () => {
     mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] });
     await realUserProfileService.getUserTracks("user123");
-    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining("/users/user123/tracks"), expect.anything());
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining("/users/user123/tracks"),
+      expect.objectContaining({ method: "GET" })
+    );
   });
 
   it("getUserTracks returns empty array when response is not ok", async () => {
@@ -200,7 +203,10 @@ describe("realUserProfileService", () => {
   it("getUserLikes calls correct endpoint", async () => {
     mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] });
     await realUserProfileService.getUserLikes("user123");
-    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining("/users/user123/likes"), expect.anything());
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining("/users/user123/liked-tracks"),
+      expect.objectContaining({ method: "GET" })
+    );
   });
 
   it("getUserLikes returns empty array when response is not ok", async () => {
@@ -209,21 +215,62 @@ describe("realUserProfileService", () => {
     expect(result).toEqual([]);
   });
 
-  it("getFansAlsoLike calls correct endpoint", async () => {
-    mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] });
-    await realUserProfileService.getFansAlsoLike("user123");
-    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining("/users/user123/fans"), expect.anything());
+  it("getFansAlsoLike falls back to mock data while endpoint is unavailable", async () => {
+    const fans = await realUserProfileService.getFansAlsoLike("testartist");
+    expect(Array.isArray(fans)).toBe(true);
+    expect(fans.length).toBeGreaterThan(0);
   });
 
   it("getFollowers calls correct endpoint", async () => {
-    mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] });
+    mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({ followers: [] }) });
     await realUserProfileService.getFollowers("user123");
-    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining("/users/user123/followers"), expect.anything());
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining("/users/user123/followers"),
+      expect.objectContaining({ method: "GET" })
+    );
   });
 
   it("getFollowing calls correct endpoint", async () => {
-    mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] });
+    mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({ following: [] }) });
     await realUserProfileService.getFollowing("user123");
-    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining("/users/user123/following"), expect.anything());
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining("/users/user123/following"),
+      expect.objectContaining({ method: "GET" })
+    );
+  });
+
+  it("searchUsers uses backend username for profile routing", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        data: {
+          users: [{
+            user_id: "user-1",
+            username: "real-username",
+            display_name: "Real User",
+            account_type: "artist",
+            profile_picture: null,
+            follower_count: 42,
+            is_verified: true,
+          }],
+        },
+      }),
+    });
+
+    const users = await realUserProfileService.searchUsers("real user");
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining("/search/users?keyword=real%20user"),
+      expect.objectContaining({ method: "GET" })
+    );
+    expect(users).toEqual([{
+      id: "user-1",
+      username: "real-username",
+      displayName: "Real User",
+      role: "artist",
+      avatarUrl: null,
+      followerCount: 42,
+      isVerified: true,
+    }]);
   });
 });
