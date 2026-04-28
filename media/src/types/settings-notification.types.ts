@@ -1,4 +1,4 @@
-export type IDevicesValue = boolean | "Everyone" | "Following" | "No one";
+export type IDevicesValue = boolean | "Everyone" | "Followed" | "Off" | "none";
 
 export interface INotificationRow {
   name: string;

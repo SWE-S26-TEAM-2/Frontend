@@ -11,3 +11,8 @@ export const updateAccountSettingsOnAPI = async (
   void settings;
   unsupportedApiFeature("settings.account.updateSettings()");
 };
+
+export const sendPasswordResetEmailFromAPI = async (email: string): Promise<void> => {
+  void email;
+  unsupportedApiFeature("settings.account.sendPasswordResetEmail()");
+};
