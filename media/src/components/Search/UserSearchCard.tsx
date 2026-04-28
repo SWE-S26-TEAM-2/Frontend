@@ -10,19 +10,23 @@ import type { ISearchUser } from "@/types/userProfile.types";
 export default function UserSearchCard({ user }: { user: ISearchUser }) {
   const [isFollowing, setIsFollowing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const displayName = user.displayName ?? user.username;
+  const profileHref = `/${encodeURIComponent(user.username)}`;
 
   const handleFollow = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (loading) return;
+    const nextIsFollowing = !isFollowing;
+    setIsFollowing(nextIsFollowing);
     setLoading(true);
     try {
-      if (isFollowing) {
-        await userProfileService.unfollowUser(user.id);
+      if (nextIsFollowing) {
+        await userProfileService.followUser(user.username);
       } else {
-        await userProfileService.followUser(user.id);
+        await userProfileService.unfollowUser(user.username);
       }
-      setIsFollowing((f) => !f);
     } catch (err) {
+      setIsFollowing(!nextIsFollowing);
       console.error("Follow action failed:", err);
     } finally {
       setLoading(false);
@@ -40,10 +44,10 @@ export default function UserSearchCard({ user }: { user: ISearchUser }) {
       }}
     >
       {/* Avatar */}
-      <Link href={`/${user.id}`} style={{ flexShrink: 0 }}>
+      <Link href={profileHref} style={{ flexShrink: 0 }}>
         <Image
           src={user.avatarUrl ?? `https://i.pravatar.cc/48?u=${user.id}`}
-          alt={user.username}
+          alt={displayName}
           width={48}
           height={48}
           style={{ borderRadius: "50%", objectFit: "cover" }}
@@ -53,12 +57,12 @@ export default function UserSearchCard({ user }: { user: ISearchUser }) {
       {/* Info */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <Link
-          href={`/${user.id}`}
+          href={profileHref}
           style={{ color: "#fff", textDecoration: "none", fontWeight: 600, fontSize: "14px", display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
           onMouseEnter={(e) => (e.currentTarget.style.color = "#f50")}
           onMouseLeave={(e) => (e.currentTarget.style.color = "#fff")}
         >
-          {user.username}
+          {displayName}
           {user.isVerified && (
             <span style={{ marginLeft: "6px", color: "#f50", fontSize: "12px" }}>✓</span>
           )}
@@ -106,7 +110,7 @@ export default function UserSearchCard({ user }: { user: ISearchUser }) {
           if (!loading && isFollowing) e.currentTarget.style.borderColor = "#555";
         }}
       >
-        {loading ? "..." : isFollowing ? "Following" : "Follow"}
+        {isFollowing ? "Following" : loading ? "..." : "Follow"}
       </button>
     </div>
   );

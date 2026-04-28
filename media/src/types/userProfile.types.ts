@@ -50,7 +50,7 @@ export interface IUserProfileTrack {
 }
 
 export interface ILikedTrack {
-  id: number;
+  id: string;
   title: string;
   artist: string;
   plays?: number;
@@ -87,6 +87,7 @@ export interface IFollowing {
 export interface ISearchUser {
   id: string;
   username: string;
+  displayName?: string;
   role: "artist" | "listener";
   avatarUrl: string | null;
   followerCount: number;
@@ -112,15 +113,15 @@ export interface IEditProfilePayload {
 
 export interface IUserProfileService {
   getUserProfile(username: string): Promise<IUser>;
-  getUserTracks(userId: string): Promise<ITrack[]>;
-  getUserLikes(userId: string): Promise<ILikedTrack[]>;
+  getUserTracks(username: string): Promise<ITrack[]>;
+  getUserLikes(username: string): Promise<ILikedTrack[]>;
   getFansAlsoLike(userId: string): Promise<IFanUser[]>;
-  getFollowers(userId: string): Promise<IFollower[]>;
-  getFollowing(userId: string): Promise<IFollowing[]>;
+  getFollowers(username: string): Promise<IFollower[]>;
+  getFollowing(username: string): Promise<IFollowing[]>;
   updateProfile(userId: string, payload: IEditProfilePayload): Promise<IUser>;
   uploadAvatar(file: File): Promise<IUser>;
   uploadCover(file: File): Promise<IUser>;
-  followUser(userId: string): Promise<void>;
-  unfollowUser(userId: string): Promise<void>;
+  followUser(username: string): Promise<void>;
+  unfollowUser(username: string): Promise<void>;
   searchUsers(query: string): Promise<ISearchUser[]>;
 }

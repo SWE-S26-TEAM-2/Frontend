@@ -85,7 +85,7 @@ function TrackDotsMenu({ track, anchorRef, onClose }: ITrackDotsMenuProps) {
 interface ILikeRowProps {
   like: ILikedTrack;
   isLiked: boolean;
-  onToggleLike: (id: number) => void;
+  onToggleLike: (id: string) => void;
 }
  
 function LikeRow({ like, isLiked, onToggleLike }: ILikeRowProps) {
@@ -184,7 +184,7 @@ function FanRow({ fan, isFollowing, onToggleFollow }: IFanRowProps) {
         </div>
       </div>
       <button
-        onClick={() => onToggleFollow(fan.id)}
+        onClick={() => onToggleFollow(fan.username)}
         className={`rounded px-3 py-1 text-xs cursor-pointer shrink-0 transition-colors border ${
           isFollowing
             ? "bg-[#2a2a2a] border-[#444] text-[#aaa] hover:border-[#ff5500] hover:text-[#ff5500]"
@@ -224,7 +224,7 @@ function FollowingRow({ f, isFollowing, onToggleFollow }: IFollowingRowProps) {
         </div>
       </div>
       <button
-        onClick={() => onToggleFollow(f.id)}
+        onClick={() => onToggleFollow(f.username)}
         className={`rounded px-3 py-1 text-xs cursor-pointer shrink-0 transition-colors border ${
           isFollowing
             ? "bg-[#2a2a2a] border-[#444] text-[#aaa] hover:border-[#ff5500] hover:text-[#ff5500]"
@@ -271,56 +271,52 @@ export function ProfileSidebar({ user, likes, fans, followers, following }: IPro
  
   // ── Fans follow state ──
   const [fanFollowState, setFanFollowState] = useState<Record<string, boolean>>(
-    () => Object.fromEntries(fans.map(f => [f.id, false]))
+    () => Object.fromEntries(fans.map(f => [f.username, false]))
   );
- 
-  const handleToggleFanFollow = useCallback(async (fanId: string) => {
-    const isCurrentlyFollowing = fanFollowState[fanId];
-    // Optimistic update
-    setFanFollowState(prev => ({ ...prev, [fanId]: !isCurrentlyFollowing }));
+
+  const handleToggleFanFollow = useCallback(async (fanUsername: string) => {
+    const isCurrentlyFollowing = fanFollowState[fanUsername];
+    setFanFollowState(prev => ({ ...prev, [fanUsername]: !isCurrentlyFollowing }));
     try {
       if (isCurrentlyFollowing) {
-        await userProfileService.unfollowUser(fanId);
+        await userProfileService.unfollowUser(fanUsername);
       } else {
-        await userProfileService.followUser(fanId);
+        await userProfileService.followUser(fanUsername);
       }
     } catch {
-      // Revert on error
-      setFanFollowState(prev => ({ ...prev, [fanId]: isCurrentlyFollowing }));
+      setFanFollowState(prev => ({ ...prev, [fanUsername]: isCurrentlyFollowing }));
     }
   }, [fanFollowState]);
  
   // ── Following follow state — pre-seeded as "following" since you follow them ──
   const [followingState, setFollowingState] = useState<Record<string, boolean>>(
-    () => Object.fromEntries(following.map(f => [f.id, true]))
+    () => Object.fromEntries(following.map(f => [f.username, true]))
   );
- 
-  const handleToggleFollowing = useCallback(async (userId: string) => {
-    const isCurrentlyFollowing = followingState[userId];
-    setFollowingState(prev => ({ ...prev, [userId]: !isCurrentlyFollowing }));
+
+  const handleToggleFollowing = useCallback(async (targetUsername: string) => {
+    const isCurrentlyFollowing = followingState[targetUsername];
+    setFollowingState(prev => ({ ...prev, [targetUsername]: !isCurrentlyFollowing }));
     try {
       if (isCurrentlyFollowing) {
-        await userProfileService.unfollowUser(userId);
+        await userProfileService.unfollowUser(targetUsername);
       } else {
-        await userProfileService.followUser(userId);
+        await userProfileService.followUser(targetUsername);
       }
     } catch {
-      setFollowingState(prev => ({ ...prev, [userId]: isCurrentlyFollowing }));
+      setFollowingState(prev => ({ ...prev, [targetUsername]: isCurrentlyFollowing }));
     }
   }, [followingState]);
  
   // ── Likes — local liked state for toggling ──
-  const [likedState, setLikedState] = useState<Record<number, boolean>>(
-    () => Object.fromEntries(likes.map(l => [l.id, true])) // all sidebar likes start as liked
+  const [likedState, setLikedState] = useState<Record<string, boolean>>(
+    () => Object.fromEntries(likes.map(l => [l.id, true]))
   );
- 
-  const handleToggleLike = useCallback(async (trackId: number) => {
+
+  const handleToggleLike = useCallback(async (trackId: string) => {
     const isCurrentlyLiked = likedState[trackId];
-    // Optimistic update
     setLikedState(prev => ({ ...prev, [trackId]: !isCurrentlyLiked }));
     try {
       // TODO: wire to trackService.likeTrack / unlikeTrack when available
-      // For now: no-op (mock)
     } catch {
       setLikedState(prev => ({ ...prev, [trackId]: isCurrentlyLiked }));
     }
@@ -329,7 +325,7 @@ export function ProfileSidebar({ user, likes, fans, followers, following }: IPro
   // ── Sync fans when prop changes ──
   useEffect(() => {
     setDisplayedFans(fans);
-    setFanFollowState(Object.fromEntries(fans.map(f => [f.id, false])));
+    setFanFollowState(Object.fromEntries(fans.map(f => [f.username, false])));
   }, [fans]);
  
   return (
@@ -395,7 +391,7 @@ export function ProfileSidebar({ user, likes, fans, followers, following }: IPro
               <FanRow
                 key={fan.id}
                 fan={fan}
-                isFollowing={fanFollowState[fan.id] ?? false}
+                isFollowing={fanFollowState[fan.username] ?? false}
                 onToggleFollow={handleToggleFanFollow}
               />
             ))}
@@ -440,7 +436,7 @@ export function ProfileSidebar({ user, likes, fans, followers, following }: IPro
               <FollowingRow
                 key={f.id}
                 f={f}
-                isFollowing={followingState[f.id] ?? true}
+                isFollowing={followingState[f.username] ?? true}
                 onToggleFollow={handleToggleFollowing}
               />
             ))}

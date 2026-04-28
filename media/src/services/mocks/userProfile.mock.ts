@@ -125,10 +125,10 @@ const MOCK_TRACKS: IUserProfileTrack[] = [
 ];
 
 const MOCK_LIKES: ILikedTrack[] = [
-  { id: 1, title: "Une vie à t'aimer", artist: "Lorien Testard, Alice Dup...", plays: 312000, likes: 5140, reposts: 70, comments: 99, coverUrl: null, accentColor: "#c0392b" },
-  { id: 2, title: "Dark Souls 3 OST + DLC", artist: "mitchteck", likes: 3140, reposts: 76, coverUrl: null, accentColor: "#8B4513" },
-  { id: 3, title: "Dark Souls III", artist: "RPG_OST", coverUrl: null, accentColor: "#2c3e50" },
-  { id: 4, title: "For Those Who Come A...", artist: "Lorien Testard, Alice Dup", coverUrl: null, accentColor: "#1a252f" },
+  { id: "1", title: "Une vie à t'aimer", artist: "Lorien Testard, Alice Dup...", plays: 312000, likes: 5140, reposts: 70, comments: 99, coverUrl: null, accentColor: "#c0392b" },
+  { id: "2", title: "Dark Souls 3 OST + DLC", artist: "mitchteck", likes: 3140, reposts: 76, coverUrl: null, accentColor: "#8B4513" },
+  { id: "3", title: "Dark Souls III", artist: "RPG_OST", coverUrl: null, accentColor: "#2c3e50" },
+  { id: "4", title: "For Those Who Come A...", artist: "Lorien Testard, Alice Dup", coverUrl: null, accentColor: "#1a252f" },
 ];
 
 const MOCK_FANS: IFanUser[] = [

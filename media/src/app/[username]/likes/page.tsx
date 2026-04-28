@@ -31,7 +31,7 @@ export default function LikesPage({ params }: { params: Promise<{ username: stri
     async function loadAsync() {
       try {
         const fetchedUser = await userProfileService.getUserProfile(username);
-        const fetchedLikes = await userProfileService.getUserLikes(fetchedUser.id);
+        const fetchedLikes = await userProfileService.getUserLikes(username);
         setUser(fetchedUser);
         setLikes(fetchedLikes);
       } catch (err) {
@@ -124,7 +124,7 @@ export default function LikesPage({ params }: { params: Promise<{ username: stri
           </div>
         ) : (
           <div className="flex flex-col">
-            {likes.map((track) => (
+            {likes.map((track, idx) => (
               <div
                 key={track.id}
                 className="flex items-start gap-4 py-5 border-b border-[#1a1a1a] group hover:bg-white/2 transition-colors px-2 -mx-2 rounded"
@@ -146,7 +146,7 @@ export default function LikesPage({ params }: { params: Promise<{ username: stri
                   </div>
 
                   <Waveform
-                    data={seededWaveform(track.id)}
+                    data={seededWaveform(idx)}
                     height={52}
                     playedPercent={0}
                     playedColor="#ff5500"

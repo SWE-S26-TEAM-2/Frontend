@@ -52,11 +52,11 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
         setLoading(true);
         const fetchedUser = await userProfileService.getUserProfile(username);
         const [fetchedTracks, fetchedLikes, fetchedFans, fetchedFollowers, fetchedFollowing] = await Promise.all([
-          userProfileService.getUserTracks(fetchedUser.id),
-          userProfileService.getUserLikes(fetchedUser.id),
+          userProfileService.getUserTracks(username),
+          userProfileService.getUserLikes(username),
           userProfileService.getFansAlsoLike(fetchedUser.id),
-          userProfileService.getFollowers(fetchedUser.id),
-          userProfileService.getFollowing(fetchedUser.id),
+          userProfileService.getFollowers(username),
+          userProfileService.getFollowing(username),
         ]);
         setUser(fetchedUser);
         setTracks(fetchedTracks);

@@ -32,16 +32,17 @@ export function ProfileActions({ user, onEditOpen }: IProfileActionsProps) {
 
   const handleFollow = async () => {
     if (followLoading) return;
+    const nextIsFollowing = !isFollowing;
+    setIsFollowing(nextIsFollowing);
     setFollowLoading(true);
     try {
-      if (isFollowing) {
-        await userProfileService.unfollowUser(user.id);
+      if (nextIsFollowing) {
+        await userProfileService.followUser(user.username);
       } else {
-        await userProfileService.followUser(user.id);
+        await userProfileService.unfollowUser(user.username);
       }
-      setIsFollowing((f) => !f);
     } catch {
-      // ignore — keep optimistic state intact on error
+      setIsFollowing(!nextIsFollowing);
     } finally {
       setFollowLoading(false);
     }

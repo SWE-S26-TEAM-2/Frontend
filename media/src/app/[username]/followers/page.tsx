@@ -24,7 +24,7 @@ export default function FollowersPage({ params }: { params: Promise<{ username: 
     async function loadAsync() {
       try {
         const fetchedUser = await userProfileService.getUserProfile(username);
-        const fetchedFollowers = await userProfileService.getFollowers(fetchedUser.id);
+        const fetchedFollowers = await userProfileService.getFollowers(username);
         setUser(fetchedUser);
         setFollowers(fetchedFollowers);
       } catch (err) {
@@ -36,26 +36,24 @@ export default function FollowersPage({ params }: { params: Promise<{ username: 
     loadAsync();
   }, [username]);
 
-  async function handleFollowToggle(e: React.MouseEvent, id: string) {
+  async function handleFollowToggle(e: React.MouseEvent, targetUsername: string) {
     e.stopPropagation();
-    const isCurrentlyFollowing = following.has(id); // or followed.has(id) in following page
-    // Optimistic update
+    const isCurrentlyFollowing = following.has(targetUsername);
     setFollowing(prev => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      next.has(targetUsername) ? next.delete(targetUsername) : next.add(targetUsername);
       return next;
     });
     try {
       if (isCurrentlyFollowing) {
-        await userProfileService.unfollowUser(id);
+        await userProfileService.unfollowUser(targetUsername);
       } else {
-        await userProfileService.followUser(id);
+        await userProfileService.followUser(targetUsername);
       }
     } catch {
-      // Revert on failure
       setFollowing(prev => {
         const next = new Set(prev);
-        next.has(id) ? next.delete(id) : next.add(id);
+        next.has(targetUsername) ? next.delete(targetUsername) : next.add(targetUsername);
         return next;
       });
     }
@@ -122,7 +120,7 @@ export default function FollowersPage({ params }: { params: Promise<{ username: 
             <p className="text-[#888] text-sm mb-6">Followers of {displayName}</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-8">
               {followers.map((f) => {
-                const isFollowing = following.has(f.id);
+                const isFollowing = following.has(f.username);
                 const isHovered = hoveredId === f.id;
                 return (
                   <div
@@ -148,7 +146,7 @@ export default function FollowersPage({ params }: { params: Promise<{ username: 
 
                     {isHovered ? (
                       <button
-                        onClick={(e) => handleFollowToggle(e, f.id)}
+                        onClick={(e) => handleFollowToggle(e, f.username)}
                         className={`text-xs font-medium rounded px-4 py-1 border transition-all cursor-pointer ${
                           isFollowing
                             ? "bg-transparent border-[#555] text-[#aaa] hover:border-[#ff5500] hover:text-[#ff5500]"

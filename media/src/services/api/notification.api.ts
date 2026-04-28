@@ -1,6 +1,6 @@
 import { ENV } from "@/config/env";
 import type { INotification, INotificationService, INotificationType } from "@/types/notification.types";
-import { apiGet, apiPatch } from "./apiClient";
+import { apiGet, apiPut } from "./apiClient";
 
 export const realNotificationService: INotificationService = {
   getNotifications: async (filter: INotificationType | "all" = "all"): Promise<INotification[]> => {
@@ -8,10 +8,10 @@ export const realNotificationService: INotificationService = {
   },
 
   markAllRead: async (): Promise<void> => {
-    await apiPatch(`${ENV.API_BASE_URL}/notifications/read-all`);
+    await apiPut(`${ENV.API_BASE_URL}/notifications/read-all`);
   },
 
   markRead: async (id: string): Promise<void> => {
-    await apiPatch(`${ENV.API_BASE_URL}/notifications/${id}/read`);
+    await apiPut(`${ENV.API_BASE_URL}/notifications/${id}/read`);
   },
 };
