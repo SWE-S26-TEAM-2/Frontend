@@ -65,18 +65,18 @@ describe("Header Component", () => {
       expect(screen.getByText("soundcloud")).toBeInTheDocument();
     });
 
-    test("renders navigation items (Stream, Discover, Library)", () => {
+    test("renders navigation items (Home, Feed, Library)", () => {
       render(<Header />);
-      expect(screen.getByText("Stream")).toBeInTheDocument();
-      expect(screen.getByText("Discover")).toBeInTheDocument();
-      expect(screen.getByText("Library")).toBeInTheDocument();
+      expect(screen.getAllByText("Home")[0]).toBeInTheDocument();
+      expect(screen.getAllByText("Feed")[0]).toBeInTheDocument();
+      expect(screen.getAllByText("Library")[0]).toBeInTheDocument();
     });
 
     test("renders right-side action links", () => {
       render(<Header />);
-      expect(screen.getByText("Try Artist Pro")).toBeInTheDocument();
-      expect(screen.getByText("For Artists")).toBeInTheDocument();
-      expect(screen.getByText("Upload")).toBeInTheDocument();
+      expect(screen.getByText("Upgrade now")).toBeInTheDocument();
+      expect(screen.getAllByText("For Artists")[0]).toBeInTheDocument();
+      expect(screen.getAllByText("Upload")[0]).toBeInTheDocument();
     });
 
     test("renders search input with placeholder", () => {
@@ -122,30 +122,30 @@ describe("Header Component", () => {
   describe("Navigation", () => {
     test("navigation links navigate to correct paths", () => {
       render(<Header />);
-      
-      const streamLink = screen.getAllByText("Stream")[0].closest("a");
-      expect(streamLink).toHaveAttribute("href", "/stream");
-      
-      const discoverLink = screen.getAllByText("Discover")[0].closest("a");
-      expect(discoverLink).toHaveAttribute("href", "/discover");
-      
+
+      const feedLink = screen.getAllByText("Feed")[0].closest("a");
+      expect(feedLink).toHaveAttribute("href", "/stream");
+
+      const homeLink = screen.getAllByText("Home")[0].closest("a");
+      expect(homeLink).toHaveAttribute("href", "/discover");
+
       const libraryLink = screen.getAllByText("Library")[0].closest("a");
       expect(libraryLink).toHaveAttribute("href", "/library");
     });
 
     test("highlights active nav item", () => {
       render(<Header />);
-      const streamLink = screen.getAllByText("Stream")[0].closest("a");
+      const feedLink = screen.getAllByText("Feed")[0].closest("a");
 
-      expect(streamLink).toHaveAttribute("href", "/stream");
+      expect(feedLink).toHaveAttribute("href", "/stream");
     });
 
     test("changes active nav item on click", () => {
       render(<Header />);
-      const discoverLink = screen.getAllByText("Discover")[0].closest("a") as HTMLAnchorElement;
+      const homeLink = screen.getAllByText("Home")[0].closest("a") as HTMLAnchorElement;
 
-      fireEvent.click(discoverLink);
-      expect(discoverLink).toHaveAttribute("href", "/discover");
+      fireEvent.click(homeLink);
+      expect(homeLink).toHaveAttribute("href", "/discover");
     });
   });
 
@@ -325,20 +325,20 @@ describe("Header Component", () => {
       render(<Header />);
       const header = screen.getByText("soundcloud").closest("header");
       expect(header).toBeInTheDocument();
-      expect(header).toHaveClass("flex", "items-center", "justify-center");
+      expect(header).toHaveClass("flex", "items-center");
     });
 
-    test("search input has fixed width", () => {
+    test("search input fills available width", () => {
       render(<Header />);
       const searchInput = screen.getByPlaceholderText("Search");
-      expect(searchInput).toHaveClass("w-[200px]");
+      expect(searchInput).toHaveClass("w-full");
     });
   });
 
   describe("Link Navigation", () => {
-    test("Try Artist Pro link has correct href", () => {
+    test("Upgrade now link has correct href", () => {
       render(<Header />);
-      const link = screen.getAllByText("Try Artist Pro")[0].closest("a");
+      const link = screen.getByText("Upgrade now").closest("a");
       expect(link).toHaveAttribute("href", "/artist-pro");
     });
 

@@ -17,6 +17,7 @@ export function Waveform({
       className="flex w-full cursor-pointer items-end"
       style={{ height, gap: "1px" }}
       onClick={(e) => {
+        e.stopPropagation();
         if (!onSeek) return;
         const rect = e.currentTarget.getBoundingClientRect();
         const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));

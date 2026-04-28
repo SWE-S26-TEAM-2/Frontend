@@ -149,31 +149,31 @@ export default function Footer() {
       />
 
       {/* ── Player bar ── */}
-      <footer className="fixed bottom-0 left-0 right-0 h-14 bg-[#303030] border-t border-[#505050] flex items-center px-4 gap-2.5 z-[200] overflow-hidden">
+      <footer className="fixed bottom-0 left-0 right-0 h-14 bg-[#333333] border-t border-[#111] flex items-center px-3 gap-2 z-[200] overflow-hidden">
 
-        {/* LEFT + CENTER: controls + progress */}
-        <div className="flex items-center gap-2 flex-1 min-w-0">
+        {/* LEFT: transport controls */}
+        <div className="flex items-center gap-1 shrink-0">
+          <button className={`${iconBtn} hidden sm:flex`} onClick={playPrev} aria-label="Previous"><PrevIcon /></button>
 
-          <button className={iconBtn} onClick={playPrev} aria-label="Previous"><PrevIcon /></button>
-
-          {/* Play / Pause — circle button */}
+          {/* Play / Pause */}
           <button
             onClick={togglePlay}
             aria-label={isPlaying ? "Pause" : "Play"}
-            className="w-[34px] h-[34px] min-w-[34px] rounded-full border border-white bg-transparent text-white cursor-pointer flex items-center justify-center shrink-0 transition-colors hover:bg-white/10 p-0"
+            className="w-9 h-9 min-w-[36px] rounded-full border-2 border-white bg-transparent text-white cursor-pointer flex items-center justify-center shrink-0 transition-colors hover:bg-white/10 p-0"
           >
             <span className={`flex items-center justify-center ${isPlaying ? "" : "ml-0.5"}`}>
               {isPlaying ? <PauseIcon /> : <PlayIcon />}
             </span>
           </button>
 
-          <button className={iconBtn} onClick={playNext} aria-label="Next"><NextIcon /></button>
+          <button className={`${iconBtn} hidden sm:flex`} onClick={playNext} aria-label="Next"><NextIcon /></button>
+          <button className={`${activeIconBtn(shuffle)} hidden md:flex`} onClick={toggleShuffle} aria-label="Shuffle"><ShuffleIcon /></button>
+          <button className={`${activeIconBtn(repeat)} hidden md:flex`}  onClick={toggleRepeat}  aria-label="Repeat"><RepeatIcon /></button>
+        </div>
 
-          <button className={activeIconBtn(shuffle)} onClick={toggleShuffle} aria-label="Shuffle"><ShuffleIcon /></button>
-          <button className={activeIconBtn(repeat)}  onClick={toggleRepeat}  aria-label="Repeat"><RepeatIcon /></button>
-
-          {/* Current time */}
-          <span className="text-[#c8c8c8] text-[11px] shrink-0 min-w-[28px] text-right tabular-nums">
+        {/* CENTER: timeline */}
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <span className="text-[#c8c8c8] text-[11px] shrink-0 min-w-[28px] text-right tabular-nums hidden sm:block">
             {formatTime(currentTime)}
           </span>
 
@@ -181,68 +181,64 @@ export default function Footer() {
           <div
             ref={progressRef}
             onClick={handleSeek}
-            className="flex-1 h-1 bg-[#505050] rounded-sm cursor-pointer relative"
+            className="flex-1 h-1 bg-[#505050] rounded-sm cursor-pointer relative group"
           >
             <div
-              className="absolute inset-y-0 left-0 bg-[#ff5500] rounded-sm transition-[width] duration-500 ease-linear"
+              className="absolute inset-y-0 left-0 bg-[#ff5500] rounded-sm transition-[width] duration-500 ease-linear group-hover:bg-[#ff6a1f]"
               style={{ width: `${progress}%` }}
             />
           </div>
 
-          {/* Duration */}
-          <span className="text-[#c8c8c8] text-[11px] shrink-0 min-w-[28px] tabular-nums">
+          <span className="text-[#c8c8c8] text-[11px] shrink-0 min-w-[28px] tabular-nums hidden sm:block">
             {formatTime(effectiveDuration)}
           </span>
+        </div>
+
+        {/* RIGHT: volume + track badge + actions */}
+        <div className="flex items-center gap-1 shrink-0">
 
           {/* Volume */}
           <div
-            className="flex items-center gap-1 shrink-0"
+            className="hidden md:flex items-center gap-1 shrink-0"
             onMouseEnter={handleVolEnter}
             onMouseLeave={handleVolLeave}
           >
-            <button
-              onClick={() => setMuted((m) => !m)}
-              aria-label={muted ? "Unmute" : "Mute"}
-              className={iconBtn}
-            >
+            <button onClick={() => setMuted((m) => !m)} aria-label={muted ? "Unmute" : "Mute"} className={iconBtn}>
               <VolumeIcon muted={muted} />
             </button>
-
-            {/* Animated slider: width + opacity transition via Tailwind */}
             <div className={`overflow-hidden transition-[width,opacity] duration-[250ms] ease-in-out flex items-center ${volVisible ? "w-[70px] opacity-100" : "w-0 opacity-0"}`}>
               <input
-                type="range"
-                min={0} max={1} step={0.01}
+                type="range" min={0} max={1} step={0.01}
                 value={muted ? 0 : volume}
                 onChange={(e) => { setVolume(Number(e.target.value)); setMuted(false); }}
                 className="w-[70px] accent-[#ff5500] cursor-pointer"
               />
             </div>
           </div>
+
+          {/* Track badge */}
+          {currentTrack && (
+            <>
+              <div className="w-px h-5 bg-[#505050] shrink-0 hidden md:block" />
+              <button
+                onClick={() => router.push(`/track/${currentTrack.id}`)}
+                aria-label={`Open ${currentTrack.title}`}
+                className="flex items-center gap-2 bg-transparent border-none p-0 text-inherit cursor-pointer min-w-0"
+              >
+                <TrackArtwork src={currentTrack.albumArt} alt={currentTrack.title} size={38} />
+                <div className="overflow-hidden max-w-[120px] sm:max-w-[180px] text-left">
+                  <div className="text-[#c8c8c8] text-[11px] truncate">{currentTrack.artist}</div>
+                  <div className="text-white text-xs font-medium truncate">{currentTrack.title}</div>
+                </div>
+              </button>
+
+              <div className="w-px h-5 bg-[#505050] shrink-0 hidden sm:block" />
+              <button className={activeIconBtn(liked)} onClick={toggleLike} aria-label="Like"><HeartIcon liked={liked} /></button>
+              <button className={`${iconBtn} hidden sm:flex`} aria-label="Follow"><AddUserIcon /></button>
+              <button className={iconBtn} aria-label="Queue" onClick={() => setQueueOpen((p) => !p)}><QueueIcon /></button>
+            </>
+          )}
         </div>
-
-        {/* RIGHT: track info + actions */}
-        {currentTrack && (
-          <div className="flex items-center gap-2.5 shrink-0">
-            <button
-              onClick={() => router.push(`/track/${currentTrack.id}`)}
-              aria-label={`Open ${currentTrack.title}`}
-              className="flex items-center gap-2.5 bg-transparent border-none p-0 text-inherit cursor-pointer"
-            >
-              <TrackArtwork src={currentTrack.albumArt} alt={currentTrack.title} size={38} />
-              <div className="overflow-hidden max-w-[160px] text-left">
-                <div className="text-white text-xs font-medium truncate">{currentTrack.title}</div>
-                <div className="text-[#c8c8c8] text-[11px] truncate">{currentTrack.artist}</div>
-              </div>
-            </button>
-
-            <div className="w-px h-5 bg-[#505050] shrink-0" />
-
-            <button className={activeIconBtn(liked)} onClick={toggleLike} aria-label="Like"><HeartIcon liked={liked} /></button>
-            <button className={iconBtn} aria-label="Follow"><AddUserIcon /></button>
-            <button className={iconBtn} aria-label="Queue" onClick={() => setQueueOpen((p) => !p)}><QueueIcon /></button>
-          </div>
-        )}
       </footer>
 
       {/* ── Queue panel ── */}

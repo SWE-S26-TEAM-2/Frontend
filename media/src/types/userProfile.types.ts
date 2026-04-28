@@ -50,7 +50,7 @@ export interface IUserProfileTrack {
 }
 
 export interface ILikedTrack {
-  id: number;
+  id: string;
   title: string;
   artist: string;
   plays?: number;

@@ -100,9 +100,10 @@ function normalizeTrack(d: Record<string, unknown>): ITrack {
   return {
     id,
     title: d.title as string,
-    artist: (d.artist ?? d.user_id ?? "") as string,
+    artist: (asString(d.artist) ?? asString(d.display_name) ?? asString(d.username)) ?? "",
     albumArt: resolveApiUrl(
-      asString(d.artwork_url) ?? asString(d.cover_image_url) ?? asString(d.albumArt)
+      asString(d.artwork_url) ?? asString(d.cover_image_url) ?? asString(d.cover_image) ??
+      asString(d.cover_url) ?? asString(d.cover_photo) ?? asString(d.albumArt)
     ),
     genre: d.genre as string | undefined,
     description: asString(d.description),

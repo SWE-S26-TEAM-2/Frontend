@@ -12,36 +12,38 @@ import { clearAuthCookie } from "@/lib/authCookie";
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
 const SearchIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M10 2.25a7.75 7.75 0 1 0 4.924 13.735l5.546 5.545 1.06-1.06-5.545-5.546A7.75 7.75 0 0 0 10 2.25ZM3.75 10a6.25 6.25 0 1 1 12.5 0 6.25 6.25 0 0 1-12.5 0Z" />
   </svg>
 );
 const BellIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
+  <svg width="20" height="20" viewBox="0 0 32 32" fill="currentColor">
+    <path d="M19.681 7h.069v-.875c0-2.111-1.65-3.875-3.75-3.875s-3.75 1.764-3.75 3.875V7h.069a9.39 9.39 0 00-5.68 7.919l-.272 3.533a2.693 2.693 0 01-1.003 1.896c-1.824 1.46-.792 4.402 1.544 4.402h4.357v.043c-.023 2.686 2.056 4.934 4.708 4.957 2.651.022 4.768-2.19 4.791-4.876l.001-.124h4.327c2.336 0 3.368-2.942 1.544-4.402a2.694 2.694 0 01-1.003-1.896l-.272-3.533A9.39 9.39 0 0019.681 7zm-1.431-.478A9.402 9.402 0 0016 6.25c-.774 0-1.528.094-2.25.272v-.397c0-1.34 1.036-2.375 2.25-2.375s2.25 1.034 2.25 2.375v.397zM16 7.75a7.89 7.89 0 017.866 7.284l.272 3.533a4.193 4.193 0 001.561 2.953c.717.573.311 1.73-.607 1.73H6.908c-.918 0-1.324-1.157-.607-1.73a4.193 4.193 0 001.561-2.953l.272-3.533A7.889 7.889 0 0116 7.75zm-3.235 17h6.5v.11c-.017 1.917-1.513 3.405-3.28 3.39-1.766-.015-3.237-1.528-3.22-3.444v-.056z" />
   </svg>
 );
 const MailIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="5" width="18" height="14" rx="2" ry="2" />
-    <polyline points="3 7 12 13 21 7" />
+  <svg width="20" height="20" viewBox="0 0 32 32" fill="currentColor">
+    <path d="M2 10C2 7.79086 3.79086 6 6 6H26C28.2091 6 30 7.79086 30 10V22C30 24.2091 28.2091 26 26 26H6C3.79086 26 2 24.2091 2 22V10ZM6 7.5C4.80376 7.5 3.80375 8.34018 3.55789 9.46263L16 17.1193L28.4421 9.46264C28.1963 8.34018 27.1962 7.5 26 7.5H6ZM3.5 11.1883V22C3.5 23.3807 4.61929 24.5 6 24.5H26C27.3807 24.5 28.5 23.3807 28.5 22V11.1883L16 18.8806L3.5 11.1883Z" />
   </svg>
 );
 const ChevronDown = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="6 9 12 15 18 9" />
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M20.5303 9.53033L12 18.0607L3.46967 9.53033L4.53033 8.46967L12 15.9393L19.4697 8.46967L20.5303 9.53033Z" />
   </svg>
 );
 const DotsIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-    <circle cx="5" cy="12" r="2" />
-    <circle cx="12" cy="12" r="2" />
-    <circle cx="19" cy="12" r="2" />
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+    <path d="M4 8c0-.832-.67-1.5-1.511-1.5C1.67 6.5 1 7.168 1 8s.67 1.5 1.489 1.5C3.33 9.5 4 8.832 4 8zm5.5 0c0-.832-.67-1.5-1.504-1.5C7.17 6.5 6.5 7.168 6.5 8s.67 1.5 1.496 1.5C8.831 9.5 9.5 8.832 9.5 8zM15 8c0-.832-.664-1.5-1.493-1.5C12.664 6.5 12 7.168 12 8s.664 1.5 1.507 1.5C14.336 9.5 15 8.832 15 8z" />
   </svg>
 );
 const SoundCloudLogo = () => (
   <svg viewBox="-2 0 32 32" width="28" height="28" fill="white" xmlns="http://www.w3.org/2000/svg" aria-label="SoundCloud">
     <path d="M23.2 22.68h-10.12c-0.28 0-0.56-0.16-0.72-0.4-0.080-0.12-0.12-0.32-0.12-0.48v-10.76c0-0.28 0.16-0.56 0.4-0.72 1.040-0.64 2.28-1 3.52-1 2.92 0 5.48 1.88 6.36 4.64 0.24-0.040 0.48-0.080 0.72-0.080 2.4 0 4.4 1.96 4.4 4.4s-2.040 4.4-4.44 4.4zM13.92 20.96h9.28c1.48 0 2.68-1.2 2.68-2.68s-1.2-2.68-2.68-2.68c-0.36 0-0.72 0.080-1.040 0.2-0.24 0.080-0.52 0.080-0.72-0.040-0.24-0.12-0.4-0.36-0.44-0.6-0.4-2.4-2.48-4.12-4.88-4.12-0.76 0-1.52 0.16-2.2 0.52v9.4zM10.84 21.8v-8.68c0-0.48-0.4-0.84-0.84-0.84s-0.84 0.4-0.84 0.84v8.72c0 0.48 0.4 0.84 0.84 0.84s0.84-0.4 0.84-0.88zM7.8 21.8v-9c0-0.48-0.4-0.84-0.84-0.84s-0.84 0.4-0.84 0.84v9.040c0 0.48 0.4 0.84 0.84 0.84s0.84-0.4 0.84-0.88zM4.76 21.8v-6.48c0-0.48-0.4-0.84-0.84-0.84s-0.84 0.4-0.84 0.84v6.52c0 0.48 0.4 0.84 0.84 0.84s0.84-0.4 0.84-0.88zM1.72 21.32v-5.32c0-0.48-0.4-0.84-0.84-0.84s-0.88 0.36-0.88 0.84v5.32c0 0.48 0.4 0.84 0.84 0.84s0.88-0.36 0.88-0.84z" />
+  </svg>
+);
+const HamburgerIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
   </svg>
 );
 
@@ -149,9 +151,9 @@ const SignOutIcon = () => (
 // ── Data ──────────────────────────────────────────────────────────────────────
 
 const NAV_ITEMS = [
-  { label: "Stream",   href: "/stream" },
-  { label: "Discover", href: "/discover" },
-  { label: "Library",  href: "/library" },
+  { label: "Home",    href: "/discover" },
+  { label: "Feed",    href: "/stream" },
+  { label: "Library", href: "/library" },
 ];
 
 const ArtistProBadge = () => (
@@ -161,29 +163,29 @@ const ArtistProBadge = () => (
 const getAvatarMenu = (profileHref: string): IMenuItem[] => [
   { icon: <ProfileIcon />,     label: "Profile",        href: profileHref },
   { icon: <LikesIcon />,       label: "Likes",          href: "/likes" },
-  { icon: <StationsIcon />,    label: "Stations",       href: "/stations" },
+  { icon: <StationsIcon />,    label: "Stations",       href: "/stream" },
   { icon: <WhoToFollowIcon />, label: "Who to follow",  href: "/who-to-follow", dividerBefore: true },
   { icon: <ArtistProBadge />,  label: "Try Artist Pro", href: "/artist-pro", orange: true },
-  { icon: <TracksIcon />,      label: "Tracks",         href: "/tracks",      dividerBefore: true },
-  { icon: <InsightsIcon />,    label: "Insights",       href: "/insights" },
-  { icon: <DistributeIcon />,  label: "Distribute",     href: "/distribute" },
+  { icon: <TracksIcon />,      label: "Tracks",         href: "/library",     dividerBefore: true },
+  { icon: <InsightsIcon />,    label: "Insights",       href: "/creator/studio" },
+  { icon: <DistributeIcon />,  label: "Distribute",     href: "/creator/distribute" },
 ];
 
 const DOTS_MENU: IMenuItem[] = [
-  { icon: <GlobeIcon />,        label: "About us",          href: "/about" },
-  { icon: <GlobeIcon />,        label: "Legal",             href: "/legal" },
-  { icon: <GlobeIcon />,        label: "Copyright",         href: "/copyright" },
-  { icon: <PhoneIcon />,        label: "Mobile apps",       href: "/mobile",        dividerBefore: true },
-  { icon: <GlobeIcon />,        label: "Artist Membership", href: "/membership" },
-  { icon: <NewsroomIcon />,     label: "Newsroom",          href: "/newsroom" },
-  { icon: <JobsIcon />,         label: "Jobs",              href: "/jobs" },
-  { icon: <DevIcon />,          label: "Developers",        href: "/developers" },
-  { icon: <StoreIcon />,        label: "SoundCloud Store",  href: "/store" },
-  { icon: <SupportIcon />,      label: "Support",           href: "/support",       dividerBefore: true },
-  { icon: <KeyboardIcon />,     label: "Keyboard shortcuts",href: "/shortcuts" },
-  { icon: <SubscriptionIcon />, label: "Subscription",      href: "/subscription",  dividerBefore: true },
-  { icon: <SettingsIcon />,     label: "Settings",          href: "/settings" },
-  { icon: <SignOutIcon />,      label: "Sign out",          href: "/" },
+  { icon: <GlobeIcon />,        label: "About us",           href: "/about" },
+  { icon: <GlobeIcon />,        label: "Legal",              href: "/legal" },
+  { icon: <GlobeIcon />,        label: "Copyright",          href: "/copyright" },
+  { icon: <PhoneIcon />,        label: "Mobile apps",        href: "/mobile",       dividerBefore: true },
+  { icon: <GlobeIcon />,        label: "Artist Membership",  href: "/membership" },
+  { icon: <NewsroomIcon />,     label: "Newsroom",           href: "/newsroom" },
+  { icon: <JobsIcon />,         label: "Jobs",               href: "/jobs" },
+  { icon: <DevIcon />,          label: "Developers",         href: "/developers" },
+  { icon: <StoreIcon />,        label: "SoundCloud Store",   href: "/store" },
+  { icon: <SupportIcon />,      label: "Support",            href: "/support",      dividerBefore: true },
+  { icon: <KeyboardIcon />,     label: "Keyboard shortcuts", href: "/shortcuts" },
+  { icon: <SubscriptionIcon />, label: "Subscription",       href: "/subscription", dividerBefore: true },
+  { icon: <SettingsIcon />,     label: "Settings",           href: "/settings" },
+  { icon: <SignOutIcon />,      label: "Sign out",           href: "/" },
 ];
 
 // ── Dropdown component ────────────────────────────────────────────────────────
@@ -204,9 +206,7 @@ function DropdownMenu({ items, onClose }: { items: IMenuItem[]; onClose: () => v
               onClick={() => { item.onClick?.(); onClose(); }}
               className={itemClass(item.orange)}
             >
-              <span className={`flex items-center ${item.orange ? "text-[#ff5500]" : "text-[#aaa]"}`}>
-                {item.icon}
-              </span>
+              <span className={`flex items-center ${item.orange ? "text-[#ff5500]" : "text-[#aaa]"}`}>{item.icon}</span>
               {item.label}
             </button>
           ) : (
@@ -215,9 +215,7 @@ function DropdownMenu({ items, onClose }: { items: IMenuItem[]; onClose: () => v
               onClick={() => { item.onClick?.(); onClose(); }}
               className={itemClass(item.orange)}
             >
-              <span className={`flex items-center ${item.orange ? "text-[#ff5500]" : "text-[#aaa]"}`}>
-                {item.icon}
-              </span>
+              <span className={`flex items-center ${item.orange ? "text-[#ff5500]" : "text-[#aaa]"}`}>{item.icon}</span>
               {item.label}
             </Link>
           )}
@@ -227,16 +225,65 @@ function DropdownMenu({ items, onClose }: { items: IMenuItem[]; onClose: () => v
   );
 }
 
+// ── Mobile drawer ─────────────────────────────────────────────────────────────
+
+function MobileDrawer({ isOpen, onClose, profileHref, isLoggedIn, onSignOut }: {
+  isOpen: boolean;
+  onClose: () => void;
+  profileHref: string;
+  isLoggedIn: boolean;
+  onSignOut: () => void;
+}) {
+  if (!isOpen) return null;
+  const linkClass = "flex items-center gap-3 px-4 py-3 text-sm font-medium text-[#ddd] hover:bg-[#2a2a2a] no-underline border-none";
+  return (
+    <>
+      <div className="fixed inset-0 bg-black/50 z-[90]" onClick={onClose} />
+      <div className="fixed top-12 left-0 bottom-0 w-64 bg-[#121212] border-r border-[#222] z-[95] overflow-y-auto flex flex-col">
+        <nav className="flex flex-col py-2">
+          {NAV_ITEMS.map((item) => (
+            <Link key={item.href} href={item.href} onClick={onClose} className={linkClass}>{item.label}</Link>
+          ))}
+          <div className="h-px bg-[#303030] my-1" />
+          <Link href="/creator/upload" onClick={onClose} className={linkClass}>Upload</Link>
+          <Link href="/for-artists" onClick={onClose} className={linkClass}>For Artists</Link>
+          {isLoggedIn && (
+            <>
+              <div className="h-px bg-[#303030] my-1" />
+              <Link href={profileHref} onClick={onClose} className={linkClass}>Profile</Link>
+              <Link href="/notifications" onClick={onClose} className={linkClass}>Notifications</Link>
+              <Link href="/messages" onClick={onClose} className={linkClass}>Messages</Link>
+              <Link href="/settings" onClick={onClose} className={linkClass}>Settings</Link>
+              <div className="h-px bg-[#303030] my-1" />
+              <button onClick={() => { onSignOut(); onClose(); }} className={`${linkClass} text-[#ff5500] w-full text-left`}>Sign out</button>
+            </>
+          )}
+          {!isLoggedIn && (
+            <>
+              <div className="h-px bg-[#303030] my-1" />
+              <Link href="/login" onClick={onClose} className={linkClass}>Sign in</Link>
+              <Link href="/login" onClick={onClose} className={`${linkClass} text-[#ff5500]`}>Create account</Link>
+            </>
+          )}
+        </nav>
+      </div>
+    </>
+  );
+}
+
 // ── Header component ──────────────────────────────────────────────────────────
 
 export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: boolean }) {
-  const [query, setQuery]               = useState("");
-  const [avatarOpen, setAvatarOpen]     = useState(false);
-  const [dotsOpen, setDotsOpen]         = useState(false);
-  const [hasToken, setHasToken]         = useState(false);
-  const [storedUserId, setStoredUserId] = useState<string | null>(null);
-  const [shortcutsOpen, setShortcutsOpen] = useState(false);
-  const [avatarError, setAvatarError]   = useState(false);
+  const [query, setQuery]                   = useState("");
+  const [avatarOpen, setAvatarOpen]         = useState(false);
+  const [dotsOpen, setDotsOpen]             = useState(false);
+  const [mobileOpen, setMobileOpen]         = useState(false);
+  const [hasToken, setHasToken]             = useState(false);
+  const [storedUserId, setStoredUserId]     = useState<string | null>(null);
+  const [storedUsername, setStoredUsername] = useState<string | null>(null);
+  const [storedAvatarUrl, setStoredAvatarUrl] = useState<string | null>(null);
+  const [shortcutsOpen, setShortcutsOpen]   = useState(false);
+  const [avatarError, setAvatarError]       = useState(false);
 
   const authUser        = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -246,17 +293,24 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
   const pathname        = usePathname();
 
   useEffect(() => {
-    const token  = window.localStorage.getItem("auth_token");
-    const userId = window.localStorage.getItem("auth_user_id");
-    if (token)  setHasToken(true);
-    if (userId) setStoredUserId(userId);
+    const token      = window.localStorage.getItem("auth_token");
+    const userId     = window.localStorage.getItem("auth_user_id");
+    const uname      = window.localStorage.getItem("auth_username");
+    const savedImage = window.localStorage.getItem("auth_profile_image");
+    if (token)      setHasToken(true);
+    if (userId)     setStoredUserId(userId);
+    if (uname)      setStoredUsername(uname);
+    if (savedImage) setStoredAvatarUrl(savedImage);
     if (!token) return;
 
     if (isAuthenticated && authUser?.profileImageUrl) return;
 
     import("@/services").then(({ AuthService: authService }) => {
       authService.getCurrentUser(token)
-        .then((user) => storeLogin(user, token))
+        .then((user) => {
+          storeLogin(user, token);
+          if (user.profileImageUrl) setStoredAvatarUrl(user.profileImageUrl);
+        })
         .catch(() => {
           window.localStorage.removeItem("auth_token");
           window.localStorage.removeItem("refresh_token");
@@ -273,9 +327,8 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
   const isLoggedIn = isLoggedInProp !== undefined ? isLoggedInProp : (isAuthenticated || hasToken);
 
   const avatarSrc = (() => {
-    const raw = authUser?.profileImageUrl?.trim();
+    const raw = (authUser?.profileImageUrl ?? storedAvatarUrl ?? "").trim();
     if (!raw) return null;
-
     const isHttp = raw.startsWith("http://") || raw.startsWith("https://");
     const isData = raw.startsWith("data:");
     const isKnownUploadPath = raw.startsWith("/api/uploads/") || raw.startsWith("/uploads/");
@@ -283,9 +336,7 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
     const looksLikeUuid =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(raw) ||
       (raw.startsWith("/") && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(raw.slice(1)));
-
     if (looksLikeUuid || raw === String(authUser?.id ?? "")) return null;
-    // isHttp must be checked before hasImageExt — otherwise https:// URLs get a "/" prepended
     if (isHttp) {
       if (hasImageExt || /googleusercontent|gravatar|pravatar|cloudinary|imgur|duckdns/i.test(raw)) return raw;
       return null;
@@ -298,7 +349,13 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
 
   const avatarRef  = useRef<HTMLDivElement>(null);
   const dotsRef    = useRef<HTMLDivElement>(null);
-  const profileHref = authUser?.id ? `/${authUser.id}` : storedUserId ? `/${storedUserId}` : "/";
+  const profileHref = authUser?.username
+    ? `/${authUser.username}`
+    : storedUsername
+      ? `/${storedUsername}`
+      : storedUserId
+        ? `/${storedUserId}`
+        : "/";
 
   const handleSignOut = () => {
     logout();
@@ -327,29 +384,47 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  const handleSearch = () => {
+    if (query.trim()) {
+      router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+      setQuery("");
+    }
+  };
+
   return (
     <>
-      <header className="bg-[#121212] border-b border-[#121212] h-12 flex items-center justify-center px-4 sticky top-0 z-[100]">
-        <div className="flex items-center gap-1 w-full max-w-[1280px]">
+      <header className="bg-[#121212] border-b border-[#121212] h-12 flex items-center px-3 sticky top-0 z-[100]">
+
+        {/* ── LEFT: hamburger (mobile) + logo + nav ── */}
+        <div className="flex items-center gap-0 shrink-0">
+
+          {/* Hamburger — mobile only */}
+          <button
+            className="md:hidden flex items-center justify-center w-9 h-9 text-[#ccc] hover:text-white transition-colors bg-transparent border-none cursor-pointer mr-1"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open menu"
+          >
+            <HamburgerIcon />
+          </button>
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 no-underline shrink-0 mr-1">
+          <Link href="/" className="flex items-center gap-1.5 no-underline shrink-0">
             <SoundCloudLogo />
-            <span className="text-white text-base font-bold tracking-tight">soundcloud</span>
+            <span className="text-white text-sm font-bold tracking-tight hidden sm:block select-none">soundcloud</span>
           </Link>
 
-          {/* Nav */}
-          <nav className="flex items-stretch h-12 shrink-0">
+          {/* Nav — hidden on mobile */}
+          <nav className="hidden md:flex items-stretch h-12 ml-2" role="navigation">
             {NAV_ITEMS.map((item) => {
               const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
               return (
                 <Link
                   key={item.label}
                   href={item.href}
-                  className={`flex items-center px-2.5 text-[15px] whitespace-nowrap transition-colors border-b-2 ${
+                  className={`flex items-center px-3 text-[13px] whitespace-nowrap transition-colors border-b-2 ${
                     isActive
-                      ? "text-white font-semibold border-white"
-                      : "text-[#aaa] font-normal border-transparent hover:text-white"
+                      ? "text-white font-semibold border-[#ff5500]"
+                      : "text-[#ccc] font-normal border-transparent hover:text-white hover:border-[#ff5500]/40"
                   }`}
                 >
                   {item.label}
@@ -357,66 +432,75 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
               );
             })}
           </nav>
+        </div>
 
-          {/* Search */}
-          <div className="relative flex items-center shrink-0 ml-1">
-            <span className="absolute left-2.5 text-[#777] flex items-center pointer-events-none">
-              <SearchIcon />
-            </span>
+        {/* ── MIDDLE: search bar — grows to fill available space ── */}
+        <div className="flex-1 flex items-center justify-center px-3 min-w-0">
+          <div className="relative flex items-center w-full max-w-[460px]">
             <input
               type="text"
               placeholder="Search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && query.trim()) {
-                  router.push(`/search?q=${encodeURIComponent(query.trim())}`);
-                  setQuery("");
-                }
-              }}
-              className="w-[200px] h-[30px] bg-[#2a2a2a] border border-[#3a3a3a] rounded-[3px] text-white text-sm pl-8 pr-2.5 outline-none transition-colors focus:border-[#666]"
+              onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
+              aria-label="Search"
+              className="w-full h-[30px] bg-[#ffffff1a] border border-[#ffffff26] rounded-[3px] text-white text-[13px] pl-8 pr-3 outline-none placeholder-[#999] transition-colors focus:border-[#999] focus:bg-[#ffffff26]"
             />
+            <button
+              onClick={handleSearch}
+              aria-label="Search"
+              className="absolute left-0 h-full px-2.5 flex items-center text-[#aaa] hover:text-white bg-transparent border-none cursor-pointer transition-colors"
+            >
+              <SearchIcon />
+            </button>
           </div>
+        </div>
 
-          {/* Spacer */}
-          <div className="flex-1" />
+        {/* ── RIGHT: actions + user nav ── */}
+        <div className="flex items-center gap-0.5 shrink-0">
 
-          {/* Try Artist Pro */}
-          <Link href="/artist-pro" className="text-[#ff5500] text-sm font-bold no-underline whitespace-nowrap px-1.5 shrink-0">
-            Try Artist Pro
+          {/* Upgrade now — hidden on small screens */}
+          <Link
+            href="/artist-pro"
+            className="hidden lg:flex items-center h-7 px-3 text-[#ff5500] text-[12px] font-bold border border-[#ff5500] rounded-[3px] no-underline whitespace-nowrap hover:bg-[#ff5500]/10 transition-colors mr-1"
+          >
+            Upgrade now
           </Link>
 
-          {/* For Artists */}
-          <Link href="/for-artists" className="text-[#ccc] text-sm no-underline whitespace-nowrap px-1.5 shrink-0 hover:text-white transition-colors">
+          {/* For Artists — hidden on medium and below */}
+          <Link
+            href="/for-artists"
+            className="hidden lg:block text-[#ccc] text-[13px] no-underline whitespace-nowrap px-2 hover:text-white transition-colors"
+          >
             For Artists
           </Link>
 
           {/* Upload */}
-          <Link href="/creator/upload" className="text-[#ccc] text-sm no-underline whitespace-nowrap px-1.5 shrink-0 hover:text-white transition-colors">
+          <Link
+            href="/creator/upload"
+            className="hidden sm:block text-[#ccc] text-[13px] no-underline whitespace-nowrap px-2 hover:text-white transition-colors"
+          >
             Upload
           </Link>
-
-          {/* Divider */}
-          <div className="w-px h-5 bg-[#505050] mx-1 shrink-0" />
 
           {isLoggedIn && (
             <>
               {/* Avatar dropdown */}
-              <div ref={avatarRef} className="relative shrink-0">
-                <div className="flex items-center gap-1">
+              <div ref={avatarRef} className="relative flex items-center ml-1">
+                <div className="flex items-center gap-0.5">
                   <Link href={profileHref} aria-label="Go to profile" className="flex items-center no-underline">
                     {avatarSrc && !avatarError ? (
                       <Image
                         src={avatarSrc}
                         alt="User avatar"
-                        width={28}
-                        height={28}
-                        className="rounded-full object-cover"
+                        width={26}
+                        height={26}
+                        className="rounded-full object-cover border border-white/20"
                         unoptimized
                         onError={() => setAvatarError(true)}
                       />
                     ) : (
-                      <div className="w-7 h-7 rounded-full bg-[#ff5500] flex items-center justify-center text-white text-xs font-bold select-none">
+                      <div className="w-[26px] h-[26px] rounded-full bg-[#ff5500] flex items-center justify-center text-white text-[11px] font-bold select-none border border-white/20">
                         {(authUser?.username?.[0] ?? "?").toUpperCase()}
                       </div>
                     )}
@@ -424,38 +508,38 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
                   <button
                     aria-label="Open profile menu"
                     onClick={() => { setAvatarOpen((o) => !o); setDotsOpen(false); }}
-                    className="bg-transparent border-none cursor-pointer flex items-center px-0.5"
+                    className="bg-transparent border-none cursor-pointer flex items-center px-0.5 text-[#aaa] hover:text-white transition-colors"
                   >
-                    <span className="text-[#888]"><ChevronDown /></span>
+                    <ChevronDown />
                   </button>
                 </div>
                 {avatarOpen && <DropdownMenu items={getAvatarMenu(profileHref)} onClose={() => setAvatarOpen(false)} />}
               </div>
 
-              {/* Bell */}
+              {/* Notifications */}
               <button
                 aria-label="Notifications"
                 onClick={() => router.push("/notifications")}
-                className="bg-transparent border-none cursor-pointer text-[#999] flex items-center justify-center p-1 transition-colors shrink-0 hover:text-white"
+                className="bg-transparent border-none cursor-pointer text-[#bbb] flex items-center justify-center w-9 h-9 transition-colors hover:text-white"
               >
                 <BellIcon />
               </button>
 
-              {/* Mail */}
+              {/* Messages */}
               <button
                 aria-label="Messages"
                 onClick={() => router.push("/messages")}
-                className="bg-transparent border-none cursor-pointer text-[#999] flex items-center justify-center p-1 transition-colors shrink-0 hover:text-white"
+                className="bg-transparent border-none cursor-pointer text-[#bbb] flex items-center justify-center w-9 h-9 transition-colors hover:text-white"
               >
                 <MailIcon />
               </button>
 
-              {/* Dots dropdown */}
-              <div ref={dotsRef} className="relative shrink-0">
+              {/* More (dots) */}
+              <div ref={dotsRef} className="relative">
                 <button
                   onClick={() => { setDotsOpen((o) => !o); setAvatarOpen(false); }}
                   aria-label="More options"
-                  className="bg-transparent border-none cursor-pointer text-[#999] flex items-center justify-center p-1 transition-colors hover:text-white"
+                  className="bg-transparent border-none cursor-pointer text-[#bbb] flex items-center justify-center w-9 h-9 transition-colors hover:text-white"
                 >
                   <DotsIcon />
                 </button>
@@ -465,24 +549,32 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
           )}
 
           {!isLoggedIn && (
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-1.5 ml-1">
               <Link
                 href="/login"
-                className="text-white no-underline text-[13px] border border-[#3a3a3a] rounded-[3px] px-2.5 py-1.5 leading-none hover:border-[#666] transition-colors"
+                className="text-white no-underline text-[12px] border border-[#ffffff40] rounded-[3px] px-2.5 py-1 leading-none hover:border-[#ffffff80] transition-colors whitespace-nowrap"
               >
                 Sign in
               </Link>
               <Link
                 href="/login"
-                className="text-[#111] bg-white no-underline text-[13px] rounded-[3px] px-2.5 py-1.5 leading-none font-semibold hover:bg-gray-200 transition-colors"
+                className="text-[#111] bg-[#ff5500] no-underline text-[12px] rounded-[3px] px-2.5 py-1 leading-none font-semibold hover:bg-[#e64d00] transition-colors whitespace-nowrap hidden sm:block"
               >
                 Create account
               </Link>
             </div>
           )}
-
         </div>
       </header>
+
+      {/* Mobile drawer */}
+      <MobileDrawer
+        isOpen={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        profileHref={profileHref}
+        isLoggedIn={isLoggedIn}
+        onSignOut={handleSignOut}
+      />
 
       {shortcutsOpen && <KeyboardShortcutsModal onClose={() => setShortcutsOpen(false)} />}
     </>
