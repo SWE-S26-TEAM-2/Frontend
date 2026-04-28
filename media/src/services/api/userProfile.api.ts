@@ -60,7 +60,7 @@ function normalizeUser(d: Record<string, unknown>, requestedId: string): IUser {
 
   return {
     id:           (d.user_id as string)                                ?? requestedId,
-    username:     (d.username as string) ?? (d.display_name as string) ?? "",
+    username: (d.username as string) ?? "",
     displayName:  (d.display_name as string)                           ?? undefined,
     firstName:    (d.first_name as string)   ?? undefined,
     lastName:     (d.last_name as string)    ?? undefined,
@@ -74,7 +74,7 @@ function normalizeUser(d: Record<string, unknown>, requestedId: string): IUser {
     headerUrl:    resolveMediaUrl(d.cover_photo),
     followers:    (d.follower_count as number)  ?? 0,
     following:    (d.following_count as number) ?? 0,
-    tracks:       0,
+    tracks: (d.track_count as number) ?? 0,
     likes:        0,
     isOwner:      (d.user_id as string) === getStoredUserId(),
   };
@@ -84,14 +84,37 @@ export const realUserProfileService: IUserProfileService = {
 
   async getUserProfile(userId: string): Promise<IUser> {
     const token = getAuthToken();
-    const headers: Record<string, string> = {};
-    if (token) headers["Authorization"] = `Bearer ${token}`;
+    const storedId = getStoredUserId();
 
-    const res = await fetch(apiUrl(`/users/${userId}`), { headers });
+    // If viewing own profile, use the authenticated endpoint
+    const isOwn = token && storedId;
+    if (isOwn) {
+      // First fetch public profile to get username/follower data
+      const pubRes = await fetch(apiUrl(`/users/${userId}`));
+      if (!pubRes.ok) throw new Error(`User "${userId}" not found`);
+      const pubJson = await pubRes.json();
+      const pubData = (pubJson.data ?? pubJson) as Record<string, unknown>;
+
+      // Check if this is actually the logged-in user
+      if (pubData.user_id === storedId) {
+        const meRes = await fetch(apiUrl(`/users/me`), {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (meRes.ok) {
+          const meJson = await meRes.json();
+          const meData = (meJson.data ?? meJson) as Record<string, unknown>;
+          return normalizeUser({ ...pubData, ...meData }, storedId);
+        }
+      }
+
+      return normalizeUser(pubData, storedId);
+    }
+
+    const res = await fetch(apiUrl(`/users/${userId}`));
     if (!res.ok) throw new Error(`User "${userId}" not found`);
     const json = await res.json();
-    const data = json.data ?? json;
-    return normalizeUser(data as Record<string, unknown>, userId);
+    const data = (json.data ?? json) as Record<string, unknown>;
+    return normalizeUser(data, storedId ?? "");
   },
 
   async getUserTracks(username: string): Promise<ITrack[]> {
@@ -107,24 +130,23 @@ export const realUserProfileService: IUserProfileService = {
     if (!Array.isArray(rawTracks)) return [];
 
     return rawTracks.map((t) => {
-      const id = String(t.track_id ?? t.id ?? "");
-      const directUrl = resolveMediaUrl(t.file_url ?? t.url);
-      return {
+    const id = String(t.track_id ?? "");
+    return {
       id,
-      title:         String(t.title      ?? ""),
-      artist:        String(t.artist     ?? t.display_name ?? username),
-      albumArt:      resolveMediaUrl(t.cover_image ?? t.cover_image_url ?? t.cover_url ?? t.cover_photo ?? t.image_url ?? t.coverUrl) ?? "",
+      title:         String(t.title          ?? ""),
+      artist:        String(t.display_name   ?? username),
+      albumArt:      resolveMediaUrl(t.cover_image_url) ?? "",
       genre:         t.genre ? String(t.genre) : undefined,
-      url:           directUrl ?? (id ? `${getApiBaseUrl()}/tracks/${id}/audio` : ""),
-      duration:      Number(t.duration   ?? 0),
-      likes:         Number(t.likes      ?? 0),
-      plays:         Number(t.plays      ?? 0),
-      commentsCount: Number(t.comments   ?? t.comments_count ?? 0),
-      isLiked:       Boolean(t.is_liked  ?? t.isLiked    ?? false),
-      createdAt:     String(t.created_at ?? t.createdAt  ?? ""),
-      updatedAt:     String(t.updated_at ?? t.updatedAt  ?? ""),
+      url: resolveMediaUrl(t.stream_url) ?? "",
+      duration:      Number(t.duration_seconds ?? 0),
+      likes:         Number(t.like_count     ?? 0),
+      plays:         Number(t.play_count     ?? 0),
+      commentsCount: Number(t.comment_count  ?? 0),
+      isLiked:       Boolean(t.is_liked      ?? false),
+      createdAt:     String(t.created_at     ?? ""),
+      updatedAt:     String(t.updated_at     ?? ""),
     };
-    });
+  });
   },
 
   async getUserLikes(userId: string): Promise<ILikedTrack[]> {
@@ -190,13 +212,14 @@ export const realUserProfileService: IUserProfileService = {
       }
     }
 
+    const location = [payload.city, payload.country].filter(Boolean).join(", ");
+
     const body: Record<string, unknown> = {
       display_name: payload.displayName,
       first_name:   payload.firstName,
       last_name:    payload.lastName,
-      city:         payload.city,
-      country:      payload.country,
       bio:          payload.bio,
+      ...(location && { location }),
     };
 
     Object.keys(body).forEach((k) => body[k] === undefined && delete body[k]);
