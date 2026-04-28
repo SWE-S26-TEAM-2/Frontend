@@ -41,10 +41,12 @@ export const realUploadService: IUploadService = {
   ): Promise<IUploadResponse> {
     return new Promise((resolve, reject) => {
       const formData = new FormData();
-      // Backend only accepts: file, title, description
       formData.append("file", file);
       formData.append("title", payload.title);
-      formData.append("description", payload.description ?? "");
+      if (payload.description) formData.append("description", payload.description);
+      if (payload.genre)       formData.append("genre", payload.genre);
+      if (payload.isPrivate !== undefined) formData.append("visibility", payload.isPrivate ? "private" : "public");
+      if (payload.artwork)     formData.append("cover_image", payload.artwork);
 
       const xhr = new XMLHttpRequest();
 
@@ -63,7 +65,7 @@ export const realUploadService: IUploadService = {
               trackId: d.track_id ?? "",
               title: d.title ?? payload.title,
               streamUrl: d.file_url ?? "",
-              artworkUrl: undefined,
+              artworkUrl: d.cover_url ?? d.cover_image_url ?? d.cover_photo ?? undefined,
               createdAt: new Date().toISOString(),
             });
           } catch {

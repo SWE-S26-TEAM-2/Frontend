@@ -14,6 +14,7 @@ export const usePlayerStore = create<IPlayerState>((set, get) => ({
 
   setTrack: (track) => set({ currentTrack: track, currentTime: 0, duration: 0, isPlaying: true }),
   setQueue: (tracks) => set({ queue: tracks }),
+  addToQueue: (track) => set((s) => ({ queue: [...s.queue, track] })),
   playFromQueue: (index) => {
     const { queue } = get();
     if (index < 0 || index >= queue.length) return;

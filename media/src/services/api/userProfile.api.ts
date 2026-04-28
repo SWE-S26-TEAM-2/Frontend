@@ -2,7 +2,7 @@
 import { ENV } from "@/config/env";
 import { getApiBaseUrl, normalizeApiUrl } from "@/config/env";
 import type {
-  IUserProfileService, IUser, IUserProfileTrack,
+  IUserProfileService, IUser,
   ILikedTrack, IFanUser, IFollower, IFollowing, ISearchUser,
   IEditProfilePayload,
 } from "@/types/userProfile.types";
@@ -10,31 +10,6 @@ import type { ITrack } from "@/types/track.types";
 import { apiPost, apiDelete, apiGet } from "./apiClient";
 
 const apiUrl = (path: string): string => normalizeApiUrl(`${getApiBaseUrl()}${path}`);
-
-function toCanonicalTrack(track: IUserProfileTrack): ITrack {
-  const durationInSeconds = track.duration.includes(":")
-    ? track.duration
-        .split(":")
-        .map((v) => parseInt(v, 10) || 0)
-        .reduce((acc, part) => acc * 60 + part, 0)
-    : parseInt(track.duration, 10) || 0;
-
-  return {
-    id: track.id.toString(),
-    title: track.title,
-    artist: track.artist,
-    albumArt: track.coverUrl || "",
-    genre: track.genre || undefined,
-    url: "",
-    duration: durationInSeconds,
-    likes: track.likes,
-    plays: track.plays,
-    commentsCount: track.comments,
-    isLiked: track.isLiked,
-    createdAt: track.createdAt,
-    updatedAt: track.createdAt,
-  };
-}
 
 const getAuthToken = () =>
   typeof window !== "undefined" ? window.localStorage.getItem("auth_token") : null;
@@ -84,9 +59,9 @@ function normalizeUser(d: Record<string, unknown>, requestedId: string): IUser {
   const parts = location.split(",").map((s) => s.trim());
 
   return {
-    id:           (d.user_id as string)      ?? requestedId,
-    username:     (d.display_name as string) ?? "",
-    displayName:  (d.display_name as string) ?? undefined,
+    id:           (d.user_id as string)                                ?? requestedId,
+    username:     (d.username as string) ?? (d.display_name as string) ?? "",
+    displayName:  (d.display_name as string)                           ?? undefined,
     firstName:    (d.first_name as string)   ?? undefined,
     lastName:     (d.last_name as string)    ?? undefined,
     city:         (d.city as string)         ?? parts[0]  ?? undefined,
@@ -119,33 +94,83 @@ export const realUserProfileService: IUserProfileService = {
     return normalizeUser(data as Record<string, unknown>, userId);
   },
 
-  async getUserTracks(userId: string): Promise<ITrack[]> {
-    const res = await fetch(apiUrl(`/users/${userId}/tracks`));
+  async getUserTracks(username: string): Promise<ITrack[]> {
+    const token = getAuthToken();
+    const headers: Record<string, string> = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    const res = await fetch(apiUrl(`/users/${username}/tracks`), { headers });
     if (!res.ok) return [];
-    const tracks = (await res.json()) as IUserProfileTrack[];
-    return tracks.map(toCanonicalTrack);
+
+    const json = await res.json();
+    const rawTracks = (json.data?.tracks ?? json.data ?? json) as Record<string, unknown>[];
+    if (!Array.isArray(rawTracks)) return [];
+
+    return rawTracks.map((t) => {
+      const id = String(t.track_id ?? t.id ?? "");
+      const directUrl = resolveMediaUrl(t.file_url ?? t.url);
+      return {
+      id,
+      title:         String(t.title      ?? ""),
+      artist:        String(t.artist     ?? t.display_name ?? username),
+      albumArt:      resolveMediaUrl(t.cover_image ?? t.cover_image_url ?? t.cover_url ?? t.cover_photo ?? t.image_url ?? t.coverUrl) ?? "",
+      genre:         t.genre ? String(t.genre) : undefined,
+      url:           directUrl ?? (id ? `${getApiBaseUrl()}/tracks/${id}/audio` : ""),
+      duration:      Number(t.duration   ?? 0),
+      likes:         Number(t.likes      ?? 0),
+      plays:         Number(t.plays      ?? 0),
+      commentsCount: Number(t.comments   ?? t.comments_count ?? 0),
+      isLiked:       Boolean(t.is_liked  ?? t.isLiked    ?? false),
+      createdAt:     String(t.created_at ?? t.createdAt  ?? ""),
+      updatedAt:     String(t.updated_at ?? t.updatedAt  ?? ""),
+    };
+    });
   },
 
   async getUserLikes(userId: string): Promise<ILikedTrack[]> {
-    const res = await fetch(apiUrl(`/users/${userId}/likes`));
-    if (!res.ok) return [];
-    return res.json();
+    const token = getAuthToken();
+    const headers: Record<string, string> = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    const res = await fetch(apiUrl(`/users/${userId}/likes`), { headers });
+    if (!res.ok) {
+      console.warn("getUserLikes: endpoint not available, returning []");
+      return [];
+    }
+    const json = await res.json();
+    const raw = (json.data?.likes ?? json.data ?? json) as Record<string, unknown>[];
+    if (!Array.isArray(raw)) return [];
+    return raw.map((item) => ({
+      id:       String(item.track_id  ?? item.id          ?? ""),
+      title:    String(item.title     ?? ""),
+      artist:   String(item.artist    ?? item.display_name ?? ""),
+      coverUrl: String(item.cover_url ?? item.cover_photo  ?? item.coverUrl ?? ""),
+      duration: Number(item.duration  ?? 0),
+    }));
   },
 
   async getFansAlsoLike(userId: string): Promise<IFanUser[]> {
-    const res = await fetch(apiUrl(`/users/${userId}/fans`));
+    const token = getAuthToken();
+    const headers: Record<string, string> = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    const res = await fetch(apiUrl(`/users/${userId}/fans`), { headers });
     if (!res.ok) return [];
     return res.json();
   },
 
   async getFollowers(userId: string): Promise<IFollower[]> {
-    const res = await fetch(apiUrl(`/users/${userId}/followers`));
+    const token = getAuthToken();
+    const headers: Record<string, string> = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    const res = await fetch(apiUrl(`/users/${userId}/followers`), { headers });
     if (!res.ok) return [];
     return res.json();
   },
 
   async getFollowing(userId: string): Promise<IFollowing[]> {
-    const res = await fetch(apiUrl(`/users/${userId}/following`));
+    const token = getAuthToken();
+    const headers: Record<string, string> = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    const res = await fetch(apiUrl(`/users/${userId}/following`), { headers });
     if (!res.ok) return [];
     return res.json();
   },
@@ -218,7 +243,11 @@ export const realUserProfileService: IUserProfileService = {
     const data = (json.data ?? json) as Record<string, unknown>;
     const bustedAvatar = addCacheBuster(data.profile_picture);
     if (bustedAvatar) data.profile_picture = bustedAvatar;
-    return normalizeUser(data, (data.user_id as string) ?? getStoredUserId() ?? "");
+    const user = normalizeUser(data, (data.user_id as string) ?? getStoredUserId() ?? "");
+    if (typeof window !== "undefined" && user.avatarUrl) {
+      window.localStorage.setItem("auth_profile_image", user.avatarUrl);
+    }
+    return user;
   },
 
   async uploadCover(file: File): Promise<IUser> {

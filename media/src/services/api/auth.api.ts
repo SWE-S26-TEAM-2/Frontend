@@ -30,10 +30,15 @@ const saveTokens = (accessToken: string, refreshToken: string) => {
   setAuthCookie(accessToken);
 };
 
-const saveUserMeta = (user: { id: string | number; username: string }) => {
+const saveUserMeta = (user: { id: string | number; username: string; profileImageUrl?: string }) => {
   if (typeof window === "undefined") return;
   window.localStorage.setItem("auth_user_id", String(user.id));
   window.localStorage.setItem("auth_username", user.username);
+  if (user.profileImageUrl) {
+    window.localStorage.setItem("auth_profile_image", user.profileImageUrl);
+  } else {
+    window.localStorage.removeItem("auth_profile_image");
+  }
 };
 
 const clearTokens = () => {
@@ -42,6 +47,7 @@ const clearTokens = () => {
   window.localStorage.removeItem("refresh_token");
   window.localStorage.removeItem("auth_user_id");
   window.localStorage.removeItem("auth_username");
+  window.localStorage.removeItem("auth_profile_image");
   clearAuthCookie();
 };
 
@@ -73,6 +79,7 @@ const resolveProfileImage = (u: {
 
 const normalizeUser = (u: {
   user_id: string;
+  username?: string;
   display_name: string;
   account_type: string;
   is_premium: boolean;
@@ -84,7 +91,7 @@ const normalizeUser = (u: {
   email?: string;
 }): IUser => ({
   id: u.user_id,
-  username: u.display_name,
+  username: u.username ?? u.display_name,
   email: u.email ?? "",
   profileImageUrl: resolveProfileImage(u),
   createdAt: new Date().toISOString(),
@@ -95,7 +102,7 @@ export const RealAuthService = {
     const response = await fetch(apiUrl("/auth/login"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: emailOrProfileUrl, password }),
+      body: JSON.stringify({ identifier: emailOrProfileUrl, password }),
     });
 
     if (!response.ok) {
@@ -108,7 +115,7 @@ export const RealAuthService = {
     const normalized = normalizeUser(user);
 
     saveTokens(accessToken, refreshToken);
-    saveUserMeta(normalized);
+    saveUserMeta({ ...normalized, profileImageUrl: normalized.profileImageUrl });
 
     return { success: true, token: accessToken, user: normalized };
   },
@@ -130,7 +137,7 @@ export const RealAuthService = {
     const normalized = normalizeUser(user);
 
     saveTokens(accessToken, refreshToken);
-    saveUserMeta(normalized);
+    saveUserMeta({ ...normalized, profileImageUrl: normalized.profileImageUrl });
 
     return { success: true, token: accessToken, user: normalized };
   },
@@ -146,8 +153,8 @@ export const RealAuthService = {
       body: JSON.stringify({
         email: emailOrProfileUrl,
         password,
+        username: defaultDisplayName,
         display_name: defaultDisplayName,
-        account_type: "listener",
       }),
     });
 
@@ -247,11 +254,11 @@ export const RealAuthService = {
     return { success: true };
   },
 
-  verifyEmail: async (email: string, token: string): Promise<IVerifyEmailResponse> => {
+  verifyEmail: async (_email: string, token: string): Promise<IVerifyEmailResponse> => {
     const response = await fetch(apiUrl("/auth/verify-email"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, token }),
+      body: JSON.stringify({ token }),
     });
 
     if (!response.ok) {
@@ -295,11 +302,16 @@ export const RealAuthService = {
     const json = await response.json();
     const data = json.data ?? json;
 
+    const profileImageUrl = resolveProfileImage(data);
+    if (typeof window !== "undefined") {
+      if (profileImageUrl) window.localStorage.setItem("auth_profile_image", profileImageUrl);
+      else window.localStorage.removeItem("auth_profile_image");
+    }
     return {
       id: data.user_id ?? data.id,
       username: data.display_name ?? data.username,
       email: data.email ?? "",
-      profileImageUrl: resolveProfileImage(data),
+      profileImageUrl,
       createdAt: data.created_at ?? "",
     };
   },

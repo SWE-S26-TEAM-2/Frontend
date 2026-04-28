@@ -85,9 +85,19 @@ export const realPlaylistService: IPlaylistService = {
     unsupportedApiFeature("playlistService.getPlaylist(username, slug)");
   },
 
-  getUserPlaylists: async (username: string): Promise<IPlaylist[]> => {
-    void username;
-    unsupportedApiFeature("playlistService.getUserPlaylists()");
+  getUserPlaylists: async (_username: string): Promise<IPlaylist[]> => {
+    try {
+      const data = await apiGet<{ playlists?: IBackendPlaylist[] } | IBackendPlaylist[]>(
+        `${ENV.API_BASE_URL}/playlists/liked`
+      );
+      const raw = Array.isArray(data)
+        ? data
+        : (data as { playlists?: IBackendPlaylist[] }).playlists ?? [];
+      return raw.map(normalizePlaylist);
+    } catch {
+      console.warn("getUserPlaylists: /playlists/liked unavailable, returning []");
+      return [];
+    }
   },
 
   search: async (query: string): Promise<IPlaylist[]> => {
