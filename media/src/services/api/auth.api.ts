@@ -164,6 +164,7 @@ export const RealAuthService = {
         password,
         username: defaultDisplayName,
         display_name: defaultDisplayName,
+        account_type: "listener",
       }),
     });
 
@@ -279,7 +280,7 @@ export const RealAuthService = {
   },
 
   forgotPassword: async (email: string): Promise<IForgotPasswordResponse> => {
-    const response = await fetch(`${ENV.API_BASE_URL}/auth/forgot-password`, {
+    const response = await fetch(apiUrl("/auth/forgot-password"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
@@ -293,19 +294,19 @@ export const RealAuthService = {
     return response.json();
   },
   
-  resetPassword: async (token: string, newPassword: string,  signOutEverywhere: boolean): Promise<IResetPasswordResponse> => {
-    const response = await fetch(`${ENV.API_BASE_URL}/auth/reset-password`, {
+  resetPassword: async (token: string, newPassword: string, signOutEverywhere: boolean ): Promise<IResetPasswordResponse> => {
+    const response = await fetch(apiUrl("/auth/reset-password"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, newPassword, signOutEverywhere  }),
+      body: JSON.stringify({ token, new_password: newPassword   }),
     });
   
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
-      throw new Error(error?.message || "Failed to reset password");
+      throw new Error(error?.detail || "Failed to reset password");
     }
   
-    return response.json();
+    return { success: true };
   },
 
   logout: async (): Promise<{ success: boolean }> => {
