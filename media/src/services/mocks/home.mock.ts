@@ -1,7 +1,21 @@
-import { ITrack } from "@/types/track.types";
-import { IRecentItem, IArtist } from "@/types/home.types";
+/**
+ * Home Mock Service + Data
+ * Single file version
+ */
 
-export const MOCK_MORE_LIKE: ITrack[] = [
+import type {
+  IHomeService,
+  IHomePageData,
+  IArtist,
+  IRecentItem,
+} from "@/types/home.types";
+import type { ITrack } from "@/types/track.types";
+
+/* =========================
+   MOCK DATA
+========================= */
+
+const MOCK_MORE_LIKE: ITrack[] = [
   {
     id: "1",
     title: "Starboy",
@@ -28,7 +42,7 @@ export const MOCK_MORE_LIKE: ITrack[] = [
   },
 ];
 
-export const MOCK_RECENTLY_PLAYED: IRecentItem[] = [
+const MOCK_RECENTLY_PLAYED: IRecentItem[] = [
   {
     id: "10",
     title: "After Hours",
@@ -54,7 +68,7 @@ export const MOCK_RECENTLY_PLAYED: IRecentItem[] = [
   },
 ];
 
-export const MOCK_MIXED: ITrack[] = [
+const MOCK_MIXED: ITrack[] = [
   {
     id: "20",
     title: "Daily Mix 1",
@@ -81,7 +95,7 @@ export const MOCK_MIXED: ITrack[] = [
   },
 ];
 
-export const MOCK_FOLLOW_SUGGESTIONS: IArtist[] = [
+const MOCK_FOLLOW_SUGGESTIONS: IArtist[] = [
   {
     id: "101",
     name: "Metro Boomin",
@@ -100,7 +114,7 @@ export const MOCK_FOLLOW_SUGGESTIONS: IArtist[] = [
   },
 ];
 
-export const MOCK_HISTORY: ITrack[] = [
+const MOCK_HISTORY: ITrack[] = [
   {
     id: "501",
     title: "Knife Talk",
@@ -114,3 +128,24 @@ export const MOCK_HISTORY: ITrack[] = [
     updatedAt: new Date().toISOString(),
   },
 ];
+
+/* =========================
+   MOCK SERVICE
+========================= */
+
+export const mockHomeService: IHomeService = {
+  getHomePageData: async (): Promise<IHomePageData> => {
+    return {
+      moreOfWhatYouLike: MOCK_MORE_LIKE,
+      recentlyPlayed: MOCK_RECENTLY_PLAYED,
+      mixedForUser: MOCK_MIXED,
+      discoverStations: MOCK_MIXED,
+      followSuggestions: MOCK_FOLLOW_SUGGESTIONS,
+      listeningHistory: MOCK_HISTORY,
+    };
+  },
+
+  refreshFollowSuggestions: async (): Promise<IArtist[]> => {
+    return MOCK_FOLLOW_SUGGESTIONS;
+  },
+};

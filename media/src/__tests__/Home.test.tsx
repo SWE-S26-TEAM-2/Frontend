@@ -17,22 +17,25 @@ jest.mock("../services/api/home.api", () => ({
   HomeAPI: {
     getHomePageData: jest.fn().mockResolvedValue({
       moreOfWhatYouLike: [
-        { id: "1", title: "Liked Track", artist: "Artist A", albumArt: "/test.png" }
+        { id: "1", title: "Liked Track", artist: "Artist A", albumArt: "/test.png", url: "", duration: 0, likes: 0, plays: 0, createdAt: "", updatedAt: "" }
       ],
       recentlyPlayed: [
-        { id: "2", title: "Recent", artist: "Artist B", albumArt: "/test.png", type: "track" }
+        { id: "2", title: "Recent", artist: "Artist B", albumArt: "/test.png", url: "", duration: 0, likes: 0, plays: 0, type: "track", createdAt: "", updatedAt: "" }
       ],
       mixedForUser: [
-        { id: "3", title: "Mixed Track", artist: "Artist C", albumArt: "/test.png" }
+        { id: "3", title: "Mixed Track", artist: "Artist C", albumArt: "/test.png", url: "", duration: 0, likes: 0, plays: 0, createdAt: "", updatedAt: "" }
       ],
       discoverStations: [],
       followSuggestions: [
-        { id: "101", name: "Suggested Artist", followers: "1M", imageUrl: "/test.png" }
+        { id: "101", name: "Suggested Artist", followers: "1M", tracksCount: 0, imageUrl: "/test.png", type: "artist" }
       ],
       listeningHistory: [
-        { id: "501", title: "History Track", artist: "Artist D", albumArt: "/test.png" }
+        { id: "501", title: "History Track", artist: "Artist D", albumArt: "/test.png", url: "", duration: 0, likes: 0, plays: 0, createdAt: "", updatedAt: "" }
       ],
     }),
+
+    // ✅ add this
+    refreshFollowSuggestions: jest.fn().mockResolvedValue([]),
   },
 }));
 
