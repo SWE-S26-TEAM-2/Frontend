@@ -14,6 +14,17 @@ export function buildAudioFixture(
   };
 }
 
+export function buildImageFixture(
+  name: string,
+  mimeType: string = 'image/png'
+) {
+  return {
+    name,
+    mimeType,
+    buffer: Buffer.from(`fake-image-${name}`),
+  };
+}
+
 export async function gotoUpload(page: Page) {
   await page.goto(UPLOAD_ROUTE, { waitUntil: 'domcontentloaded' });
   await page.waitForLoadState('networkidle').catch(() => {});
@@ -27,6 +38,26 @@ export async function selectUploadAudioFile(page: Page, fileName: string) {
     .locator(UPLOAD_SELECTORS.FILE_INPUT)
     .first()
     .setInputFiles(buildAudioFixture(fileName));
+}
+
+export async function dragAndDropUploadAudioFile(page: Page, fileName: string) {
+  const dataTransfer = await page.evaluateHandle(
+    ({ name, mimeType, content }) => {
+      const dt = new DataTransfer();
+      dt.items.add(new File([content], name, { type: mimeType }));
+      return dt;
+    },
+    {
+      name: fileName,
+      mimeType: 'audio/mpeg',
+      content: `drag-drop-audio-${fileName}`,
+    }
+  );
+
+  const dropzone = page.locator(UPLOAD_SELECTORS.DROPZONE);
+  await expect(dropzone).toBeVisible();
+  await dropzone.dispatchEvent('dragover', { dataTransfer });
+  await dropzone.dispatchEvent('drop', { dataTransfer });
 }
 
 export async function goToUploadMetadataStep(
@@ -44,11 +75,24 @@ export async function submitUpload(page: Page) {
   const uploadButton = page.locator(UPLOAD_SELECTORS.UPLOAD_BUTTON);
 
   await expect(uploadButton).toBeVisible();
+  await expect(uploadButton).toBeEnabled();
+
+  // Try to place it better in view first
+  await uploadButton.scrollIntoViewIfNeeded();
   await uploadButton.evaluate((el) =>
     el.scrollIntoView({ block: 'center', inline: 'nearest' })
   );
-  await expect(uploadButton).toBeEnabled();
-  await uploadButton.click();
+
+  // Use keyboard activation to avoid sticky footer intercepting pointer events
+  await uploadButton.focus();
+  await expect(uploadButton).toBeFocused();
+  await uploadButton.press('Enter');
+}
+
+export async function selectArtworkImage(page: Page, fileName: string) {
+  await page
+    .locator(UPLOAD_SELECTORS.ARTWORK_INPUT)
+    .setInputFiles(buildImageFixture(fileName));
 }
 
 export async function waitForUploadSuccess(page: Page) {

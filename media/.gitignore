@@ -48,3 +48,5 @@ run_review.sh
 # playwright
 /playwright-report/
 /test-results/
+/e2e/real/.auth/
+/e2e/real/fixtures/sample.mp3

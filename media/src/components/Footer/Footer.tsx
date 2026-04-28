@@ -191,11 +191,11 @@ export default function Footer() {
             {formatTime(currentTime)}
           </span>
 
-          <div ref={progressRef} onClick={handleSeek} style={{
+          <div ref={progressRef} onClick={handleSeek} data-testid="player-progress" style={{
             flex: 1, height: "4px", background: "rgba(80,80,80)",
             borderRadius: "2px", cursor: "pointer", position: "relative",
           }}>
-            <div style={{
+            <div data-testid="player-progress-fill" style={{
               position: "absolute", left: 0, top: 0, height: "100%",
               width: `${progress}%`, background: "#FF5500", borderRadius: "2px",
               transition: "width 0.5s linear",

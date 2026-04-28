@@ -145,8 +145,10 @@ describe("Header Component", () => {
       
       fireEvent.click(avatarButton);
       
+      // After the second click the menu must collapse - the "Profile" entry
+      // is rendered inside the dropdown and should disappear from the DOM.
       await waitFor(() => {
-        // Check if the menu container is hidden (not visible in DOM)
+        expect(screen.queryByText("Profile")).not.toBeInTheDocument();
       });
     });
 
@@ -160,11 +162,13 @@ describe("Header Component", () => {
         expect(screen.getByText("Profile")).toBeVisible();
       });
       
-      // Simulate outside click
+      // Simulate outside click - the Header attaches a mousedown handler on
+      // document that closes the dropdown when the click target is not inside
+      // the dropdown ref.
       fireEvent.mouseDown(document.body);
       
       await waitFor(() => {
-        // Should not be visible after outside click
+        expect(screen.queryByText("Profile")).not.toBeInTheDocument();
       });
     });
 
@@ -227,7 +231,11 @@ describe("Header Component", () => {
       
       fireEvent.click(dotsButton);
       
-      // Menu should be hidden
+      // The dots dropdown contains the "Settings" item; once collapsed it
+      // must disappear from the DOM.
+      await waitFor(() => {
+        expect(screen.queryByText("Settings")).not.toBeInTheDocument();
+      });
     });
 
     test("dots menu contains important items", async () => {
@@ -256,7 +264,11 @@ describe("Header Component", () => {
       const dotsButton = screen.getByLabelText("More options");
       fireEvent.click(dotsButton);
       
-      // Avatar menu should close when dots menu opens
+      // Avatar menu should close when dots menu opens.
+      await waitFor(() => {
+        expect(screen.queryByText("Profile")).not.toBeInTheDocument();
+        expect(screen.getByText("Settings")).toBeVisible();
+      });
     });
   });
 

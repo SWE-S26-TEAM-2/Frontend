@@ -10,6 +10,8 @@
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:e2e": "playwright test",
+    "test:e2e:mock": "playwright test --project=chromium-mock",
+    "test:e2e:real": "playwright test --project=chromium-real",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:report": "playwright show-report"

@@ -35,36 +35,107 @@ test.describe('@critical Search - Results Behavior', () => {
 
   test('pressing Enter in search input triggers action', async ({ page }) => {
     await typeInHeaderSearch(page, 'search term');
-    const currentUrl = page.url();
+    const beforeUrl = page.url();
 
     await submitHeaderSearch(page);
 
-    // Wait for any navigation/action
-    await page.waitForTimeout(500);
-
-    // TODO: When search results page is implemented, verify navigation
-    // For now, we document the current behavior
+    // Enter MUST do something observable. The two acceptable observations are:
+    //   1. URL transitions to /search or includes a search query string.
+    //   2. A results container/dropdown becomes visible.
+    // Failing both reveals the search-Enter-no-op smell from the audit.
+    const urlChanged = page.waitForURL(/\/search|[?&](q|keyword)=/i, {
+      timeout: 4000,
+    });
+    const resultsContainer = page
+      .locator(
+        '[data-testid="search-results"], [role="listbox"], [data-testid="search-dropdown"]'
+      )
+      .first()
+      .waitFor({ state: 'visible', timeout: 4000 });
+    const winner = await Promise.race([
+      urlChanged.then(() => 'url').catch(() => null),
+      resultsContainer.then(() => 'results').catch(() => null),
+    ]);
+    expect(
+      winner,
+      `Pressing Enter on the search input should navigate to /search or render a results container. ` +
+        `URL was ${beforeUrl} both before and after.`
+    ).toBeTruthy();
   });
 
-  test.skip('search with known results shows results page', async ({
-    page,
-  }) => {
-    // TODO: Implement when search results page exists
-    // SRCH-005: Search results page displays matching tracks
-    // Priority: CRITICAL (4)
+  test('search with known results shows results page', async ({ page }) => {
+    // In mock mode, mockTrackService.search returns deterministic data;
+    // in real mode (chromium-real) we skip and defer to search-real.spec.ts.
+    test.skip(
+      test.info().project.name === 'chromium-real',
+      'Real-API search lives in e2e/real/search-real.spec.ts.'
+    );
+
+    await typeInHeaderSearch(page, 'a');
+    await submitHeaderSearch(page);
+
+    // The results surface must exist in some form - either a dedicated route
+    // or an inline results container. Either way we want >0 result rows.
+    await page.waitForLoadState('networkidle').catch(() => {});
+    const resultRows = page.locator(
+      '[data-testid="search-result"], [data-testid="track-row"], a[href^="/track/"]'
+    );
+    await expect
+      .poll(async () => resultRows.count(), { timeout: 6000 })
+      .toBeGreaterThan(0);
   });
 
-  test.skip('search with no matches shows empty state', async ({ page }) => {
-    // TODO: Implement when search results page exists
-    // SRCH-008: Search with no matches shows empty state
-    // Priority: CRITICAL (5)
+  test('search with no matches shows empty state', async ({ page }) => {
+    test.skip(
+      test.info().project.name === 'chromium-real',
+      'Real-API search lives in e2e/real/search-real.spec.ts.'
+    );
+
+    const unlikelyKeyword = `zzz_no_match_${Date.now()}`;
+    await typeInHeaderSearch(page, unlikelyKeyword);
+    await submitHeaderSearch(page);
+    await page.waitForLoadState('networkidle').catch(() => {});
+
+    // Empty state SHOULD be present in some form: copy "No results", an
+    // empty list, or an explicit empty marker. Failing all three is the bug.
+    const noResultsCopy = page.getByText(/no results|nothing found/i).first();
+    const emptyState = page
+      .locator('[data-testid="search-empty"], [data-testid="empty-state"]')
+      .first();
+    const resultRows = page.locator(
+      '[data-testid="search-result"], a[href^="/track/"]'
+    );
+    await expect
+      .poll(
+        async () => {
+          const copyVisible = await noResultsCopy
+            .isVisible()
+            .catch(() => false);
+          const emptyVisible = await emptyState.isVisible().catch(() => false);
+          const rows = await resultRows.count();
+          return (copyVisible || emptyVisible) && rows === 0;
+        },
+        { timeout: 8000 }
+      )
+      .toBe(true);
   });
 
-  test.skip('clicking search result navigates to track page', async ({
-    page,
-  }) => {
-    // TODO: Implement when search results page exists
-    // SRCH-009: Clicking search result navigates to track page
+  test('clicking search result navigates to track page', async ({ page }) => {
+    test.skip(
+      test.info().project.name === 'chromium-real',
+      'Real-API click-through lives in e2e/real/search-real.spec.ts.'
+    );
+
+    await typeInHeaderSearch(page, 'a');
+    await submitHeaderSearch(page);
+    await page.waitForLoadState('networkidle').catch(() => {});
+
+    const firstResult = page
+      .locator('a[href^="/track/"], [data-testid="search-result"] a')
+      .first();
+    await expect(firstResult).toBeVisible({ timeout: 6000 });
+    await firstResult.click();
+    await expect(page).toHaveURL(/\/track\//);
   });
 });
 

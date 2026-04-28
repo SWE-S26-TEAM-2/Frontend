@@ -1,0 +1,124 @@
+name: Frontend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Frontend/media/**'
+      - '.github/workflows/frontend.yml'
+  pull_request:
+    paths:
+      - 'Frontend/media/**'
+      - '.github/workflows/frontend.yml'
+
+defaults:
+  run:
+    working-directory: Frontend/media
+
+jobs:
+  jest:
+    name: Jest unit + coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: Frontend/media/package-lock.json
+      - run: npm ci
+      - run: npm run test:coverage
+      - name: Upload jest coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jest-coverage
+          path: Frontend/media/coverage
+          if-no-files-found: ignore
+
+  playwright-mock:
+    name: Playwright (mock API)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: Frontend/media/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e:mock
+        env:
+          CI: 'true'
+      - name: Upload playwright-report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-mock-report
+          path: |
+            Frontend/media/playwright-report
+            Frontend/media/test-results
+          if-no-files-found: ignore
+
+  # ─── Real-backend Playwright job ───────────────────────────────────────────
+  # Depends on a service-job (or compose file in a sibling repo) that boots the
+  # FastAPI backend. Until we wire up Backend/docker-compose.yml in this repo
+  # the job is gated with `if: false`. To enable:
+  #   1. Add Backend/docker-compose.test.yml (or compose snippet in this file)
+  #      that runs `app.main:app` on :8000 with an ephemeral Postgres + a
+  #      VERIFICATION_BACKDOOR endpoint.
+  #   2. Switch the `if:` line to true (or remove it).
+  #   3. Set repository secrets:
+  #        BACKEND_URL                 - e.g. http://localhost:8000
+  #        TEST_VERIFY_TOKEN_OVERRIDE  or VERIFICATION_BACKDOOR
+  #        SAMPLE_MP3_PATH (if you ship a fixture in artifacts)
+  playwright-real:
+    name: Playwright (real API)
+    needs: playwright-mock
+    if: false # TODO(ci): enable once Backend/docker-compose.test.yml is in.
+    runs-on: ubuntu-latest
+    services:
+      backend:
+        image: ghcr.io/${{ github.repository_owner }}/soundcloud-backend:ci
+        ports:
+          - 8000:8000
+        # env:
+        #   DATABASE_URL: postgresql://postgres:postgres@postgres:5432/postgres
+    env:
+      BACKEND_URL: http://localhost:8000
+      # Provide ONE of these via repo secrets to unlock /auth/verify-email:
+      TEST_VERIFY_TOKEN_OVERRIDE: ${{ secrets.TEST_VERIFY_TOKEN_OVERRIDE }}
+      VERIFICATION_BACKDOOR: ${{ secrets.VERIFICATION_BACKDOOR }}
+      SAMPLE_MP3_PATH: ${{ secrets.SAMPLE_MP3_PATH }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: Frontend/media/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Wait for backend
+        run: |
+          for i in $(seq 1 60); do
+            if curl -fs "$BACKEND_URL/api/health" > /dev/null 2>&1 \
+              || curl -fs "$BACKEND_URL/" > /dev/null 2>&1; then
+              echo "backend up"; exit 0
+            fi
+            sleep 2
+          done
+          echo "backend never came up"; exit 1
+      - run: npm run test:e2e:real
+        env:
+          CI: 'true'
+      - name: Upload playwright-report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-real-report
+          path: |
+            Frontend/media/playwright-report
+            Frontend/media/test-results
+          if-no-files-found: ignore

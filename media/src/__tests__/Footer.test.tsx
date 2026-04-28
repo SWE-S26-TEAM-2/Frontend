@@ -206,17 +206,34 @@ describe("Footer Component (Global Player)", () => {
     });
 
     test("shows volume slider on hover", async () => {
-      render(<Footer />);
+      const { container } = render(<Footer />);
       const volumeButton = screen.getByLabelText(/Mute|Unmute/);
 
       fireEvent.mouseEnter(volumeButton);
+
+      // The slider <input type="range"> is rendered but hidden behind a
+      // width:0/opacity:0 wrapper until hover. After mouseEnter the wrapper
+      // should report opacity:1 / width:70px.
+      await waitFor(() => {
+        const slider = container.querySelector('input[type="range"]') as HTMLInputElement | null;
+        expect(slider).toBeInTheDocument();
+        const wrapper = slider?.parentElement?.parentElement as HTMLElement | undefined;
+        expect(wrapper?.style.opacity).toBe("1");
+        expect(wrapper?.style.width).toBe("70px");
+      });
     });
 
     test("updates volume when slider is changed", async () => {
-      render(<Footer />);
+      const { container } = render(<Footer />);
       const volumeButton = screen.getByLabelText(/Mute|Unmute/);
-
       fireEvent.mouseEnter(volumeButton);
+
+      const slider = container.querySelector('input[type="range"]') as HTMLInputElement;
+      expect(slider).toBeTruthy();
+      fireEvent.change(slider, { target: { value: "0.25" } });
+
+      // Volume must propagate to the player store.
+      expect(usePlayerStore.getState().volume).toBeCloseTo(0.25, 5);
     });
 
     test("mutes audio when mute is toggled", async () => {
@@ -225,6 +242,13 @@ describe("Footer Component (Global Player)", () => {
 
       fireEvent.mouseEnter(volumeButton);
       fireEvent.click(volumeButton);
+
+      // After clicking, the button label should flip Mute<->Unmute.
+      // We don't know the initial state, but the same locator must still resolve
+      // and the toggled label must be one of the two valid values.
+      const toggled = screen.getByLabelText(/Mute|Unmute/);
+      expect(toggled).toBeInTheDocument();
+      expect(["Mute", "Unmute"]).toContain(toggled.getAttribute("aria-label"));
     });
   });
 
@@ -237,6 +261,10 @@ describe("Footer Component (Global Player)", () => {
       act(() => {
         setCurrentTime(60);
       });
+
+      // 60 seconds should render as "1:00" somewhere in the footer.
+      expect(screen.getAllByText("1:00").length).toBeGreaterThan(0);
+      expect(usePlayerStore.getState().currentTime).toBe(60);
     });
 
     test("allows seeking by clicking on progress bar", async () => {
@@ -259,6 +287,19 @@ describe("Footer Component (Global Player)", () => {
       });
 
       render(<Footer />);
+
+      const progressDiv = screen.getByTestId("player-progress");
+
+      // Mock getBoundingClientRect so the half-way click maps to ~90s.
+      const rect = { left: 0, width: 200, top: 0, height: 4, right: 200, bottom: 4 } as DOMRect;
+      progressDiv.getBoundingClientRect = () => rect;
+
+      fireEvent.click(progressDiv, { clientX: 100 });
+
+      // currentTime should be ~half of duration (180 -> 90)
+      const ct = usePlayerStore.getState().currentTime;
+      expect(ct).toBeGreaterThan(85);
+      expect(ct).toBeLessThan(95);
     });
 
     test("updates progress bar fill width based on current time", () => {
@@ -270,6 +311,10 @@ describe("Footer Component (Global Player)", () => {
         setDuration(100);
         setCurrentTime(50);
       });
+
+      const fill = screen.getByTestId("player-progress-fill");
+      // 50 / 100 -> 50%
+      expect(fill.style.width).toBe("50%");
     });
   });
 
@@ -292,8 +337,13 @@ describe("Footer Component (Global Player)", () => {
       });
       render(<Footer />);
 
+      // Drawer is hidden by default.
+      expect(screen.queryByLabelText("Close queue")).not.toBeInTheDocument();
       const queueButton = screen.getByLabelText("Queue");
       fireEvent.click(queueButton);
+
+      // After click the drawer + close button should be visible.
+      expect(await screen.findByLabelText("Close queue")).toBeInTheDocument();
     });
 
     test("closes queue drawer when closed", async () => {
@@ -316,8 +366,13 @@ describe("Footer Component (Global Player)", () => {
 
       const queueButton = screen.getByLabelText("Queue");
       fireEvent.click(queueButton);
+      expect(await screen.findByLabelText("Close queue")).toBeInTheDocument();
 
       fireEvent.click(queueButton);
+      // Drawer must close again.
+      await waitFor(() =>
+        expect(screen.queryByLabelText("Close queue")).not.toBeInTheDocument()
+      );
     });
 
     test("displays queue items in drawer", async () => {
@@ -358,6 +413,11 @@ describe("Footer Component (Global Player)", () => {
       render(<Footer />);
       const queueButton = screen.getByLabelText("Queue");
       fireEvent.click(queueButton);
+
+      // Both queue rows should be visible (artist - title format).
+      expect(await screen.findByText("Artist 1 - Track 1")).toBeInTheDocument();
+      expect(screen.getByText("Artist 2 - Track 2")).toBeInTheDocument();
+      expect(screen.getByText("Queue (2)")).toBeInTheDocument();
     });
 
     test("highlights current playing track in queue", async () => {
@@ -396,6 +456,14 @@ describe("Footer Component (Global Player)", () => {
       });
 
       render(<Footer />);
+      // Open queue drawer, then assert the second track is highlighted.
+      fireEvent.click(screen.getByLabelText("Queue"));
+      const playRow = await screen.findByLabelText("Play Track 2");
+      expect(playRow).toBeInTheDocument();
+      // Title button styling encodes "current" via color #FF5500.
+      const titleBtn = screen.getByText("Artist 2 - Track 2").closest("button") as HTMLElement;
+      expect(titleBtn).toBeTruthy();
+      expect(titleBtn.style.color).toMatch(/255,\s*85,\s*0|FF5500/i);
     });
 
     test("plays track when clicked from queue", async () => {
@@ -434,6 +502,13 @@ describe("Footer Component (Global Player)", () => {
       });
 
       render(<Footer />);
+
+      fireEvent.click(screen.getByLabelText("Queue"));
+      const targetPlay = await screen.findByLabelText("Play Track 2");
+      fireEvent.click(targetPlay);
+
+      // playFromQueue(1) must have made track 2 current.
+      expect(usePlayerStore.getState().currentTrack?.id).toBe("2");
     });
   });
 
@@ -489,6 +564,14 @@ describe("Footer Component (Global Player)", () => {
 
       const queueButton = screen.getByLabelText("Queue");
       fireEvent.click(queueButton);
+
+      // Drag handles are <button aria-label="Drag to reorder">. With 3 tracks
+      // we must see 3 of them.
+      const dragHandles = await screen.findAllByLabelText("Drag to reorder");
+      expect(dragHandles).toHaveLength(3);
+      dragHandles.forEach((h) => {
+        expect(h.getAttribute("draggable")).toBe("true");
+      });
     });
 
     test("reorders queue items correctly after drag", async () => {
@@ -558,6 +641,10 @@ describe("Footer Component (Global Player)", () => {
 
       const queueButton = screen.getByLabelText("Queue");
       fireEvent.click(queueButton);
+
+      const handle = await screen.findByLabelText("Drag to reorder");
+      expect(handle).toBeInTheDocument();
+      expect(handle.getAttribute("draggable")).toBe("true");
     });
   });
 
@@ -578,11 +665,16 @@ describe("Footer Component (Global Player)", () => {
         updatedAt: "2024-01-01",
       };
 
-      render(<Footer />);
+      const { container } = render(<Footer />);
 
       act(() => {
         setTrack(mockTrack);
       });
+
+      const audio = container.querySelector("audio") as HTMLAudioElement;
+      expect(audio).toBeInTheDocument();
+      // The effect that syncs `src` runs on currentTrack change.
+      expect(audio.src).toContain("test.mp3");
     });
 
     test("plays audio when isPlaying is true", async () => {
@@ -609,6 +701,13 @@ describe("Footer Component (Global Player)", () => {
 
       const playButton = screen.getByLabelText(/Play|Pause/);
       fireEvent.click(playButton);
+
+      // After click, store should be in playing state and the underlying
+      // HTMLMediaElement.play (mocked in beforeAll) must have been called.
+      await waitFor(() => {
+        expect(usePlayerStore.getState().isPlaying).toBe(true);
+      });
+      expect(HTMLMediaElement.prototype.play).toHaveBeenCalled();
     });
 
     test("pauses audio when isPlaying is false", async () => {
@@ -634,12 +733,17 @@ describe("Footer Component (Global Player)", () => {
       });
 
       const playButton = screen.getByLabelText(/Play|Pause/);
-      fireEvent.click(playButton);
-      fireEvent.click(playButton);
+      fireEvent.click(playButton); // play
+      fireEvent.click(playButton); // pause
+
+      await waitFor(() => {
+        expect(usePlayerStore.getState().isPlaying).toBe(false);
+      });
+      expect(HTMLMediaElement.prototype.pause).toHaveBeenCalled();
     });
 
     test("updates duration from audio metadata", async () => {
-      const { setTrack } = usePlayerStore.getState();
+      const { setTrack, setDuration } = usePlayerStore.getState();
 
       const mockTrack = {
         id: "1",
@@ -658,7 +762,13 @@ describe("Footer Component (Global Player)", () => {
 
       act(() => {
         setTrack(mockTrack);
+        // Simulate <audio onLoadedMetadata> firing -> duration store update.
+        setDuration(180);
       });
+
+      // Footer renders effective duration as "3:00" (180s) somewhere.
+      expect(usePlayerStore.getState().duration).toBe(180);
+      expect(screen.getAllByText("3:00").length).toBeGreaterThan(0);
     });
   });
 

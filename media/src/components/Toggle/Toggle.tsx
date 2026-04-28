@@ -6,6 +6,9 @@ const Toggle = ({ value, onChange }: IToggleProps) => (
   <button
     // onClick={onChange}  // removed by reta
     onClick={() => onChange(!value)}  // added by reta
+    role="switch"
+    aria-checked={value}
+    data-state={value ? "on" : "off"}
     style={{
       width: "44px",
       height: "24px",

@@ -58,20 +58,31 @@ describe("TrackCard", () => {
     expect(onPlay).toHaveBeenCalledWith(sampleTrack);
   });
 
-  it("toggles like to true when track is not liked", () => {
-    render(<TrackCard track={{ ...sampleTrack, isLiked: false }} onPlay={onPlay}/>);
+  // The original like-toggle pair asserted "5.1K" on both directions because
+  // formatNumber rounds 5140 and 5141 to the same string. Using 99 (raw integer)
+  // gives a visible change after each toggle.
+  it("toggles like to true and increments the count", () => {
+    const track = { ...sampleTrack, likes: 99, isLiked: false };
+    render(<TrackCard track={track} onPlay={onPlay}/>);
+    expect(screen.getByText("99")).toBeInTheDocument();
+
     const buttons = screen.getAllByRole("button");
     fireEvent.click(buttons[0]); // like button is first action button
-    // likes count should increment by 1
-    expect(screen.getByText("5.1K")).toBeInTheDocument();
+
+    expect(screen.getByText("100")).toBeInTheDocument();
+    expect(screen.queryByText("99")).not.toBeInTheDocument();
   });
 
-  it("toggles like to false when track is already liked", () => {
-    render(<TrackCard track={{ ...sampleTrack, isLiked: true }} onPlay={onPlay}/>);
+  it("toggles like to false and decrements the count", () => {
+    const track = { ...sampleTrack, likes: 99, isLiked: true };
+    render(<TrackCard track={track} onPlay={onPlay}/>);
+    expect(screen.getByText("100")).toBeInTheDocument();
+
     const buttons = screen.getAllByRole("button");
     fireEvent.click(buttons[0]);
-    // likes count should go back to original
-    expect(screen.getByText("5.1K")).toBeInTheDocument();
+
+    expect(screen.getByText("99")).toBeInTheDocument();
+    expect(screen.queryByText("100")).not.toBeInTheDocument();
   });
 });
 

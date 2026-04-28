@@ -230,10 +230,15 @@ test.describe('@high Repeated Modal Actions', () => {
     await signInButton.click({ force: true }).catch(() => {});
     await signInButton.click({ force: true }).catch(() => {});
 
-    // Modal should be visible and stable
+    // Modal MUST stay open and the trigger MUST stay enabled - rapid clicks
+    // should not crash the UI or detach the modal. The previous form
+    // (`expect(isVisible || true).toBe(true)`) was tautological.
     await page.waitForTimeout(300);
     const isVisible = await isLoginModalVisible(page);
-    // Should have modal open, not broken
-    expect(isVisible || true).toBe(true); // Document behavior
+    expect(isVisible).toBe(true);
+    await expect(
+      page.getByText('Sign in or create an account', { exact: true })
+    ).toBeVisible();
+    await expect(signInButton).toBeEnabled();
   });
 });

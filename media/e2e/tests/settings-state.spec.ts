@@ -23,10 +23,16 @@ function settingsMain(page: Page) {
 async function getToggleState(
   toggle: ReturnType<Page['locator']>
 ): Promise<boolean> {
+  // Prefer the explicit aria-checked / data-state contract added to Toggle;
+  // fall back to background-color sniffing only if the attribute is missing
+  // (legacy-style toggles that haven't been migrated yet).
+  const aria = await toggle.getAttribute('aria-checked').catch(() => null);
+  if (aria !== null) return aria === 'true';
+  const dataState = await toggle.getAttribute('data-state').catch(() => null);
+  if (dataState !== null) return dataState === 'on';
   const bgColor = await toggle.evaluate(
     (el) => getComputedStyle(el).backgroundColor
   );
-  // Orange (#ff5500) typically means ON, gray means OFF
   return bgColor.includes('255') && bgColor.includes('85');
 }
 
@@ -225,51 +231,40 @@ test.describe('@high Settings State - Privacy Toggles', () => {
   });
 
   test('privacy toggle changes visual state', async ({ page }) => {
-    const toggle = settingsMain(page)
+    const section = settingsMain(page)
       .getByText("Show when I'm a First or Top Fan", { exact: true })
-      .locator('xpath=..')
-      .getByRole('button')
-      .first();
+      .locator('xpath=..');
+    // Prefer role=switch (added to Toggle) for stable, behaviour-driven assertion.
+    const toggle = (await section.getByRole('switch').count())
+      ? section.getByRole('switch').first()
+      : section.getByRole('button').first();
 
     await toggle.waitFor({ state: 'visible' });
-
-    const beforeColor = await toggle.evaluate(
-      (el) => getComputedStyle(el).backgroundColor
-    );
+    const before = await getToggleState(toggle);
 
     await toggle.click();
 
-    // Color should change
+    // State should flip - assert against semantic attribute, not CSS color.
     await expect
-      .poll(async () =>
-        toggle.evaluate((el) => getComputedStyle(el).backgroundColor)
-      )
-      .not.toBe(beforeColor);
+      .poll(async () => getToggleState(toggle))
+      .toBe(!before);
   });
 
   test('toggle can be switched on and off', async ({ page }) => {
-    const toggle = settingsMain(page)
+    const section = settingsMain(page)
       .getByText("Show when I'm a First or Top Fan", { exact: true })
-      .locator('xpath=..')
-      .getByRole('button')
-      .first();
+      .locator('xpath=..');
+    const toggle = (await section.getByRole('switch').count())
+      ? section.getByRole('switch').first()
+      : section.getByRole('button').first();
 
     await toggle.waitFor({ state: 'visible' });
+    const initial = await getToggleState(toggle);
 
-    const initialColor = await toggle.evaluate(
-      (el) => getComputedStyle(el).backgroundColor
-    );
-
-    // Toggle twice - should return to initial state
     await toggle.click();
-    await page.waitForTimeout(200);
+    await expect.poll(async () => getToggleState(toggle)).toBe(!initial);
     await toggle.click();
-
-    const finalColor = await toggle.evaluate(
-      (el) => getComputedStyle(el).backgroundColor
-    );
-
-    expect(finalColor).toBe(initialColor);
+    await expect.poll(async () => getToggleState(toggle)).toBe(initial);
   });
 });
 

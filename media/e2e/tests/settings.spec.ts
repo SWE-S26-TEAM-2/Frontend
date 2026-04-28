@@ -1,9 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { gotoSettings } from '../helpers/navigation';
-
-function rgbaToRgb(color: string): string {
-  return color.replace('rgba', 'rgb').replace(/,\s*1\)/, ')');
-}
+import { seedAuthToken } from '../helpers/auth';
 
 function settingsMain(page: Page) {
   return page.locator('main').first();
@@ -55,10 +52,22 @@ async function waitForSettingsReady(
 }
 
 async function getToggleInSection(page: Page, title: string) {
-  return sectionByHeading(page, title).getByRole('button').first();
+  // Prefer the explicit role=switch added to the Toggle component; fall back
+  // to the legacy first-button selector if the section uses a non-Toggle
+  // control (kept for forward-compat).
+  const section = sectionByHeading(page, title);
+  const switchControl = section.getByRole('switch').first();
+  if (await switchControl.count()) return switchControl;
+  return section.getByRole('button').first();
 }
 
 test.describe('Settings pages', () => {
+  test.beforeEach(async ({ page }) => {
+    // settings.spec.ts previously skipped seeding auth (inconsistent with
+    // settings-state.spec.ts). Seed here so settings routes resolve uniformly.
+    await seedAuthToken(page);
+  });
+
   test('/settings redirects to account settings', async ({ page }) => {
     await page.goto('/settings');
     await page.waitForLoadState('domcontentloaded');
@@ -149,16 +158,11 @@ test.describe('Settings pages', () => {
     );
     await toggle.waitFor({ state: 'visible' });
 
-    const before = await toggle.evaluate(
-      (el) => getComputedStyle(el).backgroundColor
-    );
+    const before = await toggle.getAttribute('aria-checked');
     await toggle.click();
 
-    await expect
-      .poll(async () =>
-        toggle.evaluate((el) => getComputedStyle(el).backgroundColor)
-      )
-      .not.toBe(rgbaToRgb(before));
+    await expect(toggle).not.toHaveAttribute('aria-checked', before ?? '');
+    await expect(toggle).toHaveAttribute('data-state', /^(on|off)$/);
   });
 
   test('privacy main page loads and allows toggling a setting', async ({
@@ -171,16 +175,10 @@ test.describe('Settings pages', () => {
     );
     await toggle.waitFor({ state: 'visible' });
 
-    const before = await toggle.evaluate(
-      (el) => getComputedStyle(el).backgroundColor
-    );
+    const before = await toggle.getAttribute('aria-checked');
     await toggle.click();
 
-    await expect
-      .poll(async () =>
-        toggle.evaluate((el) => getComputedStyle(el).backgroundColor)
-      )
-      .not.toBe(rgbaToRgb(before));
+    await expect(toggle).not.toHaveAttribute('aria-checked', before ?? '');
   });
 
   test('account settings let the user change theme selection', async ({

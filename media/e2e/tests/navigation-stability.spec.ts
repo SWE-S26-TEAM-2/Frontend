@@ -26,49 +26,43 @@ test.describe('Navigation - Core Links (Authenticated)', () => {
   });
 
   test('all primary nav links navigate correctly', async ({ page }) => {
-    // Home
+    // Home - asserted as required, not optionally hidden.
     const homeLink = page.locator('a[href="/"]').first();
-    if (await homeLink.isVisible()) {
-      await homeLink.click();
-      await page.waitForLoadState('networkidle').catch(() => {});
-      // May redirect back if authenticated, that's expected
-    }
+    await expect(homeLink).toBeVisible();
+    await homeLink.click();
+    await page.waitForLoadState('networkidle').catch(() => {});
 
     // Feed
     await page.goto('/discover');
     const feedLink = page.locator('a[href="/feed"]').first();
-    if (await feedLink.isVisible()) {
-      await feedLink.click();
-      await page.waitForLoadState('networkidle').catch(() => {});
-      expect(page.url()).toContain('/feed');
-    }
+    await expect(feedLink).toBeVisible();
+    await feedLink.click();
+    await page.waitForLoadState('networkidle').catch(() => {});
+    expect(page.url()).toContain('/feed');
 
     // Library
     await page.goto('/discover');
     const libraryLink = page.locator('a[href="/library"]').first();
-    if (await libraryLink.isVisible()) {
-      await libraryLink.click();
-      await page.waitForLoadState('networkidle').catch(() => {});
-      expect(page.url()).toContain('/library');
-    }
+    await expect(libraryLink).toBeVisible();
+    await libraryLink.click();
+    await page.waitForLoadState('networkidle').catch(() => {});
+    expect(page.url()).toContain('/library');
   });
 
   test('logo navigates to home', async ({ page }) => {
-    // Click on soundcloud logo/text
     const logo = page.locator('a:has-text("soundcloud")').first();
+    await expect(logo).toBeVisible();
     await logo.click();
     await page.waitForLoadState('networkidle').catch(() => {});
-    // Authenticated users may go to discover, unauthenticated to /
     expect(page.url()).toMatch(/\/(discover)?$/);
   });
 
   test('upload link navigates to upload page', async ({ page }) => {
     const uploadLink = page.locator('a[href="/upload"]').first();
-    if (await uploadLink.isVisible()) {
-      await uploadLink.click();
-      await page.waitForLoadState('networkidle').catch(() => {});
-      expect(page.url()).toContain('/upload');
-    }
+    await expect(uploadLink).toBeVisible();
+    await uploadLink.click();
+    await page.waitForLoadState('networkidle').catch(() => {});
+    expect(page.url()).toContain('/upload');
   });
 });
 
@@ -212,10 +206,9 @@ test.describe('@medium Profile Tab Stability', () => {
 
     for (const tabName of tabs) {
       const tab = page.getByRole('button', { name: tabName, exact: true });
-      if (await tab.isVisible()) {
-        await tab.click();
-        await page.waitForTimeout(200); // Brief pause for UI update
-      }
+      await expect(tab).toBeVisible();
+      await tab.click();
+      await page.waitForTimeout(200); // Brief pause for UI update
     }
 
     // Should end on All tab
