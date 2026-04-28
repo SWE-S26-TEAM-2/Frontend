@@ -27,7 +27,7 @@ export default function RelatedTracks({ tracks, sourceTrack }: IRelatedTracksPro
     <section className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
       <div>
         <h2 className="mb-4 text-2xl font-semibold tracking-tight text-white">
-          Related tracks: {sourceTrack?.title ?? "Track list"}
+          Related tracks
         </h2>
 
         {list.length === 0 ? (
