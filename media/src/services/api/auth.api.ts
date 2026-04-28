@@ -1,4 +1,5 @@
-import { getApiBaseUrl, normalizeApiUrl } from "../../config/env";
+import { ENV } from "../../config/env";
+import { setAuthCookie, clearAuthCookie } from "@/lib/authCookie";
 import {
   ILoginResponse,
   IUser,
@@ -7,11 +8,7 @@ import {
   IUpdateProfileRequest,
   IUpdateProfileResponse,
   IResendVerificationResponse,
-  IVerifyEmailResponse,
 } from "@/types/auth.types";
-import { clearAuthCookie, setAuthCookie } from "@/lib/authCookie";
-
-const apiUrl = (path: string): string => normalizeApiUrl(`${getApiBaseUrl()}${path}`);
 
 const getAccessToken = (): string | null => {
   if (typeof window === "undefined") return null;
@@ -30,15 +27,10 @@ const saveTokens = (accessToken: string, refreshToken: string) => {
   setAuthCookie(accessToken);
 };
 
-const saveUserMeta = (user: { id: string | number; username: string; profileImageUrl?: string }) => {
+const saveUserMeta = (user: { id: string | number; username: string }) => {
   if (typeof window === "undefined") return;
   window.localStorage.setItem("auth_user_id", String(user.id));
   window.localStorage.setItem("auth_username", user.username);
-  if (user.profileImageUrl) {
-    window.localStorage.setItem("auth_profile_image", user.profileImageUrl);
-  } else {
-    window.localStorage.removeItem("auth_profile_image");
-  }
 };
 
 const clearTokens = () => {
@@ -47,62 +39,30 @@ const clearTokens = () => {
   window.localStorage.removeItem("refresh_token");
   window.localStorage.removeItem("auth_user_id");
   window.localStorage.removeItem("auth_username");
-  window.localStorage.removeItem("auth_profile_image");
   clearAuthCookie();
 };
 
-const resolveBackendMediaUrl = (value: string | undefined): string => {
-  const raw = value?.trim();
-  if (!raw) return "";
-  if (raw.startsWith("http://") || raw.startsWith("https://") || raw.startsWith("data:")) return raw;
-
-  const base = getApiBaseUrl().replace(/\/$/, "");
-  const origin = base.endsWith("/api") ? base.slice(0, -4) : base;
-
-  if (raw.startsWith("/api/") || raw.startsWith("/uploads/")) {
-    return `${origin}${raw}`;
-  }
-
-  return raw.startsWith("/") ? `${origin}${raw}` : `${origin}/${raw}`;
-};
-
-const resolveProfileImage = (u: {
-  profile_picture?: string;
-  profileImageUrl?: string;
-  avatar_url?: string;
-  avatarUrl?: string;
-  picture?: string;
-}): string =>
-  resolveBackendMediaUrl(
-    u.profile_picture ?? u.profileImageUrl ?? u.avatar_url ?? u.avatarUrl ?? u.picture
-  );
-
 const normalizeUser = (u: {
   user_id: string;
-  username?: string;
   display_name: string;
   account_type: string;
   is_premium: boolean;
   profile_picture?: string;
-  profileImageUrl?: string;
-  avatar_url?: string;
-  avatarUrl?: string;
-  picture?: string;
   email?: string;
 }): IUser => ({
   id: u.user_id,
-  username: u.username ?? u.display_name,
+  username: u.display_name,
   email: u.email ?? "",
-  profileImageUrl: resolveProfileImage(u),
+  profileImageUrl: u.profile_picture ?? "",
   createdAt: new Date().toISOString(),
 });
 
 export const RealAuthService = {
   login: async (emailOrProfileUrl: string, password: string): Promise<ILoginResponse> => {
-    const response = await fetch(apiUrl("/auth/login"), {
+    const response = await fetch(`${ENV.API_BASE_URL}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ identifier: emailOrProfileUrl, password }),
+      body: JSON.stringify({ email: emailOrProfileUrl, password }),
     });
 
     if (!response.ok) {
@@ -115,13 +75,13 @@ export const RealAuthService = {
     const normalized = normalizeUser(user);
 
     saveTokens(accessToken, refreshToken);
-    saveUserMeta({ ...normalized, profileImageUrl: normalized.profileImageUrl });
+    saveUserMeta(normalized);
 
     return { success: true, token: accessToken, user: normalized };
   },
 
   googleLogin: async (token: string): Promise<ILoginResponse> => {
-    const response = await fetch(apiUrl("/auth/google"), {
+    const response = await fetch(`${ENV.API_BASE_URL}/auth/google`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ google_token: token }),
@@ -137,7 +97,7 @@ export const RealAuthService = {
     const normalized = normalizeUser(user);
 
     saveTokens(accessToken, refreshToken);
-    saveUserMeta({ ...normalized, profileImageUrl: normalized.profileImageUrl });
+    saveUserMeta(normalized);
 
     return { success: true, token: accessToken, user: normalized };
   },
@@ -147,14 +107,14 @@ export const RealAuthService = {
       ? emailOrProfileUrl.split("@")[0]
       : emailOrProfileUrl;
 
-    const response = await fetch(apiUrl("/auth/register"), {
+    const response = await fetch(`${ENV.API_BASE_URL}/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email: emailOrProfileUrl,
         password,
-        username: defaultDisplayName,
         display_name: defaultDisplayName,
+        account_type: "listener",
       }),
     });
 
@@ -178,45 +138,21 @@ export const RealAuthService = {
     };
   },
 
-  checkEmail: async (emailOrProfileUrl: string): Promise<ICheckEmailResponse> => {
-    const response = await fetch(apiUrl("/auth/check-email"), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: emailOrProfileUrl }),
-    });
-
-    // Some deployments do not expose this endpoint yet.
-    // Fall back to registration flow instead of blocking auth UX.
-    if (response.status === 404) {
-      return { isExisting: false };
-    }
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error?.detail || "Failed to check account status");
-    }
-
-    const json = await response.json();
-    const data = json.data ?? json;
-    return {
-      isExisting: Boolean(data?.isExisting ?? data?.is_existing),
-    };
+  // POST /auth/check-email not implemented in backend yet — returns safe default
+  checkEmail: async (_emailOrProfileUrl: string): Promise<ICheckEmailResponse> => {
+    return { isExisting: false };
   },
 
   updateProfile: async (data: IUpdateProfileRequest): Promise<IUpdateProfileResponse> => {
     const token = getAccessToken();
 
-    const response = await fetch(apiUrl("/users/me"), {
+    const response = await fetch(`${ENV.API_BASE_URL}/users/me`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({
-        display_name: data.displayName,
-        ...(data.bio      !== undefined && { bio: data.bio }),
-        ...(data.location !== undefined && { location: data.location }),
-      }),
+      body: JSON.stringify({ display_name: data.displayName }),
     });
 
     if (!response.ok) {
@@ -240,7 +176,7 @@ export const RealAuthService = {
   },
 
   resendVerification: async (email: string): Promise<IResendVerificationResponse> => {
-    const response = await fetch(apiUrl("/auth/resend-verification"), {
+    const response = await fetch(`${ENV.API_BASE_URL}/auth/resend-verification`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
@@ -254,26 +190,11 @@ export const RealAuthService = {
     return { success: true };
   },
 
-  verifyEmail: async (_email: string, token: string): Promise<IVerifyEmailResponse> => {
-    const response = await fetch(apiUrl("/auth/verify-email"), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error?.detail || "Invalid or expired code.");
-    }
-
-    return { success: true };
-  },
-
   logout: async (): Promise<{ success: boolean }> => {
     const accessToken = getAccessToken();
     const refreshToken = getRefreshToken();
 
-    const response = await fetch(apiUrl("/auth/logout"), {
+    const response = await fetch(`${ENV.API_BASE_URL}/auth/logout`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -289,7 +210,7 @@ export const RealAuthService = {
   },
 
   getCurrentUser: async (token: string): Promise<IUser> => {
-    const response = await fetch(apiUrl("/users/me"), {
+    const response = await fetch(`${ENV.API_BASE_URL}/users/me`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -302,16 +223,11 @@ export const RealAuthService = {
     const json = await response.json();
     const data = json.data ?? json;
 
-    const profileImageUrl = resolveProfileImage(data);
-    if (typeof window !== "undefined") {
-      if (profileImageUrl) window.localStorage.setItem("auth_profile_image", profileImageUrl);
-      else window.localStorage.removeItem("auth_profile_image");
-    }
     return {
       id: data.user_id ?? data.id,
       username: data.display_name ?? data.username,
       email: data.email ?? "",
-      profileImageUrl,
+      profileImageUrl: data.profile_picture ?? "",
       createdAt: data.created_at ?? "",
     };
   },
@@ -319,7 +235,7 @@ export const RealAuthService = {
   refreshToken: async (_token: string): Promise<{ token: string }> => {
     const storedRefresh = getRefreshToken();
 
-    const response = await fetch(apiUrl("/auth/refresh"), {
+    const response = await fetch(`${ENV.API_BASE_URL}/auth/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ refresh_token: storedRefresh }),

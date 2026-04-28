@@ -1,31 +1,21 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { userProfileService, playlistService } from "@/services/di";
+import { userProfileService } from "@/services/di";
 import { type ITrack } from "@/types/track.types";
-import { type IPlaylist } from "@/types/playlist.types";
-import { type IUser, type ILikedTrack, type IFanUser, type IFollower, type IFollowing, type IEditProfilePayload } from "@/types/userProfile.types";
+import { type IUser, type ILikedTrack, type IFanUser, type IFollower, type IFollowing } from "@/types/userProfile.types";
 import type { IActiveTab } from "@/types/ui.types";
 import { Banner } from "@/components/Banner/Banner";
 import { TrackCard } from "@/components/Track/TrackCard";
 import { ProfileSidebar } from "@/components/Profile/ProfileSidebar";
 import { ProfileActions } from "@/components/Profile/ProfileActions";
-import { EditProfileModal } from "@/components/Profile/EditProfileModal";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
-import { useAuthStore } from "@/store/authStore";
-import { usePlayerStore } from "@/store/playerStore";
 
 const TABS = ["All", "Popular tracks", "Tracks", "Albums", "Playlists", "Reposts"] as const;
 
 export default function UserProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = React.use(params);
-  const router = useRouter();
-  const authStoreUser = useAuthStore((state) => state.user);
-  const storeLogin = useAuthStore((state) => state.login);
-  const { setQueue, setTrack } = usePlayerStore();
   const [activeTab, setActiveTab] = useState<IActiveTab>(TABS[0]);
   const [user, setUser]           = useState<IUser | null>(null);
   const [tracks, setTracks]       = useState<ITrack[]>([]);
@@ -33,23 +23,20 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   const [fans, setFans]           = useState<IFanUser[]>([]);
   const [followers, setFollowers] = useState<IFollower[]>([]);
   const [following, setFollowing] = useState<IFollowing[]>([]);
-  const [playlists, setPlaylists] = useState<IPlaylist[]>([]);
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState<string | null>(null);
-  const [isEditOpen, setIsEditOpen] = useState(false);
 
   useEffect(() => {
     async function loadData() {
       try {
         setLoading(true);
         const fetchedUser = await userProfileService.getUserProfile(username);
-        const [fetchedTracks, fetchedLikes, fetchedFans, fetchedFollowers, fetchedFollowing, fetchedPlaylists] = await Promise.all([
-          userProfileService.getUserTracks(fetchedUser.username),
+        const [fetchedTracks, fetchedLikes, fetchedFans, fetchedFollowers, fetchedFollowing] = await Promise.all([
+          userProfileService.getUserTracks(fetchedUser.id),
           userProfileService.getUserLikes(fetchedUser.id),
           userProfileService.getFansAlsoLike(fetchedUser.id),
           userProfileService.getFollowers(fetchedUser.id),
           userProfileService.getFollowing(fetchedUser.id),
-          playlistService.getUserPlaylists(fetchedUser.username),
         ]);
         setUser(fetchedUser);
         setTracks(fetchedTracks);
@@ -57,7 +44,6 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
         setFans(fetchedFans);
         setFollowers(fetchedFollowers);
         setFollowing(fetchedFollowing);
-        setPlaylists(fetchedPlaylists);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong");
       } finally {
@@ -69,54 +55,22 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
 
   const handleTabChange = (tab: IActiveTab) => setActiveTab(tab);
 
-  const handleAvatarUpload = async (file: File) => {
-    const updated = await userProfileService.uploadAvatar(file);
-    setUser(updated);
-
-    const token = typeof window !== "undefined" ? window.localStorage.getItem("auth_token") : null;
-    if (updated.isOwner && token && authStoreUser) {
-      storeLogin({
-        ...authStoreUser,
-        profileImageUrl: updated.avatarUrl ?? authStoreUser.profileImageUrl,
-      }, token);
-    }
-  };
-
-  const handleCoverUpload = async (file: File) => {
-    const updated = await userProfileService.uploadCover(file);
-    setUser(updated);
-  };
-
-  const handleSaveProfile = async (payload: IEditProfilePayload) => {
-    if (!user) return;
-    const updated = await userProfileService.updateProfile(user.id, payload);
-    // Preserve the URL username (slug) — the backend may return display_name
-    // in the username field after PATCH, which would break the profile URL.
-    setUser({ ...updated, username: user.username });
-  };
-
-  const handleBannerAvatarChange = (url: string) => {
-    setUser(prev => prev ? { ...prev, avatarUrl: url } : prev);
-  };
-
-  const handleBannerHeaderChange = (url: string) => {
-    setUser(prev => prev ? { ...prev, headerUrl: url } : prev);
-  };
-
-  const handleCreatePlaylist = async () => {
-    const created = await playlistService.createPlaylist("New Playlist");
-    router.push(`/playlist/${created.id}`);
-  };
-
+  // ── Tab filtering logic ──
   function getFilteredTracks(tab: IActiveTab): ITrack[] {
     switch (tab) {
-      case "All":            return tracks;
-      case "Popular tracks": return [...tracks].sort((a, b) => b.plays - a.plays);
-      case "Tracks":         return tracks;
-      case "Reposts":        return [];
+      case "All":
+        return tracks;
+      case "Popular tracks":
+        return [...tracks].sort((a, b) => b.plays - a.plays);
+      case "Tracks":
+        return tracks;
+      case "Reposts":
+        return [];
       case "Albums":
-      case "Playlists":      return [];
-      default:               return tracks;
+      case "Playlists":
+        return []; // will be populated when backend provides album/playlist data
+      default:
+        return tracks;
     }
   }
 
@@ -137,14 +91,9 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   // Privacy Control
   if (user.isPrivate && !user.isOwner) return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
-      <Header />
+      <Header isLoggedIn={true}/>
       <div className="max-w-7xl mx-auto bg-[#111]">
-        <Banner
-          key={user.username}
-          user={user}
-          onAvatarChange={handleBannerAvatarChange}
-          onHeaderChange={handleBannerHeaderChange}
-        />
+        <Banner user={user}/>
       </div>
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <span className="text-5xl">🔒</span>
@@ -159,15 +108,10 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans pb-15">
-      <Header />
+      <Header isLoggedIn={true}/>
 
       <div className="max-w-7xl mx-auto bg-[#111]">
-        <Banner
-          key={user.username}
-          user={user}
-          onAvatarChange={handleBannerAvatarChange}
-          onHeaderChange={handleBannerHeaderChange}
-        />
+        <Banner user={user}/>
       </div>
 
       <div className="h-2"/>
@@ -194,59 +138,19 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
                 </button>
               ))}
             </div>
-            <ProfileActions user={user} onEditOpen={() => setIsEditOpen(true)} />
+            <ProfileActions user={user}/>
           </div>
 
-          {/* Track list or playlist list or empty state */}
+          {/* Track list or empty state */}
           <h2 className="text-base font-semibold text-white mb-2.5">
             {activeTab === "All" ? "Recent" : activeTab}
           </h2>
-
-          {activeTab === "Playlists" ? (
-            playlists.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 gap-4">
-                <span className="text-[#888] text-sm">No playlists yet</span>
-                {user.isOwner && (
-                  <button
-                    onClick={handleCreatePlaylist}
-                    className="bg-white border border-white text-[#111] rounded px-5 py-2 text-sm cursor-pointer font-medium hover:bg-gray-100 transition-colors"
-                  >
-                    Create playlist
-                  </button>
-                )}
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {playlists.map(pl => (
-                  <Link key={pl.id} href={`/playlist/${pl.id}`} className="group block rounded bg-[#111] border border-[#1c1c1c] overflow-hidden hover:border-[#333] transition-colors">
-                    <div className="aspect-square bg-[#1c1c1c] relative">
-                      {pl.artworkUrl ? (
-                        <img src={pl.artworkUrl} alt={pl.title} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[#444] text-3xl">♪</div>
-                      )}
-                    </div>
-                    <div className="p-3">
-                      <div className="text-sm font-semibold text-white truncate">{pl.title}</div>
-                      <div className="text-xs text-[#666] mt-0.5">{pl.trackCount} track{pl.trackCount !== 1 ? "s" : ""}</div>
-                    </div>
-                  </Link>
-                ))}
-                {user.isOwner && (
-                  <button
-                    onClick={handleCreatePlaylist}
-                    className="aspect-auto rounded bg-[#111] border border-dashed border-[#2e2e2e] flex flex-col items-center justify-center gap-2 text-[#555] hover:border-[#555] hover:text-[#888] transition-colors p-6 cursor-pointer"
-                  >
-                    <span className="text-2xl">+</span>
-                    <span className="text-xs">New playlist</span>
-                  </button>
-                )}
-              </div>
-            )
-          ) : filteredTracks.length === 0 ? (
+          {filteredTracks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 gap-4">
               <span className="text-[#888] text-sm">
-                {activeTab === "Albums" ? "No albums yet" : "Seems a little quiet over here"}
+                {activeTab === "Albums" ? "No albums yet" :
+                 activeTab === "Playlists" ? "No playlists yet" :
+                 "Seems a little quiet over here"}
               </span>
               {user.isOwner && activeTab === "All" && (
                 <button className="bg-white border border-white text-[#111] rounded px-5 py-2 text-sm cursor-pointer font-medium hover:bg-gray-100 transition-colors">
@@ -256,11 +160,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
             </div>
           ) : (
             filteredTracks.map(track => (
-              <TrackCard
-                key={track.id}
-                track={track}
-                onPlay={(t) => { setQueue(filteredTracks); setTrack(t); }}
-              />
+              <TrackCard key={track.id} track={track} onPlay={() => {}}/>
             ))
           )}
         </div>
@@ -276,15 +176,6 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
       </div>
 
       <Footer/>
-
-      {/* Edit Profile Modal */}
-      {isEditOpen && (
-        <EditProfileModal
-          user={user}
-          onClose={() => setIsEditOpen(false)}
-          onSave={handleSaveProfile}
-        />
-      )}
     </div>
   );
 }

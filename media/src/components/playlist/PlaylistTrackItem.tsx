@@ -1,117 +1,135 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
+import Image from "next/image";
 import { usePlayerStore } from "@/store/playerStore";
 import type { IPlaylistTrack } from "@/types/playlist.types";
+import type { ITrack } from "@/types/track.types";
 import { formatDuration } from "@/utils/formatDuration";
+import { resolveTrackUrl } from "@/utils/resolveTrackUrl";
+import styles from "./TrackList.module.css";
 
 interface IPlaylistTrackItemProps {
-  allTracks: IPlaylistTrack[];
-  index: number;
-  onRemove?: (trackId: string) => void;
   track: IPlaylistTrack;
+  index: number;
+  allTracks: IPlaylistTrack[];
+  onRemove?: (trackId: string) => void;
 }
 
-function buildQueue(tracks: IPlaylistTrack[]) {
-  return tracks.map((playlistTrack) => playlistTrack.track);
+function toPlayerTrack(track: IPlaylistTrack): ITrack {
+  return {
+    id:        track.id,
+    title:     track.title,
+    artist:    track.artist,
+    albumArt:  track.albumArt,
+    duration:  track.duration,
+    url:       resolveTrackUrl(track.url, track.id),
+    likes:     0,
+    plays:     0,
+    createdAt: "",
+    updatedAt: "",
+  };
 }
 
 export default function PlaylistTrackItem({
-  allTracks,
-  index,
-  onRemove,
   track,
+  index,
+  allTracks,
+  onRemove,
 }: IPlaylistTrackItemProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const currentTrack = usePlayerStore((state) => state.currentTrack);
-  const isPlaying = usePlayerStore((state) => state.isPlaying);
-  const setQueue = usePlayerStore((state) => state.setQueue);
-  const setTrack = usePlayerStore((state) => state.setTrack);
-  const togglePlay = usePlayerStore((state) => state.togglePlay);
 
-  const isActive = currentTrack?.id === track.track.id;
-  const isActiveAndPlaying = isActive && isPlaying;
+  const currentTrack  = usePlayerStore((s) => s.currentTrack);
+  const isPlaying     = usePlayerStore((s) => s.isPlaying);
+  const setTrack      = usePlayerStore((s) => s.setTrack);
+  const setQueue      = usePlayerStore((s) => s.setQueue);
+  const togglePlay    = usePlayerStore((s) => s.togglePlay);
+
+  const isActiveTrack      = currentTrack?.id === track.id;
+  const isCurrentlyPlaying = isActiveTrack && isPlaying;
+  const showPlayControl    = isHovered || isActiveTrack;
 
   const handlePlay = () => {
-    if (isActive) {
-      togglePlay();
-      return;
-    }
-
-    const queue = buildQueue(allTracks);
-    setQueue(queue);
-    setTrack(track.track);
+    if (isActiveTrack) { togglePlay(); return; }
+    const playerTracks = allTracks.map(toPlayerTrack);
+    setQueue(playerTracks);
+    setTrack(toPlayerTrack(track));
   };
 
   return (
     <li
-      className={`grid grid-cols-[40px_56px_minmax(0,1fr)_72px] items-center gap-3 rounded-2xl px-2 py-2 transition ${
-        isActive ? "bg-orange-500/10" : "hover:bg-white/5"
-      }`}
+      className={[
+        styles.trackItem,
+        isActiveTrack ? styles["trackItem--playing"] : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="flex items-center justify-center text-sm text-white/55">
-        {isHovered || isActive ? (
+      {/* Index / play control */}
+      <div className={styles.trackItem__index}>
+        {showPlayControl ? (
           <button
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-orange-500"
+            className={styles.trackItem__playBtn}
             onClick={handlePlay}
-            type="button"
+            aria-label={isCurrentlyPlaying ? `Pause ${track.title}` : `Play ${track.title}`}
           >
-            {isActiveAndPlaying ? (
-              <svg aria-hidden="true" className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M7 5h3v14H7zm7 0h3v14h-3z" />
+            {isCurrentlyPlaying ? (
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <rect x="6" y="4" width="4" height="16" />
+                <rect x="14" y="4" width="4" height="16" />
               </svg>
             ) : (
-              <svg aria-hidden="true" className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M8 5v14l11-7z" />
               </svg>
             )}
           </button>
         ) : (
-          <span>{index}</span>
+          <span aria-hidden="true">{index}</span>
         )}
       </div>
 
-      <div className="relative h-14 w-14 overflow-hidden rounded-xl bg-[#1c1c1c]">
-        {track.track.albumArt ? (
-          <Image
-            alt={`${track.track.title} artwork`}
-            className="h-full w-full object-cover"
-            fill
-            sizes="56px"
-            src={track.track.albumArt}
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center">
-            <svg width={24} height={24} viewBox="0 0 24 24" fill="#ffffff20">
-              <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-            </svg>
+      {/* Cover + equalizer overlay */}
+      <div className={styles.trackItem__coverWrap}>
+        <Image
+          src={track.albumArt}
+          alt={`${track.title} artwork`}
+          width={48}
+          height={48}
+          className={styles.trackItem__cover}
+        />
+        {isCurrentlyPlaying && (
+          <div className={styles.trackItem__equalizer} aria-hidden="true">
+            <span /><span /><span />
           </div>
         )}
       </div>
 
-      <div className="min-w-0">
-        <p className={`truncate text-sm font-medium ${isActive ? "text-orange-200" : "text-white"}`}>
-          {track.track.title}
-        </p>
-        <p className="truncate text-xs text-white/55">{track.track.artist}</p>
+      {/* Track info */}
+      <div className={styles.trackItem__info}>
+        <span className={styles.trackItem__title}>{track.title}</span>
+        <span className={styles.trackItem__artist}>{track.artist}</span>
       </div>
 
-      <div className="flex items-center justify-end gap-2">
-        <span className="text-xs text-white/55">{formatDuration(track.track.duration)}</span>
-        {onRemove && isHovered ? (
+      {/* Duration + optional remove */}
+      <div className={styles.trackItem__right}>
+        <span className={styles.trackItem__duration}>
+          {formatDuration(track.duration)}
+        </span>
+        {onRemove && isHovered && (
           <button
-            className="flex h-8 w-8 items-center justify-center rounded-full text-white/55 transition hover:bg-white/10 hover:text-white"
-            onClick={() => onRemove(track.track.id)}
-            type="button"
+            className={styles.trackItem__removeBtn}
+            onClick={() => onRemove(track.id)}
+            aria-label={`Remove ${track.title} from playlist`}
           >
-            <svg aria-hidden="true" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path d="m18 6-12 12M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
-        ) : null}
+        )}
       </div>
     </li>
   );

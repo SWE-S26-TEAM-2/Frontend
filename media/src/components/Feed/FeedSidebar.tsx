@@ -1,11 +1,30 @@
 import Link from "next/link";
 import Image from "next/image";
-import { MOCK_USERS } from "@/services/mocks/mockData";
 
+// Static placeholder suggestions — real "who to follow" data
+// would come from the /users/suggested endpoint when implemented.
 const SUGGESTIONS = [
-  { ...MOCK_USERS.djremix,      genre: "House",       followers: "7.8K" },
-  { ...MOCK_USERS.beatmaker99,  genre: "Hip-Hop",     followers: "1.9K" },
-  { ...MOCK_USERS.soundwave,    genre: "Electronic",  followers: "3.4K" },
+  {
+    id: "djremix",
+    username: "djremix",
+    avatarUrl: "https://i.pravatar.cc/150?img=11",
+    genre: "House",
+    followers: "7.8K",
+  },
+  {
+    id: "beatmaker99",
+    username: "beatmaker99",
+    avatarUrl: "https://i.pravatar.cc/150?img=22",
+    genre: "Hip-Hop",
+    followers: "1.9K",
+  },
+  {
+    id: "soundwave",
+    username: "soundwave",
+    avatarUrl: "https://i.pravatar.cc/150?img=33",
+    genre: "Electronic",
+    followers: "3.4K",
+  },
 ];
 
 export default function FeedSidebar() {

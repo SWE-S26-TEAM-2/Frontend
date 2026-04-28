@@ -1,43 +1,46 @@
 import { ENV } from "@/config/env";
 import type { IComment, ICommentReply, ICommentService } from "@/types/comment.types";
 import { apiGet, apiPost } from "./apiClient";
-import { mockCommentService } from "../mocks/comment.mock";
-
-const withMockFallback = async <T>(
-  action: string,
-  fallback: () => Promise<T>,
-  request: () => Promise<T>
-): Promise<T> => {
-  try {
-    return await request();
-  } catch (error) {
-    console.warn(`[commentService] ${action} falling back to mock data`, error);
-    return fallback();
-  }
-};
 
 export const realCommentService: ICommentService = {
+  // Backend has no comment endpoints yet — return empty gracefully
   getTrackComments: async (trackId: string): Promise<IComment[]> => {
-    return withMockFallback(
-      `getTrackComments(${trackId})`,
-      () => mockCommentService.getTrackComments(trackId),
-      () => apiGet<IComment[]>(`${ENV.API_BASE_URL}/tracks/${trackId}/comments`)
-    );
+    try {
+      return await apiGet<IComment[]>(`${ENV.API_BASE_URL}/tracks/${trackId}/comments`);
+    } catch {
+      return [];
+    }
   },
 
   addComment: async (trackId: string, body: string): Promise<IComment> => {
-    return withMockFallback(
-      `addComment(${trackId})`,
-      () => mockCommentService.addComment(trackId, body),
-      () => apiPost<IComment>(`${ENV.API_BASE_URL}/tracks/${trackId}/comments`, { body })
-    );
+    try {
+      return await apiPost<IComment>(`${ENV.API_BASE_URL}/tracks/${trackId}/comments`, { body });
+    } catch {
+      console.warn("[commentService] addComment not implemented on backend — returning optimistic comment");
+      return {
+        id: `local-${Date.now()}`,
+        trackId,
+        user: { id: "", username: "You", avatarUrl: "" },
+        body,
+        createdAt: new Date().toISOString(),
+        replyCount: 0,
+        replies: [],
+        likeCount: 0,
+      };
+    }
   },
 
   addReply: async (commentId: string, body: string): Promise<ICommentReply> => {
-    return withMockFallback(
-      `addReply(${commentId})`,
-      () => mockCommentService.addReply(commentId, body),
-      () => apiPost<ICommentReply>(`${ENV.API_BASE_URL}/comments/${commentId}/replies`, { body })
-    );
+    try {
+      return await apiPost<ICommentReply>(`${ENV.API_BASE_URL}/comments/${commentId}/replies`, { body });
+    } catch {
+      console.warn("[commentService] addReply not implemented on backend — returning optimistic reply");
+      return {
+        id: `local-${Date.now()}`,
+        user: { id: "", username: "You", avatarUrl: "" },
+        body,
+        createdAt: new Date().toISOString(),
+      };
+    }
   },
 };

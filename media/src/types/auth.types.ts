@@ -23,7 +23,6 @@ export interface ISignInStepProps {
   onBack: () => void;
   error: string;
   isLoading: boolean;
-  subtitle?: string;
 }
 export interface IInputStepProps {
   emailOrProfileUrl: string;
@@ -81,12 +80,10 @@ export interface IAuthState {
 
 export interface IUpdateProfileRequest {
   displayName: string;
-  month?: string;
-  day?: string;
-  year?: string;
-  gender?: string;
-  bio?: string;
-  location?: string;
+  month: string;
+  day: string;
+  year: string;
+  gender: string;
 }
 
 export interface IUpdateProfileResponse {
@@ -95,9 +92,5 @@ export interface IUpdateProfileResponse {
 }
 
 export interface IResendVerificationResponse {
-  success: boolean;
-}
-
-export interface IVerifyEmailResponse {
   success: boolean;
 }

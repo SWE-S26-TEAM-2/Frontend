@@ -1,8 +1,35 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { playlistService } from "@/services/di";
+/**
+ * usePlaylist — custom hook
+ *
+ * Responsibilities (Playlists & Interactions domain):
+ *  - Fetch playlist by ID via playlistService (DI layer)
+ *  - Skeleton loading state (isLoading starts true — skeleton renders immediately)
+ *  - Error state with human-readable message
+ *  - Retry mechanism (up to MAX_RETRIES attempts)
+ *  - Local track array management: add / remove / reorder
+ *
+ * DI compliance:
+ *  - playlistService imported from "@/services" (DI barrel)
+ *  - Array helpers imported from "@/utils/playlistUtils" (pure utils)
+ *  - NO imports from "@/services/mocks/*" or "@/services/api/*"
+ *
+ * React Compiler note:
+ *  Uses inline async IIFE inside useEffect to satisfy the
+ *  react-hooks/set-state-in-effect rule enforced by Next.js 16 +
+ *  reactCompiler:true. All setState calls happen inside the async
+ *  boundary, not synchronously in the effect body.
+ */
+
+import { useEffect, useState, useCallback } from "react";
 import type { IPlaylist, IPlaylistTrack } from "@/types/playlist.types";
+import { playlistService } from "@/services";
+import {
+  addTrackToList,
+  removeTrackFromList,
+  reorderTracks,
+} from "@/utils/playlistUtils";
 
 const MAX_RETRIES = 3;
 
@@ -15,84 +42,75 @@ interface IUsePlaylistReturn {
   retryCount: number;
   canRetry: boolean;
   handleRetry: () => void;
+  handleAddTrack: (track: IPlaylistTrack) => void;
   handleRemoveTrack: (trackId: string) => void;
+  handleReorderTracks: (fromIndex: number, toIndex: number) => void;
 }
 
 export function usePlaylist(id: string): IUsePlaylistReturn {
-  const [playlist, setPlaylist] = useState<IPlaylist | null>(null);
-  const [tracks, setTracks] = useState<IPlaylistTrack[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
+  // isLoading initialises to true so the skeleton renders on the very
+  // first paint — before the effect even runs.
+  const [playlist, setPlaylist]         = useState<IPlaylist | null>(null);
+  const [tracks, setTracks]             = useState<IPlaylistTrack[]>([]);
+  const [isLoading, setIsLoading]       = useState(true);
+  const [hasError, setHasError]         = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [retryCount, setRetryCount] = useState(0);
+  const [retryCount, setRetryCount]     = useState(0);
 
   useEffect(() => {
-    if (!id) {
-      setPlaylist(null);
-      setTracks([]);
-      setHasError(true);
-      setErrorMessage("Playlist ID is missing.");
-      setIsLoading(false);
-      return;
-    }
+    if (!id) return;
 
-    let isCancelled = false;
-
+    // Inline async IIFE — satisfies react-hooks/set-state-in-effect.
     void (async () => {
       setIsLoading(true);
       setHasError(false);
       setErrorMessage("");
 
       try {
-        const data = await playlistService.getPlaylistById(id);
-
-        if (isCancelled) {
-          return;
+        const data = await playlistService.getById(id);
+        if (!data) {
+          setHasError(true);
+          setErrorMessage("Playlist not found.");
+        } else {
+          setPlaylist(data);
+          setTracks(data.tracks);
         }
-
-        setPlaylist(data);
-        setTracks(data.tracks);
       } catch {
-        if (isCancelled) {
-          return;
-        }
-
-        setPlaylist(null);
-        setTracks([]);
         setHasError(true);
-        setErrorMessage("Failed to load playlist. Please try again.");
+        setErrorMessage(
+          "Failed to load playlist. Please check your connection and try again."
+        );
       } finally {
-        if (!isCancelled) {
-          setIsLoading(false);
-        }
+        setIsLoading(false);
       }
     })();
-
-    return () => {
-      isCancelled = true;
-    };
   }, [id, retryCount]);
 
   const handleRetry = useCallback(() => {
-    setRetryCount((previous) => {
-      if (previous >= MAX_RETRIES) {
-        return previous;
-      }
+    if (retryCount >= MAX_RETRIES) return;
+    setRetryCount((prev) => prev + 1);
+  }, [retryCount]);
 
-      return previous + 1;
-    });
+  // ── Local track array management ──────────────────────────────────────────
+  // These handlers update local state only.
+  // They use pure utils from @/utils/playlistUtils (no service calls).
+  // Each handler uses the functional setState form to guarantee it always
+  // operates on the latest state, avoiding stale-closure bugs.
+
+  const handleAddTrack = useCallback((track: IPlaylistTrack) => {
+    setTracks((prev) => addTrackToList(prev, track));
   }, []);
 
   const handleRemoveTrack = useCallback((trackId: string) => {
-    setTracks((previousTracks) =>
-      previousTracks
-        .filter((playlistTrack) => playlistTrack.track.id !== trackId)
-        .map((playlistTrack, index) => ({
-          ...playlistTrack,
-          position: index + 1,
-        }))
-    );
+    setTracks((prev) => removeTrackFromList(prev, trackId));
   }, []);
+
+  const handleReorderTracks = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      setTracks((prev) => reorderTracks(prev, fromIndex, toIndex));
+    },
+    []
+  );
 
   return {
     playlist,
@@ -103,6 +121,8 @@ export function usePlaylist(id: string): IUsePlaylistReturn {
     retryCount,
     canRetry: retryCount < MAX_RETRIES,
     handleRetry,
+    handleAddTrack,
     handleRemoveTrack,
+    handleReorderTracks,
   };
 }

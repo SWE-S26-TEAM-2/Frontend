@@ -1,16 +1,12 @@
 "use client";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import ThemeProvider from "@/components/Providers/ThemeProvider";
-import GlobalPlayer from "@/components/GlobalPlayer/GlobalPlayer";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
     const content = (
-        <ThemeProvider>
-            {children}
-            <GlobalPlayer />
-        </ThemeProvider>
+        <ThemeProvider>{children}</ThemeProvider>
     );
 
     if (!clientId) {

@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { IRelatedTracksProps } from "@/types/track.types";
 import { usePlayerStore } from "@/store/playerStore";
-import { TrackCard } from "@/components/Track/TrackCard";
 
 export default function RelatedTracks({ tracks, sourceTrack }: IRelatedTracksProps) {
   const { currentTrack, setQueue, setTrack } = usePlayerStore();
@@ -35,19 +36,58 @@ export default function RelatedTracks({ tracks, sourceTrack }: IRelatedTracksPro
             No related tracks available.
           </p>
         ) : (
-          <div>
-            {list.slice(0, 7).map((t) => (
-              <TrackCard
-                key={t.id}
-                track={t}
-                onPlay={(clicked) => { setQueue(list); setTrack(clicked); }}
-              />
-            ))}
-          </div>
+          <ul className="divide-y divide-[#1f1f1f] border-y border-[#1f1f1f] bg-[#0f0f0f]">
+            {list.slice(0, 7).map((track, index) => {
+              const isActiv = currentTrack?.id === track.id;
+
+
+              return (
+                <li key={`${track.id}-${index}`}>
+                  <div className="flex flex-wrap items-center gap-3 px-2 py-3 sm:flex-nowrap sm:px-3">
+                    <div className="flex w-full min-w-0 items-center gap-3 sm:w-auto sm:flex-1">
+                      <span
+                        className={`w-6 text-right text-sm font-semibold ${
+                          (isActiv) ? "text-[#ff6b24]" : "text-[#727272]"
+                        }`}
+                      >
+                        {index + 1}
+                      </span>
+
+                      <Image
+                        src={track.albumArt || "/covers/default.jpg"}
+                        alt={track.title}
+                        width={40}
+                        height={40}
+                        className="h-10 w-10 rounded object-cover"
+                      />
+
+                      <Link href={`/track/${track.id}`} className="min-w-0" onClick={() => setTrack(track)}>
+                        <p
+                          className={`truncate text-lg font-semibold ${
+                            (isActiv) ? "text-[#ff6b24]" : "text-[#e5e5e5]"
+                          }`}
+                        >
+                          {track.artist} · {track.title}
+                        </p>
+                      </Link>
+                    </div>
+
+                    <div className="ml-auto flex items-center gap-2">
+                      <button className="rounded bg-[#242424] p-2 text-xs text-[#efefef]">♥</button>
+                      <button className="rounded bg-[#242424] p-2 text-xs text-[#efefef]">↻</button>
+                      <button className="rounded bg-[#242424] p-2 text-xs text-[#efefef]">↥</button>
+                      <button className="rounded bg-[#242424] p-2 text-xs text-[#efefef]">⧉</button>
+                      <button className="rounded bg-[#242424] p-2 text-xs text-[#efefef]">⋯</button>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
         )}
       </div>
 
-      <aside className="hidden lg:block space-y-6">
+      <aside className="space-y-6">
         <p className="text-lg text-[#dddddd]">
           Based on {sourceTrack?.artist ?? "artist"} - {sourceTrack?.title ?? "track"}
         </p>

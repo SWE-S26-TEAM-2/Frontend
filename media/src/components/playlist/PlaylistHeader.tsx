@@ -1,146 +1,194 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { usePlayerStore } from "@/store/playerStore";
 import type { IPlaylist, IPlaylistTrack } from "@/types/playlist.types";
-import { formatDuration } from "@/utils/formatDuration";
+import type { ITrack } from "@/types/track.types";
+import { resolveTrackUrl } from "@/utils/resolveTrackUrl";
+import styles from "./PlaylistHeader.module.css";
 
 interface IPlaylistHeaderProps {
   playlist: IPlaylist;
   tracks: IPlaylistTrack[];
+  canEdit?: boolean;
 }
 
-function buildQueue(tracks: IPlaylistTrack[]) {
-  return tracks.map((playlistTrack) => playlistTrack.track);
+function toPlayerTrack(track: IPlaylistTrack): ITrack {
+  return {
+    id: track.id,
+    title: track.title,
+    artist: track.artist,
+    albumArt: track.albumArt,
+    duration: track.duration,
+    url: resolveTrackUrl(track.url, track.id),
+    likes: 0,
+    plays: 0,
+    createdAt: "",
+    updatedAt: "",
+  };
 }
 
-export default function PlaylistHeader({ playlist, tracks }: IPlaylistHeaderProps) {
+export default function PlaylistHeader({
+  playlist,
+  tracks,
+  canEdit = true,
+}: IPlaylistHeaderProps) {
+  const { id, title, creator, coverArt, description } = playlist;
+
   const [isLiked, setIsLiked] = useState(false);
   const [shareMessage, setShareMessage] = useState("");
-  const setQueue = usePlayerStore((state) => state.setQueue);
-  const setTrack = usePlayerStore((state) => state.setTrack);
 
-  const totalDurationLabel = formatDuration(playlist.totalDuration);
+  const setQueue = usePlayerStore((s) => s.setQueue);
+  const setTrack = usePlayerStore((s) => s.setTrack);
 
   const handlePlayAll = () => {
-    if (!tracks.length) {
-      return;
-    }
+    if (!tracks.length) return;
+    const playerTracks = tracks.map(toPlayerTrack);
+    setQueue(playerTracks);
+    setTrack(playerTracks[0]);
+  };
 
-    const queue = buildQueue(tracks);
-    setQueue(queue);
-    setTrack(queue[0]);
+  const handleLike = () => setIsLiked((prev) => !prev);
+
+  const showShareFeedback = (message: string) => {
+    setShareMessage(message);
+    setTimeout(() => setShareMessage(""), 2000);
   };
 
   const handleShare = async () => {
-    const shareUrl = typeof window !== "undefined" ? window.location.href : "";
-
-    if (typeof navigator !== "undefined" && navigator.share) {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    if (navigator?.share) {
       try {
-        await navigator.share({
-          title: playlist.title,
-          text: `Listen to ${playlist.title} by ${playlist.owner.username}`,
-          url: shareUrl,
-        });
+        await navigator.share({ title, text: `Listen to "${title}" by ${creator}`, url });
         return;
-      } catch {
-        // Fall through to clipboard copy.
-      }
+      } catch {}
     }
-
     try {
-      await navigator.clipboard.writeText(shareUrl);
-      setShareMessage("Link copied");
-      window.setTimeout(() => setShareMessage(""), 1800);
+      await navigator.clipboard.writeText(url);
+      showShareFeedback("Link copied to clipboard");
     } catch {
-      setShareMessage("Copy failed");
-      window.setTimeout(() => setShareMessage(""), 1800);
+      showShareFeedback("Failed to copy link");
     }
   };
 
   return (
-    <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-neutral-950/80 text-white shadow-[0_24px_90px_rgba(0,0,0,0.35)]">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(249,115,22,0.35),_transparent_45%),linear-gradient(135deg,_rgba(255,255,255,0.05),_rgba(255,255,255,0))]" />
-      <div className="relative flex flex-col gap-8 p-6 md:flex-row md:items-end md:p-8">
-        <div className="relative h-56 w-56 shrink-0 overflow-hidden rounded-[1.75rem] border border-white/10 bg-black/20 shadow-2xl">
-          {playlist.artworkUrl ? (
-            <Image
-              alt={`${playlist.title} artwork`}
-              className="h-full w-full object-cover"
-              fill
-              sizes="224px"
-              src={playlist.artworkUrl}
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#2d1b4e] text-[#666]">
-              <svg width={64} height={64} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1}>
-                <path d="M9 18V5l12-2v13" strokeLinecap="round" strokeLinejoin="round"/>
-                <circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
-              </svg>
-            </div>
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+    <div className={styles.playlistHeader}>
+      <div className={styles.playlistHeader__backdrop} aria-hidden="true" />
+
+      <div className={styles.playlistHeader__inner}>
+        {/* Cover art */}
+        <div className={styles.playlistHeader__coverWrap}>
+          <Image
+            src={coverArt}
+            alt={`${title} cover art`}
+            width={220}
+            height={220}
+            className={styles.playlistHeader__cover}
+            priority
+          />
+          <div className={styles.playlistHeader__coverShine} aria-hidden="true" />
         </div>
 
-        <div className="flex-1 space-y-4">
-          <div className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-orange-300/90">
-              {playlist.type}
-            </p>
-            <h1 className="max-w-4xl text-4xl font-semibold tracking-tight md:text-5xl">
-              {playlist.title}
-            </h1>
-            {playlist.description ? (
-              <p className="max-w-3xl text-sm leading-6 text-white/70 md:text-base">
-                {playlist.description}
-              </p>
-            ) : null}
-          </div>
+        {/* Metadata */}
+        <div className={styles.playlistHeader__meta}>
+          <span className={styles.playlistHeader__label}>Playlist</span>
+          <h1 className={styles.playlistHeader__title}>{title}</h1>
 
-          <div className="flex flex-wrap items-center gap-3 text-sm text-white/65">
-            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">
-              @{playlist.owner.username}
+          {description && (
+            <p className={styles.playlistHeader__description}>{description}</p>
+          )}
+
+          <div className={styles.playlistHeader__sub}>
+            <span className={styles.playlistHeader__creator}>{creator}</span>
+            <span className={styles.playlistHeader__dot} aria-hidden="true">·</span>
+            <span className={styles.playlistHeader__count}>
+              {tracks.length} {tracks.length === 1 ? "track" : "tracks"}
             </span>
-            <span>{tracks.length} tracks</span>
-            <span>{totalDurationLabel}</span>
-            <span>{playlist.isPrivate ? "Private" : "Public"}</span>
+            {playlist.isPublic !== undefined && (
+              <>
+                <span className={styles.playlistHeader__dot} aria-hidden="true">·</span>
+                <span
+                  className={[
+                    styles.playlistHeader__visibility,
+                    !playlist.isPublic ? styles["playlistHeader__visibility--private"] : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                >
+                  {playlist.isPublic ? "Public" : "Private"}
+                </span>
+              </>
+            )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 pt-2">
+          {(playlist.genre || playlist.mood) && (
+            <div className={styles.playlistHeader__tags}>
+              {playlist.genre && (
+                <span className={`${styles.playlistHeader__tag} ${styles["playlistHeader__tag--genre"]}`}>
+                  {playlist.genre}
+                </span>
+              )}
+              {playlist.mood && (
+                <span className={`${styles.playlistHeader__tag} ${styles["playlistHeader__tag--mood"]}`}>
+                  {playlist.mood}
+                </span>
+              )}
+            </div>
+          )}
+
+          <div className={styles.playlistHeader__actions}>
             <button
-              className="rounded-full bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-400"
+              className={`${styles.playlistHeader__btn} ${styles["playlistHeader__btn--primary"]}`}
               onClick={handlePlayAll}
-              type="button"
+              disabled={!tracks.length}
             >
-              Play all
+              Play All
             </button>
+
             <button
-              className={`rounded-full border px-5 py-2.5 text-sm font-medium transition ${
-                isLiked
-                  ? "border-orange-400 bg-orange-500/10 text-orange-300"
-                  : "border-white/15 bg-white/5 text-white/85 hover:bg-white/10"
-              }`}
-              onClick={() => setIsLiked((previous) => !previous)}
-              type="button"
+              className={[
+                styles.playlistHeader__btn,
+                styles["playlistHeader__btn--ghost"],
+                isLiked ? styles["playlistHeader__btn--liked"] : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+              onClick={handleLike}
             >
               {isLiked ? "Liked" : "Like"}
             </button>
-            <button
-              className="rounded-full border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-medium text-white/85 transition hover:bg-white/10"
-              onClick={() => {
-                void handleShare();
-              }}
-              type="button"
-            >
-              Share
-            </button>
-            {shareMessage ? (
-              <span className="text-sm text-orange-200">{shareMessage}</span>
-            ) : null}
+
+            <div className={styles.playlistHeader__shareWrap}>
+              <button
+                className={`${styles.playlistHeader__btn} ${styles["playlistHeader__btn--ghost"]}`}
+                onClick={() => { void handleShare(); }}
+              >
+                Share
+              </button>
+              {shareMessage && (
+                <span className={styles.playlistHeader__shareToast} role="status" aria-live="polite">
+                  {shareMessage}
+                </span>
+              )}
+            </div>
+
+            {canEdit && (
+              <Link
+                href={`/playlist/${id}/edit`}
+                className={[
+                  styles.playlistHeader__btn,
+                  styles["playlistHeader__btn--ghost"],
+                  styles["playlistHeader__btn--edit"],
+                ].join(" ")}
+              >
+                Edit
+              </Link>
+            )}
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

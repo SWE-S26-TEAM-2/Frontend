@@ -6,7 +6,7 @@ import Link from "next/link";
 import {ISignInStepProps} from "@/types/auth.types";
 
 
-export default function SignInStep({ emailOrProfileUrl, password, onPasswordChange, onSubmit, onBack, error, isLoading, subtitle }: ISignInStepProps) {
+export default function SignInStep({ emailOrProfileUrl, password, onPasswordChange, onSubmit, onBack, error , isLoading}: ISignInStepProps) {
     
     const [showPassword, setShowPassword] = useState(false);
 
@@ -19,7 +19,7 @@ export default function SignInStep({ emailOrProfileUrl, password, onPasswordChan
         <p className="text-white text-[20px] font-bold"> Welcome back! </p>
         </div>
 
-        <p className="text-white mb-6">{subtitle ?? "We noticed that an account already exists for this email. Please sign in below"}</p>
+        <p className="text-white mb-6">We noticed that an account already exists for this email. Please sign in below</p>
 
         <p className="text-[#999999] text-sm mb-1">Your email address</p>
         <p className="text-white text-[16px] font-bold mb-6">{emailOrProfileUrl}</p>

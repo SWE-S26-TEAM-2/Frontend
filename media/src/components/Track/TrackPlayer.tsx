@@ -89,21 +89,13 @@ export default function TrackPlayer({ track }: { track: ITrack }) {
         </div>
 
         <div className="mx-auto flex w-full max-w-85 items-center justify-center lg:justify-end">
-          {track.albumArt ? (
-            <Image
-              src={track.albumArt}
-              alt={track.title}
-              width={340}
-              height={340}
-              className="aspect-square w-full max-w-85 rounded-sm border border-[#7d6f66] object-cover shadow-[0_10px_26px_rgba(0,0,0,0.32)]"
-            />
-          ) : (
-            <div className="aspect-square w-full max-w-85 rounded-sm border border-[#7d6f66] shadow-[0_10px_26px_rgba(0,0,0,0.32)] bg-gradient-to-br from-[#1a1a2e] to-[#2d1b4e] flex items-center justify-center">
-              <svg width={80} height={80} viewBox="0 0 24 24" fill="#ffffff15">
-                <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-              </svg>
-            </div>
-          )}
+          <Image
+            src={track.albumArt || "/covers/default.jpg"}
+            alt={track.title}
+            width={340}
+            height={340}
+            className="aspect-square w-full max-w-85 rounded-sm border border-[#7d6f66] object-cover shadow-[0_10px_26px_rgba(0,0,0,0.32)]"
+          />
         </div>
       </div>
     </section>
