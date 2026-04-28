@@ -1,0 +1,55 @@
+/*
+ * PlaylistPage.module.css
+ * Scoped styles for the playlist detail page shell, loading states, and error states.
+ * Origin: globals.css §"Page shell" + §"Loading / Error states"
+ */
+
+/* ── Page shell ─────────────────────────────────────────────── */
+.playlistPage {
+  min-height: 100vh;
+  background-color: var(--pl-bg);
+  color: var(--pl-text);
+  padding-bottom: 72px;
+}
+
+.playlistPage__body {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+  border-top: 1px solid var(--pl-border);
+}
+
+/* ── Loading / Error states ─────────────────────────────────── */
+.playlistPage__state {
+  min-height: 60vh;
+  background: var(--pl-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  color: var(--pl-text-muted);
+  padding: 40px 24px;
+}
+
+.playlistPage__stateText {
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  text-align: center;
+  max-width: 360px;
+}
+
+.playlistPage__stateText--dim {
+  font-size: 0.8rem;
+  color: var(--pl-text-dim);
+}
+
+.playlistPage__retryCount {
+  font-size: 0.78rem;
+  opacity: 0.7;
+  margin-left: 2px;
+}
+
+.playlistPage__errorIcon {
+  color: var(--pl-text-dim);
+}

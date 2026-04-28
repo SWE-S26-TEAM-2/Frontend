@@ -44,6 +44,6 @@ export const normalizeApiUrl = (url: string): string => {
 };
 
 export const ENV = {
-  USE_MOCK_API: process.env.NEXT_PUBLIC_USE_MOCK_API === "true",
+  USE_MOCK_API: false as const,
   API_BASE_URL: getApiBaseUrl(),
 };

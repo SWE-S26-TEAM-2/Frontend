@@ -10,6 +10,8 @@ const PROTECTED_PREFIXES = [
   "/creator/upload",
   "/who-to-follow",
   "/search",
+  "/messages",
+  "/playlist",
 ];
 
 const isProtectedPath = (pathname: string): boolean =>

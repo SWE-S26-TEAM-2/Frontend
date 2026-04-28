@@ -1,0 +1,305 @@
+/*
+ * TrackListEditor.module.css
+ * Scoped styles for TrackListEditor component.
+ * Covers: draggable track list items, undo toast, summary banner,
+ *         empty state, keyboard reorder controls.
+ * Origin: globals.css §"Track List Editor", §"Undo toast", §"Summary banner"
+ */
+
+/* ── Editor root ────────────────────────────────────────────── */
+.tle {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.tle__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.tle__count {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #7a7874;
+}
+
+.tle__hint {
+  font-size: 0.75rem;
+  color: #4a4845;
+}
+
+.tle__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* ── Track row ──────────────────────────────────────────────── */
+.tle__item {
+  display: grid;
+  grid-template-columns: 20px 32px 40px 1fr auto auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--pl-radius);
+  transition: background var(--pl-transition);
+  cursor: grab;
+  user-select: none;
+}
+
+.tle__item:hover {
+  background: var(--pl-surface-2);
+}
+
+.tle__item--dragging {
+  background: var(--pl-surface-2);
+  opacity: 0.5;
+  cursor: grabbing;
+}
+
+.tle__item--dragOver {
+  background: rgba(var(--pl-accent-rgb), 0.08);
+  border: 1px dashed rgba(var(--pl-accent-rgb), 0.4);
+}
+
+/* ── Row sub-elements ───────────────────────────────────────── */
+.tle__dragHandle {
+  color: #4a4845;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+}
+
+.tle__item--dragging .tle__dragHandle {
+  cursor: grabbing;
+}
+
+.tle__index {
+  font-size: 0.8rem;
+  color: #4a4845;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.tle__cover {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: var(--pl-radius);
+  flex-shrink: 0;
+}
+
+.tle__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.tle__title {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #f0ece4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tle__artist {
+  font-size: 0.78rem;
+  color: #7a7874;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tle__duration {
+  font-size: 0.8rem;
+  color: var(--pl-text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.tle__durationTotal {
+  color: #4a4845;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Keyboard reorder buttons ───────────────────────────────── */
+.tle__kbdControls {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tle__kbdBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: transparent;
+  border: 1px solid var(--pl-border);
+  border-radius: 4px;
+  color: #7a7874;
+  cursor: pointer;
+  transition: background var(--pl-transition), color var(--pl-transition);
+  padding: 0;
+}
+
+.tle__kbdBtn:hover:not(:disabled) {
+  background: #1e1e20;
+  color: #f0ece4;
+}
+
+.tle__kbdBtn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+/* ── Remove button ──────────────────────────────────────────── */
+.tle__removeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: #4a4845;
+  cursor: pointer;
+  transition: background 180ms ease, color 180ms ease;
+  flex-shrink: 0;
+}
+
+.tle__removeBtn:hover {
+  background: rgba(224, 85, 85, 0.12);
+  color: #e05555;
+}
+
+/* ── Empty state ────────────────────────────────────────────── */
+.tleEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 48px 24px;
+  text-align: center;
+  border: 2px dashed rgba(255,255,255,0.07);
+  border-radius: var(--pl-radius-lg);
+}
+
+.tleEmpty__icon {
+  color: #4a4845;
+  margin-bottom: 4px;
+}
+
+.tleEmpty__text {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #7a7874;
+  margin: 0;
+}
+
+.tleEmpty__hint {
+  font-size: 0.8rem;
+  color: var(--pl-text-dim);
+  margin: 0;
+}
+
+/* ── Undo toast ─────────────────────────────────────────────── */
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.tleUndoToast {
+  position: relative;
+  overflow: hidden;
+  background: #1e1e20;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  animation: toastSlideIn 0.18s ease;
+}
+
+.tleUndoToast__progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: #ff5500;
+  border-radius: 0 0 0 8px;
+}
+
+.tleUndoToast__body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  gap: 12px;
+}
+
+.tleUndoToast__text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  color: #7a7874;
+}
+
+.tleUndoToast__text strong {
+  color: #f0ece4;
+  font-weight: 500;
+}
+
+.tleUndoToast__btn {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 100px;
+  color: #f0ece4;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 5px 14px;
+  cursor: pointer;
+  transition: background 180ms ease, border-color 180ms ease;
+  white-space: nowrap;
+}
+
+.tleUndoToast__btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ── Summary banner ─────────────────────────────────────────── */
+.tle__summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 12px 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: 8px;
+}
+
+.tle__summaryCount    { font-size: 0.82rem; color: #7a7874; }
+.tle__summarySep      { color: #4a4845; font-size: 0.82rem; }
+.tle__summaryDuration { font-size: 0.82rem; color: #7a7874; }
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 860px) {
+  .tle__item {
+    grid-template-columns: 20px 28px 1fr auto auto;
+  }
+
+  .tle__kbdControls {
+    display: none;
+  }
+}

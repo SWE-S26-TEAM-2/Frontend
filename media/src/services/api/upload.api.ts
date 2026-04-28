@@ -1,32 +1,5 @@
-import { getApiBaseUrl, normalizeApiUrl } from "@/config/env";
+import { ENV } from "@/config/env";
 import type { IUploadQuota, IUploadResponse, IUploadService, IUploadTrackPayload } from "@/types/upload.types";
-
-const getUploadErrorMessage = (responseText: string, status: number): string => {
-  const fallback = `Upload failed with status ${status}`;
-
-  try {
-    const parsed = JSON.parse(responseText);
-    const detail = parsed?.detail;
-
-    if (typeof detail === "string" && detail.trim()) return detail;
-    if (Array.isArray(detail) && detail.length > 0) {
-      return detail
-        .map((item) => {
-          if (typeof item === "string") return item;
-          if (typeof item?.msg === "string") return item.msg;
-          return null;
-        })
-        .filter((value): value is string => Boolean(value))
-        .join(", ") || fallback;
-    }
-
-    if (typeof parsed?.message === "string" && parsed.message.trim()) return parsed.message;
-  } catch {
-    // Ignore parse failures and fall back to a generic status-based message.
-  }
-
-  return fallback;
-};
 
 export const realUploadService: IUploadService = {
   // Backend has no quota endpoint — return a static default
@@ -41,12 +14,10 @@ export const realUploadService: IUploadService = {
   ): Promise<IUploadResponse> {
     return new Promise((resolve, reject) => {
       const formData = new FormData();
+      // Backend only accepts: file, title, description
       formData.append("file", file);
       formData.append("title", payload.title);
-      if (payload.description) formData.append("description", payload.description);
-      if (payload.genre)       formData.append("genre", payload.genre);
-      if (payload.isPrivate !== undefined) formData.append("visibility", payload.isPrivate ? "private" : "public");
-      if (payload.artwork)     formData.append("cover_image", payload.artwork);
+      formData.append("description", payload.description ?? "");
 
       const xhr = new XMLHttpRequest();
 
@@ -65,21 +36,20 @@ export const realUploadService: IUploadService = {
               trackId: d.track_id ?? "",
               title: d.title ?? payload.title,
               streamUrl: d.file_url ?? "",
-              artworkUrl: d.cover_url ?? d.cover_image_url ?? d.cover_photo ?? undefined,
+              artworkUrl: undefined,
               createdAt: new Date().toISOString(),
             });
           } catch {
             reject(new Error("Failed to parse upload response"));
           }
         } else {
-          const detail = getUploadErrorMessage(xhr.responseText, xhr.status);
-
-          if (xhr.status >= 500) {
-            console.error(`[upload] ${xhr.status} response:`, xhr.responseText);
-          } else {
-            console.warn(`[upload] ${xhr.status}: ${detail}`);
-          }
-
+          // Log the full backend response so we can see validation errors
+          console.error(`[upload] ${xhr.status} response:`, xhr.responseText);
+          let detail = `Upload failed with status ${xhr.status}`;
+          try {
+            const errJson = JSON.parse(xhr.responseText);
+            detail = errJson?.detail ?? errJson?.message ?? detail;
+          } catch { /* ignore parse errors */ }
           reject(new Error(detail));
         }
       });
@@ -88,7 +58,7 @@ export const realUploadService: IUploadService = {
       xhr.addEventListener("abort", () => reject(new Error("Upload aborted")));
 
       // Use ENV.API_BASE_URL — not hardcoded /api/tracks
-      xhr.open("POST", normalizeApiUrl(`${getApiBaseUrl()}/tracks/`));
+      xhr.open("POST", `${ENV.API_BASE_URL}/tracks/`);
 
       // Use Bearer token (not withCredentials)
       const token = typeof window !== "undefined" ? window.localStorage.getItem("auth_token") : null;

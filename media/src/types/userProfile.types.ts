@@ -6,22 +6,17 @@ import type { ITrack } from "@/types/track.types";
 export interface IUser {
   id: string;
   username: string;
-  displayName?: string;
-  firstName?: string;
-  lastName?: string;
-  city?: string;
-  country?: string;
   location: string;
-  bio?: string;
-  favoriteGenres?: string[];
-  role: "artist" | "listener";
-  socialLinks?: {
+  bio?: string;                         
+  favoriteGenres?: string[];          
+  role: "artist" | "listener";         
+  socialLinks?: {                       
     website?: string;
     instagram?: string;
     twitter?: string;
     facebook?: string;
   };
-  isPrivate?: boolean;
+  isPrivate?: boolean;                  
   followers: number;
   following: number;
   tracks: number;
@@ -50,7 +45,7 @@ export interface IUserProfileTrack {
 }
 
 export interface ILikedTrack {
-  id: string;
+  id: number;
   title: string;
   artist: string;
   plays?: number;
@@ -93,23 +88,6 @@ export interface ISearchUser {
   isVerified: boolean;
 }
 
-export interface IEditProfilePayload {
-  displayName?: string;
-  firstName?: string;
-  lastName?: string;
-  city?: string;
-  country?: string;
-  bio?: string;
-  profileUrl?: string;
-  avatarFile?: File; // FIX issue #7: carries the selected avatar file through to the service
-  links?: {
-    website?: string;
-    instagram?: string;
-    twitter?: string;
-    facebook?: string;
-  };
-}
-
 export interface IUserProfileService {
   getUserProfile(username: string): Promise<IUser>;
   getUserTracks(userId: string): Promise<ITrack[]>;
@@ -117,9 +95,6 @@ export interface IUserProfileService {
   getFansAlsoLike(userId: string): Promise<IFanUser[]>;
   getFollowers(userId: string): Promise<IFollower[]>;
   getFollowing(userId: string): Promise<IFollowing[]>;
-  updateProfile(userId: string, payload: IEditProfilePayload): Promise<IUser>;
-  uploadAvatar(file: File): Promise<IUser>;
-  uploadCover(file: File): Promise<IUser>;
   followUser(userId: string): Promise<void>;
   unfollowUser(userId: string): Promise<void>;
   searchUsers(query: string): Promise<ISearchUser[]>;

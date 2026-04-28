@@ -17,13 +17,7 @@ jest.mock("next/navigation", () => ({
 // Mock next/link
 jest.mock("next/link", () => {
   const MockedLink = ({ children, href, onClick }: { children: React.ReactNode; href: string; onClick?: (e: React.MouseEvent) => void }) => (
-    <a
-      href={href}
-      onClick={(e) => {
-        e.preventDefault();
-        onClick?.(e);
-      }}
-    >
+    <a href={href} onClick={onClick}>
       {children}
     </a>
   );
@@ -35,9 +29,7 @@ jest.mock("next/link", () => {
 jest.mock("next/image", () => ({
   __esModule: true,
   default: (props: Record<string, unknown>) => {
-    const rest = { ...props };
-    delete rest.unoptimized;
-    return <img alt="" {...rest} />;
+    return <img alt="" {...props} />;
   },
 }));
 
@@ -65,10 +57,10 @@ describe("Header Component", () => {
       expect(screen.getByText("soundcloud")).toBeInTheDocument();
     });
 
-    test("renders navigation items (Stream, Discover, Library)", () => {
+    test("renders navigation items (Home, Feed, Library)", () => {
       render(<Header />);
-      expect(screen.getByText("Stream")).toBeInTheDocument();
-      expect(screen.getByText("Discover")).toBeInTheDocument();
+      expect(screen.getByText("Home")).toBeInTheDocument();
+      expect(screen.getByText("Feed")).toBeInTheDocument();
       expect(screen.getByText("Library")).toBeInTheDocument();
     });
 
@@ -87,8 +79,8 @@ describe("Header Component", () => {
 
     test("renders avatar and dropdown controls when logged in", () => {
       render(<Header isLoggedIn={true} />);
-      expect(screen.getByLabelText("Open profile menu")).toBeInTheDocument();
-      expect(screen.getByText("?")).toBeInTheDocument();
+      const avatarImage = screen.getByAltText("User avatar");
+      expect(avatarImage).toBeInTheDocument();
     });
 
     test("does not render avatar controls when not logged in", () => {
@@ -123,11 +115,11 @@ describe("Header Component", () => {
     test("navigation links navigate to correct paths", () => {
       render(<Header />);
       
-      const streamLink = screen.getAllByText("Stream")[0].closest("a");
-      expect(streamLink).toHaveAttribute("href", "/stream");
+      const homeLink = screen.getAllByText("Home")[0].closest("a");
+      expect(homeLink).toHaveAttribute("href", "/");
       
-      const discoverLink = screen.getAllByText("Discover")[0].closest("a");
-      expect(discoverLink).toHaveAttribute("href", "/discover");
+      const feedLink = screen.getAllByText("Feed")[0].closest("a");
+      expect(feedLink).toHaveAttribute("href", "/feed");
       
       const libraryLink = screen.getAllByText("Library")[0].closest("a");
       expect(libraryLink).toHaveAttribute("href", "/library");
@@ -135,17 +127,17 @@ describe("Header Component", () => {
 
     test("highlights active nav item", () => {
       render(<Header />);
-      const streamLink = screen.getAllByText("Stream")[0].closest("a");
+      const homeLink = screen.getAllByText("Home")[0].closest("a");
 
-      expect(streamLink).toHaveAttribute("href", "/stream");
+      expect(homeLink).toHaveAttribute("href", "/");
     });
 
     test("changes active nav item on click", () => {
       render(<Header />);
-      const discoverLink = screen.getAllByText("Discover")[0].closest("a") as HTMLAnchorElement;
+      const feedLink = screen.getAllByText("Feed")[0].closest("a") as HTMLAnchorElement;
 
-      fireEvent.click(discoverLink);
-      expect(discoverLink).toHaveAttribute("href", "/discover");
+      fireEvent.click(feedLink);
+      expect(feedLink).toHaveAttribute("href", "/feed");
     });
   });
 
@@ -313,10 +305,11 @@ describe("Header Component", () => {
   });
 
   describe("Avatar Prop", () => {
-    test("uses local avatar fallback when no user profile image", () => {
+    test("uses pravatar fallback when no user profile image", () => {
       render(<Header isLoggedIn={true} />);
 
-      expect(screen.getByText("?")).toBeInTheDocument();
+      const avatarImage = screen.getByAltText("User avatar") as HTMLImageElement;
+      expect(avatarImage.src).toContain("pravatar.cc");
     });
   });
 
@@ -325,13 +318,13 @@ describe("Header Component", () => {
       render(<Header />);
       const header = screen.getByText("soundcloud").closest("header");
       expect(header).toBeInTheDocument();
-      expect(header).toHaveClass("flex", "items-center", "justify-center");
+      expect(header).toHaveStyle({ display: "flex" });
     });
 
     test("search input has fixed width", () => {
       render(<Header />);
       const searchInput = screen.getByPlaceholderText("Search");
-      expect(searchInput).toHaveClass("w-[200px]");
+      expect(searchInput).toHaveStyle({ width: "200px" });
     });
   });
 

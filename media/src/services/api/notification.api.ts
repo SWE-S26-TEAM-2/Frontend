@@ -4,14 +4,27 @@ import { apiGet, apiPatch } from "./apiClient";
 
 export const realNotificationService: INotificationService = {
   getNotifications: async (filter: INotificationType | "all" = "all"): Promise<INotification[]> => {
-    return await apiGet<INotification[]>(`${ENV.API_BASE_URL}/notifications?filter=${filter}`);
+    try {
+      return await apiGet<INotification[]>(`${ENV.API_BASE_URL}/notifications?filter=${filter}`);
+    } catch {
+      // Backend has no notifications endpoint yet — return empty
+      return [];
+    }
   },
 
   markAllRead: async (): Promise<void> => {
-    await apiPatch(`${ENV.API_BASE_URL}/notifications/read-all`);
+    try {
+      await apiPatch(`${ENV.API_BASE_URL}/notifications/read-all`);
+    } catch {
+      // No-op — not implemented
+    }
   },
 
   markRead: async (id: string): Promise<void> => {
-    await apiPatch(`${ENV.API_BASE_URL}/notifications/${id}/read`);
+    try {
+      await apiPatch(`${ENV.API_BASE_URL}/notifications/${id}/read`);
+    } catch {
+      // No-op — not implemented
+    }
   },
 };

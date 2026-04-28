@@ -1,45 +1,71 @@
 "use client";
 
-import type { IPlaylistTrack } from "@/types/playlist.types";
+import { useMemo } from "react";
+import { IPlaylistTrack } from "@/types/playlist.types";
 import PlaylistTrackItem from "./PlaylistTrackItem";
+import { formatPlaylistDuration } from "@/utils/formatPlaylistDuration";
+import styles from "./TrackList.module.css";
 
 interface IPlaylistTrackListProps {
-  onRemoveTrack?: (trackId: string) => void;
   tracks: IPlaylistTrack[];
+  onRemoveTrack?: (trackId: string) => void;
 }
 
 export default function PlaylistTrackList({
-  onRemoveTrack,
   tracks,
+  onRemoveTrack,
 }: IPlaylistTrackListProps) {
-  if (!tracks.length) {
+  const { safeTracks, totalDuration } = useMemo(() => {
+    const safe = Array.isArray(tracks) ? tracks : [];
+    return {
+      safeTracks:    safe,
+      totalDuration: safe.reduce((sum, t) => sum + (t.duration ?? 0), 0),
+    };
+  }, [tracks]);
+
+  if (safeTracks.length === 0) {
     return (
-      <div className="rounded-3xl border border-dashed border-white/10 bg-neutral-950/50 px-6 py-12 text-center text-white/60">
-        No tracks in this playlist yet.
+      <div className={styles.tracklist__empty}>
+        <p>No tracks in this playlist yet.</p>
       </div>
     );
   }
 
   return (
-    <section className="rounded-3xl border border-white/10 bg-neutral-950/60 p-4 text-white md:p-6">
-      <div className="mb-4 grid grid-cols-[40px_56px_minmax(0,1fr)_72px] gap-3 border-b border-white/10 pb-3 text-xs uppercase tracking-[0.18em] text-white/45">
-        <span>#</span>
-        <span />
-        <span>Title</span>
-        <span className="text-right">Time</span>
+    <section className={styles.tracklist} aria-label="Playlist tracks">
+      <div className={styles.tracklist__header} aria-hidden="true">
+        <span className={styles.tracklist__colIndex}>#</span>
+        <span className={styles.tracklist__colCover} />
+        <span className={styles.tracklist__colTitle}>Title</span>
+        <span className={styles.tracklist__colDuration}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-label="Duration">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+        </span>
       </div>
 
-      <ol className="space-y-1">
-        {tracks.map((track, index) => (
+      <ol className={styles.tracklist__list} role="list">
+        {safeTracks.map((track, i) => (
           <PlaylistTrackItem
-            allTracks={tracks}
-            index={index + 1}
-            key={track.track.id}
-            onRemove={onRemoveTrack}
+            key={track.id}
             track={track}
+            index={i + 1}
+            allTracks={safeTracks}
+            onRemove={onRemoveTrack}
           />
         ))}
       </ol>
+
+      <div className={styles.tracklist__summary} aria-label="Playlist summary">
+        <span className={styles.tracklist__summaryCount}>
+          {safeTracks.length} {safeTracks.length === 1 ? "song" : "songs"}
+        </span>
+        <span className={styles.tracklist__summarySep} aria-hidden="true">·</span>
+        <span className={styles.tracklist__summaryDuration}>
+          {formatPlaylistDuration(totalDuration)}
+        </span>
+      </div>
     </section>
   );
 }

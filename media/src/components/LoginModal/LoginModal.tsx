@@ -23,7 +23,6 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const [signinSubtitle, setSigninSubtitle] = useState<string | undefined>(undefined);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmailOrProfileUrl(e.target.value);
@@ -41,7 +40,6 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
     setStep("main");
     setError("");
     setIsSuccess(false);
-    setSigninSubtitle(undefined);
   };
 
   const handleSubmit = async () => {
@@ -145,11 +143,10 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       window.localStorage.setItem("auth_user_id", String(response.user.id));
       setIsSuccess(true);
       setTimeout(onClose, 1500);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "";
+    } catch {
+      // Verification succeeded but auto-login failed — send them to sign-in
       setStep("signin");
-      setSigninSubtitle("Your email was verified! Please sign in to continue.");
-      setError(msg || "");
+      setError("Email verified! Please sign in.");
     }
   };
 
@@ -190,28 +187,30 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
             </button>
 
             <div className="mb-3 [&>div]:w-full [&_iframe]:w-full">
-              <GoogleLogin
-                onSuccess={async (credentialResponse) => {
-                  if (!credentialResponse.credential) return;
-                  try {
-                    setIsLoading(true);
-                    const response = await AuthService.googleLogin(credentialResponse.credential);
-                    authStore.login(response.user, response.token);
-                    window.localStorage.setItem("auth_token", response.token);
-                    window.localStorage.setItem("auth_user_id", String(response.user.id));
-                    setIsSuccess(true);
-                    setTimeout(onClose, 1500);
-                  } catch {
-                    setError("Google login failed. Please try again.");
-                  } finally {
-                    setIsLoading(false);
-                  }
-                }}
-                onError={() => setError("Google login failed. Please try again.")}
-                theme="filled_black"
-                text="continue_with"
-                width="400"
-              />
+              {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && (
+                <GoogleLogin
+                  onSuccess={async (credentialResponse) => {
+                    if (!credentialResponse.credential) return;
+                    try {
+                      setIsLoading(true);
+                      const response = await AuthService.googleLogin(credentialResponse.credential);
+                      authStore.login(response.user, response.token);
+                      window.localStorage.setItem("auth_token", response.token);
+                      window.localStorage.setItem("auth_user_id", String(response.user.id));
+                      setIsSuccess(true);
+                      setTimeout(onClose, 1500);
+                    } catch {
+                      setError("Google login failed. Please try again.");
+                    } finally {
+                      setIsLoading(false);
+                    }
+                  }}
+                  onError={() => setError("Google login failed. Please try again.")}
+                  theme="filled_black"
+                  text="continue_with"
+                  width="400"
+                />
+              )}
             </div>
 
             <button className="bg-black text-white w-full p-3 rounded cursor-pointer mb-8 text-[15px] font-semibold border border-[#444444] flex items-center justify-center gap-2">
@@ -281,7 +280,6 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
             onBack={resetToMain}
             error={error}
             isLoading={isLoading}
-            subtitle={signinSubtitle}
           />
         )}
 
