@@ -8,11 +8,11 @@ import { useAuthStore } from "@/store/authStore";
 import { formatNumber } from "@/utils/formatNumber";
 import type { IFanUser } from "@/types/userProfile.types";
 
-function UserCard({ user, onFollow }: { user: IFanUser & { isFollowing: boolean }; onFollow: (id: string) => void }) {
+function UserCard({ user, onFollow }: { user: IFanUser & { isFollowing: boolean }; onFollow: (username: string) => void }) {
   return (
     <div className="flex items-center gap-3 p-4 rounded-xl bg-(--sc-bg-elevated) border border-(--sc-border) hover:border-orange-500/30 transition-colors">
       {/* Avatar */}
-      <Link href={`/${user.id}`} className="flex-shrink-0">
+      <Link href={`/${user.username}`} className="flex-shrink-0">
         {user.avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -40,7 +40,7 @@ function UserCard({ user, onFollow }: { user: IFanUser & { isFollowing: boolean 
 
       {/* Follow button */}
       <button
-        onClick={() => onFollow(user.id)}
+        onClick={() => onFollow(user.username)}
         className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${
           user.isFollowing
             ? "border border-(--sc-border) text-(--sc-text-muted) hover:border-red-400 hover:text-red-400"
@@ -91,17 +91,17 @@ export default function WhoToFollowPage() {
     });
   }, [isLoggedIn, user?.id]);
 
-  const handleFollow = async (userId: string) => {
-    const target = users.find((u) => u.id === userId);
+  const handleFollow = async (targetUsername: string) => {
+    const target = users.find((u) => u.username === targetUsername);
     if (!target) return;
     try {
       if (target.isFollowing) {
-        await userProfileService.unfollowUser(userId);
+        await userProfileService.unfollowUser(targetUsername);
       } else {
-        await userProfileService.followUser(userId);
+        await userProfileService.followUser(targetUsername);
       }
       setUsers((prev) =>
-        prev.map((u) => u.id === userId ? { ...u, isFollowing: !u.isFollowing } : u)
+        prev.map((u) => u.username === targetUsername ? { ...u, isFollowing: !u.isFollowing } : u)
       );
     } catch {
       // silent — mock mode returns void

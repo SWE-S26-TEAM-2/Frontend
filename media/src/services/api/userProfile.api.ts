@@ -8,6 +8,7 @@ import type {
 } from "@/types/userProfile.types";
 import type { ITrack } from "@/types/track.types";
 import { apiPost, apiDelete, apiGet } from "./apiClient";
+import { mockUserProfileService } from "@/services/mocks/userProfile.mock";
 
 const apiUrl = (path: string): string => normalizeApiUrl(`${getApiBaseUrl()}${path}`);
 
@@ -17,10 +18,13 @@ const getAuthToken = () =>
 const getStoredUserId = () =>
   typeof window !== "undefined" ? window.localStorage.getItem("auth_user_id") : null;
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 const resolveMediaUrl = (value: unknown): string | null => {
   if (!value || typeof value !== "string") return null;
   const raw = value.trim();
   if (!raw) return null;
+  if (UUID_RE.test(raw)) return null;
   if (raw.startsWith("http://") || raw.startsWith("https://") || raw.startsWith("data:")) return raw;
 
   const base = getApiBaseUrl().replace(/\/$/, "");
@@ -59,9 +63,9 @@ function normalizeUser(d: Record<string, unknown>, requestedId: string): IUser {
   const parts = location.split(",").map((s) => s.trim());
 
   return {
-    id:           (d.user_id as string)                                ?? requestedId,
-    username: (d.username as string) ?? "",
-    displayName:  (d.display_name as string)                           ?? undefined,
+    id:           (d.user_id as string)      ?? requestedId,
+    username:     (d.username as string)     ?? (d.display_name as string) ?? "",
+    displayName:  (d.display_name as string) ?? undefined,
     firstName:    (d.first_name as string)   ?? undefined,
     lastName:     (d.last_name as string)    ?? undefined,
     city:         (d.city as string)         ?? parts[0]  ?? undefined,
@@ -118,83 +122,95 @@ export const realUserProfileService: IUserProfileService = {
   },
 
   async getUserTracks(username: string): Promise<ITrack[]> {
-    const token = getAuthToken();
-    const headers: Record<string, string> = {};
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-
-    const res = await fetch(apiUrl(`/users/${username}/tracks`), { headers });
-    if (!res.ok) return [];
-
-    const json = await res.json();
-    const rawTracks = (json.data?.tracks ?? json.data ?? json) as Record<string, unknown>[];
-    if (!Array.isArray(rawTracks)) return [];
-
-    return rawTracks.map((t) => {
-    const id = String(t.track_id ?? "");
-    return {
-      id,
-      title:         String(t.title          ?? ""),
-      artist:        String(t.display_name   ?? username),
-      albumArt:      resolveMediaUrl(t.cover_image_url) ?? "",
-      genre:         t.genre ? String(t.genre) : undefined,
-      url: resolveMediaUrl(t.stream_url) ?? "",
-      duration:      Number(t.duration_seconds ?? 0),
-      likes:         Number(t.like_count     ?? 0),
-      plays:         Number(t.play_count     ?? 0),
-      commentsCount: Number(t.comment_count  ?? 0),
-      isLiked:       Boolean(t.is_liked      ?? false),
-      createdAt:     String(t.created_at     ?? ""),
-      updatedAt:     String(t.updated_at     ?? ""),
-    };
-  });
-  },
-
-  async getUserLikes(userId: string): Promise<ILikedTrack[]> {
-    const token = getAuthToken();
-    const headers: Record<string, string> = {};
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-    const res = await fetch(apiUrl(`/users/${userId}/likes`), { headers });
-    if (!res.ok) {
-      console.warn("getUserLikes: endpoint not available, returning []");
+    try {
+      const data = await apiGet<Record<string, unknown>[] | { tracks?: Record<string, unknown>[] }>(
+        `${ENV.API_BASE_URL}/users/${username}/tracks`,
+      );
+      const rawTracks = Array.isArray(data) ? data : (data.tracks ?? []);
+      return rawTracks.map((t) => {
+        const id = String(t.track_id ?? t.id ?? "");
+        const directUrl = resolveMediaUrl(t.file_url ?? t.url);
+        return {
+          id,
+          title:         String(t.title      ?? ""),
+          artist:        String(t.artist     ?? t.display_name ?? username),
+          albumArt:      resolveMediaUrl(t.cover_image ?? t.cover_image_url ?? t.cover_url ?? t.cover_photo ?? t.image_url ?? t.coverUrl) ?? "",
+          genre:         t.genre ? String(t.genre) : undefined,
+          url:           directUrl ?? (id ? `${getApiBaseUrl()}/tracks/${id}/audio` : ""),
+          duration:      Number(t.duration   ?? 0),
+          likes:         Number(t.likes      ?? 0),
+          plays:         Number(t.plays      ?? 0),
+          commentsCount: Number(t.comments   ?? t.comments_count ?? 0),
+          isLiked:       Boolean(t.is_liked  ?? t.isLiked    ?? false),
+          createdAt:     String(t.created_at ?? t.createdAt  ?? ""),
+          updatedAt:     String(t.updated_at ?? t.updatedAt  ?? ""),
+        };
+      });
+    } catch {
       return [];
     }
-    const json = await res.json();
-    const raw = (json.data?.likes ?? json.data ?? json) as Record<string, unknown>[];
-    if (!Array.isArray(raw)) return [];
-    return raw.map((item) => ({
-      id:       String(item.track_id  ?? item.id          ?? ""),
-      title:    String(item.title     ?? ""),
-      artist:   String(item.artist    ?? item.display_name ?? ""),
-      coverUrl: String(item.cover_url ?? item.cover_photo  ?? item.coverUrl ?? ""),
-      duration: Number(item.duration  ?? 0),
-    }));
+  },
+
+  async getUserLikes(username: string): Promise<ILikedTrack[]> {
+    try {
+      const tracks = await apiGet<Record<string, unknown>[]>(
+        `${ENV.API_BASE_URL}/users/${username}/liked-tracks`,
+      );
+      const list = Array.isArray(tracks) ? tracks : [];
+      return list.map((t) => ({
+        id:       String(t.track_id ?? t.id ?? ""),
+        title:    String(t.title ?? ""),
+        artist:   String(t.artist ?? t.display_name ?? ""),
+        plays:    (t.play_count as number) ?? undefined,
+        likes:    (t.like_count as number) ?? (t.likes as number) ?? undefined,
+        reposts:  (t.repost_count as number) ?? (t.reposts as number) ?? undefined,
+        comments: (t.comment_count as number) ?? (t.comments as number) ?? undefined,
+        coverUrl: resolveMediaUrl(t.cover_image_url ?? t.cover_url ?? t.cover_photo ?? t.coverUrl),
+      }));
+    } catch {
+      console.warn("getUserLikes: failed to fetch, returning empty list");
+      return [];
+    }
   },
 
   async getFansAlsoLike(userId: string): Promise<IFanUser[]> {
-    const token = getAuthToken();
-    const headers: Record<string, string> = {};
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-    const res = await fetch(apiUrl(`/users/${userId}/fans`), { headers });
-    if (!res.ok) return [];
-    return res.json();
+    // backend /users/{id}/fans endpoint not implemented yet
+    console.warn("getFansAlsoLike: endpoint not available, using mock data");
+    return mockUserProfileService.getFansAlsoLike(userId);
   },
 
-  async getFollowers(userId: string): Promise<IFollower[]> {
-    const token = getAuthToken();
-    const headers: Record<string, string> = {};
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-    const res = await fetch(apiUrl(`/users/${userId}/followers`), { headers });
-    if (!res.ok) return [];
-    return res.json();
+  async getFollowers(username: string): Promise<IFollower[]> {
+    try {
+      const data = await apiGet<{ followers?: Record<string, unknown>[] }>(
+        `${ENV.API_BASE_URL}/users/${username}/followers`,
+      );
+      return (data.followers ?? []).map((f) => ({
+        id: f.user_id as string,
+        username: (f.display_name as string) ?? "",
+        avatarUrl: resolveMediaUrl(f.profile_picture),
+      }));
+    } catch {
+      console.warn("getFollowers: failed to fetch, returning empty list");
+      return [];
+    }
   },
 
-  async getFollowing(userId: string): Promise<IFollowing[]> {
-    const token = getAuthToken();
-    const headers: Record<string, string> = {};
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-    const res = await fetch(apiUrl(`/users/${userId}/following`), { headers });
-    if (!res.ok) return [];
-    return res.json();
+  async getFollowing(username: string): Promise<IFollowing[]> {
+    try {
+      const data = await apiGet<{ following?: Record<string, unknown>[] }>(
+        `${ENV.API_BASE_URL}/users/${username}/following`,
+      );
+      return (data.following ?? []).map((f) => ({
+        id: f.user_id as string,
+        username: (f.display_name as string) ?? "",
+        avatarUrl: resolveMediaUrl(f.profile_picture),
+        followers: 0,
+        tracks: 0,
+      }));
+    } catch {
+      console.warn("getFollowing: failed to fetch, returning empty list");
+      return [];
+    }
   },
 
 
@@ -307,17 +323,27 @@ export const realUserProfileService: IUserProfileService = {
   },
 
   async searchUsers(query: string): Promise<ISearchUser[]> {
-    const data = await apiGet<{ users: Record<string, unknown>[] }>(
+    const data = await apiGet<Record<string, unknown>[] | { users?: Record<string, unknown>[] }>(
       `${ENV.API_BASE_URL}/search/users?keyword=${encodeURIComponent(query.trim())}`,
       { skipAuth: true },
     );
-    return (data.users ?? []).map((u) => ({
-      id:            u.user_id as string,
-      username:      u.display_name as string,
-      role:          (u.account_type as string) === "artist" ? "artist" : "listener",
-      avatarUrl:     (u.profile_picture as string) ?? null,
-      followerCount: (u.follower_count as number)  ?? 0,
-      isVerified:    (u.is_verified as boolean)    ?? false,
-    }));
+    const users = Array.isArray(data) ? data : (data.users ?? []);
+
+    return users.flatMap((u) => {
+      const username = typeof u.username === "string" ? u.username.trim() : "";
+      if (!username) return [];
+
+      return {
+        id:            String(u.user_id ?? u.id ?? username),
+        username,
+        displayName:   typeof u.display_name === "string" && u.display_name.trim()
+          ? u.display_name.trim()
+          : undefined,
+        role:          (u.account_type as string) === "artist" ? "artist" : "listener",
+        avatarUrl:     resolveMediaUrl(u.profile_picture) ?? null,
+        followerCount: (u.follower_count as number)  ?? 0,
+        isVerified:    (u.is_verified as boolean)    ?? false,
+      };
+    });
   },
 };

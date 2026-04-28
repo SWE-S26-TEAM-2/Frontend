@@ -54,8 +54,8 @@ const MOCK_USERS: IUser[] = [
     role: "listener",
     socialLinks: {},
     isPrivate: false,
-    followers: 0,
-    following: 3,
+    followers: 8,
+    following: 2,
     tracks: 0,
     likes: 4,
     avatarUrl: null,
@@ -196,7 +196,6 @@ export const mockUserProfileService: IUserProfileService = {
     return MOCK_FOLLOWING;
   },
 
-  // FIX issue #6: corrected indentation to match the rest of the object literal
   async updateProfile(userId: string, payload: IEditProfilePayload): Promise<IUser> {
     await delay(500);
     const index = MOCK_USERS.findIndex(u => u.id === userId);
