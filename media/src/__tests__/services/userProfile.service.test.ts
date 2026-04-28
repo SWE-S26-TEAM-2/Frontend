@@ -188,7 +188,7 @@ describe("realUserProfileService", () => {
   it("getUserTracks calls correct endpoint", async () => {
     mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] });
     await realUserProfileService.getUserTracks("user123");
-    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining("/users/user123/tracks"));
+    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining("/users/user123/tracks"), expect.anything());
   });
 
   it("getUserTracks returns empty array when response is not ok", async () => {
@@ -200,7 +200,7 @@ describe("realUserProfileService", () => {
   it("getUserLikes calls correct endpoint", async () => {
     mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] });
     await realUserProfileService.getUserLikes("user123");
-    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining("/users/user123/likes"));
+    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining("/users/user123/likes"), expect.anything());
   });
 
   it("getUserLikes returns empty array when response is not ok", async () => {
@@ -212,18 +212,18 @@ describe("realUserProfileService", () => {
   it("getFansAlsoLike calls correct endpoint", async () => {
     mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] });
     await realUserProfileService.getFansAlsoLike("user123");
-    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining("/users/user123/fans"));
+    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining("/users/user123/fans"), expect.anything());
   });
 
   it("getFollowers calls correct endpoint", async () => {
     mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] });
     await realUserProfileService.getFollowers("user123");
-    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining("/users/user123/followers"));
+    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining("/users/user123/followers"), expect.anything());
   });
 
   it("getFollowing calls correct endpoint", async () => {
     mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] });
     await realUserProfileService.getFollowing("user123");
-    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining("/users/user123/following"));
+    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining("/users/user123/following"), expect.anything());
   });
 });

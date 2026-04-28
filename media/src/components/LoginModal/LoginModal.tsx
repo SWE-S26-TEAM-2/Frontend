@@ -29,7 +29,9 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+
   const router = useRouter();
+  const [signinSubtitle, setSigninSubtitle] = useState<string | undefined>(undefined);
 
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,6 +67,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
     setStep("main");
     setError("");
     setIsSuccess(false);
+    setSigninSubtitle(undefined);
   };
 
   const handleSubmit = async () => {
@@ -191,10 +194,11 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       window.localStorage.setItem("auth_user_id", String(response.user.id));
       setIsSuccess(true);
       setTimeout(onClose, 1500);
-    } catch {
-      // Verification succeeded but auto-login failed — send them to sign-in
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "";
       setStep("signin");
-      setError("Email verified! Please sign in.");
+      setSigninSubtitle("Your email was verified! Please sign in to continue.");
+      setError(msg || "");
     }
   };
 
@@ -321,6 +325,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
         )}
 
         {step === "signin" && (
+
         <SignInStep
         emailOrProfileUrl={emailOrProfileUrl}
         password={password}
@@ -329,6 +334,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
         onBack={() => {setStep("main"); setError("");}}
         error={error}
         isLoading={isLoading}
+        subtitle={signinSubtitle}
         onForgotPassword={() => { setStep("forgot-password"); setError(""); }}
         />
         )}

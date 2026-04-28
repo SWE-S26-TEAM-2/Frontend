@@ -74,14 +74,22 @@ export default function PlaylistTrackItem({
         )}
       </div>
 
-      <div className="relative h-14 w-14 overflow-hidden rounded-xl">
-        <Image
-          alt={`${track.track.title} artwork`}
-          className="h-full w-full object-cover"
-          fill
-          sizes="56px"
-          src={track.track.albumArt || "/default.jpg"}
-        />
+      <div className="relative h-14 w-14 overflow-hidden rounded-xl bg-[#1c1c1c]">
+        {track.track.albumArt ? (
+          <Image
+            alt={`${track.track.title} artwork`}
+            className="h-full w-full object-cover"
+            fill
+            sizes="56px"
+            src={track.track.albumArt}
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <svg width={24} height={24} viewBox="0 0 24 24" fill="#ffffff20">
+              <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+            </svg>
+          </div>
+        )}
       </div>
 
       <div className="min-w-0">

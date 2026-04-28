@@ -42,22 +42,30 @@ export default function TrackPlayer({ track }: { track: ITrack }) {
   };
 
   return (
-    <section className="overflow-hidden rounded-sm border border-[#6f665f] bg-[#92867b] p-4 shadow-[0_18px_36px_rgba(0,0,0,0.35)] sm:p-6">
+    <section className="overflow-hidden rounded-sm border border-[#555] bg-gradient-to-b from-[#4a4a4a] to-[#1a1a1a] p-4 shadow-[0_18px_36px_rgba(0,0,0,0.5)] sm:p-6">
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-2">
         <div className="min-w-0">
           <div className="flex items-start gap-4">
             <button
               onClick={handleClick}
-              className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[#101010] text-3xl text-white transition hover:brightness-110"
+              className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[#ff5500] text-white transition hover:bg-[#e64d00] active:scale-95"
               aria-label={isCurrent && isPlaying ? "Pause" : "Play"}
             >
-              <span className="-ml-0.5">{isCurrent && isPlaying ? "❚❚" : "▶"}</span>
+              {isCurrent && isPlaying ? (
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+                </svg>
+              ) : (
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5.14v14l11-7-11-7z" />
+                </svg>
+              )}
             </button>
 
             <div className="min-w-0 pt-1">
-              <div className="inline-flex max-w-full items-center gap-2 bg-black px-3 py-2">
-                <h1 className="truncate text-xl font-bold tracking-tight text-white sm:text-[2.5rem] sm:leading-none">
-                  Related tracks: {track.title}
+              <div className="inline-flex max-w-full items-center gap-2 bg-black/60 px-3 py-2">
+                <h1 className="truncate text-xl font-bold tracking-tight text-white sm:text-[2rem] sm:leading-none">
+                  {track.title}
                 </h1>
               </div>
 
@@ -89,13 +97,21 @@ export default function TrackPlayer({ track }: { track: ITrack }) {
         </div>
 
         <div className="mx-auto flex w-full max-w-85 items-center justify-center lg:justify-end">
-          <Image
-            src={track.albumArt || "/covers/default.jpg"}
-            alt={track.title}
-            width={340}
-            height={340}
-            className="aspect-square w-full max-w-85 rounded-sm border border-[#7d6f66] object-cover shadow-[0_10px_26px_rgba(0,0,0,0.32)]"
-          />
+          {track.albumArt ? (
+            <Image
+              src={track.albumArt}
+              alt={track.title}
+              width={340}
+              height={340}
+              className="aspect-square w-full max-w-85 rounded-sm border border-[#7d6f66] object-cover shadow-[0_10px_26px_rgba(0,0,0,0.32)]"
+            />
+          ) : (
+            <div className="aspect-square w-full max-w-85 rounded-sm border border-[#7d6f66] shadow-[0_10px_26px_rgba(0,0,0,0.32)] bg-gradient-to-br from-[#1a1a2e] to-[#2d1b4e] flex items-center justify-center">
+              <svg width={80} height={80} viewBox="0 0 24 24" fill="#ffffff15">
+                <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+              </svg>
+            </div>
+          )}
         </div>
       </div>
     </section>

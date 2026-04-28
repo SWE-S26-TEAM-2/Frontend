@@ -64,13 +64,22 @@ export default function PlaylistHeader({ playlist, tracks }: IPlaylistHeaderProp
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(249,115,22,0.35),_transparent_45%),linear-gradient(135deg,_rgba(255,255,255,0.05),_rgba(255,255,255,0))]" />
       <div className="relative flex flex-col gap-8 p-6 md:flex-row md:items-end md:p-8">
         <div className="relative h-56 w-56 shrink-0 overflow-hidden rounded-[1.75rem] border border-white/10 bg-black/20 shadow-2xl">
-          <Image
-            alt={`${playlist.title} artwork`}
-            className="h-full w-full object-cover"
-            fill
-            sizes="224px"
-            src={playlist.artworkUrl || "/default.jpg"}
-          />
+          {playlist.artworkUrl ? (
+            <Image
+              alt={`${playlist.title} artwork`}
+              className="h-full w-full object-cover"
+              fill
+              sizes="224px"
+              src={playlist.artworkUrl}
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#2d1b4e] text-[#666]">
+              <svg width={64} height={64} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1}>
+                <path d="M9 18V5l12-2v13" strokeLinecap="round" strokeLinejoin="round"/>
+                <circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+              </svg>
+            </div>
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
         </div>
 
