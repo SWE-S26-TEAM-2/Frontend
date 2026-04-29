@@ -94,6 +94,10 @@ import { mockInsightsService } from './mocks/insights.mock';
 import { realInsightsService } from './api/insights.api';
 import type { IInsightsService } from '@/types/insights.types';
 
+// library
+import { mockLibraryService } from "./mocks/library.mock";
+import { realLibraryService } from "./api/library.api";
+import type { ILibraryService } from "@/types/library.types";
 /**
  * Authentication Service
  * Automatically switches between mock and real based on USE_MOCK_API flag
@@ -291,6 +295,15 @@ export const serviceStatus = {
  * Hardcoded to mock — backend /api/insights endpoint not implemented yet.
  */
 export const insightsService: IInsightsService = mockInsightsService;
+
+/**
+ * Library Service
+ * Scoped to the authenticated user via the Bearer token in apiClient.
+ * Switches between mock and real based on USE_MOCK_API flag.
+ */
+export const libraryService: ILibraryService = ENV.USE_MOCK_API
+  ? mockLibraryService
+  : realLibraryService;
 
 // Export individual services for direct imports if needed
 export {
