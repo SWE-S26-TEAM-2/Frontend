@@ -4,8 +4,7 @@ import type { IAdminTab, IAdminSideBarProps } from "@/types/admin.types";
 
 const ADMIN_TABS: { id: IAdminTab; label: string }[] = [
   { id: "analytics", label: "Analytics" },
-  { id: "users",     label: "Users" },
-  { id: "tracks",    label: "Tracks" },
+  { id: "reports",   label: "Reports" },
 ];
 
 export default function AdminSideBar({ activeTab, onTabChange }: IAdminSideBarProps) {

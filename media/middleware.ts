@@ -14,7 +14,7 @@ const PROTECTED_PREFIXES = [
 ];
 
 const ADMIN_PREFIXES = ["/admin"];
-const ADMIN_EMAILS = ["your-email@example.com"]; //Put you real email to test admin dashboard with real API
+const ADMIN_EMAILS = ["example@gmail.com"]; //Put you real email to test admin dashboard with real API
 
 const isProtectedPath = (pathname: string): boolean =>
   PROTECTED_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
