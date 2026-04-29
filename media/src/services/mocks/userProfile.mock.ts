@@ -258,4 +258,9 @@ export const mockUserProfileService: IUserProfileService = {
         isVerified: false,
       }));
   },
+
+  async getSocialLinks(): Promise<IUser["socialLinks"]> {
+  return {};
+},
+
 };

@@ -15,8 +15,8 @@ export function Banner({ user, onAvatarChange, onHeaderChange }: IBannerProps) {
     const file = e.target.files?.[0];
     if (!file) return;
     const url = URL.createObjectURL(file);
-    setAvatarPreview(url);
-    onAvatarChange?.(url);
+    setAvatarPreview(url); // show preview immediately
+    onAvatarChange?.(url, file); // pass file along
   };
 
   const handleHeaderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,9 +24,9 @@ export function Banner({ user, onAvatarChange, onHeaderChange }: IBannerProps) {
     if (!file) return;
     const url = URL.createObjectURL(file);
     setHeaderPreview(url);
-    onHeaderChange?.(url);
+    onHeaderChange?.(url, file); // pass file along
   };
-
+  
   return (
     <div className="relative overflow-hidden h-62.5">
 
