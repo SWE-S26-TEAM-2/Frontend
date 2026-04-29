@@ -75,14 +75,17 @@ function normalizePlaylist(raw: IBackendPlaylist): IPlaylist {
 async function getUsername(): Promise<string> {
   if (typeof window !== 'undefined') {
     const stored = window.localStorage.getItem('auth_username');
-    if (stored) return stored;
+    // Only use stored value if it looks like a URL slug (no spaces)
+    if (stored && !stored.includes(' ')) return stored;
   }
 
-  // Fallback: fetch from API and cache it
-  const profile = await apiGet<{ username: string }>('/users/me');
+  // Fallback: fetch from API and cache the actual slug field
+  const profile = await apiGet<{ username?: string; display_name?: string }>('/users/me');
   const username = profile.username;
 
-  if (typeof window !== 'undefined' && username) {
+  if (!username) throw new Error('Backend /users/me did not return a username slug');
+
+  if (typeof window !== 'undefined') {
     window.localStorage.setItem('auth_username', username);
   }
 
@@ -93,20 +96,20 @@ async function getUsername(): Promise<string> {
 
 export const realStudioService: IStudioService = {
   async getTracks(page: number, pageSize: number): Promise<IStudioTracksResponse> {
-    const username = await getUsername();
-    const raw = await apiGet<IBackendTracksResponse>(`/users/${username}/tracks`);
-    const allTracks = raw.tracks.map(normalizeTrack);
+    try {
+      const username = await getUsername();
+      const raw = await apiGet<IBackendTracksResponse>(`/users/${username}/tracks`);
+      const allTracks = raw.tracks.map(normalizeTrack);
 
-    // Client-side pagination since backend returns all tracks
-    const start = (page - 1) * pageSize;
-    const paginated = allTracks.slice(start, start + pageSize);
+      // Client-side pagination since backend returns all tracks
+      const start = (page - 1) * pageSize;
+      const paginated = allTracks.slice(start, start + pageSize);
 
-    return {
-      tracks: paginated,
-      total: allTracks.length,
-      page,
-      pageSize,
-    };
+      return { tracks: paginated, total: allTracks.length, page, pageSize };
+    } catch (err) {
+      console.warn('Studio getTracks failed, returning empty state:', err);
+      return { tracks: [], total: 0, page, pageSize };
+    }
   },
 
   async deleteTrack(trackId: string): Promise<void> {
@@ -124,9 +127,14 @@ export const realStudioService: IStudioService = {
   },
 
   async getPlaylists(): Promise<IPlaylist[]> {
-    const username = await getUsername();
-    const raw = await apiGet<IBackendPlaylist[]>(`/users/${username}/playlists`);
-    return raw.map(normalizePlaylist);
+    try {
+      const username = await getUsername();
+      const raw = await apiGet<IBackendPlaylist[]>(`/users/${username}/playlists`);
+      return raw.map(normalizePlaylist);
+    } catch (err) {
+      console.warn('Studio getPlaylists failed, returning empty state:', err);
+      return [];
+    }
   },
 
   async addTracksToPlaylist(playlistId: string, trackIds: string[]): Promise<void> {
