@@ -3,6 +3,7 @@
 // src/app/(with-header)/you/insights/page.tsx
 
 import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   InsightsTabs,
   InsightsMetricPills,
@@ -14,7 +15,7 @@ import {
   InsightsOnSoundCloudCard,
   InsightsAboutModal,
   InsightsAllPlatformsTab,
-  InsightsChart,        // add this
+  InsightsChart,
 } from '@/components/Insights';
 import { insightsService } from '@/services';
 import type {
@@ -22,8 +23,8 @@ import type {
   InsightMetric,
   InsightTimeRange,
   IInsightsMetricData,
-  IInsightsTopTrack, // Added IInsightsTopTrack
-  IInsightsData,       // add this
+  IInsightsTopTrack,
+  IInsightsData,
 } from '@/types/insights.types';
 
 // ── Time range config ─────────────────────────────────────────────────────────
@@ -34,40 +35,27 @@ type TimeRangeOption = {
   dropdownLabel: string;
 };
 
-// const TIME_RANGE_OPTIONS: TimeRangeOption[] = [
-//   { value: '7d',  label: 'Last 7 days',    dropdownLabel: 'Last 7 days'    },
-//   { value: '30d', label: 'Last 30 days',   dropdownLabel: 'Last 30 days'   },
-//   { value: '90d', label: 'Last 90 days',   dropdownLabel: 'Last 90 days'   },
-//   { value: '1y',  label: 'Last 12 months', dropdownLabel: 'Last 12 months' },
-// ];
-
 const TIME_RANGE_OPTIONS: TimeRangeOption[] = [
-  { value: 'today', label: 'Today',          dropdownLabel: 'Today'          },
-  { value: '7d',    label: 'Last 7 days',    dropdownLabel: 'Last 7 days'    },
-  { value: '30d',   label: 'Last 30 days',   dropdownLabel: 'Last 30 days'   },
-  { value: '1y',    label: 'Last 12 months', dropdownLabel: 'Last 12 months' },
-  { value: 'alltime', label: 'All time',     dropdownLabel: 'All time'       },
+  { value: 'today',   label: 'Today',           dropdownLabel: 'Today'          },
+  { value: '7d',      label: 'Last 7 days',     dropdownLabel: 'Last 7 days'    },
+  { value: '30d',     label: 'Last 30 days',    dropdownLabel: 'Last 30 days'   },
+  { value: '1y',      label: 'Last 12 months',  dropdownLabel: 'Last 12 months' },
+  { value: 'alltime', label: 'All time',        dropdownLabel: 'All time'       },
 ];
-
-// const SWITCH_TO_RANGE: Record<InsightTimeRange, InsightTimeRange> = {
-//   today:   '7d',
-//   '7d':  '30d',
-//   '30d': '1y',
-//   '90d': '1y',
-//   '1y':  'alltime',
-//   'alltime': '7d',
-// };
 
 const SWITCH_TO_RANGE: Record<InsightTimeRange, InsightTimeRange> = {
   today:   '7d',
   '7d':    '30d',
   '30d':   '1y',
-  '90d':   '1y',   // keep in type but skip in UI
+  '90d':   '1y',
   '1y':    'alltime',
   alltime: '7d',
 };
 
 const DEFAULT_TIME_RANGE: InsightTimeRange = '30d';
+
+const VALID_TABS: InsightTab[]     = ['soundcloud', 'all-platforms'];
+const VALID_METRICS: InsightMetric[] = ['plays', 'likes', 'comments', 'reposts', 'downloads'];
 
 const EMPTY_METRICS: IInsightsMetricData = {
   plays: 0,
@@ -90,21 +78,38 @@ function isAllZero(metrics: IInsightsMetricData): boolean {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function InsightsPage() {
-  const [activeTab, setActiveTab]           = useState<InsightTab>('soundcloud');
-  const [activeMetric, setActiveMetric]     = useState<InsightMetric>('plays');
+  const searchParams = useSearchParams();
+
+  // Read initial tab + metric from URL params, falling back to defaults
+  const initialTab = ((): InsightTab => {
+    const param = searchParams.get('tab');
+    return param && VALID_TABS.includes(param as InsightTab)
+      ? (param as InsightTab)
+      : 'soundcloud';
+  })();
+
+  const initialMetric = ((): InsightMetric => {
+    const param = searchParams.get('metric');
+    return param && VALID_METRICS.includes(param as InsightMetric)
+      ? (param as InsightMetric)
+      : 'plays';
+  })();
+
+  const [activeTab, setActiveTab]           = useState<InsightTab>(initialTab);
+  const [activeMetric, setActiveMetric]     = useState<InsightMetric>(initialMetric);
   const [activeRange, setActiveRange]       = useState<InsightTimeRange>(DEFAULT_TIME_RANGE);
   const [isRangeOpen, setIsRangeOpen]       = useState(false);
   const [isAboutOpen, setIsAboutOpen]       = useState(false);
   const [metrics, setMetrics]               = useState<IInsightsMetricData>(EMPTY_METRICS);
-  const [topTracks, setTopTracks]           = useState<IInsightsTopTrack[]>([]); // Added topTracks state
-  const [chartData, setChartData] = useState<IInsightsData['chartData'] | null>(null);  //add this
+  const [topTracks, setTopTracks]           = useState<IInsightsTopTrack[]>([]);
+  const [chartData, setChartData]           = useState<IInsightsData['chartData'] | null>(null);
   const [dateRangeLabel, setDateRangeLabel] = useState('');
   const [isLoading, setIsLoading]           = useState(true);
   const [error, setError]                   = useState('');
 
   const rangeDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close the range dropdown on outside click
+  // Close the range dropdown on outside click or Escape
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (rangeDropdownRef.current && !rangeDropdownRef.current.contains(e.target as Node)) {
@@ -131,8 +136,8 @@ export default function InsightsPage() {
         const data = await insightsService.getInsights(activeRange);
         setMetrics(data.metrics);
         setDateRangeLabel(data.dateRangeLabel);
-        setTopTracks(data.topTracks); // Added setTopTracks update
-        setChartData(data.chartData);  // add this
+        setTopTracks(data.topTracks);
+        setChartData(data.chartData);
       } catch (err) {
         console.error('[Insights] failed to fetch:', err);
         setError('Something went wrong. Please try again.');
@@ -154,12 +159,6 @@ export default function InsightsPage() {
     setIsRangeOpen(false);
   };
 
-  //before
-  // const handleSwitchRange = () => {
-  //   setActiveRange(SWITCH_TO_RANGE[activeRange]);
-  // };
-
-  //after
   const handleSwitchRange = (nextRange: InsightTimeRange) => {
     setActiveRange(nextRange);
   };
@@ -270,7 +269,6 @@ export default function InsightsPage() {
             ) : null}
 
             <div className="grid grid-cols-2 gap-6">
-              {/* Change 4: Passed tracks prop to InsightsTopTracksCard */}
               <InsightsTopTracksCard tracks={topTracks} timeRangeLabel={displayLabel} />
               <InsightsPremiumCard metric={activeMetric} timeRangeLabel={displayLabel} />
             </div>

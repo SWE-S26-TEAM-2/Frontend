@@ -128,7 +128,8 @@ export const uploadService: IUploadService = ENV.USE_MOCK_API
  * Studio Service
  * Hardcoded to mock — backend has no track-listing or bulk-edit endpoints yet.
  */
-export const studioService: IStudioService = mockStudioService;
+//export const studioService: IStudioService = mockStudioService;
+export const studioService: IStudioService = ENV.USE_MOCK_API ? mockStudioService : realStudioService;
 
 /**
  * Store Service
@@ -168,33 +169,53 @@ export const accountService = {
 /**
  * Settings - Notification Service
  */
+// export const notificationService = {
+//   getSettings: ENV.USE_MOCK_API ? getMockNotificationSettings : getNotificationSettingsFromAPI,
+//   updateSettings: ENV.USE_MOCK_API ? updateMockNotificationSettings : updateNotificationSettingsOnAPI,
+// };
 export const notificationService = {
-  getSettings: ENV.USE_MOCK_API ? getMockNotificationSettings : getNotificationSettingsFromAPI,
-  updateSettings: ENV.USE_MOCK_API ? updateMockNotificationSettings : updateNotificationSettingsOnAPI,
+  // Forced to Mock
+  getSettings: getMockNotificationSettings,
+  updateSettings: updateMockNotificationSettings,
 };
 
 /**
  * Settings - Content Service
  */
+// export const contentService = {
+//   getSettings: ENV.USE_MOCK_API ? getMockContentSettings : getContentSettingsFromAPI,
+//   updateSettings: ENV.USE_MOCK_API ? updateMockContentSettings : updateContentSettingsOnAPI,
+// };
 export const contentService = {
-  getSettings: ENV.USE_MOCK_API ? getMockContentSettings : getContentSettingsFromAPI,
-  updateSettings: ENV.USE_MOCK_API ? updateMockContentSettings : updateContentSettingsOnAPI,
+  // Forced to Mock
+  getSettings: getMockContentSettings,
+  updateSettings: updateMockContentSettings,
 };
 
 /**
  * Settings - Advertising Service
  */
+// export const advertisingService = {
+//   getSettings: ENV.USE_MOCK_API ? getMockAdvertisingSettings : getAdvertisingSettingsFromAPI,
+//   updateSettings: ENV.USE_MOCK_API ? updateMockAdvertisingSettings : updateAdvertisingSettingsOnAPI,
+// };
 export const advertisingService = {
-  getSettings: ENV.USE_MOCK_API ? getMockAdvertisingSettings : getAdvertisingSettingsFromAPI,
-  updateSettings: ENV.USE_MOCK_API ? updateMockAdvertisingSettings : updateAdvertisingSettingsOnAPI,
+  // Forced to Mock
+  getSettings: getMockAdvertisingSettings,
+  updateSettings: updateMockAdvertisingSettings,
 };
 
 /**
  * Settings - Two Factor Service
  */
+// export const twoFactorService = {
+//   getSettings: ENV.USE_MOCK_API ? getMockTwoFactorSettings : getTwoFactorSettingsFromAPI,
+//   updateSettings: ENV.USE_MOCK_API ? updateMockTwoFactorSettings : updateTwoFactorSettingsOnAPI,
+// };
 export const twoFactorService = {
-  getSettings: ENV.USE_MOCK_API ? getMockTwoFactorSettings : getTwoFactorSettingsFromAPI,
-  updateSettings: ENV.USE_MOCK_API ? updateMockTwoFactorSettings : updateTwoFactorSettingsOnAPI,
+  // Forced to Mock
+  getSettings: getMockTwoFactorSettings,
+  updateSettings: updateMockTwoFactorSettings,
 };
 
 /**
