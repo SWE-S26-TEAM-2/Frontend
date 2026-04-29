@@ -44,6 +44,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "streamline-swp.duckdns.org",
       },
+       {
+        protocol: "https",
+        hostname: "res.cloudinary.com",  
+      },
     ],
   },
 };

@@ -1,4 +1,4 @@
-// src/app/[username]/components/Icons.tsx
+// src/app/[username]/components/Icons/TrackIcons.tsx
 import { formatNumber } from "@/utils/formatNumber";
 import type { IIconBtnProps } from "@/types/ui.types";
 
@@ -40,6 +40,36 @@ export const MoreIcon = () => (
     <circle cx="5" cy="12" r="2"/>
     <circle cx="12" cy="12" r="2"/>
     <circle cx="19" cy="12" r="2"/>
+  </svg>
+);
+
+export const NextUpIcon = () => (
+  <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+    <line x1="8" y1="6" x2="21" y2="6" />
+    <line x1="8" y1="12" x2="21" y2="12" />
+    <line x1="8" y1="18" x2="21" y2="18" />
+    <line x1="3" y1="6" x2="3.01" y2="6" />
+    <line x1="3" y1="12" x2="3.01" y2="12" />
+    <line x1="3" y1="18" x2="3.01" y2="18" />
+  </svg>
+);
+
+export const AddToPlaylistIcon = () => (
+  <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+    <line x1="8" y1="6" x2="21" y2="6" />
+    <line x1="8" y1="12" x2="21" y2="12" />
+    <line x1="8" y1="18" x2="21" y2="18" />
+    <line x1="3" y1="6" x2="3.01" y2="6" />
+    <line x1="3" y1="12" x2="3.01" y2="12" />
+    <polyline points="16 19 19 22 23 16" />
+  </svg>
+);
+
+export const TracksIcon = () => (
+  <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+    <path d="M9 18V5l12-2v13" />
+    <circle cx="6" cy="18" r="3" />
+    <circle cx="18" cy="16" r="3" />
   </svg>
 );
 
