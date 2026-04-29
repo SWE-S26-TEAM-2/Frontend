@@ -1,14 +1,22 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import type { IStudioStats } from '@/types/studio.types';
 
 interface IStudioStatsBarProps {
   stats: IStudioStats;
 }
 
+type StatNumber = {
+  value: number;
+  label: string;
+  metric: string;
+};
+
 const STAT_ACTIONS = [
   {
     label: 'Insights',
+    navigateTo: '/you/insights?tab=soundcloud&metric=plays',
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <rect x="2" y="13" width="4" height="8" rx="1" />
@@ -19,6 +27,7 @@ const STAT_ACTIONS = [
   },
   {
     label: 'Earnings',
+    navigateTo: null,
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <circle cx="12" cy="12" r="10" />
@@ -30,6 +39,7 @@ const STAT_ACTIONS = [
   },
   {
     label: 'Comments',
+    navigateTo: null,
     hasBadge: true,
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -41,6 +51,7 @@ const STAT_ACTIONS = [
   },
   {
     label: 'Fans',
+    navigateTo: null,
     hasBadge: true,
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -53,6 +64,7 @@ const STAT_ACTIONS = [
   },
   {
     label: 'Benefits',
+    navigateTo: null,
     hasBadge: true,
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -67,13 +79,19 @@ const STAT_ACTIONS = [
 ];
 
 export default function StudioStatsBar({ stats }: IStudioStatsBarProps) {
-  const statNumbers = [
-    { value: stats.scPlays, label: 'SC plays' },
-    { value: stats.reposts, label: 'Reposts' },
-    { value: stats.downloads, label: 'Downloads' },
-    { value: stats.likes, label: 'Likes' },
-    { value: stats.comments, label: 'Comments' },
+  const router = useRouter();
+
+  const statNumbers: StatNumber[] = [
+    { value: stats.scPlays,   label: 'SC plays',   metric: 'plays'     },
+    { value: stats.reposts,   label: 'Reposts',    metric: 'reposts'   },
+    { value: stats.downloads, label: 'Downloads',  metric: 'downloads' },
+    { value: stats.likes,     label: 'Likes',      metric: 'likes'     },
+    { value: stats.comments,  label: 'Comments',   metric: 'comments'  },
   ];
+
+  const handleStatClick = (metric: string) => {
+    router.push(`/you/insights?tab=soundcloud&metric=${metric}`);
+  };
 
   return (
     <div className="bg-[#181818] border border-[#2a2a2a] rounded-md px-6 py-5">
@@ -85,15 +103,17 @@ export default function StudioStatsBar({ stats }: IStudioStatsBarProps) {
 
       {/* Stats row */}
       <div className="flex items-center">
-        {/* Numeric stats */}
+        {/* Numeric stats — each is clickable */}
         {statNumbers.map((stat, idx) => (
-          <div
+          <button
             key={stat.label}
-            className={`flex flex-col px-6 ${idx === 0 ? 'pl-0' : 'border-l border-[#2a2a2a]'}`}
+            type="button"
+            onClick={() => handleStatClick(stat.metric)}
+            className={`flex flex-col px-6 text-left hover:opacity-70 transition-opacity ${idx === 0 ? 'pl-0' : 'border-l border-[#2a2a2a]'}`}
           >
             <span className="text-white text-xl font-bold">{stat.value}</span>
             <span className="text-[#999] text-xs mt-0.5">{stat.label}</span>
-          </div>
+          </button>
         ))}
 
         {/* Divider */}
@@ -105,7 +125,9 @@ export default function StudioStatsBar({ stats }: IStudioStatsBarProps) {
             <button
               key={action.label}
               type="button"
-              className="flex flex-col items-center gap-1 text-white hover:text-[#ccc] transition-colors group"
+              onClick={() => action.navigateTo ? router.push(action.navigateTo) : undefined}
+              disabled={!action.navigateTo}
+              className="flex flex-col items-center gap-1 text-white hover:text-[#ccc] transition-colors group disabled:cursor-default disabled:opacity-60"
               aria-label={action.label}
             >
               <div className="relative">

@@ -170,7 +170,7 @@ export const RealAuthService = {
       token: "",
       user: {
         id: json.data.user_id,
-        username: json.data.display_name,
+        username: json.data.username ?? json.data.display_name,
         email: json.data.email,
         profileImageUrl: "",
         createdAt: new Date().toISOString(),
@@ -231,7 +231,7 @@ export const RealAuthService = {
       success: true,
       user: {
         id: d.user_id ?? "",
-        username: d.display_name ?? data.displayName,
+        username: d.username ?? d.display_name ?? data.displayName,
         email: d.email ?? "",
         profileImageUrl: d.profile_picture ?? "",
         createdAt: d.created_at ?? new Date().toISOString(),
@@ -307,13 +307,15 @@ export const RealAuthService = {
       if (profileImageUrl) window.localStorage.setItem("auth_profile_image", profileImageUrl);
       else window.localStorage.removeItem("auth_profile_image");
     }
-    return {
+    const user: IUser = {
       id: data.user_id ?? data.id,
-      username: data.display_name ?? data.username,
+      username: data.username ?? data.display_name,
       email: data.email ?? "",
       profileImageUrl,
       createdAt: data.created_at ?? "",
     };
+    saveUserMeta(user);
+    return user;
   },
 
   refreshToken: async (_token: string): Promise<{ token: string }> => {
