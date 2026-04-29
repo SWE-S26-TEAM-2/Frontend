@@ -24,9 +24,9 @@ const EditIcon = () => (
   </svg>
 );
 
-export function ProfileActions({ user, onEditOpen }: IProfileActionsProps) {
+export function ProfileActions({ user, onEditOpen, isFollowing: initialIsFollowing }: IProfileActionsProps) {
   const router = useRouter();
-  const [isFollowing, setIsFollowing] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(initialIsFollowing ?? false); 
   const [followLoading, setFollowLoading] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
 

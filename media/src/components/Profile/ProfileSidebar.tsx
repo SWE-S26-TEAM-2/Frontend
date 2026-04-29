@@ -1,5 +1,3 @@
-// src/components/Profile/ProfileSidebar.tsx
-
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
@@ -10,14 +8,15 @@ import { formatNumber } from "@/utils/formatNumber";
 import { TrackCover } from "@/components/Track/TrackCover";
 import { ProfileStats } from "./ProfileStats";
 import { WebIcon, InstagramIcon, TwitterIcon, FacebookIcon } from "@/components/Icons/SocialIcons";
-import { PlayIcon} from "@/components/Icons/PlayerIcons";
-import { VerifiedIcon, FollowersIcon, DotsIcon, StationIcon,
+import { PlayIcon } from "@/components/Icons/PlayerIcons";
+import {
+  VerifiedIcon, FollowersIcon, DotsIcon, StationIcon,
 } from "@/components/Icons/ProfileIcons";
 import {
   HeartIcon, RepostIcon, ShareIcon as ShareMenuIcon, CopyIcon as CopyLinkIcon,
   NextUpIcon, AddToPlaylistIcon, TracksIcon,
 } from "@/components/Icons/TrackIcons";
-import { userProfileService } from "@/services/di";
+import { userProfileService, engagementService } from "@/services/di";
 
 // ─────────────────────────────────────────────────────────────
 // Track Dots Dropdown Menu
@@ -28,10 +27,10 @@ interface ITrackDotsMenuProps {
   anchorRef: React.RefObject<HTMLButtonElement | null>;
   onClose: () => void;
 }
- 
+
 function TrackDotsMenu({ track, anchorRef, onClose }: ITrackDotsMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
- 
+
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (
@@ -44,12 +43,12 @@ function TrackDotsMenu({ track, anchorRef, onClose }: ITrackDotsMenuProps) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [onClose, anchorRef]);
- 
+
   const handleCopyLink = () => {
     navigator.clipboard.writeText(`${window.location.origin}/track/${track.id}`).catch(() => {});
     onClose();
   };
- 
+
   const menuItems = [
     { icon: <RepostIcon />, label: "Repost", onClick: onClose },
     { icon: <ShareMenuIcon />, label: "Share", onClick: onClose },
@@ -58,7 +57,7 @@ function TrackDotsMenu({ track, anchorRef, onClose }: ITrackDotsMenuProps) {
     { icon: <AddToPlaylistIcon />, label: "Add to Playlist", onClick: onClose },
     { icon: <StationIcon />, label: "Station", onClick: onClose },
   ];
- 
+
   return (
     <div
       ref={menuRef}
@@ -77,41 +76,41 @@ function TrackDotsMenu({ track, anchorRef, onClose }: ITrackDotsMenuProps) {
     </div>
   );
 }
- 
+
 // ─────────────────────────────────────────────────────────────
 // Like Track Row (sidebar)
 // ─────────────────────────────────────────────────────────────
- 
+
 interface ILikeRowProps {
   like: ILikedTrack;
   isLiked: boolean;
   onToggleLike: (id: string) => void;
 }
- 
+
 function LikeRow({ like, isLiked, onToggleLike }: ILikeRowProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isDotsOpen, setIsDotsOpen] = useState(false);
   const dotsRef = useRef<HTMLButtonElement>(null);
- 
+
   return (
     <div
       className="flex gap-2.5 items-center relative group"
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => { setIsHovered(false); }}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Cover art with play overlay */}
       <div className="relative shrink-0">
         <TrackCover size={44} accentColor={like.accentColor ?? "#1a1a2e"} url={like.coverUrl} alt={like.title} />
         {isHovered && (
           <button
-            onClick={() => {/* TODO: play track */}}
+            onClick={() => {/* TODO: wire to player */ }}
             className="absolute inset-0 flex items-center justify-center bg-black/50 rounded cursor-pointer border-none"
           >
             <PlayIcon />
           </button>
         )}
       </div>
- 
+
       {/* Text */}
       <div className="min-w-0 flex-1">
         <div className="text-xs text-[#888] truncate">{like.artist}</div>
@@ -125,11 +124,10 @@ function LikeRow({ like, isLiked, onToggleLike }: ILikeRowProps) {
           </div>
         )}
       </div>
- 
+
       {/* Action buttons — visible on hover */}
       {(isHovered || isDotsOpen) && (
         <div className="flex items-center gap-1 shrink-0">
-          {/* Like/Heart button */}
           <button
             onClick={() => onToggleLike(like.id)}
             className="flex items-center justify-center w-7 h-7 rounded cursor-pointer border-none transition-colors bg-[#333] hover:bg-[#444]"
@@ -137,8 +135,7 @@ function LikeRow({ like, isLiked, onToggleLike }: ILikeRowProps) {
           >
             <HeartIcon isFilled={isLiked} />
           </button>
- 
-          {/* Dots menu button */}
+
           <div className="relative">
             <button
               ref={dotsRef}
@@ -161,17 +158,17 @@ function LikeRow({ like, isLiked, onToggleLike }: ILikeRowProps) {
     </div>
   );
 }
- 
+
 // ─────────────────────────────────────────────────────────────
 // Fan Row
 // ─────────────────────────────────────────────────────────────
- 
+
 interface IFanRowProps {
   fan: IFanUser;
   isFollowing: boolean;
   onToggleFollow: (id: string) => void;
 }
- 
+
 function FanRow({ fan, isFollowing, onToggleFollow }: IFanRowProps) {
   return (
     <div className="flex items-center gap-2.5">
@@ -196,26 +193,28 @@ function FanRow({ fan, isFollowing, onToggleFollow }: IFanRowProps) {
     </div>
   );
 }
- 
+
 // ─────────────────────────────────────────────────────────────
 // Following Row (sidebar)
 // ─────────────────────────────────────────────────────────────
- 
+
 interface IFollowingRowProps {
   f: IFollowing;
   isFollowing: boolean;
   onToggleFollow: (id: string) => void;
 }
- 
+
 function FollowingRow({ f, isFollowing, onToggleFollow }: IFollowingRowProps) {
   return (
     <div className="flex items-center gap-2.5">
       <Link href={`/${f.username}`}>
-        <TrackCover size={44} url={f.avatarUrl} alt={f.username} accentColor="#2a2a2a" />
+        <TrackCover size={44} url={f.avatarUrl} alt={f.displayName ?? f.username} accentColor="#2a2a2a" />
       </Link>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1">
-          <span className="text-[13px] text-[#ddd] font-medium truncate">{f.username}</span>
+          <span className="text-[13px] text-[#ddd] font-medium truncate">
+            {f.displayName ?? f.username}
+          </span>
           {f.isVerified && <VerifiedIcon />}
         </div>
         <div className="flex gap-2 text-[11px] text-[#666] mt-0.5">
@@ -236,39 +235,37 @@ function FollowingRow({ f, isFollowing, onToggleFollow }: IFollowingRowProps) {
     </div>
   );
 }
- 
+
 // ─────────────────────────────────────────────────────────────
 // ProfileSidebar
 // ─────────────────────────────────────────────────────────────
- 
+
 export function ProfileSidebar({ user, likes, fans, followers, following, tracksCount }: IProfileSidebarProps) {
   const hasSocialLinks = user.socialLinks && (
     user.socialLinks.website || user.socialLinks.instagram ||
     user.socialLinks.twitter || user.socialLinks.facebook
   );
- 
+
   const base = `/${user.username}`;
- 
+
   // ── Fans also like — local shuffled state ──
   const [displayedFans, setDisplayedFans] = useState<IFanUser[]>(fans);
   const [isRefreshing, setIsRefreshing] = useState(false);
- 
+
   const handleRefreshFans = useCallback(async () => {
     if (isRefreshing) return;
     setIsRefreshing(true);
     try {
       const freshFans = await userProfileService.getFansAlsoLike(user.id);
-      // Shuffle the result for a "refresh" feel
       const shuffled = [...freshFans].sort(() => Math.random() - 0.5);
       setDisplayedFans(shuffled);
     } catch {
-      // Fallback: just shuffle what we already have
       setDisplayedFans(prev => [...prev].sort(() => Math.random() - 0.5));
     } finally {
       setIsRefreshing(false);
     }
   }, [isRefreshing, user.id]);
- 
+
   // ── Fans follow state ──
   const [fanFollowState, setFanFollowState] = useState<Record<string, boolean>>(
     () => Object.fromEntries(fans.map(f => [f.username, false]))
@@ -287,11 +284,30 @@ export function ProfileSidebar({ user, likes, fans, followers, following, tracks
       setFanFollowState(prev => ({ ...prev, [fanUsername]: isCurrentlyFollowing }));
     }
   }, [fanFollowState]);
- 
-  // ── Following follow state — pre-seeded as "following" since you follow them ──
+
+  // ── Following follow state ──
+  // Seed as true only for owner (they follow everyone in their list).
+  // For visitors, we fetch their own following list to check.
   const [followingState, setFollowingState] = useState<Record<string, boolean>>(
-    () => Object.fromEntries(following.map(f => [f.username, true]))
+    () => user.isOwner
+      ? Object.fromEntries(following.map(f => [f.username, true]))
+      : Object.fromEntries(following.map(f => [f.username, false]))
   );
+
+  useEffect(() => {
+    if (user.isOwner) return;
+    const storedUsername = typeof window !== "undefined"
+      ? window.localStorage.getItem("auth_username") ?? ""
+      : "";
+    if (!storedUsername) return;
+
+    userProfileService.getFollowing(storedUsername).then(myFollowing => {
+      const myFollowingSet = new Set(myFollowing.map(f => f.username));
+      setFollowingState(
+        Object.fromEntries(following.map(f => [f.username, myFollowingSet.has(f.username)]))
+      );
+    }).catch(() => {});
+  }, [user.isOwner, following]);
 
   const handleToggleFollowing = useCallback(async (targetUsername: string) => {
     const isCurrentlyFollowing = followingState[targetUsername];
@@ -306,7 +322,7 @@ export function ProfileSidebar({ user, likes, fans, followers, following, tracks
       setFollowingState(prev => ({ ...prev, [targetUsername]: isCurrentlyFollowing }));
     }
   }, [followingState]);
- 
+
   // ── Likes — local liked state for toggling ──
   const [likedState, setLikedState] = useState<Record<string, boolean>>(
     () => Object.fromEntries(likes.map(l => [l.id, true]))
@@ -316,31 +332,35 @@ export function ProfileSidebar({ user, likes, fans, followers, following, tracks
     const isCurrentlyLiked = likedState[trackId];
     setLikedState(prev => ({ ...prev, [trackId]: !isCurrentlyLiked }));
     try {
-      // TODO: wire to trackService.likeTrack / unlikeTrack when available
+      if (isCurrentlyLiked) {
+        await engagementService.unlikeTrack(trackId);
+      } else {
+        await engagementService.likeTrack(trackId);
+      }
     } catch {
       setLikedState(prev => ({ ...prev, [trackId]: isCurrentlyLiked }));
     }
   }, [likedState]);
- 
+
   // ── Sync fans when prop changes ──
   useEffect(() => {
     setDisplayedFans(fans);
     setFanFollowState(Object.fromEntries(fans.map(f => [f.username, false])));
   }, [fans]);
- 
+
   return (
     <div className="w-55 shrink-0 pt-15.5">
- 
+
       {/* Stats */}
       <ProfileStats user={user} tracksCount={tracksCount} />
- 
+
       {/* Bio */}
       {user.bio && (
         <p className="text-[13px] text-[#aaa] leading-relaxed mb-4 pb-4 border-b border-[#1c1c1c]">
           {user.bio}
         </p>
       )}
- 
+
       {/* Social links */}
       {hasSocialLinks && (
         <div className="flex flex-col gap-2.5 mb-4 pb-4 border-b border-[#1c1c1c]">
@@ -370,7 +390,7 @@ export function ProfileSidebar({ user, likes, fans, followers, following, tracks
           )}
         </div>
       )}
- 
+
       {/* Fans also like — other user only */}
       {!user.isOwner && displayedFans.length > 0 && (
         <div className="mb-4 pb-4 border-b border-[#1c1c1c]">
@@ -398,7 +418,7 @@ export function ProfileSidebar({ user, likes, fans, followers, following, tracks
           </div>
         </div>
       )}
- 
+
       {/* Followers */}
       {followers.length > 0 && (
         <div className="mb-4 pb-4 border-b border-[#1c1c1c]">
@@ -413,13 +433,13 @@ export function ProfileSidebar({ user, likes, fans, followers, following, tracks
           <div className="flex gap-1.5 flex-wrap">
             {followers.map(f => (
               <Link key={f.id} href={`/${f.username}`}>
-                <TrackCover size={36} url={f.avatarUrl} alt={f.username} accentColor="#2a2a2a" />
+                <TrackCover size={36} url={f.avatarUrl} alt={f.displayName ?? f.username} accentColor="#2a2a2a" />
               </Link>
             ))}
           </div>
         </div>
       )}
- 
+
       {/* Following */}
       {following.length > 0 && (
         <div className="mb-4 pb-4 border-b border-[#1c1c1c]">
@@ -436,17 +456,17 @@ export function ProfileSidebar({ user, likes, fans, followers, following, tracks
               <FollowingRow
                 key={f.id}
                 f={f}
-                isFollowing={followingState[f.username] ?? true}
+                isFollowing={followingState[f.username] ?? false}
                 onToggleFollow={handleToggleFollowing}
               />
             ))}
           </div>
         </div>
       )}
- 
+
       {/* Likes */}
       <div className="flex justify-between items-center mb-3">
-        <span className="text-[13px] font-semibold text-[#999]">{user.likes} LIKES</span>
+        <span className="text-[13px] font-semibold text-[#999]">LIKES</span>
         <Link href={`${base}/likes`} className="text-xs text-[#ff5500] no-underline hover:underline">
           View all
         </Link>
@@ -461,8 +481,7 @@ export function ProfileSidebar({ user, likes, fans, followers, following, tracks
           />
         ))}
       </div>
- 
+
     </div>
   );
 }
- 

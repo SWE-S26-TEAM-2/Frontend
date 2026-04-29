@@ -97,6 +97,11 @@ import type { IInsightsService } from '@/types/insights.types';
 import { mockLibraryService } from "./mocks/library.mock";
 import { realLibraryService } from "./api/library.api";
 import type { ILibraryService } from "@/types/library.types";
+
+//engagement 
+import { realEngagementService } from "./api/engagement.api";
+import { mockEngagementService } from "./mocks/engagement.mock";
+import type { IEngagementService } from "./api/engagement.api";
 /**
  * Authentication Service
  * Automatically switches between mock and real based on USE_MOCK_API flag
@@ -300,6 +305,10 @@ export const libraryService: ILibraryService = ENV.USE_MOCK_API
   ? mockLibraryService
   : realLibraryService;
 
+export const engagementService: IEngagementService = ENV.USE_MOCK_API
+  ? mockEngagementService
+  : realEngagementService;
+  
 // Export individual services for direct imports if needed
 export {
   RealAuthService,

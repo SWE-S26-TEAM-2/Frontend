@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { ITrack } from "@/types/track.types";
 import { ShareModal } from "@/components/Share/Share";
+import { engagementService } from "@/services/di";
 
 export default function TrackActions({ track }: { track: ITrack }) {
   const shareBtnRef = useRef<HTMLButtonElement>(null);
@@ -10,11 +11,20 @@ export default function TrackActions({ track }: { track: ITrack }) {
   const [likes, setLikes] = useState(track.likes);
   const [isShareOpen, setIsShareOpen] = useState(false);
 
-  const handleLike = () => {
-    setLiked((prev) => !prev);
-    setLikes((prev) => (liked ? prev - 1 : prev + 1));
+  const handleLike = async () => {
+    const newLiked = !liked;
+    setLiked(newLiked);
+    setLikes((prev) => (newLiked ? prev + 1 : prev - 1)); // optimistic
+    try {
+      const result = newLiked
+        ? await engagementService.likeTrack(track.id)
+        : await engagementService.unlikeTrack(track.id);
+      setLikes(result.likeCount); // sync real count
+    } catch {
+      setLiked(!newLiked);
+      setLikes(track.likes); // revert
+    }
   };
-
   return (
     <div className="mt-1 flex flex-wrap items-center gap-3">
       <button

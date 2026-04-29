@@ -151,24 +151,59 @@ export const realUserProfileService: IUserProfileService = {
         `${ENV.API_BASE_URL}/users/${username}/tracks`,
       );
       const rawTracks = Array.isArray(data) ? data : (data.tracks ?? []);
-      return rawTracks.map((t) => {
-      const id = String(t.track_id ?? "");
-      return {
-        id,
-        title:         String(t.title             ?? ""),
-        artist:        String(t.display_name      ?? username),
+
+      const tracks: ITrack[] = rawTracks.map((t) => ({
+        id:            String(t.track_id ?? ""),
+        title:         String(t.title ?? ""),
+        artist:        String(t.display_name ?? username),
         albumArt:      resolveMediaUrl(t.cover_image_url) ?? "",
-        genre:         t.genre ? String(t.genre)  : undefined,
+        genre:         t.genre ? String(t.genre) : undefined,
         url:           resolveMediaUrl(t.stream_url) ?? "",
-        duration:      Number(t.duration_seconds  ?? 0),
-        likes:         Number(t.like_count        ?? 0),
-        plays:         Number(t.play_count        ?? 0),
-        commentsCount: Number(t.comment_count     ?? 0),
-        isLiked:       Boolean(t.is_liked         ?? false),
-        createdAt:     String(t.created_at        ?? ""),
-        updatedAt:     String(t.updated_at        ?? ""),
-      };
-    });
+        duration:      Number(t.duration_seconds ?? 0),
+        likes:         Number(t.like_count ?? 0),
+        plays:         Number(t.play_count ?? 0),
+        commentsCount: Number(t.comment_count ?? 0),
+        isLiked:       false, 
+        createdAt:     String(t.created_at ?? ""),
+        updatedAt:     String(t.updated_at ?? ""),
+      }));
+
+      const token = getAuthToken();
+      if (!token || tracks.length === 0) return tracks;
+
+      const summaries = await Promise.allSettled(
+        tracks.map((t) =>
+          apiGet<{
+            success: boolean;
+            data: { like_count: number; repost_count: number; comment_count: number; is_liked: boolean; is_reposted: boolean };
+          }>(`${ENV.API_BASE_URL}/tracks/${t.id}/engagement-summary`)
+        )
+      );
+
+      return tracks.map((t, i) => {
+      const result = summaries[i];
+      if (result.status === "fulfilled" && result.value) {
+        const raw = result.value as unknown as {
+          success: boolean;
+          data: {
+            like_count: number;
+            repost_count: number;
+            comment_count: number;
+            is_liked: boolean;
+            is_reposted: boolean;
+          };
+        };
+        const d = raw.data;
+        if (!d) return t;
+        return {
+          ...t,
+          likes:         d.like_count    ?? t.likes,
+          commentsCount: d.comment_count ?? t.commentsCount,
+          isLiked:       d.is_liked      ?? false,
+        };
+      }
+      return t;
+      });
     } catch {
       return [];
     }
@@ -176,14 +211,16 @@ export const realUserProfileService: IUserProfileService = {
 
   async getUserLikes(username: string): Promise<ILikedTrack[]> {
     try {
-      const tracks = await apiGet<Record<string, unknown>[]>(
+      const data = await apiGet<{ tracks?: Record<string, unknown>[] }>(
         `${ENV.API_BASE_URL}/users/${username}/liked-tracks`,
       );
-      const list = Array.isArray(tracks) ? tracks : [];
+      const list = Array.isArray(data) ? data : (data.tracks ?? []);
       return list.map((t) => ({
         id:       String(t.track_id ?? t.id ?? ""),
         title:    String(t.title ?? ""),
-        artist:   String(t.artist ?? t.display_name ?? ""),
+        artist:   String(t.display_name ?? t.artist ?? ""),
+        url:      resolveMediaUrl(t.stream_url) ?? undefined,   
+        duration: Number(t.duration_seconds ?? 0),             
         plays:    (t.play_count as number) ?? undefined,
         likes:    (t.like_count as number) ?? (t.likes as number) ?? undefined,
         reposts:  (t.repost_count as number) ?? (t.reposts as number) ?? undefined,
@@ -208,8 +245,9 @@ export const realUserProfileService: IUserProfileService = {
         `${ENV.API_BASE_URL}/users/${username}/followers`,
       );
       return (data.followers ?? []).map((f) => ({
-        id: f.user_id as string,
-        username: (f.display_name as string) ?? "",
+        id:        f.user_id as string,
+        username:  (f.username as string) ?? (f.display_name as string) ?? "",
+        displayName: (f.display_name as string) ?? "",
         avatarUrl: resolveMediaUrl(f.profile_picture),
       }));
     } catch {
@@ -223,13 +261,14 @@ export const realUserProfileService: IUserProfileService = {
       const data = await apiGet<{ following?: Record<string, unknown>[] }>(
         `${ENV.API_BASE_URL}/users/${username}/following`,
       );
-      return (data.following ?? []).map((f) => ({
-        id: f.user_id as string,
-        username: (f.display_name as string) ?? "",
-        avatarUrl: resolveMediaUrl(f.profile_picture),
-        followers: 0,
-        tracks: 0,
-      }));
+    return (data.following ?? []).map((f) => ({
+      id:          f.user_id as string,
+      username:    (f.username as string) ?? (f.display_name as string) ?? "",
+      displayName: (f.display_name as string) ?? "",
+      avatarUrl:   resolveMediaUrl(f.profile_picture),
+      followers:   0,
+      tracks:      0,
+    }));
     } catch {
       console.warn("getFollowing: failed to fetch, returning empty list");
       return [];
@@ -362,12 +401,12 @@ export const realUserProfileService: IUserProfileService = {
     return { ...fullUser, headerUrl: coverUrl ?? fullUser.headerUrl };
   },
 
-  async followUser(userId: string): Promise<void> {
-    await apiPost(`${ENV.API_BASE_URL}/users/${userId}/follow`);
+  async followUser(username: string): Promise<void> {
+    await apiPost(`${ENV.API_BASE_URL}/users/${username}/follow`);
   },
 
-  async unfollowUser(userId: string): Promise<void> {
-    await apiDelete(`${ENV.API_BASE_URL}/users/${userId}/follow`);
+  async unfollowUser(username: string): Promise<void> {
+    await apiDelete(`${ENV.API_BASE_URL}/users/${username}/follow`);
   },
 
   async searchUsers(query: string): Promise<ISearchUser[]> {

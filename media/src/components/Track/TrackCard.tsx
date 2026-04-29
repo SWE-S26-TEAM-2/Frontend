@@ -2,7 +2,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { ITrackCardProps } from "@/types/track.types";
+import { ITrackCardProps } from "@/types/track.types"; 
 import { formatNumber } from "@/utils/formatNumber";
 import { TrackCover } from "./TrackCover";
 import { Waveform } from "@/components/Track/Waveform";
@@ -10,9 +10,11 @@ import { HeartIcon, ShareIcon, CopyIcon, MoreIcon, IconBtn } from "@/components/
 import { ShareModal } from "@/components/Share/Share";
 import { seededWaveform } from "@/utils/seededWaveform";
 import { usePlayerStore } from "@/store/playerStore";
+import { engagementService } from "@/services/di";
 
-export function TrackCard({ track, onPlay }: ITrackCardProps) {
+export function TrackCard({ track, onPlay, onLikeChange }: ITrackCardProps) {
   const [isLiked, setIsLiked] = useState<boolean>(track.isLiked ?? false);
+  const [likes, setLikes] = useState<number>(track.likes);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const shareBtnRef = useRef<HTMLSpanElement>(null);
@@ -47,7 +49,23 @@ export function TrackCard({ track, onPlay }: ITrackCardProps) {
     return () => document.removeEventListener("mousedown", handler);
   }, [isMoreOpen]);
 
-  const handleLikeToggle = () => setIsLiked((v) => !v);
+ const handleLikeToggle = async () => {
+    const newLiked = !isLiked;
+    setIsLiked(newLiked);
+    setLikes((prev) => (newLiked ? prev + 1 : prev - 1));
+    try {
+      const result = newLiked
+        ? await engagementService.likeTrack(track.id)
+        : await engagementService.unlikeTrack(track.id);
+      // Reconcile with server count
+      setLikes(result.likeCount);
+      onLikeChange?.(track.id, newLiked, result.likeCount);
+    } catch {
+      // Revert on failure
+      setIsLiked(!newLiked);
+      setLikes(track.likes);
+    }
+  };
 
   const handleShare = () => setIsShareOpen(true);
 
@@ -104,12 +122,12 @@ export function TrackCard({ track, onPlay }: ITrackCardProps) {
         {/* Action buttons — grid keeps icons left, stats right */}
         <div className="grid grid-cols-[auto_1fr] items-center gap-1.5">
           <div className="flex gap-1.5 items-center">
-            <IconBtn
-              icon={<HeartIcon isFilled={isLiked} />}
-              count={isLiked ? track.likes + 1 : track.likes}
-              active={isLiked}
-              onClick={handleLikeToggle}
-            />
+              <IconBtn
+                icon={<HeartIcon isFilled={isLiked} />}
+                count={likes}
+                active={isLiked}
+                onClick={handleLikeToggle}
+              />
             <span ref={shareBtnRef} className="inline-flex">
               <IconBtn icon={<ShareIcon />} onClick={handleShare} />
             </span>
