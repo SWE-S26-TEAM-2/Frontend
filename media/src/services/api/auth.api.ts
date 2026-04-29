@@ -206,6 +206,25 @@ export const RealAuthService = {
     };
   },
 
+  verifyResetToken: async (token: string): Promise<{ valid: boolean; message: string }> => {
+    const response = await fetch(apiUrl("/auth/verify-reset-token"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    });
+  
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error?.detail || "Failed to verify token");
+    }
+  
+    const json = await response.json();
+    return {
+      valid: json.valid,
+      message: json.message,
+    };
+  },
+
   updateProfile: async (data: IUpdateProfileRequest): Promise<IUpdateProfileResponse> => {
     const token = getAccessToken();
 

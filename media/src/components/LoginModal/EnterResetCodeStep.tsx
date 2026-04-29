@@ -1,21 +1,34 @@
 "use client";
 
 import { useState } from "react";
-
 import { IEnterResetCodeStepProps } from "@/types/auth.types";
+import { AuthService } from "@/services";
 
 export default function EnterResetCodeStep({ onBack, onContinue }: IEnterResetCodeStepProps) {
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.SyntheticEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!code.trim()) {
       setError("Please enter the code from your email.");
       return;
     }
     setError("");
-    onContinue(code.trim());
+    try {
+      setIsLoading(true);
+      const { valid, message } = await AuthService.verifyResetToken(code.trim());
+      if (!valid) {
+        setError(message || "Invalid or expired code. Please try again.");
+        return;
+      }
+      onContinue(code.trim()); // only proceeds if valid
+    } catch {
+      setError("Failed to verify code. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -48,9 +61,10 @@ export default function EnterResetCodeStep({ onBack, onContinue }: IEnterResetCo
 
       <button
         type="submit"
+        disabled={isLoading}
         className="bg-white text-black w-full p-3 rounded cursor-pointer text-[15px] font-semibold border-none"
       >
-        Continue
+        {isLoading ? "Verifying..." : "Continue"}
       </button>
     </form>
   );

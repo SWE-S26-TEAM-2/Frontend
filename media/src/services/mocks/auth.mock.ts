@@ -157,6 +157,14 @@ export const MockAuthService = {
     return { success: true };
   },
 
+  verifyResetToken: async (token: string): Promise<{ valid: boolean; message: string }> => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    if (!token.trim()) {
+      return { valid: false, message: "Invalid or expired code." };
+    }
+    return { valid: true, message: "Token is valid." };
+  },
+
   /**
    * Mock getCurrentUser - retrieves current user from token
    */
