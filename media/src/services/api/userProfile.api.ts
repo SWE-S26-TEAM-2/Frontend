@@ -136,7 +136,9 @@ export const realUserProfileService: IUserProfileService = {
       return normalizeUser(pubData, storedId);
     }
 
-    const res = await fetch(apiUrl(`/users/${userId}`));
+    const res = await fetch(apiUrl(`/users/${userId}`), {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
     if (!res.ok) throw new Error(`User "${userId}" not found`);
     const json = await res.json();
     const data = (json.data ?? json) as Record<string, unknown>;
@@ -379,6 +381,7 @@ export const realUserProfileService: IUserProfileService = {
     return users.map((u) => ({
       id:            String(u.user_id ?? ""),
       username:      String(u.username ?? u.display_name ?? ""),
+      displayName:   String(u.display_name ?? ""),
       role:          (u.account_type as string) === "artist" ? "artist" : "listener",
       avatarUrl:     resolveMediaUrl(u.profile_picture) ?? null,
       followerCount: (u.follower_count as number) ?? 0,
