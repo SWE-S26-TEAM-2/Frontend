@@ -84,10 +84,7 @@ import { getAdvertisingSettingsFromAPI, updateAdvertisingSettingsOnAPI } from ".
 import { getMockTwoFactorSettings, updateMockTwoFactorSettings } from "./mocks/settings-two-factor.mock";
 import { getTwoFactorSettingsFromAPI, updateTwoFactorSettingsOnAPI } from "./api/settings-two-factor.api";
 
-// upload
-import { mockUploadService } from "./mocks/upload.mock";
-import { realUploadService } from "./api/upload.api";
-import type { IUploadService } from "@/types/upload.types";
+
 
 // studio
 import { mockStudioService } from "./mocks/studio.mock";
@@ -98,10 +95,7 @@ import { mockStoreService } from "./mocks/store.mock";
 import { realStoreService } from "./api/store.api";
 import type { IStoreService } from "@/types/store.types";
 
-// feed
-import { mockFeedService } from "./mocks/feed.mock";
-import { realFeedService } from "./api/feed.api";
-import type { IFeedService } from "@/types/feed.types";
+
 
 // playlist
 import { mockPlaylistService } from "./mocks/playlist.mock";
@@ -277,12 +271,7 @@ export const twoFactorService = {
   updateSettings: updateMockTwoFactorSettings,
 };
 
-/**
- * Feed Service
- */
-export const feedService: IFeedService = ENV.USE_MOCK_API
-  ? mockFeedService
-  : realFeedService;
+
 
 /**
  * Playlist Service
