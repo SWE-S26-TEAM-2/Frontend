@@ -18,8 +18,7 @@ const FOOTER_LINKS = [
 ];
 
 export default function UploadPage() {
-  //const { isAuthenticated } = useAuthStore(); //temporary to check
-  const isAuthenticated = true;
+  const { isAuthenticated } = useAuthStore();
 
   const [quota, setQuota] = useState<IUploadQuota | null>(null);
   const [isQuotaLoading, setIsQuotaLoading] = useState(false);
@@ -76,8 +75,12 @@ export default function UploadPage() {
       setUploadedTrackId(response.trackId);
       setStep('success');
     } catch (err) {
-      console.error('[Upload] upload failed:', err);
-      setUploadError('Upload failed. Please try again.');
+      const message = err instanceof Error && err.message
+        ? err.message
+        : 'Upload failed. Please try again.';
+
+      console.warn('[Upload] upload failed:', message);
+      setUploadError(message);
     } finally {
       setIsUploading(false);
     }

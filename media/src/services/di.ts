@@ -65,6 +65,8 @@ import type { IPrivacySettings } from "@/types/settings-privacy.types";
 // settings/account
 import { getMockAccountSettings, updateMockAccountSettings } from "./mocks/settings-account.mock";
 import { getAccountSettingsFromAPI, updateAccountSettingsOnAPI } from "./api/settings-account.api";
+import { sendMockPasswordResetEmail } from "./mocks/settings-account.mock";
+import { sendPasswordResetEmailFromAPI } from "./api/settings-account.api";
 
 // settings/notification
 import { getMockNotificationSettings, updateMockNotificationSettings } from "./mocks/settings-notification.mock";
@@ -82,7 +84,59 @@ import { getAdvertisingSettingsFromAPI, updateAdvertisingSettingsOnAPI } from ".
 import { getMockTwoFactorSettings, updateMockTwoFactorSettings } from "./mocks/settings-two-factor.mock";
 import { getTwoFactorSettingsFromAPI, updateTwoFactorSettingsOnAPI } from "./api/settings-two-factor.api";
 
-// ── EXPORTS ───────────────────────────────────────────────────────────────────
+// upload
+import { mockUploadService } from "./mocks/upload.mock";
+import { realUploadService } from "./api/upload.api";
+import type { IUploadService } from "@/types/upload.types";
+
+// studio
+import { mockStudioService } from "./mocks/studio.mock";
+import { realStudioService } from "./api/studio.api";
+import type { IStudioService } from "@/types/studio.types";
+// store
+import { mockStoreService } from "./mocks/store.mock";
+import { realStoreService } from "./api/store.api";
+import type { IStoreService } from "@/types/store.types";
+
+// feed
+import { mockFeedService } from "./mocks/feed.mock";
+import { realFeedService } from "./api/feed.api";
+import type { IFeedService } from "@/types/feed.types";
+
+// playlist
+import { mockPlaylistService } from "./mocks/playlist.mock";
+import { realPlaylistService } from "./api/playlist.api";
+import type { IPlaylistService } from "@/types/playlist.types";
+
+// comment
+import { mockCommentService } from "./mocks/comment.mock";
+import { realCommentService } from "./api/comment.api";
+import type { ICommentService } from "@/types/comment.types";
+
+// message
+import { mockMessageService } from "./mocks/message.mock";
+import { realMessageService } from "./api/message.api";
+import type { IMessageService } from "@/types/message.types";
+
+// chart
+import { mockChartService } from "./mocks/chart.mock";
+import { realChartService } from "./api/chart.api";
+import type { IChartService } from "@/types/chart.types";
+
+// notification (new — page-level; distinct from settings notificationService)
+import { mockNotificationService } from "./mocks/notification.mock";
+import { realNotificationService } from "./api/notification.api";
+import type { INotificationService } from "@/types/notification.types";
+
+// admin
+import { mockAdminService } from "./mocks/admin.mock";
+import { realAdminService } from "./api/admin.api";
+import type { IAdminService } from "@/types/admin.types";
+
+// insights
+import { mockInsightsService } from './mocks/insights.mock';
+import { realInsightsService } from './api/insights.api';
+import type { IInsightsService } from '@/types/insights.types';
 
 /** Authentication Service */
 export const AuthService = ENV.USE_MOCK_API ? MockAuthService : RealAuthService;
@@ -100,6 +154,26 @@ export const uploadService: IUploadService = ENV.USE_MOCK_API
   ? mockUploadService
   : realUploadService;
 
+/**
+ * Studio Service
+ */
+/**
+ * Studio Service
+ * Hardcoded to mock — backend has no track-listing or bulk-edit endpoints yet.
+ */
+//export const studioService: IStudioService = mockStudioService;
+export const studioService: IStudioService = ENV.USE_MOCK_API ? mockStudioService : realStudioService;
+
+/**
+ * Store Service
+ */
+export const storeService: IStoreService = ENV.USE_MOCK_API
+  ? mockStoreService
+  : realStoreService;
+
+/**
+ * Settings - Privacy Service
+ */
 /** Trending Service
  * TODO: replace getCuratedTracksAPI, getEmergingTracksAPI, getPowerPlaylistsAPI
  * with real endpoints once backend ships them.
@@ -148,31 +222,109 @@ export const updatePrivacySettings = async (
 export const accountService = {
   getSettings:    ENV.USE_MOCK_API ? getMockAccountSettings    : getAccountSettingsFromAPI,
   updateSettings: ENV.USE_MOCK_API ? updateMockAccountSettings : updateAccountSettingsOnAPI,
+  sendPasswordResetEmail: ENV.USE_MOCK_API ? sendMockPasswordResetEmail : sendPasswordResetEmailFromAPI,
 };
 
-/** Settings - Notification Service */
+/**
+ * Settings - Notification Service
+ */
+// export const notificationService = {
+//   getSettings: ENV.USE_MOCK_API ? getMockNotificationSettings : getNotificationSettingsFromAPI,
+//   updateSettings: ENV.USE_MOCK_API ? updateMockNotificationSettings : updateNotificationSettingsOnAPI,
+// };
 export const notificationService = {
-  getSettings:    ENV.USE_MOCK_API ? getMockNotificationSettings    : getNotificationSettingsFromAPI,
-  updateSettings: ENV.USE_MOCK_API ? updateMockNotificationSettings : updateNotificationSettingsOnAPI,
+  // Forced to Mock
+  getSettings: getMockNotificationSettings,
+  updateSettings: updateMockNotificationSettings,
 };
 
-/** Settings - Content Service */
+/**
+ * Settings - Content Service
+ */
+// export const contentService = {
+//   getSettings: ENV.USE_MOCK_API ? getMockContentSettings : getContentSettingsFromAPI,
+//   updateSettings: ENV.USE_MOCK_API ? updateMockContentSettings : updateContentSettingsOnAPI,
+// };
 export const contentService = {
-  getSettings:    ENV.USE_MOCK_API ? getMockContentSettings    : getContentSettingsFromAPI,
-  updateSettings: ENV.USE_MOCK_API ? updateMockContentSettings : updateContentSettingsOnAPI,
+  // Forced to Mock
+  getSettings: getMockContentSettings,
+  updateSettings: updateMockContentSettings,
 };
 
-/** Settings - Advertising Service */
+/**
+ * Settings - Advertising Service
+ */
+// export const advertisingService = {
+//   getSettings: ENV.USE_MOCK_API ? getMockAdvertisingSettings : getAdvertisingSettingsFromAPI,
+//   updateSettings: ENV.USE_MOCK_API ? updateMockAdvertisingSettings : updateAdvertisingSettingsOnAPI,
+// };
 export const advertisingService = {
-  getSettings:    ENV.USE_MOCK_API ? getMockAdvertisingSettings    : getAdvertisingSettingsFromAPI,
-  updateSettings: ENV.USE_MOCK_API ? updateMockAdvertisingSettings : updateAdvertisingSettingsOnAPI,
+  // Forced to Mock
+  getSettings: getMockAdvertisingSettings,
+  updateSettings: updateMockAdvertisingSettings,
 };
 
-/** Settings - Two Factor Service */
+/**
+ * Settings - Two Factor Service
+ */
+// export const twoFactorService = {
+//   getSettings: ENV.USE_MOCK_API ? getMockTwoFactorSettings : getTwoFactorSettingsFromAPI,
+//   updateSettings: ENV.USE_MOCK_API ? updateMockTwoFactorSettings : updateTwoFactorSettingsOnAPI,
+// };
 export const twoFactorService = {
-  getSettings:    ENV.USE_MOCK_API ? getMockTwoFactorSettings    : getTwoFactorSettingsFromAPI,
-  updateSettings: ENV.USE_MOCK_API ? updateMockTwoFactorSettings : updateTwoFactorSettingsOnAPI,
+  // Forced to Mock
+  getSettings: getMockTwoFactorSettings,
+  updateSettings: updateMockTwoFactorSettings,
 };
+
+/**
+ * Feed Service
+ */
+export const feedService: IFeedService = ENV.USE_MOCK_API
+  ? mockFeedService
+  : realFeedService;
+
+/**
+ * Playlist Service
+ */
+export const playlistService: IPlaylistService = ENV.USE_MOCK_API
+  ? mockPlaylistService
+  : realPlaylistService;
+
+/**
+ * Comment Service
+ */
+export const commentService: ICommentService = ENV.USE_MOCK_API
+  ? mockCommentService
+  : realCommentService;
+
+/**
+ * Message Service
+ */
+export const messageService: IMessageService = ENV.USE_MOCK_API
+  ? mockMessageService
+  : realMessageService;
+
+/**
+ * Chart Service
+ */
+export const chartService: IChartService = ENV.USE_MOCK_API
+  ? mockChartService
+  : realChartService;
+
+/**
+ * Activity Notification Service (page-level — distinct from settings notificationService)
+ */
+export const activityNotificationService: INotificationService = ENV.USE_MOCK_API
+  ? mockNotificationService
+  : realNotificationService;
+
+/**
+ * Admin Service
+ */
+export const adminService: IAdminService = ENV.USE_MOCK_API
+  ? mockAdminService
+  : realAdminService;
 
 /** Service Status — debug info */
 export const serviceStatus = {
@@ -181,7 +333,22 @@ export const serviceStatus = {
   mode:       ENV.USE_MOCK_API ? "MOCK" : "REAL",
 };
 
-// Named re-exports for direct imports
+// before
+/**
+ * Insights Service
+ */
+// export const insightsService: IInsightsService = ENV.USE_MOCK_API
+//   ? mockInsightsService
+//   : realInsightsService;
+
+// After:
+/**
+ * Insights Service
+ * Hardcoded to mock — backend /api/insights endpoint not implemented yet.
+ */
+export const insightsService: IInsightsService = mockInsightsService;
+
+// Export individual services for direct imports if needed
 export {
   RealAuthService,
   MockAuthService,
@@ -195,4 +362,8 @@ export {
   realUserProfileService,
   mockUploadService,
   realUploadService,
+  mockStudioService,
+  realStudioService,
+  mockInsightsService, 
+  realInsightsService
 };

@@ -73,3 +73,30 @@ export interface IUploadService {
     onProgress: (progress: number) => void
   ): Promise<IUploadResponse>;
 }
+
+export interface ITrackInfoFormProps {
+  uploadFile: IUploadFile;
+  onReplaceTrack: () => void;
+  onClose: () => void;
+  onUpload: (metadata: ITrackMetadata) => void;
+  isUploading: boolean;
+  uploadProgress: number;
+}
+
+export interface IUploadDropzoneProps {
+  onFilesSelected: (files: IUploadFile[]) => void;
+  isDisabled?: boolean;
+}
+
+export interface IUploadQuotaBarProps {
+  quota: IUploadQuota;
+}
+
+export interface IUploadSuccessProps {
+  trackId: string;
+  onClose: () => void;
+}
+
+export interface IUploadLandingProps {
+  onUploadClick: () => void;
+}

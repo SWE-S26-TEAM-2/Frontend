@@ -21,7 +21,11 @@ jobs:
           timeout: 300s
           command_timeout: 20m
           script: |
-            cd ~/Frontend && git pull
+            cd ~/Frontend
+            git config pull.rebase false
+            git stash
+            git pull
+            git stash drop
             cd ~/DevOps
             docker compose stop frontend
             docker compose build frontend

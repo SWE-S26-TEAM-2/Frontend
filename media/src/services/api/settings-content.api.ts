@@ -1,13 +1,13 @@
-import { IContentSettings } from "@/types/settings-content.types";
+import type { IContentSettings } from "@/types/settings-content.types";
+import { unsupportedApiFeature } from "./apiMode";
 
 export const getContentSettingsFromAPI = async (): Promise<IContentSettings> => {
-  console.error("🔵 API call: getContentSettings");
-  throw new Error("API not implemented yet");
+  unsupportedApiFeature("settings.content.getSettings()");
 };
 
 export const updateContentSettingsOnAPI = async (
   settings: Partial<IContentSettings>
 ): Promise<IContentSettings> => {
-  console.error("🔵 API call: updateContentSettings", settings);
-  throw new Error("API not implemented yet");
+  void settings;
+  unsupportedApiFeature("settings.content.updateSettings()");
 };

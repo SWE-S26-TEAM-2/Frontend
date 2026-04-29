@@ -1,13 +1,13 @@
-import { IAdvertisingSettings } from "@/types/settings-advertising.types";
+import type { IAdvertisingSettings } from "@/types/settings-advertising.types";
+import { unsupportedApiFeature } from "./apiMode";
 
 export const getAdvertisingSettingsFromAPI = async (): Promise<IAdvertisingSettings> => {
-  console.error("🔵 API call: getAdvertisingSettings");
-  throw new Error("API not implemented yet");
+  unsupportedApiFeature("settings.advertising.getSettings()");
 };
 
 export const updateAdvertisingSettingsOnAPI = async (
   settings: Partial<IAdvertisingSettings>
 ): Promise<IAdvertisingSettings> => {
-  console.error("🔵 API call: updateAdvertisingSettings", settings);
-  throw new Error("API not implemented yet");
+  void settings;
+  unsupportedApiFeature("settings.advertising.updateSettings()");
 };

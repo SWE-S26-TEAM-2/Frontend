@@ -127,7 +127,12 @@ STEP 4 — TESTS
 > media@0.1.0 test
 > jest --silent
 
+PASS src/__tests__/Toggle.test.tsx
 PASS src/__tests__/SlideShow.test.tsx
+PASS src/__tests__/TrackPage.test.tsx
+PASS src/__tests__/Landing.test.tsx
+PASS src/__tests__/utils/formatNumber.test.ts
+PASS src/__tests__/utils/timeAgo.test.ts
 PASS src/__tests__/components/TrackCard.test.tsx
 PASS src/__tests__/Footer.test.tsx
 PASS src/__tests__/Trending.test.tsx (5.105 s)

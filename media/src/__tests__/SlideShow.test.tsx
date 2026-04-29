@@ -16,6 +16,17 @@ jest.mock("@/services/api/landing.api", () => ({
   },
 }));
 
+jest.mock("@react-oauth/google", () => ({
+  GoogleLogin: () => null,
+}));
+
+jest.mock("@/store/authStore", () => ({
+  useAuthStore: (selector?: (s: { user: null; isAuthenticated: boolean; login: jest.Mock; logout: jest.Mock }) => unknown) => {
+    const state = { user: null, isAuthenticated: false, login: jest.fn(), logout: jest.fn() };
+    return typeof selector === "function" ? selector(state) : state;
+  },
+}));
+
 describe("SlideShow Component", () => {
   const mockPush = jest.fn();
   

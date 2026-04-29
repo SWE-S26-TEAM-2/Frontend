@@ -8,8 +8,9 @@ import { seededWaveform } from "@/utils/seededWaveform";
 import type { ITrack } from "@/types/track.types";
 import type {
   IUserProfileService, IUser, IUserProfileTrack, ILikedTrack,
-  IFanUser, IFollower, IFollowing,
+  IFanUser, IFollower, IFollowing, ISearchUser,
 } from "@/types/userProfile.types";
+import type { IEditProfilePayload } from "@/types/userProfile.types";
 
 const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -53,8 +54,8 @@ const MOCK_USERS: IUser[] = [
     role: "listener",
     socialLinks: {},
     isPrivate: false,
-    followers: 0,
-    following: 3,
+    followers: 8,
+    following: 2,
     tracks: 0,
     likes: 4,
     avatarUrl: null,
@@ -124,10 +125,10 @@ const MOCK_TRACKS: IUserProfileTrack[] = [
 ];
 
 const MOCK_LIKES: ILikedTrack[] = [
-  { id: 1, title: "Une vie à t'aimer", artist: "Lorien Testard, Alice Dup...", plays: 312000, likes: 5140, reposts: 70, comments: 99, coverUrl: null, accentColor: "#c0392b" },
-  { id: 2, title: "Dark Souls 3 OST + DLC", artist: "mitchteck", likes: 3140, reposts: 76, coverUrl: null, accentColor: "#8B4513" },
-  { id: 3, title: "Dark Souls III", artist: "RPG_OST", coverUrl: null, accentColor: "#2c3e50" },
-  { id: 4, title: "For Those Who Come A...", artist: "Lorien Testard, Alice Dup", coverUrl: null, accentColor: "#1a252f" },
+  { id: "1", title: "Une vie à t'aimer", artist: "Lorien Testard, Alice Dup...", plays: 312000, likes: 5140, reposts: 70, comments: 99, coverUrl: null, accentColor: "#c0392b" },
+  { id: "2", title: "Dark Souls 3 OST + DLC", artist: "mitchteck", likes: 3140, reposts: 76, coverUrl: null, accentColor: "#8B4513" },
+  { id: "3", title: "Dark Souls III", artist: "RPG_OST", coverUrl: null, accentColor: "#2c3e50" },
+  { id: "4", title: "For Those Who Come A...", artist: "Lorien Testard, Alice Dup", coverUrl: null, accentColor: "#1a252f" },
 ];
 
 const MOCK_FANS: IFanUser[] = [
@@ -157,10 +158,10 @@ const MOCK_FOLLOWING: IFollowing[] = [
 // ─────────────────────────────────────────────────────────────
 export const mockUserProfileService: IUserProfileService = {
 
-  async getUserProfile(username: string): Promise<IUser> {
+  async getUserProfile(userId: string): Promise<IUser> {
     await delay(300);
-    const user = MOCK_USERS.find(u => u.username === username);
-    if (!user) throw new Error(`User "${username}" not found`);
+    const user = MOCK_USERS.find(u => u.id === userId || u.username === userId);
+    if (!user) throw new Error(`User "${userId}" not found`);
     return user;
   },
 
@@ -194,5 +195,72 @@ export const mockUserProfileService: IUserProfileService = {
     await delay(300);
     return MOCK_FOLLOWING;
   },
+
+  async updateProfile(userId: string, payload: IEditProfilePayload): Promise<IUser> {
+    await delay(500);
+    const index = MOCK_USERS.findIndex(u => u.id === userId);
+    if (index === -1) throw new Error(`User "${userId}" not found`);
+
+    const updated: IUser = {
+      ...MOCK_USERS[index],
+      ...(payload.displayName !== undefined && { displayName: payload.displayName }),
+      ...(payload.firstName   !== undefined && { firstName:   payload.firstName }),
+      ...(payload.lastName    !== undefined && { lastName:    payload.lastName }),
+      ...(payload.city        !== undefined && { city:        payload.city }),
+      ...(payload.country     !== undefined && { country:     payload.country }),
+      ...(payload.bio         !== undefined && { bio:         payload.bio }),
+      ...(payload.links       !== undefined && { socialLinks: payload.links }),
+      location: [payload.city ?? MOCK_USERS[index].city, payload.country ?? MOCK_USERS[index].country]
+        .filter(Boolean).join(", ") || MOCK_USERS[index].location,
+    };
+
+    MOCK_USERS[index] = updated;
+    return updated;
+  },
+
+  async uploadAvatar(file: File): Promise<IUser> {
+    await delay(250);
+    const owner = MOCK_USERS.find((u) => u.isOwner);
+    if (!owner) throw new Error("Owner profile not found");
+    owner.avatarUrl = URL.createObjectURL(file);
+    return { ...owner };
+  },
+
+  async uploadCover(file: File): Promise<IUser> {
+    await delay(250);
+    const owner = MOCK_USERS.find((u) => u.isOwner);
+    if (!owner) throw new Error("Owner profile not found");
+    owner.headerUrl = URL.createObjectURL(file);
+    return { ...owner };
+  },
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async followUser(_userId: string): Promise<void> {
+    await delay(200);
+  },
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async unfollowUser(_userId: string): Promise<void> {
+    await delay(200);
+  },
+
+  async searchUsers(query: string): Promise<ISearchUser[]> {
+    await delay(250);
+    const q = query.toLowerCase();
+    return MOCK_USERS
+      .filter((u) => u.username.toLowerCase().includes(q))
+      .map((u) => ({
+        id: u.id,
+        username: u.username,
+        role: u.role,
+        avatarUrl: u.avatarUrl,
+        followerCount: u.followers,
+        isVerified: false,
+      }));
+  },
+
+  async getSocialLinks(): Promise<IUser["socialLinks"]> {
+  return {};
+},
 
 };

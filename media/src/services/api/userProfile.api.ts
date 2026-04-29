@@ -1,63 +1,392 @@
 // src/services/api/userProfile.api.ts
 import { ENV } from "@/config/env";
-import type { IUserProfileService, IUser, IUserProfileTrack, ILikedTrack, IFanUser, IFollower, IFollowing } from "@/types/userProfile.types";
+import { getApiBaseUrl, normalizeApiUrl } from "@/config/env";
+import type {
+  IUserProfileService, IUser,
+  ILikedTrack, IFanUser, IFollower, IFollowing, ISearchUser,
+  IEditProfilePayload,
+} from "@/types/userProfile.types";
 import type { ITrack } from "@/types/track.types";
+import { apiPost, apiDelete, apiGet } from "./apiClient";
+import { mockUserProfileService } from "@/services/mocks/userProfile.mock";
 
-function toCanonicalTrack(track: IUserProfileTrack): ITrack {
-  const durationInSeconds = track.duration.includes(":")
-    ? track.duration
-        .split(":")
-        .map((v) => parseInt(v, 10) || 0)
-        .reduce((acc, part) => acc * 60 + part, 0)
-    : parseInt(track.duration, 10) || 0;
+const apiUrl = (path: string): string => normalizeApiUrl(`${getApiBaseUrl()}${path}`);
+
+const getAuthToken = () =>
+  typeof window !== "undefined" ? window.localStorage.getItem("auth_token") : null;
+
+const getStoredUserId = () =>
+  typeof window !== "undefined" ? window.localStorage.getItem("auth_user_id") : null;
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+const resolveMediaUrl = (value: unknown): string | null => {
+  if (!value || typeof value !== "string") return null;
+  const raw = value.trim();
+  if (!raw) return null;
+  if (UUID_RE.test(raw)) return null;
+  if (raw.startsWith("http://") || raw.startsWith("https://") || raw.startsWith("data:")) return raw;
+
+  const base = getApiBaseUrl().replace(/\/$/, "");
+  const origin = base.endsWith("/api") ? base.slice(0, -4) : base;
+
+  if (raw.startsWith("/api/") || raw.startsWith("/uploads/")) {
+    return `${origin}${raw}`;
+  }
+
+  return raw.startsWith("/") ? `${origin}${raw}` : `${origin}/${raw}`;
+};
+
+const fetchWithTimeout = async (
+  input: RequestInfo | URL,
+  init: RequestInit,
+  timeoutMs = 15000,
+): Promise<Response> => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const requestUrl = typeof input === "string" ? normalizeApiUrl(input) : input;
+    return await fetch(requestUrl, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
+const addCacheBuster = (value: unknown): string | undefined => {
+  if (!value || typeof value !== "string") return undefined;
+  const ts = Date.now();
+  return value.includes("?") ? `${value}&v=${ts}` : `${value}?v=${ts}`;
+};
+
+function normalizeUser(d: Record<string, unknown>, requestedId: string): IUser {
+  const location = (d.location as string) ?? "";
+  const parts = location.split(",").map((s) => s.trim());
 
   return {
-    id: track.id.toString(),
-    title: track.title,
-    artist: track.artist,
-    albumArt: track.coverUrl || "",
-    genre: track.genre || undefined,
-    url: "",
-    duration: durationInSeconds,
-    likes: track.likes,
-    plays: track.plays,
-    commentsCount: track.comments,
-    isLiked: track.isLiked,
-    createdAt: track.createdAt,
-    updatedAt: track.createdAt,
+    id:           (d.user_id as string)      ?? requestedId,
+    username:     (d.username as string)     ?? (d.display_name as string) ?? "",
+    displayName:  (d.display_name as string) ?? undefined,
+    firstName:    (d.first_name as string)   ?? undefined,
+    lastName:     (d.last_name as string)    ?? undefined,
+    city:         (d.city as string)         ?? parts[0]  ?? undefined,
+    country:      (d.country as string)      ?? parts[1]  ?? undefined,
+    location,
+    bio:          (d.bio as string)          ?? undefined,
+    role:         (d.account_type as string) === "artist" ? "artist" : "listener",
+    isPrivate:    (d.is_private as boolean)  ?? false,
+    avatarUrl:    resolveMediaUrl(d.profile_picture),
+    headerUrl:    resolveMediaUrl(d.cover_photo),
+    followers:    (d.follower_count as number)  ?? 0,
+    following:    (d.following_count as number) ?? 0,
+    tracks: (d.track_count as number) ?? 0,
+    likes:        0,
+    isOwner:      (d.user_id as string) === getStoredUserId(),
   };
 }
 
 export const realUserProfileService: IUserProfileService = {
-  async getUserProfile(username: string): Promise<IUser> {
-    const res = await fetch(`${ENV.API_BASE_URL}/users/${username}`);
-    if (!res.ok) throw new Error(`User "${username}" not found`);
-    return res.json();
+
+   async getSocialLinks(): Promise<IUser["socialLinks"]> {
+    const token = getAuthToken();
+    if (!token) return {};
+
+    const res = await fetch(apiUrl("/users/me/social-links"), {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return {};
+
+    const json = await res.json();
+    const links = (json.data?.social_links ?? []) as { platform: string; url: string }[];
+
+    return links.reduce((acc, { platform, url }) => {
+      acc[platform as keyof NonNullable<IUser["socialLinks"]>] = url;
+      return acc;
+    }, {} as NonNullable<IUser["socialLinks"]>);
   },
-  async getUserTracks(userId: string): Promise<ITrack[]> {
-    const res = await fetch(`${ENV.API_BASE_URL}/users/${userId}/tracks`);
-    if (!res.ok) throw new Error(`Could not fetch tracks for user "${userId}"`);
-    const tracks = (await res.json()) as IUserProfileTrack[];
-    return tracks.map(toCanonicalTrack);
+
+  async getUserProfile(userId: string): Promise<IUser> {
+    const token = getAuthToken();
+    const storedId = getStoredUserId();
+
+    // If viewing own profile, use the authenticated endpoint
+    const isOwn = token && storedId;
+    if (isOwn) {
+      // First fetch public profile to get username/follower data
+      const pubRes = await fetch(apiUrl(`/users/${userId}`));
+      if (!pubRes.ok) throw new Error(`User "${userId}" not found`);
+      const pubJson = await pubRes.json();
+      const pubData = (pubJson.data ?? pubJson) as Record<string, unknown>;
+
+      // Check if this is actually the logged-in user
+      if (pubData.user_id === storedId) {
+      const meRes = await fetch(apiUrl(`/users/me`), {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (meRes.ok) {
+        const meJson = await meRes.json();
+        const meData = (meJson.data ?? meJson) as Record<string, unknown>;
+        const normalizedUser = normalizeUser({ ...pubData, ...meData }, storedId);
+
+        // fetch and merge social links
+        const socialLinks = await realUserProfileService.getSocialLinks();
+        return { ...normalizedUser, socialLinks };
+      }
+    }
+
+      return normalizeUser(pubData, storedId);
+    }
+
+    const res = await fetch(apiUrl(`/users/${userId}`), {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!res.ok) throw new Error(`User "${userId}" not found`);
+    const json = await res.json();
+    const data = (json.data ?? json) as Record<string, unknown>;
+    return normalizeUser(data, storedId ?? "");
   },
-  async getUserLikes(userId: string): Promise<ILikedTrack[]> {
-    const res = await fetch(`${ENV.API_BASE_URL}/users/${userId}/likes`);
-    if (!res.ok) throw new Error(`Could not fetch likes for user "${userId}"`);
-    return res.json();
+
+  async getUserTracks(username: string): Promise<ITrack[]> {
+    try {
+      const data = await apiGet<Record<string, unknown>[] | { tracks?: Record<string, unknown>[] }>(
+        `${ENV.API_BASE_URL}/users/${username}/tracks`,
+      );
+      const rawTracks = Array.isArray(data) ? data : (data.tracks ?? []);
+      return rawTracks.map((t) => {
+      const id = String(t.track_id ?? "");
+      return {
+        id,
+        title:         String(t.title             ?? ""),
+        artist:        String(t.display_name      ?? username),
+        albumArt:      resolveMediaUrl(t.cover_image_url) ?? "",
+        genre:         t.genre ? String(t.genre)  : undefined,
+        url:           resolveMediaUrl(t.stream_url) ?? "",
+        duration:      Number(t.duration_seconds  ?? 0),
+        likes:         Number(t.like_count        ?? 0),
+        plays:         Number(t.play_count        ?? 0),
+        commentsCount: Number(t.comment_count     ?? 0),
+        isLiked:       Boolean(t.is_liked         ?? false),
+        createdAt:     String(t.created_at        ?? ""),
+        updatedAt:     String(t.updated_at        ?? ""),
+      };
+    });
+    } catch {
+      return [];
+    }
   },
+
+  async getUserLikes(username: string): Promise<ILikedTrack[]> {
+    try {
+      const tracks = await apiGet<Record<string, unknown>[]>(
+        `${ENV.API_BASE_URL}/users/${username}/liked-tracks`,
+      );
+      const list = Array.isArray(tracks) ? tracks : [];
+      return list.map((t) => ({
+        id:       String(t.track_id ?? t.id ?? ""),
+        title:    String(t.title ?? ""),
+        artist:   String(t.artist ?? t.display_name ?? ""),
+        plays:    (t.play_count as number) ?? undefined,
+        likes:    (t.like_count as number) ?? (t.likes as number) ?? undefined,
+        reposts:  (t.repost_count as number) ?? (t.reposts as number) ?? undefined,
+        comments: (t.comment_count as number) ?? (t.comments as number) ?? undefined,
+        coverUrl: resolveMediaUrl(t.cover_image_url ?? t.cover_url ?? t.cover_photo ?? t.coverUrl),
+      }));
+    } catch {
+      console.warn("getUserLikes: failed to fetch, returning empty list");
+      return [];
+    }
+  },
+
   async getFansAlsoLike(userId: string): Promise<IFanUser[]> {
-    const res = await fetch(`${ENV.API_BASE_URL}/users/${userId}/fans`);
-    if (!res.ok) throw new Error(`Could not fetch fans for user "${userId}"`);
-    return res.json();
+    // backend /users/{id}/fans endpoint not implemented yet
+    console.warn("getFansAlsoLike: endpoint not available, using mock data");
+    return mockUserProfileService.getFansAlsoLike(userId);
   },
-  async getFollowers(userId: string): Promise<IFollower[]> {
-    const res = await fetch(`${ENV.API_BASE_URL}/users/${userId}/followers`);
-    if (!res.ok) throw new Error(`Could not fetch followers for user "${userId}"`);
-    return res.json();
+
+  async getFollowers(username: string): Promise<IFollower[]> {
+    try {
+      const data = await apiGet<{ followers?: Record<string, unknown>[] }>(
+        `${ENV.API_BASE_URL}/users/${username}/followers`,
+      );
+      return (data.followers ?? []).map((f) => ({
+        id: f.user_id as string,
+        username: (f.display_name as string) ?? "",
+        avatarUrl: resolveMediaUrl(f.profile_picture),
+      }));
+    } catch {
+      console.warn("getFollowers: failed to fetch, returning empty list");
+      return [];
+    }
   },
-  async getFollowing(userId: string): Promise<IFollowing[]> {
-    const res = await fetch(`${ENV.API_BASE_URL}/users/${userId}/following`);
-    if (!res.ok) throw new Error(`Could not fetch following for user "${userId}"`);
-    return res.json();
+
+  async getFollowing(username: string): Promise<IFollowing[]> {
+    try {
+      const data = await apiGet<{ following?: Record<string, unknown>[] }>(
+        `${ENV.API_BASE_URL}/users/${username}/following`,
+      );
+      return (data.following ?? []).map((f) => ({
+        id: f.user_id as string,
+        username: (f.display_name as string) ?? "",
+        avatarUrl: resolveMediaUrl(f.profile_picture),
+        followers: 0,
+        tracks: 0,
+      }));
+    } catch {
+      console.warn("getFollowing: failed to fetch, returning empty list");
+      return [];
+    }
   },
+
+
+  async updateProfile(_userId: string, payload: IEditProfilePayload): Promise<IUser> {
+    const token = getAuthToken();
+
+    if (!token) throw new Error("You must be logged in to update your profile");
+
+    if (payload.avatarFile) {
+      try {
+        await realUserProfileService.uploadAvatar(payload.avatarFile);
+      } catch (err) {
+        console.warn("updateProfile: avatar upload failed, continuing with text fields only", err);
+      }
+    }
+
+    const location = [payload.city, payload.country].filter(Boolean).join(", ");
+
+    const body: Record<string, unknown> = {
+      display_name: payload.displayName,
+      first_name:   payload.firstName,
+      last_name:    payload.lastName,
+      bio:          payload.bio,
+      ...(location && { location }),
+    };
+
+    Object.keys(body).forEach((k) => body[k] === undefined && delete body[k]);
+
+    const res = await fetchWithTimeout(apiUrl("/users/me"), {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({}));
+      throw new Error((error as { detail?: string }).detail || "Failed to update profile");
+    }
+
+     // save social links if provided
+    if (payload.links) {
+      const socialLinksBody = Object.entries(payload.links)
+        .filter(([, url]) => url)
+        .map(([platform, url]) => ({ platform, url }));
+
+      await fetchWithTimeout(apiUrl("/users/me/social-links"), {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ social_links: socialLinksBody }),
+      });
+    }
+
+    const json = await res.json();
+    const data = (json.data ?? json) as Record<string, unknown>;
+    const storedId = getStoredUserId() ?? "";
+    return normalizeUser(data, storedId);
+  },
+
+  async uploadAvatar(file: File): Promise<IUser> {
+    const token = getAuthToken();
+    if (!token) throw new Error("You must be logged in to upload an avatar");
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetchWithTimeout(apiUrl("/users/me/avatar"), {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({}));
+      throw new Error((error as { detail?: string }).detail || "Failed to upload avatar");
+    }
+
+  const json = await res.json();
+  const data = (json.data ?? json) as Record<string, unknown>;
+
+  const bustedAvatar = addCacheBuster(data.profile_picture);
+  const avatarUrl = resolveMediaUrl(bustedAvatar ?? data.profile_picture);
+
+  if (typeof window !== "undefined" && avatarUrl) {
+    window.localStorage.setItem("auth_profile_image", avatarUrl);
+  }
+
+  return { avatarUrl } as unknown as IUser;
+ },
+
+  async uploadCover(file: File): Promise<IUser> {
+    const token = getAuthToken();
+    if (!token) throw new Error("You must be logged in to upload a cover image");
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetchWithTimeout(apiUrl("/users/me/cover"), {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({}));
+      throw new Error((error as { detail?: string }).detail || "Failed to upload cover image");
+    }
+
+    const json = await res.json();
+    const data = (json.data ?? json) as Record<string, unknown>;
+
+    const bustedCover = addCacheBuster(data.cover_photo);
+    const coverUrl = resolveMediaUrl(bustedCover ?? data.cover_photo);
+
+    const storedUsername =
+      typeof window !== "undefined"
+        ? window.localStorage.getItem("auth_username") ?? ""
+        : "";
+
+    const fullUser = await realUserProfileService.getUserProfile(storedUsername);
+    return { ...fullUser, headerUrl: coverUrl ?? fullUser.headerUrl };
+  },
+
+  async followUser(userId: string): Promise<void> {
+    await apiPost(`${ENV.API_BASE_URL}/users/${userId}/follow`);
+  },
+
+  async unfollowUser(userId: string): Promise<void> {
+    await apiDelete(`${ENV.API_BASE_URL}/users/${userId}/follow`);
+  },
+
+  async searchUsers(query: string): Promise<ISearchUser[]> {
+    const data = await apiGet<Record<string, unknown>[] | { users?: Record<string, unknown>[] }>(
+      `${ENV.API_BASE_URL}/search/users?keyword=${encodeURIComponent(query.trim())}`,
+
+    );
+    const users = Array.isArray(data) ? data : (data.users ?? []);
+
+   // After
+    return users.map((u) => ({
+      id:            String(u.user_id ?? ""),
+      username:      String(u.username ?? u.display_name ?? ""),
+      displayName:   String(u.display_name ?? ""),
+      role:          (u.account_type as string) === "artist" ? "artist" : "listener",
+      avatarUrl:     resolveMediaUrl(u.profile_picture) ?? null,
+      followerCount: (u.follower_count as number) ?? 0,
+      isVerified:    (u.is_verified as boolean) ?? false,
+    }));
+      },
+
 };

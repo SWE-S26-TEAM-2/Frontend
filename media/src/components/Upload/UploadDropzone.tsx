@@ -1,14 +1,9 @@
 'use client';
 
 import { useCallback, useRef, useState } from 'react';
-import type { IUploadFile, UploadStatus } from '@/types/upload.types';
+import type { IUploadFile, UploadStatus, IUploadDropzoneProps } from '@/types/upload.types';
 
 const ACCEPTED_FORMATS = ['.mp3', '.wav', '.flac', '.aiff', '.alac', '.ogg'];
-
-interface IUploadDropzoneProps {
-  onFilesSelected: (files: IUploadFile[]) => void;
-  isDisabled?: boolean;
-}
 
 function buildUploadFile(file: File): IUploadFile {
   const ext = file.name.split('.').pop()?.toLowerCase() ?? '';

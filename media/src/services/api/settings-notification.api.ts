@@ -1,13 +1,13 @@
-import { INotificationSettings } from "@/types/settings-notification.types";
+import type { INotificationSettings } from "@/types/settings-notification.types";
+import { unsupportedApiFeature } from "./apiMode";
 
 export const getNotificationSettingsFromAPI = async (): Promise<INotificationSettings> => {
-  console.error("🔵 API call: getNotificationSettings");
-  throw new Error("API not implemented yet");
+  unsupportedApiFeature("settings.notification.getSettings()");
 };
 
 export const updateNotificationSettingsOnAPI = async (
   settings: Partial<INotificationSettings>
 ): Promise<INotificationSettings> => {
-  console.error("🔵 API call: updateNotificationSettings", settings);
-  throw new Error("API not implemented yet");
+  void settings;
+  unsupportedApiFeature("settings.notification.updateSettings()");
 };

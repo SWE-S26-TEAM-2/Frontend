@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import SlideShow from "../../components/SlideShow/SlideShow";
 import LoginModal from "@/components/LoginModal/LoginModal";
 import HoverButton from "@/components/HoverButton/HoverButton";
+import { useAuthStore } from "@/store/authStore";
 
 import { LandingApiService } from "@/services/api/landing.api";
 import { ILandingData } from "@/types/landing.types";
@@ -14,10 +15,15 @@ import TrackSlider from "@/components/Track/TrackSlider";
 
 export default function Home() {
   const router = useRouter();
+  const authUser = useAuthStore((state) => state.user);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [content, setContent] = useState<ILandingData | null>(null);
   const [tracks, setTracks] = useState<ITrack[]>([]);
+
+  const redirectAfterLogin = () => {
+    router.push("/stream");
+  };
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.localStorage.getItem("auth_token")) {
@@ -25,7 +31,8 @@ export default function Home() {
     }
     LandingApiService.getLandingData().then(setContent);
     LandingApiService.getTrendingTracks().then(setTracks);
-  }, [router]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!content) return <div className="bg-[#141212] min-h-screen" />;
 

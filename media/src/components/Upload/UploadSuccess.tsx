@@ -2,11 +2,7 @@
 
 // src/components/Upload/UploadSuccess.tsx
 import { useRouter } from 'next/navigation';
-
-interface IUploadSuccessProps {
-  trackId: string;
-  onClose: () => void;
-}
+import type { IUploadSuccessProps } from '@/types/upload.types';
 
 const FOOTER_LINKS = [
   'Legal', 'Privacy', 'Cookie Policy', 'Cookie Manager',

@@ -2,14 +2,13 @@
 
 import { useState, useEffect } from "react";
 import Toggle from "@/components/Toggle/Toggle";
-import { getPrivacySettings, updatePrivacySettings } from "@/services/di";
-import { IPrivacySettings } from "@/types/settings-privacy.types";
+import { getPrivacySettings, updatePrivacySettings } from "@/services/privacy.service";
+import { IPrivacySettings } from "@/types/privacy.types";
 
 export default function PrivacySettings() {
   const [settings, setSettings] = useState<IPrivacySettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load settings when page opens
   useEffect(() => {
     loadSettings();
   }, []);
@@ -17,7 +16,6 @@ export default function PrivacySettings() {
   const loadSettings = async () => {
     try {
       const data = await getPrivacySettings();
-      console.warn("Loaded settings:", data);  // check
       setSettings(data);
     } catch (error) {
       console.error("Failed to load settings:", error);
@@ -28,16 +26,13 @@ export default function PrivacySettings() {
 
   const handleToggle = async (key: keyof IPrivacySettings, value: boolean) => {
     if (!settings) return;
-    
-    // Update UI immediately
+
     const previousSettings = { ...settings };
     setSettings({ ...settings, [key]: value });
-    
-    // Save to mock/API
+
     try {
       await updatePrivacySettings({ [key]: value });
     } catch (error) {
-      // If save fails, revert
       setSettings(previousSettings);
       console.error("Failed to update:", error);
     }

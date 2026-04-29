@@ -9,6 +9,17 @@ jest.mock("next/navigation", () => ({
   useRouter: jest.fn(),
 }));
 
+jest.mock("@react-oauth/google", () => ({
+  GoogleLogin: () => null,
+}));
+
+jest.mock("@/store/authStore", () => ({
+  useAuthStore: (selector?: (s: { user: null; isAuthenticated: boolean; login: jest.Mock; logout: jest.Mock }) => unknown) => {
+    const state = { user: null, isAuthenticated: false, login: jest.fn(), logout: jest.fn() };
+    return typeof selector === "function" ? selector(state) : state;
+  },
+}));
+
 // 2. Mock the Landing API Service
 jest.mock("@/services/api/landing.api", () => ({
   LandingApiService: {
@@ -53,12 +64,13 @@ describe("Home Component (Landing Page)", () => {
     localStorage.clear();
   });
 
-  test("redirects to /discover if auth_token exists", async () => {
+  test("redirects to stream if auth_token exists", async () => {
     localStorage.setItem("auth_token", "fake-token");
+    localStorage.setItem("auth_user_id", "testuser");
     await act(async () => {
       render(<Home />);
     });
-    expect(mockPush).toHaveBeenCalledWith("/discover");
+    expect(mockPush).toHaveBeenCalledWith("/stream");
   });
 
   test("renders the marketing tagline from API", async () => {

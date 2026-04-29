@@ -1,10 +1,6 @@
 'use client';
 
-import type { IUploadQuota } from '@/types/upload.types';
-
-interface IUploadQuotaBarProps {
-  quota: IUploadQuota;
-}
+import type { IUploadQuota, IUploadQuotaBarProps } from '@/types/upload.types';
 
 export default function UploadQuotaBar({ quota }: IUploadQuotaBarProps) {
   const { usedMinutes, totalMinutes, usedPercentage, isUnlimited } = quota;
