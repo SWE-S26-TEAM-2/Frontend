@@ -172,7 +172,7 @@ const MOCK_METRICS: Record<InsightTimeRange, IInsightsData['metrics']> = {
 
 export const mockInsightsService: IInsightsService = {
   async getInsights(timeRange: InsightTimeRange): Promise<IInsightsData> {
-    console.log('[MOCK] insightsService.getInsights called', { timeRange });
+    
     await new Promise((resolve) => setTimeout(resolve, 400));
 
     const metrics = MOCK_METRICS[timeRange];
