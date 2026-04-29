@@ -9,7 +9,7 @@ import type {
   INotification,
   INotificationsResponse,
   IRecentFollower,
-  NotificationFilter,
+  INotificationFilter,
 } from "@/types/notification.types";
 
 const notificationService = ENV.USE_MOCK_API
@@ -18,7 +18,7 @@ const notificationService = ENV.USE_MOCK_API
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
-const FILTER_OPTIONS: { label: string; value: NotificationFilter }[] = [
+const FILTER_OPTIONS: { label: string; value: INotificationFilter }[] = [
   { label: "All notifications", value: "all"    },
   { label: "Likes",             value: "like"   },
   { label: "Reposts",           value: "repost" },
@@ -124,14 +124,14 @@ function FollowButton({
 }: {
   actorId: string;
   isFollowing: boolean;
-  onToggle: (actorId: string) => Promise<void>;
+  onToggle: (actorId: string, currentlyFollowing: boolean) => Promise<void>;
 }) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleClick = async () => {
     try {
       setIsLoading(true);
-      await onToggle(actorId);
+      await onToggle(actorId, isFollowing);
     } finally {
       setIsLoading(false);
     }
@@ -152,7 +152,6 @@ function FollowButton({
   );
 }
 
-// Single notification row
 function NotificationItem({
   notification,
   onMarkRead,
@@ -160,7 +159,8 @@ function NotificationItem({
 }: {
   notification: INotification;
   onMarkRead:     (id: string)     => void;
-  onToggleFollow: (actorId: string) => Promise<void>;
+  onToggleFollow: (actorId: string, currentlyFollowing: boolean) => Promise<void>;
+  
 }) {
   const timeAgo = useMemo(
     () => formatTimeAgo(notification.createdAt),
@@ -172,7 +172,8 @@ function NotificationItem({
     notification.type === "follow" ||
     notification.type === "like"   ||
     notification.type === "repost" ||
-    notification.type === "comment";
+    notification.type === "comment"||
+    notification.type === "new_track";
 
   return (
     <div
@@ -229,6 +230,11 @@ function NotificationItem({
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
           )}
+          {notification.type === "new_track" && (
+          <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth={2}>
+            <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+           </svg>
+           )}
           <span>{timeAgo}</span>
         </div>
       </div>
@@ -256,8 +262,8 @@ function FilterDropdown({
   activeFilter,
   onChange,
 }: {
-  activeFilter: NotificationFilter;
-  onChange: (f: NotificationFilter) => void;
+  activeFilter: INotificationFilter;
+  onChange: (f: INotificationFilter) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -314,7 +320,7 @@ function RecentFollowerCard({
   onToggleFollow,
 }: {
   follower: IRecentFollower;
-  onToggleFollow: (actorId: string) => Promise<void>;
+  onToggleFollow: (actorId: string, currentlyFollowing: boolean) => Promise<void>;
 }) {
   return (
     <div className="flex items-center gap-3 py-3">
@@ -335,7 +341,7 @@ export default function NotificationsPage() {
   const [data, setData]               = useState<INotificationsResponse | null>(null);
   const [isLoading, setIsLoading]     = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [activeFilter, setActiveFilter] = useState<NotificationFilter>("all");
+  const [activeFilter, setActiveFilter] = useState<INotificationFilter>("all");
 
   // Lazy initialisers — safe in "use client", avoids useEffect setState cascade
   const [nowMs] = useState<number>(() => Date.now());
@@ -387,8 +393,12 @@ export default function NotificationsPage() {
     });
   };
 
-  const handleToggleFollow = async (actorId: string) => {
-    const result = await notificationService.toggleFollow(actorId);
+const handleToggleFollow = async (actorId: string, currentlyFollowing: boolean) => {
+  // Find the username for this actorId
+  const actor = data?.notifications.find(n => n.actor.id === actorId)?.actor;
+  const actorUsername = actor?.username ?? actorId;
+
+    const result = await notificationService.toggleFollow(actorUsername, currentlyFollowing);
     setData(prev => {
       if (!prev) return prev;
       return {
