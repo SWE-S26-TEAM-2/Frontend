@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { userProfileService, playlistService } from "@/services/di";
 import { type ITrack } from "@/types/track.types";
 import { type IPlaylist } from "@/types/playlist.types";
@@ -23,10 +23,18 @@ const TABS = ["All", "Popular tracks", "Tracks", "Albums", "Playlists", "Reposts
 export default function UserProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = React.use(params);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const authStoreUser = useAuthStore((state) => state.user);
   const storeLogin = useAuthStore((state) => state.login);
   const { setQueue, setTrack } = usePlayerStore();
-  const [activeTab, setActiveTab] = useState<IActiveTab>(TABS[0]);
+
+  // Read ?tab= from URL, fall back to "All"
+  const initialTab = (): IActiveTab => {
+    const tab = searchParams.get("tab");
+    return (TABS as readonly string[]).includes(tab ?? "") ? (tab as IActiveTab) : "All";
+  };
+
+  const [activeTab, setActiveTab] = useState<IActiveTab>(initialTab);
   const [user, setUser]           = useState<IUser | null>(null);
   const [tracks, setTracks]       = useState<ITrack[]>([]);
   const [likes, setLikes]         = useState<ILikedTrack[]>([]);
@@ -38,6 +46,18 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   const [error, setError]         = useState<string | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
 
+    const handleEditOpen = async () => {
+    const links = await userProfileService.getSocialLinks();
+    setUser(prev => prev ? { ...prev, socialLinks: links } : prev);
+    setIsEditOpen(true);
+  };
+
+  // Keep tab in sync if user navigates back/forward
+  useEffect(() => {
+    setActiveTab(initialTab());
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
   useEffect(() => {
     async function loadData() {
       try {
@@ -45,13 +65,21 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
         const fetchedUser = await userProfileService.getUserProfile(username);
         const [fetchedTracks, fetchedLikes, fetchedFans, fetchedFollowers, fetchedFollowing, fetchedPlaylists] = await Promise.all([
           userProfileService.getUserTracks(fetchedUser.username),
-          userProfileService.getUserLikes(fetchedUser.id),
+          userProfileService.getUserLikes(fetchedUser.username),
           userProfileService.getFansAlsoLike(fetchedUser.id),
-          userProfileService.getFollowers(fetchedUser.id),
-          userProfileService.getFollowing(fetchedUser.id),
+          userProfileService.getFollowers(fetchedUser.username),
+          userProfileService.getFollowing(fetchedUser.username),
           playlistService.getUserPlaylists(fetchedUser.username),
         ]);
-        setUser(fetchedUser);
+
+       // After — create a new object so React detects the change
+        let userToSet = fetchedUser;
+        if (fetchedUser.isOwner) {
+          const socialLinks = await userProfileService.getSocialLinks();
+          userToSet = { ...fetchedUser, socialLinks };
+        }
+
+        setUser(userToSet);
         setTracks(fetchedTracks);
         setLikes(fetchedLikes);
         setFans(fetchedFans);
@@ -71,10 +99,10 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
 
   const handleAvatarUpload = async (file: File) => {
     const updated = await userProfileService.uploadAvatar(file);
-    setUser(updated);
+    setUser(prev => prev ? { ...prev, avatarUrl: updated.avatarUrl } : prev);
 
     const token = typeof window !== "undefined" ? window.localStorage.getItem("auth_token") : null;
-    if (updated.isOwner && token && authStoreUser) {
+    if (updated.avatarUrl && token && authStoreUser) {
       storeLogin({
         ...authStoreUser,
         profileImageUrl: updated.avatarUrl ?? authStoreUser.profileImageUrl,
@@ -95,13 +123,33 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
     setUser({ ...updated, username: user.username });
   };
 
-  const handleBannerAvatarChange = (url: string) => {
-    setUser(prev => prev ? { ...prev, avatarUrl: url } : prev);
-  };
+ const handleBannerAvatarChange = async (url: string, file?: File) => {
+  setUser(prev => prev ? { ...prev, avatarUrl: url } : prev);
+  if (file) {
+    try {
+      const updated = await userProfileService.uploadAvatar(file);
+      if (updated.avatarUrl) {
+        setUser(prev => prev ? { ...prev, avatarUrl: updated.avatarUrl } : prev);
+      }
+    } catch (err) {
+      console.error("Avatar upload failed", err);
+    }
+  }
+};
 
-  const handleBannerHeaderChange = (url: string) => {
-    setUser(prev => prev ? { ...prev, headerUrl: url } : prev);
-  };
+const handleBannerHeaderChange = async (url: string, file?: File) => {
+  setUser(prev => prev ? { ...prev, headerUrl: url } : prev);
+  if (file) {
+    try {
+      const updated = await userProfileService.uploadCover(file);
+      if (updated.headerUrl) {
+        setUser(prev => prev ? { ...prev, headerUrl: updated.headerUrl } : prev);
+      }
+    } catch (err) {
+      console.error("Cover upload failed", err);
+    }
+  }
+};
 
   const handleCreatePlaylist = async () => {
     const created = await playlistService.createPlaylist("New Playlist");
@@ -194,7 +242,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
                 </button>
               ))}
             </div>
-            <ProfileActions user={user} onEditOpen={() => setIsEditOpen(true)} />
+            <ProfileActions user={user} onEditOpen={handleEditOpen} />
           </div>
 
           {/* Track list or playlist list or empty state */}
@@ -272,6 +320,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
           fans={fans}
           followers={followers}
           following={following}
+          tracksCount={tracks.length}
         />
       </div>
 

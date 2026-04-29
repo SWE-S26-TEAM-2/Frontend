@@ -7,7 +7,8 @@ export type StudioTab = 'tracks' | 'distribution' | 'vinyl' | 'comments' | 'prom
 export interface IStudioTrack {
   id: string;
   title: string;
-  genre: string;
+  //genre: string;
+  genre?: string;
   format: AudioFormat;
   duration: number; // in seconds
   visibility: TrackVisibility;

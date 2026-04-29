@@ -1,8 +1,11 @@
 "use client";
-
+// notifications page
 import { useState, useEffect } from "react";
 import { notificationService } from "@/services/di";
 import { INotificationSettings, INotificationRow, IDevicesValue } from "@/types/settings-notification.types";
+import SettingsFooter from "@/components/Settings/SettingsFooter";
+
+const DEVICES_DROPDOWN_OPTIONS: Array<"Everyone" | "Followed" | "Off"> = ["Everyone", "Followed", "Off"];
 
 export default function NotificationsSettings() {
   const [settings, setSettings] = useState<INotificationSettings | null>(null);
@@ -15,7 +18,6 @@ export default function NotificationsSettings() {
   const loadSettings = async () => {
     try {
       const data = await notificationService.getSettings();
-      //console.error("Loaded notification settings:", data); // check
       setSettings(data);
     } catch (error) {
       console.error("Failed to load notification settings:", error);
@@ -30,14 +32,11 @@ export default function NotificationsSettings() {
     value: IDevicesValue
   ) => {
     if (!settings) return;
-    //console.error(`Updating activity ${index} ${field} to:`, value); // check
-
     const previousSettings = { ...settings };
     const updatedActivities = settings.activities.map((row, i) =>
       i === index ? { ...row, [field]: value } : row
     );
     setSettings({ ...settings, activities: updatedActivities });
-
     try {
       await notificationService.updateSettings({ activities: updatedActivities });
     } catch (error) {
@@ -52,14 +51,11 @@ export default function NotificationsSettings() {
     value: IDevicesValue
   ) => {
     if (!settings) return;
-    //console.error(`Updating soundcloudUpdate ${index} ${field} to:`, value); // check
-
     const previousSettings = { ...settings };
     const updatedSoundcloudUpdates = settings.soundcloudUpdates.map((row, i) =>
       i === index ? { ...row, [field]: value } : row
     );
     setSettings({ ...settings, soundcloudUpdates: updatedSoundcloudUpdates });
-
     try {
       await notificationService.updateSettings({ soundcloudUpdates: updatedSoundcloudUpdates });
     } catch (error) {
@@ -68,35 +64,40 @@ export default function NotificationsSettings() {
     }
   };
 
-  const renderCheckbox = (
-    value: IDevicesValue,
-    onChange: (value: IDevicesValue) => void
-  ) => {
-    if (typeof value === "string") {
+  const renderEmailCell = (value: boolean, onChange: (value: boolean) => void) => (
+    <input
+      type="checkbox"
+      checked={value}
+      onChange={(e) => onChange(e.target.checked)}
+      className="w-[18px] h-[18px] cursor-pointer accent-[#ff5500]"
+    />
+  );
+
+  const renderDevicesCell = (row: INotificationRow, onChange: (value: IDevicesValue) => void) => {
+    if (row.devices === "none") {
+      return null;
+    }
+
+    if (row.name === "New message") {
       return (
         <select
-          value={value}
+          value={row.devices as string}
           onChange={(e) => onChange(e.target.value as IDevicesValue)}
-          style={{
-            background: "#222",
-            color: "#fff",
-            border: "1px solid #555",
-            borderRadius: "4px",
-            padding: "4px 8px",
-          }}
+          className="bg-[#222] text-white border border-[#555] rounded px-2 py-1 text-sm cursor-pointer focus:outline-none"
         >
-          <option>Everyone</option>
-          <option>Following</option>
-          <option>No one</option>
+          {DEVICES_DROPDOWN_OPTIONS.map((opt) => (
+            <option key={opt} value={opt}>{opt}</option>
+          ))}
         </select>
       );
     }
+
     return (
       <input
         type="checkbox"
-        checked={value}
+        checked={row.devices as boolean}
         onChange={(e) => onChange(e.target.checked)}
-        style={{ width: "18px", height: "18px", cursor: "pointer" }}
+        className="w-[18px] h-[18px] cursor-pointer accent-[#ff5500]"
       />
     );
   };
@@ -104,26 +105,18 @@ export default function NotificationsSettings() {
   const renderSection = (
     title: string,
     rows: INotificationRow[],
-    onEmailChange: (index: number, value: IDevicesValue) => void,
+    onEmailChange: (index: number, value: boolean) => void,
     onDevicesChange: (index: number, value: IDevicesValue) => void
   ) => (
-    <div style={{ marginBottom: "48px" }}>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 120px 120px",
-          alignItems: "center",
-          marginBottom: "16px",
-          fontWeight: "bold",
-        }}
-      >
-        <span>{title}</span>
-        <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <input type="checkbox" defaultChecked style={{ width: "18px", height: "18px" }} />
+    <div className="mb-12">
+      <div className="grid grid-cols-[1fr_120px_120px] gap-4 mb-4 items-center">
+        <span className="text-sm font-bold">{title}</span>
+        <span className="flex items-center gap-2 text-sm font-bold">
+          <input type="checkbox" defaultChecked className="w-[18px] h-[18px] accent-[#ff5500]" />
           Email
         </span>
-        <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <input type="checkbox" defaultChecked style={{ width: "18px", height: "18px" }} />
+        <span className="flex items-center gap-2 text-sm font-bold">
+          <input type="checkbox" defaultChecked className="w-[18px] h-[18px] accent-[#ff5500]" />
           Devices
         </span>
       </div>
@@ -131,52 +124,45 @@ export default function NotificationsSettings() {
       {rows.map((row, index) => (
         <div
           key={row.name}
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 120px 120px",
-            alignItems: "center",
-            padding: "12px 0",
-            borderTop: "1px solid #222",
-          }}
+          className="grid grid-cols-[1fr_120px_120px] items-center py-3 border-t border-[#222]"
         >
-          <span style={{ color: "#fff", fontWeight: "bold", fontSize: "14px" }}>{row.name}</span>
-          <span>{renderCheckbox(row.email, (value) => onEmailChange(index, value))}</span>
-          <span>{renderCheckbox(row.devices, (value) => onDevicesChange(index, value))}</span>
+          <span className="text-white font-bold text-sm">{row.name}</span>
+          <span>
+            {renderEmailCell(row.email, (value) => onEmailChange(index, value))}
+          </span>
+          <span>
+            {renderDevicesCell(row, (value) => onDevicesChange(index, value))}
+          </span>
         </div>
       ))}
     </div>
   );
 
   if (isLoading) {
-    return (
-      <div style={{ color: "#fff", padding: "40px" }}>
-        Loading...
-      </div>
-    );
+    return <div className="py-10 text-white">Loading...</div>;
   }
 
   if (!settings) {
-    return (
-      <div style={{ color: "#fff", padding: "40px" }}>
-        Failed to load settings
-      </div>
-    );
+    return <div className="py-10 text-white">Failed to load settings</div>;
   }
 
   return (
-    <div style={{ padding: "40px", color: "#fff" }}>
-      {renderSection(
-        "Activities",
-        settings.activities,
-        (index, value) => handleActivityChange(index, "email", value),
-        (index, value) => handleActivityChange(index, "devices", value)
-      )}
-      {renderSection(
-        "Updates from SoundCloud",
-        settings.soundcloudUpdates,
-        (index, value) => handleUpdateChange(index, "email", value),
-        (index, value) => handleUpdateChange(index, "devices", value)
-      )}
+    <div className="text-white pb-24">
+      <div className="py-8 max-w-5xl">
+        {renderSection(
+          "Activities",
+          settings.activities,
+          (index, value) => void handleActivityChange(index, "email", value),
+          (index, value) => void handleActivityChange(index, "devices", value)
+        )}
+        {renderSection(
+          "Updates from SoundCloud",
+          settings.soundcloudUpdates,
+          (index, value) => void handleUpdateChange(index, "email", value),
+          (index, value) => void handleUpdateChange(index, "devices", value)
+        )}
+      </div>
+      <SettingsFooter />
     </div>
   );
 }
