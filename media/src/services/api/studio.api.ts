@@ -68,9 +68,25 @@ function normalizePlaylist(raw: IBackendPlaylist): IPlaylist {
 
 // ── Username helper ───────────────────────────────────────────────────────────
 
+// async function getUsername(): Promise<string> {
+//   const profile = await apiGet<{ username: string }>('/users/me');
+//   return profile.username;
+// }
 async function getUsername(): Promise<string> {
+  if (typeof window !== 'undefined') {
+    const stored = window.localStorage.getItem('auth_username');
+    if (stored) return stored;
+  }
+
+  // Fallback: fetch from API and cache it
   const profile = await apiGet<{ username: string }>('/users/me');
-  return profile.username;
+  const username = profile.username;
+
+  if (typeof window !== 'undefined' && username) {
+    window.localStorage.setItem('auth_username', username);
+  }
+
+  return username;
 }
 
 // ── Service ───────────────────────────────────────────────────────────────────
