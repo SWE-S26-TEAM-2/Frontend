@@ -4,13 +4,13 @@ import Link from "next/link";
 import type { IProfileStatsProps } from "@/types/ui.types";
 import { formatNumber } from "@/utils/formatNumber";
 
-export function ProfileStats({ user }: IProfileStatsProps) {
+export function ProfileStats({ user, tracksCount }: IProfileStatsProps) {
   const base = `/${user.username}`;
 
   const stats = [
     { label: "Followers", value: user.followers, href: `${base}/followers` },
     { label: "Following", value: user.following, href: `${base}/following` },
-    { label: "Tracks",    value: user.tracks,    href: `${base}?tab=Tracks` },
+    { label: "Tracks",    value: tracksCount ?? user.tracks,    href: `${base}?tab=Tracks` },
   ] as { label: string; value: number; href: string }[];
 
   return (

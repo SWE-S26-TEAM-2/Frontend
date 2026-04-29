@@ -160,16 +160,22 @@ const ArtistProBadge = () => (
   <span className="w-[15px] h-[15px] rounded-full bg-[#FF5500] inline-flex items-center justify-center text-[10px] text-white font-bold">★</span>
 );
 
-const getAvatarMenu = (profileHref: string): IMenuItem[] => [
-  { icon: <ProfileIcon />,     label: "Profile",        href: profileHref },
-  { icon: <LikesIcon />,       label: "Likes",          href: "/likes" },
-  { icon: <StationsIcon />,    label: "Stations",       href: "/stream" },
-  { icon: <WhoToFollowIcon />, label: "Who to follow",  href: "/who-to-follow", dividerBefore: true },
-  { icon: <ArtistProBadge />,  label: "Try Artist Pro", href: "/artist-pro", orange: true },
-  { icon: <TracksIcon />,      label: "Tracks",         href: "/library",     dividerBefore: true },
-  { icon: <InsightsIcon />,    label: "Insights",       href: "/creator/studio" },
-  { icon: <DistributeIcon />,  label: "Distribute",     href: "/creator/distribute" },
-];
+const getAvatarMenu = (profileHref: string): IMenuItem[] => {
+  const profileLikesHref = profileHref === "/" ? "/likes" : `${profileHref}/likes`;
+
+  return [
+    { icon: <ProfileIcon />,     label: "Profile",        href: profileHref },
+    { icon: <LikesIcon />,       label: "Likes",          href: profileLikesHref },
+    { icon: <StationsIcon />,    label: "Stations",       href: "/stream" },
+    { icon: <WhoToFollowIcon />, label: "Who to follow",  href: "/who-to-follow", dividerBefore: true },
+    { icon: <ArtistProBadge />,  label: "Try Artist Pro", href: "/artist-pro", orange: true },
+    { icon: <TracksIcon />,      label: "Tracks",         href: "/library", dividerBefore: true },
+    { icon: <InsightsIcon />,    label: "Dashboard",      href: "/creator/studio" },
+    { icon: <SettingsIcon />,    label: "Settings",       href: "/settings" },
+    { icon: <StoreIcon />,       label: "Store",          href: "/store" },
+    { icon: <DistributeIcon />,  label: "Distribute",     href: "/creator/distribute" },
+  ];
+};
 
 const DOTS_MENU: IMenuItem[] = [
   { icon: <GlobeIcon />,        label: "About us",           href: "/about" },
@@ -246,14 +252,17 @@ function MobileDrawer({ isOpen, onClose, profileHref, isLoggedIn, onSignOut }: {
           ))}
           <div className="h-px bg-[#303030] my-1" />
           <Link href="/creator/upload" onClick={onClose} className={linkClass}>Upload</Link>
-          <Link href="/for-artists" onClick={onClose} className={linkClass}>For Artists</Link>
+          <Link href="/creator/studio" onClick={onClose} className={linkClass}>For Artists</Link>
           {isLoggedIn && (
             <>
               <div className="h-px bg-[#303030] my-1" />
               <Link href={profileHref} onClick={onClose} className={linkClass}>Profile</Link>
+              <Link href={profileHref === "/" ? "/likes" : `${profileHref}/likes`} onClick={onClose} className={linkClass}>Likes</Link>
+              <Link href="/creator/studio" onClick={onClose} className={linkClass}>Dashboard</Link>
               <Link href="/notifications" onClick={onClose} className={linkClass}>Notifications</Link>
               <Link href="/messages" onClick={onClose} className={linkClass}>Messages</Link>
               <Link href="/settings" onClick={onClose} className={linkClass}>Settings</Link>
+              <Link href="/store" onClick={onClose} className={linkClass}>Store</Link>
               <div className="h-px bg-[#303030] my-1" />
               <button onClick={() => { onSignOut(); onClose(); }} className={`${linkClass} text-[#ff5500] w-full text-left`}>Sign out</button>
             </>
@@ -472,7 +481,7 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
 
           {/* For Artists — hidden on medium and below */}
           <Link
-            href="/for-artists"
+            href="/creator/studio"
             className="hidden lg:block text-[#ccc] text-[13px] no-underline whitespace-nowrap px-2 hover:text-white transition-colors"
           >
             For Artists

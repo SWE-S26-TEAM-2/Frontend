@@ -241,7 +241,7 @@ function FollowingRow({ f, isFollowing, onToggleFollow }: IFollowingRowProps) {
 // ProfileSidebar
 // ─────────────────────────────────────────────────────────────
  
-export function ProfileSidebar({ user, likes, fans, followers, following }: IProfileSidebarProps) {
+export function ProfileSidebar({ user, likes, fans, followers, following, tracksCount }: IProfileSidebarProps) {
   const hasSocialLinks = user.socialLinks && (
     user.socialLinks.website || user.socialLinks.instagram ||
     user.socialLinks.twitter || user.socialLinks.facebook
@@ -332,7 +332,7 @@ export function ProfileSidebar({ user, likes, fans, followers, following }: IPro
     <div className="w-55 shrink-0 pt-15.5">
  
       {/* Stats */}
-      <ProfileStats user={user} />
+      <ProfileStats user={user} tracksCount={tracksCount} />
  
       {/* Bio */}
       {user.bio && (

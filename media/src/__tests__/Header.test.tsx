@@ -1,12 +1,15 @@
 /* eslint-disable @next/next/no-img-element */
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import Header from "@/components/Header/Header";
 import "@testing-library/jest-dom";
+
+const mockPush = jest.fn();
+const mockLogout = jest.fn();
 
 // Mock next/navigation (required because Header uses useRouter for sign out)
 jest.mock("next/navigation", () => ({
   useRouter: () => ({
-    push: jest.fn(),
+    push: mockPush,
     replace: jest.fn(),
     back: jest.fn(),
     prefetch: jest.fn(),
@@ -44,7 +47,7 @@ jest.mock("next/image", () => ({
 // Mock useAuthStore so isLoggedIn prop controls the authenticated state in tests
 jest.mock("@/store/authStore", () => ({
   useAuthStore: (selector?: (s: { user: null; isAuthenticated: boolean; login: jest.Mock; logout: jest.Mock }) => unknown) => {
-    const state = { user: null, isAuthenticated: false, login: jest.fn(), logout: jest.fn() };
+    const state = { user: null, isAuthenticated: false, login: jest.fn(), logout: mockLogout };
     return typeof selector === "function" ? selector(state) : state;
   },
 }));
@@ -52,6 +55,8 @@ jest.mock("@/store/authStore", () => ({
 describe("Header Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockPush.mockReset();
+    mockLogout.mockReset();
     localStorage.setItem("auth_user_id", "testuser");
     localStorage.setItem("auth_username", "testuser");
   });
@@ -117,6 +122,28 @@ describe("Header Component", () => {
       
       fireEvent.change(searchInput, { target: { value: "" } });
       expect(searchInput.value).toBe("");
+    });
+
+    test("submits search with encoded query on Enter", () => {
+      render(<Header />);
+      const searchInput = screen.getByPlaceholderText("Search") as HTMLInputElement;
+
+      fireEvent.change(searchInput, { target: { value: "lo fi" } });
+      fireEvent.keyDown(searchInput, { key: "Enter" });
+
+      expect(mockPush).toHaveBeenCalledWith("/search?q=lo%20fi");
+      expect(searchInput.value).toBe("");
+    });
+
+    test("submits search from the search icon button", () => {
+      render(<Header />);
+      const searchInput = screen.getByPlaceholderText("Search") as HTMLInputElement;
+      const searchButton = screen.getAllByLabelText("Search").find((el) => el.tagName === "BUTTON");
+
+      fireEvent.change(searchInput, { target: { value: "ambient" } });
+      fireEvent.click(searchButton as HTMLButtonElement);
+
+      expect(mockPush).toHaveBeenCalledWith("/search?q=ambient");
     });
   });
 
@@ -214,7 +241,9 @@ describe("Header Component", () => {
         expect(screen.getByText("Who to follow")).toBeInTheDocument();
         expect(screen.getAllByText("Try Artist Pro").length).toBeGreaterThan(0);
         expect(screen.getByText("Tracks")).toBeInTheDocument();
-        expect(screen.getByText("Insights")).toBeInTheDocument();
+        expect(screen.getByText("Dashboard")).toBeInTheDocument();
+        expect(screen.getByText("Settings")).toBeInTheDocument();
+        expect(screen.getByText("Store")).toBeInTheDocument();
       });
     });
 
@@ -225,11 +254,23 @@ describe("Header Component", () => {
       fireEvent.click(avatarButton);
       
       await waitFor(() => {
-        const profileLink = screen.getByText("Profile").closest("a");
-        expect(profileLink).toHaveAttribute("href", "/testuser");
-        
-        const likesLink = screen.getByText("Likes").closest("a");
-        expect(likesLink).toHaveAttribute("href", "/likes");
+        const expectedLinks = {
+          Profile: "/testuser",
+          Likes: "/testuser/likes",
+          Stations: "/stream",
+          "Who to follow": "/who-to-follow",
+          "Try Artist Pro": "/artist-pro",
+          Tracks: "/library",
+          Dashboard: "/for-artists",
+          Settings: "/settings",
+          Store: "/store",
+          Distribute: "/creator/distribute",
+        };
+
+        Object.entries(expectedLinks).forEach(([label, href]) => {
+          const link = screen.getAllByText(label).find((node) => node.closest("a"))?.closest("a");
+          expect(link).toHaveAttribute("href", href);
+        });
       });
     });
   });
@@ -276,6 +317,42 @@ describe("Header Component", () => {
       });
     });
 
+    test("dots menu items have correct hrefs", async () => {
+      render(<Header isLoggedIn={true} />);
+
+      fireEvent.click(screen.getByLabelText("More options"));
+
+      await waitFor(() => {
+        const expectedLinks = {
+          "About us": "/about",
+          Legal: "/legal",
+          Copyright: "/copyright",
+          "Mobile apps": "/mobile",
+          "Artist Membership": "/membership",
+          Newsroom: "/newsroom",
+          Jobs: "/jobs",
+          Developers: "/developers",
+          "SoundCloud Store": "/store",
+          Support: "/support",
+          Subscription: "/subscription",
+          Settings: "/settings",
+        };
+
+        Object.entries(expectedLinks).forEach(([label, href]) => {
+          expect(screen.getByText(label).closest("a")).toHaveAttribute("href", href);
+        });
+      });
+    });
+
+    test("opens keyboard shortcuts from dots menu", async () => {
+      render(<Header isLoggedIn={true} />);
+
+      fireEvent.click(screen.getByLabelText("More options"));
+      fireEvent.click(await screen.findByText("Keyboard shortcuts"));
+
+      expect(screen.getByText("Keyboard shortcuts")).toBeInTheDocument();
+    });
+
     test("closes avatar menu when dots menu is opened", async () => {
       render(<Header isLoggedIn={true} />);
       
@@ -304,6 +381,16 @@ describe("Header Component", () => {
       render(<Header isLoggedIn={true} />);
       const mailButton = screen.getByLabelText("Messages");
       expect(mailButton).toBeInTheDocument();
+    });
+
+    test("notification and message buttons route correctly", () => {
+      render(<Header isLoggedIn={true} />);
+
+      fireEvent.click(screen.getByLabelText("Notifications"));
+      expect(mockPush).toHaveBeenCalledWith("/notifications");
+
+      fireEvent.click(screen.getByLabelText("Messages"));
+      expect(mockPush).toHaveBeenCalledWith("/messages");
     });
 
     test("does not render icon buttons when not logged in", () => {
@@ -359,6 +446,38 @@ describe("Header Component", () => {
       render(<Header />);
       const logoLink = screen.getByText("soundcloud").closest("a");
       expect(logoLink).toHaveAttribute("href", "/");
+    });
+  });
+
+  describe("Mobile Drawer", () => {
+    test("mobile drawer links route to the same destinations", () => {
+      render(<Header isLoggedIn={true} />);
+
+      fireEvent.click(screen.getByLabelText("Open menu"));
+      const drawer = screen.getByText("Notifications").closest("nav") as HTMLElement;
+
+      expect(within(drawer).getByText("Home").closest("a")).toHaveAttribute("href", "/discover");
+      expect(within(drawer).getByText("Feed").closest("a")).toHaveAttribute("href", "/stream");
+      expect(within(drawer).getByText("Library").closest("a")).toHaveAttribute("href", "/library");
+      expect(within(drawer).getByText("Upload").closest("a")).toHaveAttribute("href", "/creator/upload");
+      expect(within(drawer).getByText("For Artists").closest("a")).toHaveAttribute("href", "/for-artists");
+      expect(within(drawer).getByText("Profile").closest("a")).toHaveAttribute("href", "/testuser");
+      expect(within(drawer).getByText("Likes").closest("a")).toHaveAttribute("href", "/testuser/likes");
+      expect(within(drawer).getByText("Dashboard").closest("a")).toHaveAttribute("href", "/for-artists");
+      expect(within(drawer).getByText("Settings").closest("a")).toHaveAttribute("href", "/settings");
+      expect(within(drawer).getByText("Store").closest("a")).toHaveAttribute("href", "/store");
+    });
+
+    test("mobile sign out clears auth and routes to login", () => {
+      render(<Header isLoggedIn={true} />);
+
+      fireEvent.click(screen.getByLabelText("Open menu"));
+      fireEvent.click(screen.getByText("Sign out"));
+
+      expect(mockLogout).toHaveBeenCalled();
+      expect(localStorage.getItem("auth_token")).toBeNull();
+      expect(localStorage.getItem("auth_username")).toBeNull();
+      expect(mockPush).toHaveBeenCalledWith("/login");
     });
   });
 });

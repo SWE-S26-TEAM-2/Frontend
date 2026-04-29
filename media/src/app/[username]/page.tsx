@@ -285,6 +285,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
           fans={fans}
           followers={followers}
           following={following}
+          tracksCount={tracks.length}
         />
       </div>
 
