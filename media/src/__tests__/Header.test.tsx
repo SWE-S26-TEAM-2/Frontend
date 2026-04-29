@@ -261,7 +261,7 @@ describe("Header Component", () => {
           "Who to follow": "/who-to-follow",
           "Try Artist Pro": "/artist-pro",
           Tracks: "/library",
-          Dashboard: "/for-artists",
+          Dashboard: "/creator/studio",
           Settings: "/settings",
           Store: "/store",
           Distribute: "/creator/distribute",
@@ -433,7 +433,7 @@ describe("Header Component", () => {
     test("For Artists link has correct href", () => {
       render(<Header />);
       const link = screen.getByText("For Artists").closest("a");
-      expect(link).toHaveAttribute("href", "/for-artists");
+      expect(link).toHaveAttribute("href", "/creator/studio");
     });
 
     test("Upload link has correct href", () => {
@@ -460,10 +460,10 @@ describe("Header Component", () => {
       expect(within(drawer).getByText("Feed").closest("a")).toHaveAttribute("href", "/stream");
       expect(within(drawer).getByText("Library").closest("a")).toHaveAttribute("href", "/library");
       expect(within(drawer).getByText("Upload").closest("a")).toHaveAttribute("href", "/creator/upload");
-      expect(within(drawer).getByText("For Artists").closest("a")).toHaveAttribute("href", "/for-artists");
+      expect(within(drawer).getByText("For Artists").closest("a")).toHaveAttribute("href", "/creator/studio");
       expect(within(drawer).getByText("Profile").closest("a")).toHaveAttribute("href", "/testuser");
       expect(within(drawer).getByText("Likes").closest("a")).toHaveAttribute("href", "/testuser/likes");
-      expect(within(drawer).getByText("Dashboard").closest("a")).toHaveAttribute("href", "/for-artists");
+      expect(within(drawer).getByText("Dashboard").closest("a")).toHaveAttribute("href", "/creator/studio");
       expect(within(drawer).getByText("Settings").closest("a")).toHaveAttribute("href", "/settings");
       expect(within(drawer).getByText("Store").closest("a")).toHaveAttribute("href", "/store");
     });
