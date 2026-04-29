@@ -58,7 +58,7 @@ export default function ForgotPasswordStep({ emailOrProfileUrl, onBack, onSubmit
         disabled={isLoading}
         className="bg-white text-black w-full p-3 rounded cursor-pointer mb-0 text-[15px] font-semibold border-none"
       >
-        {isLoading ? "Sending..." : "Send reset link"}
+        {isLoading ? "Sending..." : "Send reset code"}
       </button>
     </div>
   );

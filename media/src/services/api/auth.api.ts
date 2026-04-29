@@ -189,27 +189,20 @@ export const RealAuthService = {
   },
 
   checkEmail: async (emailOrProfileUrl: string): Promise<ICheckEmailResponse> => {
-    const response = await fetch(apiUrl("/auth/check-email"), {
-      method: "POST",
+    const response = await fetch(apiUrl(`/auth/check-email?email=${encodeURIComponent(emailOrProfileUrl)}`), {
+      method: "GET",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: emailOrProfileUrl }),
     });
-
-    // Some deployments do not expose this endpoint yet.
-    // Fall back to registration flow instead of blocking auth UX.
-    if (response.status === 404) {
+  
+    if (!response.ok) {
       return { isExisting: false };
     }
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error?.detail || "Failed to check account status");
-    }
-
+  
     const json = await response.json();
     const data = json.data ?? json;
+  
     return {
-      isExisting: Boolean(data?.isExisting ?? data?.is_existing),
+      isExisting: !data.available, // available:false means email is taken = isExisting:true
     };
   },
 

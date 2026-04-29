@@ -27,6 +27,10 @@ function ResetPasswordForm() {
       setError("Password must be at least 8 characters.");
       return;
     }
+    if (!/[A-Z]/.test(newPassword)) {
+      setError("Password must contain at least one uppercase letter.");
+      return;
+    }
     if (newPassword !== confirmPassword) {
       setError("Passwords do not match.");
       return;
@@ -57,7 +61,10 @@ function ResetPasswordForm() {
           <a href="https://help.soundcloud.com" className="text-[#4a90e2]">visit our Help Center.</a>
         </p>
 
-        <p className="text-white text-sm mb-1">Type your new password</p>
+        <p className="text-white text-sm mb-1">
+        Type your new password (min. 8 characters, at least one uppercase letter)
+        </p>
+        
         <div className="relative mb-4">
           <input
             type={showNewPassword ? "text" : "password"}

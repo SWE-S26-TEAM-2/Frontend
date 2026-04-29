@@ -125,3 +125,8 @@ export interface ICheckYourEmailStepProps {
 export interface IVerifyEmailResponse {
   success: boolean;
 }
+
+export interface IEnterResetCodeStepProps {
+  onBack: () => void;
+  onContinue: (code: string) => void;
+}

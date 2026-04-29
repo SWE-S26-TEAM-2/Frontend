@@ -9,6 +9,7 @@ import RegisterStep from "./RegisterStep";
 import SignInStep from "./SignInStep";
 import TellUsMoreStep from "./TellUsMoreStep";
 import VerifyEmailStep from "./VerifyEmailStep";
+import EnterResetCodeStep from "./EnterResetCodeStep";
 import { AuthService } from "@/services";
 import { useAuthStore } from "@/store/authStore";
 import type { ILoginModalProps } from "@/types/ui.types";
@@ -23,12 +24,13 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
 
   const [emailOrProfileUrl, setEmailOrProfileUrl] = useState("");
   const [error, setError] = useState("");
-  const [step, setStep] = useState<"main" | "input" | "register" | "signin"|"tell-us-more"|"verify-email"| "forgot-password" | "check-your-email">("main");
+  const [step, setStep] = useState<"main" | "input" | "register" | "signin"|"tell-us-more"|"verify-email"| "forgot-password" | "check-your-email"| "enter-reset-code">("main");
   const [password, setPassword] = useState("");
   const googleButtonRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [resetCode, setResetCode] = useState("");
 
   const router = useRouter();
   const [signinSubtitle, setSigninSubtitle] = useState<string | undefined>(undefined);
@@ -175,17 +177,21 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
   const handleForgotPassword = async (email: string) => {
     try {
       setIsLoading(true);
-      //const finalDisplayName = data.displayName || emailOrProfileUrl.split("@")[0];
-     // await AuthService.updateProfile({ ...data, displayName: finalDisplayName });
-     await AuthService.forgotPassword(email); // (or your real API)
-    setStep("check-your-email");
-    } catch {
-      setError("Failed to send reset link. Please try again.");
-    } finally {
+      await AuthService.forgotPassword(email);
+      setStep("check-your-email");
+    }  catch (err) {
+      const msg = err instanceof Error ? err.message : "";
+      if (msg.includes("429") || msg.toLowerCase().includes("too many")) {
+        setError("Too many attempts. Please wait a few minutes and try again.");
+      } else {
+        setError("Failed to send reset code. Please try again.");
+      }
+    }
+     finally {
       setIsLoading(false);
     }
-   // setStep("verify-email");
   };
+  
   const handleVerified = async () => {
     try {
       const response = await AuthService.login(emailOrProfileUrl, password);
@@ -347,8 +353,9 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
         />
         )}
         {step === "check-your-email" && (
-        <CheckYourEmailStep
-        onBack={() => { setStep("signin"); setError(""); }}
+          <CheckYourEmailStep
+          onBack={() => { setStep("forgot-password"); setError(""); }}
+          onContinue={() => setStep("enter-reset-code")}
         />
         )}
 
@@ -367,6 +374,18 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
             onVerified={handleVerified}
           />
         )}
+
+        {step === "enter-reset-code" && (
+          <EnterResetCodeStep
+          onBack={() => setStep("check-your-email")}
+          onContinue={(code) => {
+          setResetCode(code);
+          onClose();
+          router.push(`/reset-password?token=${encodeURIComponent(code)}`);
+        }}
+  />
+)}
+
       </div>
     </div>
   );
