@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { ProfileActions } from "@/components/Profile/ProfileActions";
 import type { IUser } from "@/types/userProfile.types";
 
@@ -42,6 +42,13 @@ const ownerUser: IUser = {
   isOwner: true,
 };
 
+const publicUser: IUser = {
+  ...ownerUser,
+  id: "user-2",
+  username: "publicuser",
+  isOwner: false,
+};
+
 describe("ProfileActions", () => {
   beforeEach(() => {
     mockPush.mockReset();
@@ -71,5 +78,16 @@ describe("ProfileActions", () => {
     fireEvent.click(screen.getByText(/close share/i));
 
     expect(screen.queryByText(/share modal/i)).not.toBeInTheDocument();
+  });
+
+  it("follows public profile by username and switches to Following", async () => {
+    mockFollowUser.mockResolvedValueOnce(undefined);
+
+    render(<ProfileActions user={publicUser} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /follow/i }));
+
+    expect(screen.getByRole("button", { name: /following/i })).toBeInTheDocument();
+    await waitFor(() => expect(mockFollowUser).toHaveBeenCalledWith("publicuser"));
   });
 });

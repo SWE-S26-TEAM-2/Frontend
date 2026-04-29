@@ -24,6 +24,7 @@ export interface ISignInStepProps {
   error: string;
   isLoading: boolean;
   subtitle?: string;
+  onForgotPassword: () => void;
 }
 export interface IInputStepProps {
   emailOrProfileUrl: string;
@@ -98,6 +99,34 @@ export interface IResendVerificationResponse {
   success: boolean;
 }
 
+export interface IForgotPasswordStepProps {
+  emailOrProfileUrl: string;
+  onBack: () => void;
+  onSubmit:(email: string) => void;
+  isLoading: boolean;
+}
+
+
+
+export interface IForgotPasswordResponse {
+  success: boolean;
+}
+
+
+
+export interface IResetPasswordResponse {
+  success: boolean;
+}
+
+export interface ICheckYourEmailStepProps {
+  onBack: () => void;
+}
+
 export interface IVerifyEmailResponse {
   success: boolean;
+}
+
+export interface IEnterResetCodeStepProps {
+  onBack: () => void;
+  onContinue: (code: string) => void;
 }

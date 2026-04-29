@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FaFacebook, FaApple } from "react-icons/fa";
+import { FaFacebook, FaApple, FaGoogle } from "react-icons/fa";
 import Link from "next/link";
 import { GoogleLogin } from "@react-oauth/google";
 import InputStep from "./InputStep";
@@ -9,25 +9,53 @@ import RegisterStep from "./RegisterStep";
 import SignInStep from "./SignInStep";
 import TellUsMoreStep from "./TellUsMoreStep";
 import VerifyEmailStep from "./VerifyEmailStep";
+import EnterResetCodeStep from "./EnterResetCodeStep";
 import { AuthService } from "@/services";
 import { useAuthStore } from "@/store/authStore";
 import type { ILoginModalProps } from "@/types/ui.types";
+import { useGoogleLogin } from "@react-oauth/google";
+import ForgotPasswordStep from "./ForgotPasswordStep";
+import CheckYourEmailStep from "./CheckYourEmailStep";
+import { useRouter } from "next/navigation";
+import { useRef } from "react";
 
 export default function LoginModal({ onClose }: ILoginModalProps) {
   const authStore = useAuthStore();
 
   const [emailOrProfileUrl, setEmailOrProfileUrl] = useState("");
-  const [password, setPassword] = useState("");
-  const [step, setStep] = useState<"main" | "input" | "register" | "signin" | "tell-us-more" | "verify-email">("main");
   const [error, setError] = useState("");
+  const [step, setStep] = useState<"main" | "input" | "register" | "signin"|"tell-us-more"|"verify-email"| "forgot-password" | "check-your-email"| "enter-reset-code">("main");
+  const [password, setPassword] = useState("");
+  const googleButtonRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [resetCode, setResetCode] = useState("");
+
+  const router = useRouter();
   const [signinSubtitle, setSigninSubtitle] = useState<string | undefined>(undefined);
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmailOrProfileUrl(e.target.value);
   };
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess:async (response)=> {
+      try{
+      setIsLoading(true);
+      await AuthService.googleLogin(response.access_token);
+      router.push("/track/1");
+      
+      }catch{
+        setError("Google login failed. Please try again.");
+      }finally{
+        setIsLoading(false);
+      }
+    },
+    onError: () =>{
+      setError("Google login failed. Please try again.");
+    }
+  })
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
@@ -60,6 +88,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       try {
         setIsLoading(true);
         const { isExisting } = await AuthService.checkEmail(emailOrProfileUrl);
+        //console.log("isExisting:", isExisting);
         setStep(isExisting ? "signin" : "register");
       } catch {
         setError("Something went wrong. Please try again.");
@@ -79,6 +108,10 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       }
       if (step === "register" && !captchaToken) {
         setError("Please verify you are a human.");
+        return;
+      }
+      if (step === "signin" && password.length < 6) {
+        setError("Password must be at least 6 characters.");
         return;
       }
       setError("");
@@ -129,6 +162,8 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       setIsLoading(true);
       const finalDisplayName = data.displayName || emailOrProfileUrl.split("@")[0];
       await AuthService.updateProfile({ ...data, displayName: finalDisplayName });
+      
+
     } catch {
       // No token yet before email verification — proceed anyway
     } finally {
@@ -137,6 +172,26 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
     setStep("verify-email");
   };
 
+ 
+
+  const handleForgotPassword = async (email: string) => {
+    try {
+      setIsLoading(true);
+      await AuthService.forgotPassword(email);
+      setStep("check-your-email");
+    }  catch (err) {
+      const msg = err instanceof Error ? err.message : "";
+      if (msg.includes("429") || msg.toLowerCase().includes("too many")) {
+        setError("Too many attempts. Please wait a few minutes and try again.");
+      } else {
+        setError("Failed to send reset code. Please try again.");
+      }
+    }
+     finally {
+      setIsLoading(false);
+    }
+  };
+  
   const handleVerified = async () => {
     try {
       const response = await AuthService.login(emailOrProfileUrl, password);
@@ -158,18 +213,13 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       onClick={onClose}
       className="fixed inset-0 bg-[rgba(0,0,0,0.7)] flex items-center justify-center z-1000"
     >
-      {isSuccess && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-[#333333] text-white px-6 py-4 rounded-lg z-2000">
-          Successfully signed in! 🎉
-        </div>
-      )}
-
+      {/* Modal box — stop click from closing when clicking inside */}
       <div
         onClick={(e) => e.stopPropagation()}
         className="bg-[#222222] w-125 rounded-lg p-10 relative"
       >
         <button
-          onClick={() => { onClose(); setIsSuccess(false); }}
+          onClick={() =>  onClose()}
           className="absolute top-3 right-4 bg-none border-none text-[#999] text-xl cursor-pointer"
         >
           ✕
@@ -180,8 +230,8 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
             <p className="text-white text-[35px] mb-4">Sign in or create an account</p>
             <p className="text-[#999999] text-sm leading-relaxed mb-8">
               By clicking on any of the &quot;Continue&quot; buttons below, you agree to SoundCloud&apos;s{" "}
-              <Link href="#">Terms of Use</Link> and acknowledge our{" "}
-              <Link href="#">Privacy Policy</Link>.
+              <Link href="https://soundcloud.com/terms-of-use">Terms of Use</Link> and acknowledge our{" "}
+              <Link href="https://soundcloud.com/pages/privacy">Privacy Policy</Link>.
             </p>
 
             <button className="bg-[#1877f2] text-white w-full p-3 rounded cursor-pointer mb-3 text-[15px] font-semibold border-none flex items-center justify-center gap-2">
@@ -189,7 +239,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
               Continue with Facebook
             </button>
 
-            <div className="mb-3 [&>div]:w-full [&_iframe]:w-full">
+            <div className="hidden" ref={googleButtonRef}>
               <GoogleLogin
                 onSuccess={async (credentialResponse) => {
                   if (!credentialResponse.credential) return;
@@ -213,6 +263,14 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
                 width="400"
               />
             </div>
+
+            <button
+            onClick={() => googleButtonRef.current?.querySelector("div[role=button]")?.dispatchEvent(new MouseEvent("click", { bubbles: true }))}
+            className="bg-[#333333] text-white w-full p-3 rounded cursor-pointer mb-3 text-[15px] font-semibold border border-[#444444] flex items-center justify-center gap-2"
+            >
+            <FaGoogle size={20} />
+            Continue with Google
+            </button>
 
             <button className="bg-black text-white w-full p-3 rounded cursor-pointer mb-8 text-[15px] font-semibold border border-[#444444] flex items-center justify-center gap-2">
               <FaApple size={20} />
@@ -242,10 +300,10 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
             </button>
             </form>
 
-            <Link href="#" className="text-[#ff5500] text-sm cursor-pointer mt-8">
-              Need help?
-            </Link>
-          </>
+        <Link href="https://help.soundcloud.com/hc/en-us/sections/46266771825691" className="text-[#4a90e2] text-sm cursor-pointer">
+          Need help?
+        </Link>
+        </>
         )}
 
         {step === "input" && (
@@ -273,16 +331,32 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
         )}
 
         {step === "signin" && (
-          <SignInStep
-            emailOrProfileUrl={emailOrProfileUrl}
-            password={password}
-            onPasswordChange={handlePasswordChange}
-            onSubmit={handleSubmit}
-            onBack={resetToMain}
-            error={error}
-            isLoading={isLoading}
-            subtitle={signinSubtitle}
-          />
+
+        <SignInStep
+        emailOrProfileUrl={emailOrProfileUrl}
+        password={password}
+        onPasswordChange={handlePasswordChange}
+        onSubmit={handleSubmit}
+        onBack={() => {setStep("main"); setError("");}}
+        error={error}
+        isLoading={isLoading}
+        subtitle={signinSubtitle}
+        onForgotPassword={() => { setStep("forgot-password"); setError(""); }}
+        />
+        )}
+        {step === "forgot-password" && (
+        <ForgotPasswordStep
+        emailOrProfileUrl={emailOrProfileUrl}
+        onBack={() => { setStep("signin"); setError(""); }}
+        onSubmit={handleForgotPassword}
+        isLoading={isLoading}
+        />
+        )}
+        {step === "check-your-email" && (
+          <CheckYourEmailStep
+          onBack={() => { setStep("forgot-password"); setError(""); }}
+          onContinue={() => setStep("enter-reset-code")}
+        />
         )}
 
         {step === "tell-us-more" && (
@@ -300,6 +374,18 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
             onVerified={handleVerified}
           />
         )}
+
+        {step === "enter-reset-code" && (
+          <EnterResetCodeStep
+          onBack={() => setStep("check-your-email")}
+          onContinue={(code) => {
+          setResetCode(code);
+          onClose();
+          router.push(`/reset-password?token=${encodeURIComponent(code)}`);
+        }}
+  />
+)}
+
       </div>
     </div>
   );

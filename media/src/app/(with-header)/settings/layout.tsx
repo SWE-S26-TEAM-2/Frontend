@@ -9,7 +9,6 @@ const TABS = [
   { label: "Notifications", href: "/settings/notifications" },
   { label: "Privacy", href: "/settings/privacy" },
   { label: "Advertising", href: "/settings/advertising" },
-  { label: "2FA", href: "/settings/two-factor" },
 ];
 
 export default function SettingsLayout({
@@ -20,31 +19,33 @@ export default function SettingsLayout({
   const pathname = usePathname();
 
   return (
-    <div style={{ backgroundColor: "#121212", color: "#fff", minHeight: "100vh", fontFamily: "Arial" }}>
-      <div style={{ padding: "40px 40px 0 40px" }}>
-        <h1 style={{ marginBottom: "24px" }}>Settings</h1>
-        <div style={{ display: "flex", gap: "32px", borderBottom: "1px solid #333" }}>
-          {TABS.map((tab) => {
-            const isActive = pathname === tab.href;
-            return (
-              <Link
-                key={tab.href}
-                href={tab.href}
-                style={{
-                  color: isActive ? "#fff" : "#aaa",
-                  textDecoration: "none",
-                  paddingBottom: "12px",
-                  borderBottom: isActive ? "2px solid #fff" : "2px solid transparent",
-                  fontWeight: isActive ? "bold" : "normal",
-                }}
-              >
-                {tab.label}
-              </Link>
-            );
-          })}
+    <div className="bg-[#121212] text-white min-h-screen font-sans">
+      <div className="max-w-screen-xl mx-auto px-10">
+        <div className="pt-10 pb-0">
+          <h1 className="text-2xl font-bold mb-6">Settings</h1>
+          <div className="flex gap-8 border-b border-[#333] overflow-x-auto">
+            {TABS.map((tab) => {
+              const isActive = pathname === tab.href;
+              return (
+                <Link
+                  key={tab.href}
+                  href={tab.href}
+                  className={`whitespace-nowrap pb-3 text-sm border-b-2 transition-colors ${
+                    isActive
+                      ? "text-white border-white font-bold"
+                      : "text-[#aaa] border-transparent font-normal hover:text-white"
+                  }`}
+                >
+                  {tab.label}
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </div>
-      <div>{children}</div>
+      <div className="max-w-screen-xl mx-auto px-10">
+        {children}
+      </div>
     </div>
   );
 }
