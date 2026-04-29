@@ -8,7 +8,6 @@ import { IComment } from '@/types/comment.types';
 import { IMessageThread, IInboxItem } from '@/types/message.types';
 import { IChart, IChartTrack } from '@/types/chart.types';
 import { INotification } from '@/types/notification.types';
-import { IAdminUser, IAdminTrack, IAdminStats, IAdminInsightPoint } from '@/types/admin.types';
 
 // settings/privacy
 import { IPrivacySettings } from '@/types/settings-privacy.types';
@@ -560,36 +559,4 @@ export const MOCK_NOTIFICATIONS: INotification[] = [
   { id: 'n10', type: 'mention', actor: MOCK_USERS.djremix,      track: { id: '4', title: 'Orange',            albumArt: '/covers/song3.jpg' }, message: 'djremix mentioned you in a comment on Orange', isRead: true, createdAt: '2026-04-08T10:00:00Z' },
 ];
 
-// ─── Admin ────────────────────────────────────────────────────────────────────
-export const MOCK_ADMIN_USERS: IAdminUser[] = [
-  { id: 'u1', username: 'soundwave',    email: 'soundwave@example.com',    avatarUrl: '/avatars/soundwave.jpg',    role: 'artist',   trackCount: 12, followerCount: 3402, joinedAt: '2024-01-10T00:00:00Z', isSuspended: false },
-  { id: 'u2', username: 'beatmaker99',  email: 'beatmaker99@example.com',  avatarUrl: '/avatars/beatmaker99.jpg',  role: 'artist',   trackCount: 8,  followerCount: 1892, joinedAt: '2024-02-14T00:00:00Z', isSuspended: false },
-  { id: 'u3', username: 'listenerjane', email: 'listenerjane@example.com', avatarUrl: '/avatars/listenerjane.jpg', role: 'listener', trackCount: 0,  followerCount: 124,  joinedAt: '2024-03-05T00:00:00Z', isSuspended: false },
-  { id: 'u4', username: 'djremix',      email: 'djremix@example.com',      avatarUrl: '/avatars/djremix.jpg',      role: 'artist',   trackCount: 21, followerCount: 7830, joinedAt: '2023-11-20T00:00:00Z', isSuspended: false },
-  { id: 'u5', username: 'newuser2026',  email: 'newuser2026@example.com',  avatarUrl: '/avatars/newuser2026.jpg',  role: 'listener', trackCount: 0,  followerCount: 8,    joinedAt: '2026-04-01T00:00:00Z', isSuspended: false },
-];
 
-export const MOCK_ADMIN_TRACKS: IAdminTrack[] = MOCK_TRACKS.map((t) => ({
-  id: t.id, title: t.title, artist: t.artist, albumArt: t.albumArt,
-  plays: t.plays, likes: t.likes,
-  uploadedAt: t.createdAt, isPrivate: false,
-}));
-
-export const MOCK_ADMIN_STATS: IAdminStats = {
-  totalUsers: 5,
-  totalTracks: 4,
-  totalPlays: MOCK_TRACKS.reduce((sum, t) => sum + t.plays, 0),
-  newUsersToday: 1,
-  newTracksToday: 0,
-  activeUsersThisWeek: 4,
-};
-
-export const MOCK_ADMIN_INSIGHTS: IAdminInsightPoint[] = Array.from({ length: 30 }, (_, i) => {
-  const d = new Date('2026-04-12');
-  d.setDate(d.getDate() - (29 - i));
-  return {
-    date: d.toISOString().split('T')[0],
-    plays: 800 + Math.floor(Math.sin(i * 0.4) * 300 + Math.random() * 200),
-    signups: Math.floor(Math.random() * 5),
-  };
-});

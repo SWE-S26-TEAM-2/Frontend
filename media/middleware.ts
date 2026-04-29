@@ -10,10 +10,17 @@ const PROTECTED_PREFIXES = [
   "/creator/upload",
   "/who-to-follow",
   "/search",
+  "/admin",
 ];
+
+const ADMIN_PREFIXES = ["/admin"];
+const ADMIN_EMAILS = ["example@gmail.com"]; //Put you real email to test admin dashboard with real API
 
 const isProtectedPath = (pathname: string): boolean =>
   PROTECTED_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+
+const isAdminPath = (pathname: string): boolean =>
+  ADMIN_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 
 const redirectToLogin = (request: NextRequest): NextResponse => {
   const url = request.nextUrl.clone();
@@ -23,6 +30,13 @@ const redirectToLogin = (request: NextRequest): NextResponse => {
   const response = NextResponse.redirect(url);
   response.cookies.set({ name: AUTH_COOKIE_NAME, value: "", path: "/", maxAge: 0 });
   return response;
+};
+
+const redirectToHome = (request: NextRequest): NextResponse => {
+  const url = request.nextUrl.clone();
+  url.pathname = "/";
+  url.search = "";
+  return NextResponse.redirect(url);
 };
 
 export async function middleware(request: NextRequest): Promise<NextResponse> {
@@ -48,9 +62,18 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
       },
       cache: "no-store",
     });
-
+ 
     if (!verify.ok) {
       return redirectToLogin(request);
+    }
+
+    // Admin-only check
+    if (isAdminPath(pathname)) {
+      const data = await verify.json();
+      const email = data?.data?.email ?? data?.email ?? "";
+      if (!ADMIN_EMAILS.includes(email)) {
+        return redirectToHome(request);
+      }
     }
 
     return NextResponse.next();

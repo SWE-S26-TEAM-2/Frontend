@@ -1,33 +1,73 @@
-import { MOCK_ADMIN_USERS, MOCK_ADMIN_TRACKS, MOCK_ADMIN_STATS, MOCK_ADMIN_INSIGHTS } from "./mockData";
-import type { IAdminService, IAdminUser, IAdminTrack, IAdminStats, IAdminInsightPoint } from "@/types/admin.types";
-
-let userStore = [...MOCK_ADMIN_USERS];
+import type { IAdminService } from "@/types/admin.types";
 
 export const mockAdminService: IAdminService = {
-  getStats: async (): Promise<IAdminStats> => {
+  getAnalytics: async () => {
     await new Promise((r) => setTimeout(r, 300));
-    return MOCK_ADMIN_STATS;
+    return {
+      totalUsers: 120,
+      totalTracks: 340,
+      totalComments: 890,
+      totalReports: 15,
+      openReports: 5,
+      underReviewReports: 3,
+      resolvedReports: 6,
+      dismissedReports: 1,
+      suspendedUsers: 2,
+      activeStreamsToday: 45,
+    };
   },
 
-  getInsights: async (days = 30): Promise<IAdminInsightPoint[]> => {
-    await new Promise((r) => setTimeout(r, 400));
-    return MOCK_ADMIN_INSIGHTS.slice(-days);
-  },
-
-  getUsers: async (): Promise<IAdminUser[]> => {
-    await new Promise((r) => setTimeout(r, 350));
-    return userStore;
-  },
-
-  getTracks: async (): Promise<IAdminTrack[]> => {
-    await new Promise((r) => setTimeout(r, 350));
-    return MOCK_ADMIN_TRACKS;
-  },
-
-  suspendUser: async (userId: string): Promise<void> => {
+  getReports: async () => {
     await new Promise((r) => setTimeout(r, 300));
-    userStore = userStore.map((u) =>
-      u.id === userId ? { ...u, isSuspended: !u.isSuspended } : u
-    );
+    return {
+      total: 0,
+      reports: [],
+    };
+  },
+
+  reviewReport: async (reportId, status, resolutionNote) => {
+    await new Promise((r) => setTimeout(r, 300));
+    return {
+      reportId,
+      entityType: "track",
+      entityId: "mock-entity",
+      reason: "mock reason",
+      status,
+      createdAt: new Date().toISOString(),
+      reporter: { userId: "1", username: "mockuser", displayName: "Mock User" },
+      reviewedBy: null,
+      reviewedAt: null,
+      resolutionNote: resolutionNote ?? null,
+      entityPreview: null,
+    };
+  },
+
+  suspendUser: async (userId, isSuspended, reason) => {
+    await new Promise((r) => setTimeout(r, 300));
+    return {
+      userId,
+      username: "mockuser",
+      displayName: "Mock User",
+      isSuspended,
+      reason: reason ?? null,
+    };
+  },
+
+  updateUserRole: async (userId, role) => {
+    await new Promise((r) => setTimeout(r, 300));
+    return {
+      userId,
+      username: "mockuser",
+      displayName: "Mock User",
+      role,
+    };
+  },
+
+  deleteComment: async () => {
+    await new Promise((r) => setTimeout(r, 300));
+  },
+
+  deleteTrack: async () => {
+    await new Promise((r) => setTimeout(r, 300));
   },
 };
