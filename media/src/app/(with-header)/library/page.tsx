@@ -185,8 +185,8 @@ export default function LibraryPage() {
     if (!isLoggedIn || !userId) return;
     startTransition(async () => {
       const [tracksData, likesData, playlistsData] = await Promise.all([
-        userProfileService.getUserTracks(userId),
-        userProfileService.getUserLikes(userId),
+        userProfileService.getUserTracks(username),
+        userProfileService.getUserLikes(username),
         playlistService.getUserPlaylists(username),
       ]);
       setTracks(tracksData);

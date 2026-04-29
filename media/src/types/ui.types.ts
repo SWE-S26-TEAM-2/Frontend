@@ -27,6 +27,7 @@ export interface IShareModalProps {
 
 export interface IProfileStatsProps {
   user: IUser;
+  tracksCount?: number;
 }
 
 export interface IProfileActionsProps {
@@ -40,6 +41,7 @@ export interface IProfileSidebarProps {
   fans: IFanUser[];
   followers: IFollower[];
   following: IFollowing[];
+  tracksCount?: number;
 }
 
 export interface IIconBtnProps {
