@@ -9,8 +9,8 @@ export interface IBannerProps {
   user: IUser;
   onUploadAvatar?: (file: File) => Promise<void>;
   onUploadCover?: (file: File) => Promise<void>;
-  onAvatarChange?: (url: string) => void; 
-  onHeaderChange?: (url: string) => void;
+  onAvatarChange?: (url: string, file?: File) => void;
+  onHeaderChange?: (url: string, file?: File) => void;
 }
 
 export interface IToggleProps {

@@ -78,7 +78,7 @@ function normalizeUser(d: Record<string, unknown>, requestedId: string): IUser {
     headerUrl:    resolveMediaUrl(d.cover_photo),
     followers:    (d.follower_count as number)  ?? 0,
     following:    (d.following_count as number) ?? 0,
-    tracks:       0,
+    tracks: (d.track_count as number) ?? 0,
     likes:        0,
     isOwner:      (d.user_id as string) === getStoredUserId(),
   };
@@ -86,16 +86,61 @@ function normalizeUser(d: Record<string, unknown>, requestedId: string): IUser {
 
 export const realUserProfileService: IUserProfileService = {
 
+   async getSocialLinks(): Promise<IUser["socialLinks"]> {
+    const token = getAuthToken();
+    if (!token) return {};
+
+    const res = await fetch(apiUrl("/users/me/social-links"), {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return {};
+
+    const json = await res.json();
+    const links = (json.data?.social_links ?? []) as { platform: string; url: string }[];
+
+    return links.reduce((acc, { platform, url }) => {
+      acc[platform as keyof NonNullable<IUser["socialLinks"]>] = url;
+      return acc;
+    }, {} as NonNullable<IUser["socialLinks"]>);
+  },
+
   async getUserProfile(userId: string): Promise<IUser> {
     const token = getAuthToken();
-    const headers: Record<string, string> = {};
-    if (token) headers["Authorization"] = `Bearer ${token}`;
+    const storedId = getStoredUserId();
 
-    const res = await fetch(apiUrl(`/users/${userId}`), { headers });
+    // If viewing own profile, use the authenticated endpoint
+    const isOwn = token && storedId;
+    if (isOwn) {
+      // First fetch public profile to get username/follower data
+      const pubRes = await fetch(apiUrl(`/users/${userId}`));
+      if (!pubRes.ok) throw new Error(`User "${userId}" not found`);
+      const pubJson = await pubRes.json();
+      const pubData = (pubJson.data ?? pubJson) as Record<string, unknown>;
+
+      // Check if this is actually the logged-in user
+      if (pubData.user_id === storedId) {
+      const meRes = await fetch(apiUrl(`/users/me`), {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (meRes.ok) {
+        const meJson = await meRes.json();
+        const meData = (meJson.data ?? meJson) as Record<string, unknown>;
+        const normalizedUser = normalizeUser({ ...pubData, ...meData }, storedId);
+
+        // fetch and merge social links
+        const socialLinks = await realUserProfileService.getSocialLinks();
+        return { ...normalizedUser, socialLinks };
+      }
+    }
+
+      return normalizeUser(pubData, storedId);
+    }
+
+    const res = await fetch(apiUrl(`/users/${userId}`));
     if (!res.ok) throw new Error(`User "${userId}" not found`);
     const json = await res.json();
-    const data = json.data ?? json;
-    return normalizeUser(data as Record<string, unknown>, userId);
+    const data = (json.data ?? json) as Record<string, unknown>;
+    return normalizeUser(data, storedId ?? "");
   },
 
   async getUserTracks(username: string): Promise<ITrack[]> {
@@ -105,24 +150,23 @@ export const realUserProfileService: IUserProfileService = {
       );
       const rawTracks = Array.isArray(data) ? data : (data.tracks ?? []);
       return rawTracks.map((t) => {
-        const id = String(t.track_id ?? t.id ?? "");
-        const directUrl = resolveMediaUrl(t.file_url ?? t.url);
-        return {
-          id,
-          title:         String(t.title      ?? ""),
-          artist:        String(t.artist     ?? t.display_name ?? username),
-          albumArt:      resolveMediaUrl(t.cover_image ?? t.cover_image_url ?? t.cover_url ?? t.cover_photo ?? t.image_url ?? t.coverUrl) ?? "",
-          genre:         t.genre ? String(t.genre) : undefined,
-          url:           directUrl ?? (id ? `${getApiBaseUrl()}/tracks/${id}/audio` : ""),
-          duration:      Number(t.duration   ?? 0),
-          likes:         Number(t.likes      ?? 0),
-          plays:         Number(t.plays      ?? 0),
-          commentsCount: Number(t.comments   ?? t.comments_count ?? 0),
-          isLiked:       Boolean(t.is_liked  ?? t.isLiked    ?? false),
-          createdAt:     String(t.created_at ?? t.createdAt  ?? ""),
-          updatedAt:     String(t.updated_at ?? t.updatedAt  ?? ""),
-        };
-      });
+      const id = String(t.track_id ?? "");
+      return {
+        id,
+        title:         String(t.title             ?? ""),
+        artist:        String(t.display_name      ?? username),
+        albumArt:      resolveMediaUrl(t.cover_image_url) ?? "",
+        genre:         t.genre ? String(t.genre)  : undefined,
+        url:           resolveMediaUrl(t.stream_url) ?? "",
+        duration:      Number(t.duration_seconds  ?? 0),
+        likes:         Number(t.like_count        ?? 0),
+        plays:         Number(t.play_count        ?? 0),
+        commentsCount: Number(t.comment_count     ?? 0),
+        isLiked:       Boolean(t.is_liked         ?? false),
+        createdAt:     String(t.created_at        ?? ""),
+        updatedAt:     String(t.updated_at        ?? ""),
+      };
+    });
     } catch {
       return [];
     }
@@ -194,7 +238,6 @@ export const realUserProfileService: IUserProfileService = {
   async updateProfile(_userId: string, payload: IEditProfilePayload): Promise<IUser> {
     const token = getAuthToken();
 
-    // FIX issue #5: surface the auth error — don't silently swallow it
     if (!token) throw new Error("You must be logged in to update your profile");
 
     if (payload.avatarFile) {
@@ -205,13 +248,14 @@ export const realUserProfileService: IUserProfileService = {
       }
     }
 
+    const location = [payload.city, payload.country].filter(Boolean).join(", ");
+
     const body: Record<string, unknown> = {
       display_name: payload.displayName,
       first_name:   payload.firstName,
       last_name:    payload.lastName,
-      city:         payload.city,
-      country:      payload.country,
       bio:          payload.bio,
+      ...(location && { location }),
     };
 
     Object.keys(body).forEach((k) => body[k] === undefined && delete body[k]);
@@ -228,6 +272,22 @@ export const realUserProfileService: IUserProfileService = {
     if (!res.ok) {
       const error = await res.json().catch(() => ({}));
       throw new Error((error as { detail?: string }).detail || "Failed to update profile");
+    }
+
+     // save social links if provided
+    if (payload.links) {
+      const socialLinksBody = Object.entries(payload.links)
+        .filter(([, url]) => url)
+        .map(([platform, url]) => ({ platform, url }));
+
+      await fetchWithTimeout(apiUrl("/users/me/social-links"), {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ social_links: socialLinksBody }),
+      });
     }
 
     const json = await res.json();
@@ -254,16 +314,18 @@ export const realUserProfileService: IUserProfileService = {
       throw new Error((error as { detail?: string }).detail || "Failed to upload avatar");
     }
 
-    const json = await res.json();
-    const data = (json.data ?? json) as Record<string, unknown>;
-    const bustedAvatar = addCacheBuster(data.profile_picture);
-    if (bustedAvatar) data.profile_picture = bustedAvatar;
-    const user = normalizeUser(data, (data.user_id as string) ?? getStoredUserId() ?? "");
-    if (typeof window !== "undefined" && user.avatarUrl) {
-      window.localStorage.setItem("auth_profile_image", user.avatarUrl);
-    }
-    return user;
-  },
+  const json = await res.json();
+  const data = (json.data ?? json) as Record<string, unknown>;
+
+  const bustedAvatar = addCacheBuster(data.profile_picture);
+  const avatarUrl = resolveMediaUrl(bustedAvatar ?? data.profile_picture);
+
+  if (typeof window !== "undefined" && avatarUrl) {
+    window.localStorage.setItem("auth_profile_image", avatarUrl);
+  }
+
+  return { avatarUrl } as unknown as IUser;
+ },
 
   async uploadCover(file: File): Promise<IUser> {
     const token = getAuthToken();
@@ -285,9 +347,17 @@ export const realUserProfileService: IUserProfileService = {
 
     const json = await res.json();
     const data = (json.data ?? json) as Record<string, unknown>;
+
     const bustedCover = addCacheBuster(data.cover_photo);
-    if (bustedCover) data.cover_photo = bustedCover;
-    return normalizeUser(data, (data.user_id as string) ?? getStoredUserId() ?? "");
+    const coverUrl = resolveMediaUrl(bustedCover ?? data.cover_photo);
+
+    const storedUsername =
+      typeof window !== "undefined"
+        ? window.localStorage.getItem("auth_username") ?? ""
+        : "";
+
+    const fullUser = await realUserProfileService.getUserProfile(storedUsername);
+    return { ...fullUser, headerUrl: coverUrl ?? fullUser.headerUrl };
   },
 
   async followUser(userId: string): Promise<void> {
@@ -301,25 +371,19 @@ export const realUserProfileService: IUserProfileService = {
   async searchUsers(query: string): Promise<ISearchUser[]> {
     const data = await apiGet<Record<string, unknown>[] | { users?: Record<string, unknown>[] }>(
       `${ENV.API_BASE_URL}/search/users?keyword=${encodeURIComponent(query.trim())}`,
-      { skipAuth: true },
+
     );
     const users = Array.isArray(data) ? data : (data.users ?? []);
 
-    return users.flatMap((u) => {
-      const username = typeof u.username === "string" ? u.username.trim() : "";
-      if (!username) return [];
+   // After
+    return users.map((u) => ({
+      id:            String(u.user_id ?? ""),
+      username:      String(u.username ?? u.display_name ?? ""),
+      role:          (u.account_type as string) === "artist" ? "artist" : "listener",
+      avatarUrl:     resolveMediaUrl(u.profile_picture) ?? null,
+      followerCount: (u.follower_count as number) ?? 0,
+      isVerified:    (u.is_verified as boolean) ?? false,
+    }));
+      },
 
-      return {
-        id:            String(u.user_id ?? u.id ?? username),
-        username,
-        displayName:   typeof u.display_name === "string" && u.display_name.trim()
-          ? u.display_name.trim()
-          : undefined,
-        role:          (u.account_type as string) === "artist" ? "artist" : "listener",
-        avatarUrl:     resolveMediaUrl(u.profile_picture) ?? null,
-        followerCount: (u.follower_count as number)  ?? 0,
-        isVerified:    (u.is_verified as boolean)    ?? false,
-      };
-    });
-  },
 };
