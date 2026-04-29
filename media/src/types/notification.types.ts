@@ -1,30 +1,43 @@
-import { ITrack } from "./track.types";
+// ── Notification type discriminator ─────────────────────────────────────────
 
-export type INotificationType =
-  | "like"
-  | "follow"
-  | "repost"
-  | "comment"
-  | "mention";
+export type NotificationType = "like" | "repost" | "follow" | "comment";
+
+export type NotificationFilter = "all" | NotificationType;
+
+// ── Core notification shape ──────────────────────────────────────────────────
 
 export interface INotificationActor {
   id: string;
   username: string;
-  avatarUrl: string;
+  avatarUrl: string | null;
+  /** Whether the current user already follows this actor */
+  isFollowing: boolean;
 }
 
 export interface INotification {
   id: string;
-  type: INotificationType;
+  type: NotificationType;
   actor: INotificationActor;
-  track?: Pick<ITrack, "id" | "title" | "albumArt">; // target track (if applicable)
-  message: string;           // pre-built human-readable string
-  isRead: boolean;
+  message: string;
   createdAt: string;
+  isRead: boolean;
+  trackTitle?: string;
+  commentText?: string;
 }
 
-export interface INotificationService {
-  getNotifications: (filter?: INotificationType | "all") => Promise<INotification[]>;
-  markAllRead: () => Promise<void>;
-  markRead: (id: string) => Promise<void>;
+// ── Recent follower (sidebar) ────────────────────────────────────────────────
+
+export interface IRecentFollower {
+  id: string;
+  username: string;
+  avatarUrl: string | null;
+  isFollowing: boolean;
+}
+
+// ── Service response shapes ──────────────────────────────────────────────────
+
+export interface INotificationsResponse {
+  notifications: INotification[];
+  unreadCount: number;
+  recentFollowers: IRecentFollower[];
 }

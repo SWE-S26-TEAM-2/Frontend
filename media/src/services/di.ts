@@ -82,7 +82,6 @@ import type { IChartService } from "@/types/chart.types";
 // notification (new — page-level; distinct from settings notificationService)
 import { mockNotificationService } from "./mocks/notification.mock";
 import { realNotificationService } from "./api/notification.api";
-import type { INotificationService } from "@/types/notification.types";
 
 // admin
 import { mockAdminService } from "./mocks/admin.mock";
@@ -259,11 +258,7 @@ export const chartService: IChartService = ENV.USE_MOCK_API
 
 /**
  * Activity Notification Service (page-level — distinct from settings notificationService)
- */
-export const activityNotificationService: INotificationService = ENV.USE_MOCK_API
-  ? mockNotificationService
-  : realNotificationService;
-
+ 
 /**
  * Admin Service
  */
