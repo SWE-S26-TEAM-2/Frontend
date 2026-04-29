@@ -2,7 +2,7 @@
 
 // src/app/(with-header)/you/insights/page.tsx
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   InsightsTabs,
@@ -36,21 +36,12 @@ type TimeRangeOption = {
 };
 
 const TIME_RANGE_OPTIONS: TimeRangeOption[] = [
-  { value: 'today',   label: 'Today',           dropdownLabel: 'Today'          },
-  { value: '7d',      label: 'Last 7 days',     dropdownLabel: 'Last 7 days'    },
-  { value: '30d',     label: 'Last 30 days',    dropdownLabel: 'Last 30 days'   },
+  { value: 'today',   label: 'Today',           dropdownLabel: 'Today'           },
+  { value: '7d',      label: 'Last 7 days',     dropdownLabel: 'Last 7 days'     },
+  { value: '30d',     label: 'Last 30 days',    dropdownLabel: 'Last 30 days'    },
   { value: '1y',      label: 'Last 12 months',  dropdownLabel: 'Last 12 months' },
-  { value: 'alltime', label: 'All time',        dropdownLabel: 'All time'       },
+  { value: 'alltime', label: 'All time',        dropdownLabel: 'All time'        },
 ];
-
-const SWITCH_TO_RANGE: Record<InsightTimeRange, InsightTimeRange> = {
-  today:   '7d',
-  '7d':    '30d',
-  '30d':   '1y',
-  '90d':   '1y',
-  '1y':    'alltime',
-  alltime: '7d',
-};
 
 const DEFAULT_TIME_RANGE: InsightTimeRange = '30d';
 
@@ -75,9 +66,9 @@ function isAllZero(metrics: IInsightsMetricData): boolean {
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
+// ── Main Content Component ───────────────────────────────────────────────────
 
-export default function InsightsPage() {
+function InsightsContent() {
   const searchParams = useSearchParams();
 
   // Read initial tab + metric from URL params, falling back to defaults
@@ -190,7 +181,7 @@ export default function InsightsPage() {
     );
   }
 
-  // ── Main ────────────────────────────────────────────────────────────────────
+  // ── Main UI ──────────────────────────────────────────────────────────────────
   return (
     <div className="bg-[#121212] text-white min-h-[calc(100vh-48px-56px)]">
       <main className="w-full px-8 py-8 flex flex-col gap-6">
@@ -283,5 +274,22 @@ export default function InsightsPage() {
 
       {isAboutOpen && <InsightsAboutModal onClose={() => setIsAboutOpen(false)} />}
     </div>
+  );
+}
+
+// ── Exported Page with Suspense Boundary ─────────────────────────────────────
+
+export default function InsightsPage() {
+  return (
+    <Suspense fallback={
+      <div className="bg-[#121212] text-white min-h-[calc(100vh-48px-56px)] flex flex-col">
+        <div className="w-full px-8 py-8 flex flex-col gap-6">
+          <div className="h-8 w-40 rounded bg-[#1a1a1a] animate-pulse" />
+          <div className="h-5 w-72 rounded bg-[#1a1a1a] animate-pulse" />
+        </div>
+      </div>
+    }>
+      <InsightsContent />
+    </Suspense>
   );
 }
