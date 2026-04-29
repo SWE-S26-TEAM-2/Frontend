@@ -41,7 +41,7 @@ describe("Banner", () => {
     fireEvent.change(avatarInput, { target: { files: [file] } });
 
     await waitFor(() => {
-      expect(onAvatarChange).toHaveBeenCalledWith("blob:preview");
+      expect(onAvatarChange).toHaveBeenCalledWith("blob:preview", file);
     });
   });
 
@@ -64,7 +64,7 @@ describe("Banner", () => {
     fireEvent.change(coverInput, { target: { files: [file] } });
 
     await waitFor(() => {
-      expect(onHeaderChange).toHaveBeenCalledWith("blob:preview");
+      expect(onHeaderChange).toHaveBeenCalledWith("blob:preview", file);
     });
   });
 

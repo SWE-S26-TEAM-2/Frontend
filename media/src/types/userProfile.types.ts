@@ -124,4 +124,5 @@ export interface IUserProfileService {
   followUser(username: string): Promise<void>;
   unfollowUser(username: string): Promise<void>;
   searchUsers(query: string): Promise<ISearchUser[]>;
+  getSocialLinks(): Promise<IUser["socialLinks"]>;
 }
