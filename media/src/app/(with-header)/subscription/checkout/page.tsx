@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
+import { SubscriptionService } from '@/services/api/subscription.api';
 
 const PLANS = {
   artist: {
@@ -33,9 +34,29 @@ function CheckoutContent() {
 
   const renewDate = billing === 'yearly' ? 'Apr 25, 2027' : 'May 25, 2026';
 
-  function handleBuy() {
-    router.push(`/subscription/success?plan=${planKey}`);
+  const [isLoading, setIsLoading] = useState(false);
+const [error, setError] = useState('');
+
+async function handleBuy() {
+  if (!payment) {
+    setError('Please select a payment method.');
+    return;
   }
+  try {
+    setIsLoading(true);
+    setError('');
+    await SubscriptionService.upgrade({
+      payment_token: 'tok_visa', // Stripe test token
+      plan: 'Premium',
+    });
+    router.push(`/subscription/success?plan=${planKey}`);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : '';
+    setError(msg || 'Payment failed. Please try again.');
+  } finally {
+    setIsLoading(false);
+  }
+}
 
   return (
     <div className="min-h-screen bg-white text-black px-12 py-10">
@@ -223,6 +244,7 @@ function CheckoutContent() {
             <p className="text-xs text-gray-500">All prices in EGP</p>
           </div>
 
+          {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
           {/* Buy button */}
           <button
             onClick={handleBuy}
