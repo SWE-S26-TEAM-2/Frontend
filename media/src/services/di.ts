@@ -21,6 +21,8 @@ import { getPrivacySettingsFromAPI, updatePrivacySettingsOnAPI } from "./api/set
 // settings/account
 import { getMockAccountSettings, updateMockAccountSettings } from "./mocks/settings-account.mock";
 import { getAccountSettingsFromAPI, updateAccountSettingsOnAPI } from "./api/settings-account.api";
+import { sendMockPasswordResetEmail } from "./mocks/settings-account.mock";
+import { sendPasswordResetEmailFromAPI } from "./api/settings-account.api";
 
 // settings/notification
 import { getMockNotificationSettings, updateMockNotificationSettings } from "./mocks/settings-notification.mock";
@@ -87,6 +89,11 @@ import { mockAdminService } from "./mocks/admin.mock";
 import { realAdminService } from "./api/admin.api";
 import type { IAdminService } from "@/types/admin.types";
 
+// insights
+import { mockInsightsService } from './mocks/insights.mock';
+import { realInsightsService } from './api/insights.api';
+import type { IInsightsService } from '@/types/insights.types';
+
 /**
  * Authentication Service
  * Automatically switches between mock and real based on USE_MOCK_API flag
@@ -121,7 +128,8 @@ export const uploadService: IUploadService = ENV.USE_MOCK_API
  * Studio Service
  * Hardcoded to mock — backend has no track-listing or bulk-edit endpoints yet.
  */
-export const studioService: IStudioService = mockStudioService;
+//export const studioService: IStudioService = mockStudioService;
+export const studioService: IStudioService = ENV.USE_MOCK_API ? mockStudioService : realStudioService;
 
 /**
  * Store Service
@@ -155,38 +163,59 @@ export const updatePrivacySettings = async (
 export const accountService = {
   getSettings: ENV.USE_MOCK_API ? getMockAccountSettings : getAccountSettingsFromAPI,
   updateSettings: ENV.USE_MOCK_API ? updateMockAccountSettings : updateAccountSettingsOnAPI,
+  sendPasswordResetEmail: ENV.USE_MOCK_API ? sendMockPasswordResetEmail : sendPasswordResetEmailFromAPI,
 };
 
 /**
  * Settings - Notification Service
  */
+// export const notificationService = {
+//   getSettings: ENV.USE_MOCK_API ? getMockNotificationSettings : getNotificationSettingsFromAPI,
+//   updateSettings: ENV.USE_MOCK_API ? updateMockNotificationSettings : updateNotificationSettingsOnAPI,
+// };
 export const notificationService = {
-  getSettings: ENV.USE_MOCK_API ? getMockNotificationSettings : getNotificationSettingsFromAPI,
-  updateSettings: ENV.USE_MOCK_API ? updateMockNotificationSettings : updateNotificationSettingsOnAPI,
+  // Forced to Mock
+  getSettings: getMockNotificationSettings,
+  updateSettings: updateMockNotificationSettings,
 };
 
 /**
  * Settings - Content Service
  */
+// export const contentService = {
+//   getSettings: ENV.USE_MOCK_API ? getMockContentSettings : getContentSettingsFromAPI,
+//   updateSettings: ENV.USE_MOCK_API ? updateMockContentSettings : updateContentSettingsOnAPI,
+// };
 export const contentService = {
-  getSettings: ENV.USE_MOCK_API ? getMockContentSettings : getContentSettingsFromAPI,
-  updateSettings: ENV.USE_MOCK_API ? updateMockContentSettings : updateContentSettingsOnAPI,
+  // Forced to Mock
+  getSettings: getMockContentSettings,
+  updateSettings: updateMockContentSettings,
 };
 
 /**
  * Settings - Advertising Service
  */
+// export const advertisingService = {
+//   getSettings: ENV.USE_MOCK_API ? getMockAdvertisingSettings : getAdvertisingSettingsFromAPI,
+//   updateSettings: ENV.USE_MOCK_API ? updateMockAdvertisingSettings : updateAdvertisingSettingsOnAPI,
+// };
 export const advertisingService = {
-  getSettings: ENV.USE_MOCK_API ? getMockAdvertisingSettings : getAdvertisingSettingsFromAPI,
-  updateSettings: ENV.USE_MOCK_API ? updateMockAdvertisingSettings : updateAdvertisingSettingsOnAPI,
+  // Forced to Mock
+  getSettings: getMockAdvertisingSettings,
+  updateSettings: updateMockAdvertisingSettings,
 };
 
 /**
  * Settings - Two Factor Service
  */
+// export const twoFactorService = {
+//   getSettings: ENV.USE_MOCK_API ? getMockTwoFactorSettings : getTwoFactorSettingsFromAPI,
+//   updateSettings: ENV.USE_MOCK_API ? updateMockTwoFactorSettings : updateTwoFactorSettingsOnAPI,
+// };
 export const twoFactorService = {
-  getSettings: ENV.USE_MOCK_API ? getMockTwoFactorSettings : getTwoFactorSettingsFromAPI,
-  updateSettings: ENV.USE_MOCK_API ? updateMockTwoFactorSettings : updateTwoFactorSettingsOnAPI,
+  // Forced to Mock
+  getSettings: getMockTwoFactorSettings,
+  updateSettings: updateMockTwoFactorSettings,
 };
 
 /**
@@ -248,6 +277,21 @@ export const serviceStatus = {
   mode: ENV.USE_MOCK_API ? "MOCK" : "REAL",
 };
 
+// before
+/**
+ * Insights Service
+ */
+// export const insightsService: IInsightsService = ENV.USE_MOCK_API
+//   ? mockInsightsService
+//   : realInsightsService;
+
+// After:
+/**
+ * Insights Service
+ * Hardcoded to mock — backend /api/insights endpoint not implemented yet.
+ */
+export const insightsService: IInsightsService = mockInsightsService;
+
 // Export individual services for direct imports if needed
 export {
   RealAuthService,
@@ -264,4 +308,6 @@ export {
   realUploadService,
   mockStudioService,
   realStudioService,
+  mockInsightsService, 
+  realInsightsService
 };
