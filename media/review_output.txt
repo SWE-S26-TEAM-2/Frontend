@@ -1,20 +1,69 @@
 ================================================================
   FRONTEND CODE REVIEW — AUTOMATED REPORT
-  Generated: 2026-03-29 11:49:11
+  Generated: 2026-04-29 07:08:01
 ================================================================
 
 ================================================================
 STEP 1 — ESLINT
 ================================================================
 
-C:\Users\MOH\Documents\GitHub\Frontend\media\e2e\tests\profile.spec.ts
+C:\Frontend\media\e2e\tests\profile.spec.ts
   1:29  warning  'Page' is defined but never used  @typescript-eslint/no-unused-vars
 
-C:\Users\MOH\Documents\GitHub\Frontend\media\src\services\mocks\mockData.ts
+C:\Frontend\media\src\app\(auth)\search\page.tsx
+   79:1  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/exhaustive-deps')
+  245:7  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  266:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Frontend\media\src\app\(with-header)\creator\upload\page.tsx
+  12:10  warning  'useAuthStore' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Frontend\media\src\app\(with-header)\stations\page.tsx
+  43:6  warning  React Hook useEffect has a missing dependency: 'likeStation'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Frontend\media\src\components\Home\ArtistsFollow.tsx
+  77:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Frontend\media\src\components\Home\ListeningHistory.tsx
+  170:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Frontend\media\src\components\Home\RecentlyPlayed.tsx
+  59:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Frontend\media\src\components\Home\SideBar.tsx
+   9:10  warning  'IArtist' is defined but never used  @typescript-eslint/no-unused-vars
+  10:10  warning  'ITrack' is defined but never used   @typescript-eslint/no-unused-vars
+
+C:\Frontend\media\src\components\Search\SearchBar.tsx
+  126:7  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+
+C:\Frontend\media\src\components\Station\StationCard.tsx
+  128:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Frontend\media\src\components\Station\StationSlider.tsx
+   7:15  warning  'IStation' is defined but never used                                                                         @typescript-eslint/no-unused-vars
+  66:6   warning  React Hook useEffect has a missing dependency: 'nextPage'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Frontend\media\src\components\Track\TrackSlider.tsx
+  110:6  warning  React Hook useEffect has a missing dependency: 'nextPage'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Frontend\media\src\services\api\feed.api.ts
+  8:10  warning  'mockFeedService' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Frontend\media\src\services\api\stations.api.ts
+  123:20  warning  '_stationId' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Frontend\media\src\services\mocks\mockData.ts
   1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
 
-✖ 2 problems (0 errors, 2 warnings)
-  0 errors and 1 warning potentially fixable with the `--fix` option.
+C:\Frontend\media\src\services\mocks\trending.mock.ts
+  2:10  warning  'IDotsMenuItem' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Frontend\media\src\store\stationstore.ts
+  56:9  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+
+✖ 21 problems (0 errors, 21 warnings)
+  0 errors and 2 warnings potentially fixable with the `--fix` option.
 
 RESULT: PASSED — No ESLint errors
 
@@ -31,24 +80,28 @@ STEP 3 — BUILD
 > next build
 
 ▲ Next.js 16.1.6 (Turbopack)
-- Environments: .env.local, .env.production
+- Environments: .env.local
 
   Creating an optimized production build ...
-✓ Compiled successfully in 9.7s
+✓ Compiled successfully in 16.0s
   Running TypeScript ...
   Collecting page data using 7 workers ...
-  Generating static pages using 7 workers (0/14) ...
-  Generating static pages using 7 workers (3/14) 
-  Generating static pages using 7 workers (6/14) 
-  Generating static pages using 7 workers (10/14) 
-✓ Generating static pages using 7 workers (14/14) in 877.2ms
+  Generating static pages using 7 workers (0/19) ...
+  Generating static pages using 7 workers (4/19) 
+  Generating static pages using 7 workers (9/19) 
+  Generating static pages using 7 workers (14/19) 
+✓ Generating static pages using 7 workers (19/19) in 1011.2ms
   Finalizing page optimization ...
 
 Route (app)
 ┌ ○ /
 ├ ○ /_not-found
 ├ ƒ /[username]
+├ ○ /creator/upload
+├ ○ /feed
+├ ○ /home
 ├ ○ /login
+├ ○ /search
 ├ ○ /settings
 ├ ○ /settings/account
 ├ ○ /settings/advertising
@@ -57,8 +110,9 @@ Route (app)
 ├ ○ /settings/privacy
 ├ ○ /settings/privacy/auth
 ├ ○ /settings/two-factor
+├ ○ /stations
 ├ ƒ /track/[id]
-└ ○ /verify-email
+└ ○ /trending
 
 
 ○  (Static)   prerendered as static content
@@ -73,21 +127,24 @@ STEP 4 — TESTS
 > media@0.1.0 test
 > jest --silent
 
-PASS src/__tests__/Toggle.test.tsx
 PASS src/__tests__/SlideShow.test.tsx
-PASS src/__tests__/TrackPage.test.tsx
-PASS src/__tests__/Landing.test.tsx
-PASS src/__tests__/utils/formatNumber.test.ts
-PASS src/__tests__/utils/timeAgo.test.ts
 PASS src/__tests__/components/TrackCard.test.tsx
 PASS src/__tests__/Footer.test.tsx
-PASS src/__tests__/Header.test.tsx
-PASS src/__tests__/services/userProfile.service.test.ts (7.55 s)
+PASS src/__tests__/Trending.test.tsx (5.105 s)
+PASS src/__tests__/Toggle.test.tsx
+PASS src/__tests__/Home.test.tsx (5.381 s)
+PASS src/__tests__/Header.test.tsx (5.353 s)
+PASS src/__tests__/TrackPage.test.tsx
+PASS src/__tests__/utils/timeAgo.test.ts
+PASS src/__tests__/Stations.test.tsx
+PASS src/__tests__/utils/formatNumber.test.ts
+PASS src/__tests__/Landing.test.tsx
+PASS src/__tests__/services/userProfile.service.test.ts (7.644 s)
 
-Test Suites: 10 passed, 10 total
-Tests:       130 passed, 130 total
+Test Suites: 13 passed, 13 total
+Tests:       153 passed, 153 total
 Snapshots:   0 total
-Time:        10.862 s
+Time:        10.072 s
 RESULT: PASSED — Tests successful
 
 ================================================================
@@ -98,14 +155,13 @@ RESULT: PASSED — No console.log found
 ================================================================
 STEP 6 — BRANCH NAME
 ================================================================
-RESULT: FAILED — Invalid branch name: main
+RESULT: PASSED — Branch name valid (feature/fe-stations-page)
 
 ================================================================
 STEP 7 — COMMIT MESSAGE
 ================================================================
-RESULT: FAILED — Invalid commit message:
-chore(devops): ignore e2e files in jest configuration
+RESULT: PASSED — Commit message valid
 
 ================================================================
-❌ FINAL RESULT: ISSUES FOUND — FIX BEFORE MERGE
+✅ FINAL RESULT: ALL CHECKS PASSED
 ================================================================

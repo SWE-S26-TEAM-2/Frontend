@@ -9,8 +9,8 @@ import type { ITrack } from "@/types/track.types";
 import type {
   ISearchResults,
   IRawSearchTrack,
-  IRawSearchUser,
-  IRawSearchPlaylist,
+  ISearchUser,
+  ISearchPlaylist,
 } from "@/types/search.types";
 
 const BASE_URL = ENV.API_BASE_URL.replace(/\/$/, "");
@@ -68,17 +68,17 @@ export const realSearchService = {
     return (data.tracks ?? []).map(adaptTrack);
   },
 
-  async searchUsers(keyword: string): Promise<IRawSearchUser[]> {
+  async searchUsers(keyword: string): Promise<ISearchUser[]> {
     if (!keyword.trim()) return [];
-    const data = await apiFetch<{ users: IRawSearchUser[] }>(
+    const data = await apiFetch<{ users: ISearchUser[] }>(
       `/search/users?keyword=${encodeURIComponent(keyword.trim())}`
     );
     return data.users ?? [];
   },
 
-  async searchPlaylists(keyword: string): Promise<IRawSearchPlaylist[]> {
+  async searchPlaylists(keyword: string): Promise<ISearchPlaylist[]> {
     if (!keyword.trim()) return [];
-    const data = await apiFetch<{ playlists: IRawSearchPlaylist[] }>(
+    const data = await apiFetch<{ playlists: ISearchPlaylist[] }>(
       `/search/playlists?keyword=${encodeURIComponent(keyword.trim())}`
     );
     return data.playlists ?? [];

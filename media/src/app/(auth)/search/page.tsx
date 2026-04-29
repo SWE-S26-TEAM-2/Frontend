@@ -5,22 +5,23 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import SearchBar from "@/components/Search/SearchBar";
 import { TrackCard } from "@/components/Track/TrackCard";
-import {
-  searchService,
-  resolveAvatarUrl,
-  resolvePlaylistCover,
-  type ISearchResults,
-  type ISearchUser,
-  type ISearchPlaylist,
-} from "@/services/api/search.api";
+import { searchService } from "@/services/di";
+import { resolveAvatarUrl, resolvePlaylistCover } from "@/services/api/search.api";
+import { Suspense } from "react";
+import type {
+  ISearchResults,
+  ISearchUser,
+  ISearchPlaylist,
+  
+} from "@/types/search.types";
 import type { ITrack } from "@/types/track.types";
 import { usePlayerStore } from "@/store/playerStore";
-import type { Tab } from "@/types/search.types";
+import type { ITab } from "@/types/search.types";
 
 // ── TABS ──────────────────────────────────────────────────────────────────────
 
 
-const TABS: { id: Tab; label: string }[] = [
+const TABS: { id: ITab; label: string }[] = [
   { id: "all",       label: "All"       },
   { id: "tracks",    label: "Tracks"    },
   { id: "people",    label: "People"    },
@@ -30,38 +31,57 @@ const TABS: { id: Tab; label: string }[] = [
 // ── PAGE ──────────────────────────────────────────────────────────────────────
 
 export default function SearchPage() {
+  return (
+    <Suspense fallback={null}>
+      <SearchInner />
+    </Suspense>
+  );
+}
+
+function SearchInner() {
   const searchParams = useSearchParams();
   const queryParam = searchParams.get("q") ?? "";
 
-  const [tab, setTab] = useState<Tab>("all");
+  const [tab, setTab] = useState<ITab>("all");
   const [results, setResults] = useState<ISearchResults>({ tracks: [], users: [], playlists: [] });
   const [loading, setLoading] = useState(false);
   const [error, setError]   = useState<string | null>(null);
 
-  // Reset tab to "all" on new query
-  useEffect(() => { setTab("all"); }, [queryParam]);
+ useEffect(() => {
+  setTab("all");
 
-  // Fetch
-  useEffect(() => {
-    if (!queryParam.trim()) {
-      setResults({ tracks: [], users: [], playlists: [] });
-      return;
-    }
-    let cancelled = false;
-    setLoading(true);
+  if (!queryParam.trim()) {
+    setResults({ tracks: [], users: [], playlists: [] });
+    setLoading(false);
     setError(null);
+    return;
+  }
 
-    searchService.searchAll(queryParam)
-      .then((data) => { if (!cancelled) setResults(data); })
-      .catch((err) => { if (!cancelled) setError(err.message ?? "Something went wrong"); })
-      .finally(() => { if (!cancelled) setLoading(false); });
+  let cancelled = false;
+  setLoading(true);
+  setError(null);
 
-    return () => { cancelled = true; };
-  }, [queryParam]);
+  searchService.searchAll(queryParam)
+    .then((data) => {
+      if (!cancelled) {
+        setResults(data);
+        setLoading(false);
+      }
+    })
+    .catch((err: Error) => {
+      if (!cancelled) {
+        setError(err.message ?? "Something went wrong");
+        setLoading(false);
+      }
+    });
+
+  return () => { cancelled = true; };
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, [queryParam]);
 
   const total = results.tracks.length + results.users.length + results.playlists.length;
 
-  const counts: Record<Tab, number> = {
+  const counts: Record<ITab, number> = {
     all:       total,
     tracks:    results.tracks.length,
     people:    results.users.length,

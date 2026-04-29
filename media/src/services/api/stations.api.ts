@@ -5,7 +5,6 @@
 
 import axios from "axios";
 import { ENV } from "@/config/env";
-import { mockStationService } from "@/services/mocks/stations.mock";
 import type { ITrack } from "@/types/track.types";
 import type { IStation, IStationService } from "@/types/station.types";
 
@@ -14,8 +13,24 @@ const BASE_URL = ENV.API_BASE_URL.replace(/\/$/, "");
 // ── ADAPTER ───────────────────────────────────────────────────────────────────
 // Stations are derived from listening history — each unique track in history
 // becomes a station seeded by that track.
+type IRawTrack = {
+  track_id?: string;
+  id?: string;
+  title?: string;
+  artist?: string;
+  display_name?: string;
+  cover_image?: string;
+  genre?: string;
+  description?: string;
+  file_url?: string;
+  duration_seconds?: number;
+  play_count?: number;
+  release_date?: string;
+};
 
-function adaptTrackToStation(raw: any, index: number): IStation {
+
+
+function adaptTrackToStation(raw: IRawTrack, index: number): IStation{
   const track: ITrack = {
     id:            raw.track_id   ?? raw.id ?? `station-${index}`,
     title:         raw.title      ?? "Untitled",
@@ -39,6 +54,9 @@ function adaptTrackToStation(raw: any, index: number): IStation {
     isLiked:       false,
     createdAt:     raw.release_date ?? new Date().toISOString(),
     updatedAt:     new Date().toISOString(),
+  
+  
+  
   };
 
   return {
@@ -59,16 +77,18 @@ export const realStationService: IStationService = {
   async getLikedStations(): Promise<IStation[]> {
     try {
       const res = await axios.get(`${BASE_URL}/users/me/listening-history`);
-      const raw: any[] = res.data?.data ?? [];
-
+const raw: IRawTrack[] = res.data?.data ?? [];
       // Deduplicate by track_id so we don't get duplicate stations
       const seen = new Set<string>();
       return raw
         .filter((item) => {
           const id = item.track_id ?? item.id;
-          if (seen.has(id)) return false;
-          seen.add(id);
-          return true;
+
+if (!id) return false;
+if (seen.has(id)) return false;
+
+seen.add(id);
+return true;
         })
         .map(adaptTrackToStation);
     } catch (error) {
@@ -81,15 +101,17 @@ export const realStationService: IStationService = {
   async getDiscoverStations(): Promise<IStation[]> {
     try {
       const res = await axios.get(`${BASE_URL}/users/me/recently-played`);
-      const raw: any[] = res.data?.data ?? [];
-
+const raw: IRawTrack[] = res.data?.data ?? [];
       const seen = new Set<string>();
       return raw
         .filter((item) => {
-          const id = item.track_id ?? item.id;
-          if (seen.has(id)) return false;
-          seen.add(id);
-          return true;
+         const id = item.track_id ?? item.id;
+
+if (!id) return false;
+if (seen.has(id)) return false;
+
+seen.add(id);
+return true;
         })
         .map(adaptTrackToStation);
     } catch (error) {
@@ -109,6 +131,3 @@ export const realStationService: IStationService = {
 //   import { realStationService } from "./api/stations.api";
 //   export const stationService = ENV.USE_MOCK_API ? mockStationService : realStationService;
 
-export const stationService: IStationService = ENV.USE_MOCK_API
-  ? mockStationService
-  : realStationService;

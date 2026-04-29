@@ -5,19 +5,16 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import StationCard from "@/components/Station/StationCard";
 import type { IStation } from "@/types/station.types";
+import type { IStationSliderProps } from "@/types/station.types";
 
-interface StationSliderProps {
-  title:    string;
-  subtitle: string;
-  stations: IStation[];
-}
+
 
 // How many cards visible at once — must match the CSS width calc below
 const VISIBLE = 5;
 // Gap between cards in px — must match gap style below
 const GAP_PX  = 16;
 
-export default function StationSlider({ title, subtitle, stations }: StationSliderProps) {
+export default function StationSlider({ title, subtitle, stations }: IStationSliderProps) {
   const [index, setIndex]           = useState(0);
   const [peekOffset, setPeekOffset] = useState(0);
   const peekTimer                   = useRef<ReturnType<typeof setTimeout> | null>(null);

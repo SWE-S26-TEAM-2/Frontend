@@ -18,6 +18,7 @@ export default function SlideShow() {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [isArtistHovered, setIsArtistHovered] = useState(false);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -177,12 +178,16 @@ export default function SlideShow() {
           </div>
 
           <div className="absolute bottom-8 right-10 text-right">
-            <h5
-              onClick={() => router.push(currentSlide.artistRoute)}
-              className="cursor-pointer font-bold text-white hover:underline"
-            >
-              {currentSlide.artistName}
-            </h5>
+           <h5
+  onClick={() => router.push(currentSlide.artistRoute)}
+  onMouseEnter={() => setIsArtistHovered(true)}
+  onMouseLeave={() => setIsArtistHovered(false)}
+  className={`cursor-pointer font-bold text-white ${
+    isArtistHovered ? "underline" : ""
+  }`}
+>
+  {currentSlide.artistName}
+</h5>
             <span className="text-xs text-white/60">
               SoundCloud Artist Pro
             </span>

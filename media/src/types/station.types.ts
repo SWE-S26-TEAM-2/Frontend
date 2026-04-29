@@ -3,6 +3,7 @@
  * Place at: types/station.types.ts
  */
 
+
 import type { ITrack } from "@/types/track.types";
 
 // ── STATION ───────────────────────────────────────────────────────────────────
@@ -16,6 +17,14 @@ export interface IStation {
   isLiked: boolean;
   genre?: string;
 }
+
+
+export  interface IStationSliderProps {
+  title:    string;
+  subtitle: string;
+  stations: IStation[];
+}
+
 
 // ── PAGE DATA ─────────────────────────────────────────────────────────────────
 

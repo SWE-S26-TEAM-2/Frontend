@@ -4,24 +4,12 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { searchService } from "@/services/api/search.api";
 import type { ITrack } from "@/types/track.types";
-import type { ISearchUser } from "@/services/api/search.api";
+import type { ISearchUser, ISuggestion } from "@/types/search.types";
+import type { ISearchBarProps } from "@/types/search.types";
 
 // ── TYPES ─────────────────────────────────────────────────────────────────────
 
-interface Suggestion {
-  id: string;
-  label: string;
-  sublabel: string;
-  type: "track" | "user";
-}
 
-interface SearchBarProps {
-  /** Pre-fill the input — use on /search page to reflect ?q= param */
-  defaultValue?: string;
-  placeholder?: string;
-  /** Override submit behaviour — if omitted, navigates to /search?q=... */
-  onSearch?: (query: string) => void;
-}
 
 // ── DEBOUNCE HOOK ─────────────────────────────────────────────────────────────
 
@@ -50,10 +38,10 @@ export default function SearchBar({
   defaultValue = "",
   placeholder = "Search for artists, bands, tracks, podcasts",
   onSearch,
-}: SearchBarProps) {
+}: ISearchBarProps) {
   const router = useRouter();
   const [query, setQuery] = useState(defaultValue);
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [suggestions, setSuggestions] = useState<ISuggestion[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -83,7 +71,7 @@ export default function SearchBar({
     ]).then(([tracks, users]) => {
       if (cancelled) return;
 
-      const built: Suggestion[] = [
+      const built: ISuggestion[] = [
         ...tracks.slice(0, 3).map((t) => ({
           id: t.id,
           label: t.title,
@@ -125,7 +113,7 @@ export default function SearchBar({
     router.push(`/search?q=${encodeURIComponent(value.trim())}`);
   }, [onSearch, router]);
 
-  const pickSuggestion = (s: Suggestion) => {
+  const pickSuggestion = (s: ISuggestion) => {
     setQuery(s.label);
     setOpen(false);
     router.push(`/search?q=${encodeURIComponent(s.label)}`);

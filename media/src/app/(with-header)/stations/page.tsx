@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Header from "@/components/Header/Header";
-import Footer from "@/components/Footer/Footer";
+
 import StationCard from "@/components/Station/StationCard";
 import { useStationStore } from "@/store/stationstore";
 import { stationService } from "@/services";
@@ -57,7 +56,7 @@ export default function StationsPage() {
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <>
-      <Header />
+      
 
       <div style={pg.pageWrapper}>
         <div style={pg.container}>
@@ -160,7 +159,6 @@ export default function StationsPage() {
         </div>
       </div>
 
-      <Footer />
     </>
   );
 }

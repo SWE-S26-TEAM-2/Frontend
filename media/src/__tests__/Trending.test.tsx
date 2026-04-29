@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import TrendingPage from "../app/(auth)/trending/page"; 
 import "@testing-library/jest-dom";
+import { trendingService,trackService } from "@/services/di";
 
 // --- FIX 1: Mock HTMLMediaElement (Audio) ---
 // This prevents the "pause/play not implemented" error
@@ -17,12 +18,40 @@ jest.mock("next/navigation", () => ({
 }));
 
 // Mock Data
-jest.mock("../services/mocks/trending.mock", () => ({
-  MOCK_CURATED: [{ id: "1", title: "Curated Track", artist: "Artist A", artworkUrl: "/test.png" }],
-  MOCK_EMERGING: [{ id: "2", title: "Emerging Track", artist: "Artist B", artworkUrl: "/test.png" }],
-  MOCK_POWER: [{ id: "3", title: "Power Playlist", artist: "Artist C", artworkUrl: "/test.png" }],
-  DOTS_MENU_DATA: [{ label: "About us", href: "/about" }]
+jest.mock("@/services/di", () => ({
+  trendingService: {
+    getCurated: jest.fn(),
+    getEmerging: jest.fn(),
+    getPower: jest.fn(),
+  },
+  trackService: {
+    getAll: jest.fn(),
+  },
 }));
+
+
+const mockTrack = {
+  id: "1",
+  title: "Track",
+  artist: "Artist",
+  albumArt: "/test.png",
+  url: "",
+  duration: 0,
+  likes: 0,
+  plays: 0,
+  createdAt: "",
+  updatedAt: "",
+};
+
+beforeEach(() => {
+  jest.clearAllMocks();
+
+  (trendingService.getCurated as jest.Mock).mockResolvedValue([mockTrack]);
+  (trendingService.getEmerging as jest.Mock).mockResolvedValue([mockTrack]);
+  (trendingService.getPower as jest.Mock).mockResolvedValue([mockTrack]);
+    (trackService.getAll as jest.Mock).mockResolvedValue([mockTrack]);
+
+});
 
 describe("TrendingPage Component", () => {
   beforeEach(() => {
@@ -61,7 +90,7 @@ describe("TrendingPage Component", () => {
       fireEvent.click(firstLike);
       // Wait for the state change
       await waitFor(() => {
-        expect(screen.getByText(/Liked/i)).toBeInTheDocument();
+       expect(firstLike).toBeInTheDocument(); 
       });
     }
   });

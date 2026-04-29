@@ -1,9 +1,7 @@
-
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { useRouter } from "next/navigation";
 
 import {
   Heart,
@@ -25,28 +23,25 @@ import { usePlayerStore } from '@/store/playerStore';
 const MoreMenu = ({
   onClose,
   anchorRect,
-  buttonRef
+  buttonRef,
+  itemId,
 }: {
   onClose: () => void;
   anchorRect: DOMRect;
-  buttonRef: React.RefObject<HTMLButtonElement | null>;
+  buttonRef: React.RefObject<Record<string, HTMLButtonElement | null>>;
+  itemId: string;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       const target = e.target as Node;
-
-      if (buttonRef.current?.contains(target)) return;
-
-      if (ref.current && !ref.current.contains(target)) {
-        onClose();
-      }
+      if (buttonRef.current?.[itemId]?.contains(target)) return;
+      if (ref.current && !ref.current.contains(target)) onClose();
     };
-
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
-  }, [onClose, buttonRef]);
+  }, [onClose, buttonRef, itemId]);
 
   const items = [
     { icon: <Repeat2 size={12} />, label: 'Repost' },
@@ -91,26 +86,20 @@ export default function ListeningHistory({ history }: { history: ITrack[] }) {
 
   const [likedTracks, setLikedTracks] = useState<Record<string, boolean>>({});
   const [repostedTracks, setRepostedTracks] = useState<Record<string, boolean>>({});
-  const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
-  const [repostCounts, setRepostCounts] = useState<Record<string, number>>({});
+
 
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
 
   const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
-  useEffect(() => {
-    const initialLikes: Record<string, number> = {};
-    const initialReposts: Record<string, number> = {};
+const [likeCounts, setLikeCounts] = useState<Record<string, number>>(
+  () => Object.fromEntries(history.map((t) => [t.id, Number(t.likes || 0)]))
+);
 
-    history.forEach((track) => {
-      initialLikes[track.id] = Number(track.likes || 0);
-      initialReposts[track.id] = 0; // since ITrack has no reposts property
-    });
-
-    setLikeCounts(initialLikes);
-    setRepostCounts(initialReposts);
-  }, [history]);
+const [repostCounts, setRepostCounts] = useState<Record<string, number>>(
+  () => Object.fromEntries(history.map((t) => [t.id, 0]))
+);
 
   const handlePlayClick = (item: ITrack) => {
     if (currentTrack?.id === item.id) {
@@ -148,19 +137,12 @@ export default function ListeningHistory({ history }: { history: ITrack[] }) {
     }));
   };
 
-  const handleToggleMenu = (
-    e: React.MouseEvent,
-    id: string,
-    button: HTMLButtonElement | null
-  ) => {
-    e.stopPropagation();
-
-    if (button) {
-      setAnchorRect(button.getBoundingClientRect());
-    }
-
-    setMenuOpenId((prev) => (prev === id ? null : id));
-  };
+const handleToggleMenu = (e: React.MouseEvent, id: string) => {
+  e.stopPropagation();
+  const button = buttonRefs.current[id];
+  if (button) setAnchorRect(button.getBoundingClientRect());
+  setMenuOpenId((prev) => (prev === id ? null : id));
+};
 
   return (
     <div style={styles.section}>
@@ -258,25 +240,27 @@ export default function ListeningHistory({ history }: { history: ITrack[] }) {
             </div>
 
             <button
-              ref={(el) => {
-                buttonRefs.current[item.id] = el;
-              }}
+             ref={(el) => {
+  if (el) {
+    buttonRefs.current[item.id] = el;
+  }
+}}
               className="more-btn"
               style={styles.moreBtn}
-              onClick={(e) =>
-                handleToggleMenu(e, item.id, buttonRefs.current[item.id])
-              }
+            onClick={(e) => handleToggleMenu(e, item.id)}
+
             >
               <MoreHorizontal size={14} />
             </button>
 
             {menuOpenId === item.id && anchorRect && (
-              <MoreMenu
-                anchorRect={anchorRect}
-                buttonRef={{ current: buttonRefs.current[item.id] }}
-                onClose={() => setMenuOpenId(null)}
-              />
-            )}
+  <MoreMenu
+    anchorRect={anchorRect}
+    buttonRef={buttonRefs}
+    itemId={item.id}
+    onClose={() => setMenuOpenId(null)}
+  />
+)}
           </div>
         );
       })}

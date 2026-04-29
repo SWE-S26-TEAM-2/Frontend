@@ -7,8 +7,8 @@ import type { ITrack } from "@/types/track.types";
 import type {
   ISearchService,
   ISearchResults,
-  IRawSearchUser,
-  IRawSearchPlaylist,
+  ISearchUser,
+  ISearchPlaylist,
 } from "@/types/search.types";
 
 // ── MOCK DATA ─────────────────────────────────────────────────────────────────
@@ -80,7 +80,7 @@ albumArt: "/default-track-cover.png",
   },
 ];
 
-const MOCK_USERS: IRawSearchUser[] = [
+const MOCK_USERS: ISearchUser[] = [
   {
     user_id: "mock-user-1",
     display_name: "Luna Waves",
@@ -125,7 +125,7 @@ const MOCK_USERS: IRawSearchUser[] = [
   },
 ];
 
-const MOCK_PLAYLISTS: IRawSearchPlaylist[] = [
+const MOCK_PLAYLISTS: ISearchPlaylist[] = [
   {
     playlist_id: "mock-pl-1",
     title: "Late Night Drives",
@@ -175,7 +175,7 @@ export const mockSearchService: ISearchService = {
     );
   },
 
-  async searchUsers(keyword: string): Promise<IRawSearchUser[]> {
+  async searchUsers(keyword: string): Promise<ISearchUser[]> {
     await delay();
     if (!keyword.trim()) return [];
     const kw = keyword.toLowerCase();
@@ -186,7 +186,7 @@ export const mockSearchService: ISearchService = {
     );
   },
 
-  async searchPlaylists(keyword: string): Promise<IRawSearchPlaylist[]> {
+  async searchPlaylists(keyword: string): Promise<ISearchPlaylist[]> {
     await delay();
     if (!keyword.trim()) return [];
     const kw = keyword.toLowerCase();

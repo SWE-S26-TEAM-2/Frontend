@@ -109,6 +109,3 @@ export const realFeedService: IFeedService = {
 //   import { realFeedService } from "./api/feed.api";
 //   export const feedService = ENV.USE_MOCK_API ? mockFeedService : realFeedService;
 
-export const feedService: IFeedService = ENV.USE_MOCK_API
-  ? mockFeedService
-  : realFeedService;

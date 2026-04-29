@@ -25,7 +25,7 @@ export interface IRawSearchTrack {
 
 export type ITab = "all" | "tracks" | "people" | "playlists";
 
-export interface IRawSearchUser {
+export interface ISearchUser {
   user_id: string;
   display_name: string;
   bio: string | null;
@@ -40,7 +40,7 @@ export interface IRawSearchUser {
   created_at: string;
 }
 
-export interface IRawSearchPlaylist {
+export interface ISearchPlaylist {
   playlist_id: string;
   title: string;
   description: string | null;
@@ -55,15 +55,30 @@ export interface IRawSearchPlaylist {
 
 export interface ISearchResults {
   tracks: ITrack[];              // adapted via adaptTrack() so TrackCard works directly
-  users: IRawSearchUser[];
-  playlists: IRawSearchPlaylist[];
+  users: ISearchUser[];
+  playlists: ISearchPlaylist[];
 }
 
 // ── SERVICE INTERFACE ─────────────────────────────────────────────────────────
 
 export interface ISearchService {
   searchTracks(keyword: string): Promise<ITrack[]>;
-  searchUsers(keyword: string): Promise<IRawSearchUser[]>;
-  searchPlaylists(keyword: string): Promise<IRawSearchPlaylist[]>;
+  searchUsers(keyword: string): Promise<ISearchUser[]>;
+  searchPlaylists(keyword: string): Promise<ISearchPlaylist[]>;
   searchAll(keyword: string): Promise<ISearchResults>;
+}
+
+export interface ISuggestion {
+  id: string;
+  label: string;
+  sublabel: string;
+  type: "track" | "user";
+}
+
+export interface ISearchBarProps {
+  /** Pre-fill the input — use on /search page to reflect ?q= param */
+  defaultValue?: string;
+  placeholder?: string;
+  /** Override submit behaviour — if omitted, navigates to /search?q=... */
+  onSearch?: (query: string) => void;
 }

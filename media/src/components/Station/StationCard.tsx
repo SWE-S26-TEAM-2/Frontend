@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Play, Heart, MoreHorizontal, ListPlus, ListEnd } from "lucide-react";
+import { Play, Heart, MoreHorizontal, ListPlus, ListEnd, Pause } from "lucide-react";
 import { usePlayerStore } from "@/store/playerStore";
 import { useStationStore } from "@/store/stationstore";
 import type { IStation } from "@/types/station.types";
 
-// ── MORE MENU (portal) ────────────────────────────────────────────────────────
+/* ───────────────── MENU ───────────────── */
 
 const MoreMenu = ({
   onClose,
@@ -20,7 +20,7 @@ const MoreMenu = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (buttonRef.current?.contains(e.target as Node)) return;
       if (ref.current && !ref.current.contains(e.target as Node)) onClose();
@@ -29,48 +29,28 @@ const MoreMenu = ({
     return () => document.removeEventListener("mousedown", handler);
   }, [onClose, buttonRef]);
 
-  const leftPos = Math.min(anchorRect.left, window.innerWidth - 180);
-
-  const items = [
-    { icon: <ListEnd size={13} />,  label: "Add to Next Up"  },
-    { icon: <ListPlus size={13} />, label: "Add to Playlist" },
-  ];
-
   return createPortal(
     <div
       ref={ref}
       style={{
-        position:     "fixed",
-        top:          anchorRect.bottom + 6,
-        left:         leftPos,
-        zIndex:       99999,
-        background:   "#1e1e1e",
-        border:       "1px solid #2e2e2e",
-        borderRadius: 6,
-        boxShadow:    "0 12px 32px rgba(0,0,0,0.6)",
-        overflow:     "hidden",
-        minWidth:     160,
+        position: "fixed",
+        top: anchorRect.bottom + 6,
+        left: Math.min(anchorRect.left, window.innerWidth - 180),
+        zIndex: 99999,
       }}
+      className="bg-[#1e1e1e] border border-[#2e2e2e] rounded-md shadow-xl overflow-hidden min-w-[160px]"
     >
-      {items.map((item, i) => (
+      {[
+        { icon: <ListEnd size={13} />, label: "Add to Next Up" },
+        { icon: <ListPlus size={13} />, label: "Add to Playlist" },
+      ].map((item, i) => (
         <button
           key={i}
-          onClick={(e) => { e.stopPropagation(); onClose(); }}
-          style={{
-            display:    "flex",
-            alignItems: "center",
-            gap:        10,
-            width:      "100%",
-            padding:    "9px 14px",
-            background: "transparent",
-            border:     "none",
-            color:      "#ccc",
-            fontSize:   12,
-            cursor:     "pointer",
-            textAlign:  "left",
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = "#2a2a2a")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+          className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-300 hover:bg-[#2a2a2a] transition text-left"
         >
           {item.icon}
           {item.label}
@@ -81,24 +61,43 @@ const MoreMenu = ({
   );
 };
 
-// ── STATION CARD ──────────────────────────────────────────────────────────────
+/* ───────────────── CARD ───────────────── */
 
-interface StationCardProps {
+interface IStationCardProps {
   station: IStation;
 }
 
-export default function StationCard({ station }: StationCardProps) {
-  const { setTrack, setQueue }  = usePlayerStore();
+export default function StationCard({ station }: IStationCardProps) {
+  const {
+    setTrack,
+    setQueue,
+    currentTrack,
+    isPlaying,
+    togglePlay,
+  } = usePlayerStore();
+
   const { toggleLike, isLiked } = useStationStore();
 
-  const liked                       = isLiked(station.id);
-  const [hovered, setHovered]       = useState(false);
-  const [menuOpen, setMenuOpen]     = useState(false);
+  const liked = isLiked(station.id);
+
+  const [menuOpen, setMenuOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
-  const moreRef                     = useRef<HTMLButtonElement>(null);
+  const moreRef = useRef<HTMLButtonElement>(null);
+
+  /* ───────────────── PLAY LOGIC (FIXED) ───────────────── */
 
   const handlePlay = (e: React.MouseEvent) => {
     e.stopPropagation();
+
+    const isSameTrack = currentTrack?.id === station.seedTrack.id;
+
+    // If same track → toggle play/pause
+    if (isSameTrack) {
+      togglePlay();
+      return;
+    }
+
+    // New track → load & play
     setQueue([station.seedTrack]);
     setTrack(station.seedTrack);
   };
@@ -110,49 +109,58 @@ export default function StationCard({ station }: StationCardProps) {
 
   const handleMore = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (moreRef.current) setAnchorRect(moreRef.current.getBoundingClientRect());
+
+    if (moreRef.current) {
+      setAnchorRect(moreRef.current.getBoundingClientRect());
+    }
+
     setMenuOpen((v) => !v);
   };
 
-  const showActions = hovered || liked || menuOpen;
+  const isActive = currentTrack?.id === station.seedTrack.id;
 
   return (
-    <div
-      style={s.wrapper}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {/* Cover */}
-      <div style={s.coverWrapper}>
+    <div className="flex flex-col gap-2 cursor-pointer group">
+
+      {/* COVER */}
+      <div className="relative w-full aspect-square rounded-md overflow-hidden bg-[#1a1a1a]">
+
         <img
           src={station.coverArt || "/default-track-cover.png"}
           alt={station.name}
-          style={s.cover}
+          className="absolute inset-0 w-full h-full object-cover"
           onError={(e) => {
             (e.target as HTMLImageElement).src = "/default-track-cover.png";
           }}
         />
 
-        {/* Dark gradient at bottom for readability */}
-        <div style={{
-          ...s.bottomGradient,
-          opacity: showActions ? 1 : 0,
-        }} />
+        {/* gradient */}
+        <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition" />
 
-        {/* Play overlay — centre */}
-        <div style={{ ...s.overlay, opacity: hovered ? 1 : 0 }}>
-          <button style={s.playBtn} onClick={handlePlay}>
-            <Play size={20} fill="white" color="white" />
+        {/* PLAY BUTTON */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+
+          <button
+            onClick={handlePlay}
+            className="w-11 h-11 rounded-full bg-orange-500 flex items-center justify-center shadow-lg hover:scale-105 transition cursor-pointer"
+          >
+            {isActive && isPlaying ? (
+              <Pause size={20} color="white" />
+            ) : (
+              <Play size={20} fill="white" />
+            )}
           </button>
+
         </div>
 
-        {/* ── Bottom-right actions: like + dots ── */}
-        <div style={{
-          ...s.bottomActions,
-          opacity: showActions ? 1 : 0,
-        }}>
-          {/* Like */}
-          <button style={s.actionBtn} onClick={handleLike}>
+        {/* ACTIONS */}
+        <div className="absolute bottom-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition">
+
+          {/* LIKE */}
+          <button
+            onClick={handleLike}
+            className="w-7 h-7 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 cursor-pointer"
+          >
             <Heart
               size={14}
               fill={liked ? "#ff5500" : "transparent"}
@@ -160,23 +168,29 @@ export default function StationCard({ station }: StationCardProps) {
             />
           </button>
 
-          {/* 3 dots */}
+          {/* MORE */}
           <button
             ref={moreRef}
-            style={s.actionBtn}
             onClick={handleMore}
+            className="w-7 h-7 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 cursor-pointer"
           >
             <MoreHorizontal size={14} color="#fff" />
           </button>
+
         </div>
       </div>
 
-      {/* Info */}
-      <div style={s.textBlock}>
-        <span style={s.name}>{station.name}</span>
-        <span style={s.artistLabel}>{station.artistName}</span>
+      {/* INFO */}
+      <div className="flex flex-col min-w-0">
+        <span className="text-white text-sm font-semibold truncate">
+          {station.name}
+        </span>
+        <span className="text-gray-500 text-xs truncate">
+          {station.artistName}
+        </span>
       </div>
 
+      {/* MENU */}
       {menuOpen && anchorRect && (
         <MoreMenu
           anchorRect={anchorRect}
@@ -184,105 +198,7 @@ export default function StationCard({ station }: StationCardProps) {
           onClose={() => setMenuOpen(false)}
         />
       )}
+
     </div>
   );
 }
-
-// ── STYLES ────────────────────────────────────────────────────────────────────
-
-const s: Record<string, React.CSSProperties> = {
-  wrapper: {
-    display:       "flex",
-    flexDirection: "column",
-    gap:           8,
-    cursor:        "pointer",
-    width:         "100%",
-  },
-  coverWrapper: {
-    position:    "relative",
-    width:       "100%",
-    aspectRatio: "1 / 1",
-    borderRadius: 6,
-    overflow:    "hidden",
-    background:  "#1a1a1a",
-    flexShrink:  0,
-  },
-  cover: {
-    position:  "absolute",
-    inset:     0,
-    width:     "100%",
-    height:    "100%",
-    objectFit: "cover",
-    display:   "block",
-  },
-  // Dark gradient so buttons are readable over any image
-  bottomGradient: {
-    position:   "absolute",
-    bottom:     0,
-    left:       0,
-    right:      0,
-    height:     "50%",
-    background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)",
-    transition: "opacity 0.2s ease",
-    pointerEvents: "none",
-  },
-  overlay: {
-    position:       "absolute",
-    inset:          0,
-    display:        "flex",
-    alignItems:     "center",
-    justifyContent: "center",
-    transition:     "opacity 0.2s ease",
-  },
-  playBtn: {
-    width:          44,
-    height:         44,
-    borderRadius:   "50%",
-    background:     "#ff5500",
-    border:         "none",
-    display:        "flex",
-    alignItems:     "center",
-    justifyContent: "center",
-    cursor:         "pointer",
-    boxShadow:      "0 4px 16px rgba(0,0,0,0.5)",
-  },
-  // Like + dots row — bottom right of image
-  bottomActions: {
-    position:   "absolute",
-    bottom:     8,
-    right:      8,
-    display:    "flex",
-    alignItems: "center",
-    gap:        4,
-    transition: "opacity 0.2s ease",
-  },
-  actionBtn: {
-    background:     "rgba(0,0,0,0.4)",
-    border:         "none",
-    borderRadius:   "50%",
-    width:          28,
-    height:         28,
-    display:        "flex",
-    alignItems:     "center",
-    justifyContent: "center",
-    cursor:         "pointer",
-  },
-  textBlock: {
-    display:       "flex",
-    flexDirection: "column",
-    gap:           2,
-    minWidth:      0,
-  },
-  name: {
-    color:        "#fff",
-    fontSize:     13,
-    fontWeight:   600,
-    overflow:     "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace:   "nowrap",
-  },
-  artistLabel: {
-    color:    "#666",
-    fontSize: 11,
-  },
-};

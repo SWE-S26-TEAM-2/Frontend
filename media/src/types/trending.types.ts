@@ -1,4 +1,4 @@
-"use client";
+
 
 // 1. Import the "Big" ITrack from your master types file
 // Adjust the path (../../types/track.types) to where your first file lives
