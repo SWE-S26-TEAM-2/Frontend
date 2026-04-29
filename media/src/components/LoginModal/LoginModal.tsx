@@ -350,6 +350,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
         onBack={() => { setStep("signin"); setError(""); }}
         onSubmit={handleForgotPassword}
         isLoading={isLoading}
+        error={error}
         />
         )}
         {step === "check-your-email" && (

@@ -104,6 +104,7 @@ export interface IForgotPasswordStepProps {
   onBack: () => void;
   onSubmit:(email: string) => void;
   isLoading: boolean;
+  error?: string;
 }
 
 

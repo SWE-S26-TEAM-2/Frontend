@@ -4,10 +4,11 @@ import Link from "next/link";
 import { useState } from "react";
 import { IForgotPasswordStepProps } from "@/types/auth.types";
 
-export default function ForgotPasswordStep({ emailOrProfileUrl, onBack, onSubmit, isLoading }: IForgotPasswordStepProps) {
+export default function ForgotPasswordStep({ emailOrProfileUrl, onBack, onSubmit, isLoading, error: parentError }: IForgotPasswordStepProps) {
   const isEmail = /\S+@\S+\.\S+/.test(emailOrProfileUrl);
   const [email, setEmail] = useState(isEmail ? emailOrProfileUrl : "");
   const [error, setError] = useState("");
+  const displayError = parentError || error;
 
   const handleSubmit = () => {
     if (!isEmail && !email) {
@@ -51,7 +52,7 @@ export default function ForgotPasswordStep({ emailOrProfileUrl, onBack, onSubmit
         <Link href="https://help.soundcloud.com" className="text-[#4a90e2]">Need help? visit our Help Center.</Link>
       </p>
 
-      {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+      {displayError && <p className="text-red-500 text-sm mb-3">{displayError}</p>}
 
       <button
         onClick={handleSubmit}
