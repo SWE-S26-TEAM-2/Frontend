@@ -34,17 +34,17 @@ export interface IEngagementService {
   ): Promise<IComment>;
 }
 
-interface RawLikeResponse {
+interface IRawLikeResponse  {
   success: boolean;
   message: string;
   data: { like_id: string; track_id: string };
 }
 
-interface RawLikeCountResponse {
+interface IRawLikeCountResponse {
   like_count: number;
 }
 
-interface RawEngagementSummaryResponse {
+interface IRawEngagementSummaryResponse {
   success: boolean;
   data: {
     like_count: number;
@@ -55,13 +55,13 @@ interface RawEngagementSummaryResponse {
   };
 }
 
-interface RawRepostResponse {
+interface IRawRepostResponse {
   success: boolean;
   message: string;
   data: { repost_id: string; track_id: string };
 }
 
-interface RawCommentsResponse {
+interface IRawCommentsResponse {
   success: boolean;
   data: {
     comments: Array<{
@@ -75,7 +75,7 @@ interface RawCommentsResponse {
   };
 }
 
-interface RawAddCommentResponse {
+interface IRawAddCommentResponse {
   success: boolean;
   message: string;
   data: {
@@ -96,11 +96,11 @@ export const realEngagementService: IEngagementService = {
 
   async likeTrack(trackId: string): Promise<ILikeResult> {
     // POST /likes/tracks/{track_id} → LikeResponse (no count in body)
-    const likeRes = await apiPost<RawLikeResponse>(
+    const likeRes = await apiPost<IRawLikeResponse>(
       `${ENV.API_BASE_URL}/likes/tracks/${trackId}`,
     );
     // Fetch updated count separately
-    const countRes = await apiGet<RawLikeCountResponse>(
+    const countRes = await apiGet<IRawLikeCountResponse>(
       `${ENV.API_BASE_URL}/tracks/${trackId}/likes/count`,
     );
     return {
@@ -113,14 +113,14 @@ export const realEngagementService: IEngagementService = {
     // DELETE /likes/tracks/{track_id} → MessageResponse (no count in body)
     await apiDelete(`${ENV.API_BASE_URL}/likes/tracks/${trackId}`);
     // Fetch updated count separately
-    const countRes = await apiGet<RawLikeCountResponse>(
+    const countRes = await apiGet<IRawLikeCountResponse>(
       `${ENV.API_BASE_URL}/tracks/${trackId}/likes/count`,
     );
     return { likeCount: countRes?.like_count ?? 0 };
   },
 
   async getLikeCount(trackId: string): Promise<number> {
-    const data = await apiGet<RawLikeCountResponse>(
+    const data = await apiGet<IRawLikeCountResponse>(
       `${ENV.API_BASE_URL}/tracks/${trackId}/likes/count`,
     );
     return data?.like_count ?? 0;
@@ -129,7 +129,7 @@ export const realEngagementService: IEngagementService = {
   // ── Engagement Summary ─────────────────────────────────────────────────────
 
   async getEngagementSummary(trackId: string): Promise<IEngagementSummary> {
-    const res = await apiGet<RawEngagementSummaryResponse>(
+    const res = await apiGet<IRawEngagementSummaryResponse>(
       `${ENV.API_BASE_URL}/tracks/${trackId}/engagement-summary`,
     );
     const d = res?.data;
@@ -146,7 +146,7 @@ export const realEngagementService: IEngagementService = {
 
   async repostTrack(trackId: string): Promise<IRepostData> {
     // POST /reposts/tracks/{track_id} → RepostResponse
-    const res = await apiPost<RawRepostResponse>(
+    const res = await apiPost<IRawRepostResponse>(
       `${ENV.API_BASE_URL}/reposts/tracks/${trackId}`,
     );
     return {
@@ -164,7 +164,7 @@ export const realEngagementService: IEngagementService = {
 
   async getComments(trackId: string, limit = 50, offset = 0): Promise<IComment[]> {
     // GET /tracks/{track_id}/comments → CommentsListResponse
-    const res = await apiGet<RawCommentsResponse>(
+    const res = await apiGet<IRawCommentsResponse>(
       `${ENV.API_BASE_URL}/tracks/${trackId}/comments?limit=${limit}&offset=${offset}`,
     );
     return (res?.data?.comments ?? []).map((c) => ({
@@ -184,7 +184,7 @@ export const realEngagementService: IEngagementService = {
     parentCommentId?: string,
   ): Promise<IComment> {
     // POST /tracks/{track_id}/comments → AddCommentResponse
-    const res = await apiPost<RawAddCommentResponse>(
+    const res = await apiPost<IRawAddCommentResponse>(
       `${ENV.API_BASE_URL}/tracks/${trackId}/comments`,
       {
         content,
