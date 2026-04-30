@@ -2,6 +2,130 @@
 
 import { useRouter } from 'next/navigation';
 
+// ── SVG icon components ───────────────────────────────────────────────────────
+
+const IconGrowAudience = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+    <circle cx="9" cy="7" r="4"/>
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+  </svg>
+);
+
+const IconInsights = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="20" x2="18" y2="10"/>
+    <line x1="12" y1="20" x2="12" y2="4"/>
+    <line x1="6" y1="20" x2="6" y2="14"/>
+  </svg>
+);
+
+const IconUnlimitedUploads = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="16 16 12 12 8 16"/>
+    <line x1="12" y1="12" x2="12" y2="21"/>
+    <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+  </svg>
+);
+
+const IconDistribution = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="18" cy="5" r="3"/>
+    <circle cx="6" cy="12" r="3"/>
+    <circle cx="18" cy="19" r="3"/>
+    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+  </svg>
+);
+
+const IconUpload = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="16 16 12 12 8 16"/>
+    <line x1="12" y1="12" x2="12" y2="21"/>
+    <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+  </svg>
+);
+
+const IconBoost = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+  </svg>
+);
+
+const IconDistribute = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="18" cy="5" r="3"/>
+    <circle cx="6" cy="12" r="3"/>
+    <circle cx="18" cy="19" r="3"/>
+    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+  </svg>
+);
+
+const IconReplace = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="17 1 21 5 17 9"/>
+    <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+    <polyline points="7 23 3 19 7 15"/>
+    <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+  </svg>
+);
+
+const IconMastering = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="4" y1="21" x2="4" y2="14"/>
+    <line x1="4" y1="10" x2="4" y2="3"/>
+    <line x1="12" y1="21" x2="12" y2="12"/>
+    <line x1="12" y1="8" x2="12" y2="3"/>
+    <line x1="20" y1="21" x2="20" y2="16"/>
+    <line x1="20" y1="12" x2="20" y2="3"/>
+    <line x1="1" y1="14" x2="7" y2="14"/>
+    <line x1="9" y1="8" x2="15" y2="8"/>
+    <line x1="17" y1="16" x2="23" y2="16"/>
+  </svg>
+);
+
+const IconAudienceStats = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+    <circle cx="9" cy="7" r="4"/>
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+  </svg>
+);
+
+const IconCommunity = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+);
+
+// ── Plan feature rows data ─────────────────────────────────────────────────────
+
+const artistFeatures = [
+  { icon: <IconUpload className="w-4 h-4" />, text: '3 hours of uploads', badge: null, badgeColor: '' },
+  { icon: <IconBoost className="w-4 h-4" />, text: 'Boost tracks and get 100+ listeners', badge: '2X MONTH', badgeColor: 'text-[#5500ff] bg-purple-50' },
+  { icon: <IconDistribute className="w-4 h-4" />, text: 'Distribute & monetize tracks', badge: '2X MONTH', badgeColor: 'text-[#5500ff] bg-purple-50' },
+  { icon: <IconReplace className="w-4 h-4" />, text: 'Replace tracks without losing stats', badge: '3X MONTH', badgeColor: 'text-[#5500ff] bg-purple-50' },
+  { icon: <IconMastering className="w-4 h-4" />, text: 'AI Mastering', badge: '1X MONTH', badgeColor: 'text-[#5500ff] bg-purple-50' },
+];
+
+const proFeatures = [
+  { icon: <IconUnlimitedUploads className="w-4 h-4" />, text: 'Unlimited uploads', badge: null, badgeColor: '' },
+  { icon: <IconBoost className="w-4 h-4" />, text: 'Boost tracks and get 100+ listeners', badge: 'UNLIMITED', badgeColor: 'text-[#c9a84c] bg-amber-50' },
+  { icon: <IconDistribute className="w-4 h-4" />, text: 'Distribute & monetize tracks', badge: 'UNLIMITED', badgeColor: 'text-[#c9a84c] bg-amber-50' },
+  { icon: <IconReplace className="w-4 h-4" />, text: 'Replace tracks without losing stats', badge: 'UNLIMITED', badgeColor: 'text-[#c9a84c] bg-amber-50' },
+  { icon: <IconMastering className="w-4 h-4" />, text: 'AI Mastering', badge: '3X MONTH', badgeColor: 'text-[#c9a84c] bg-amber-50' },
+];
+
+const proExtras = [
+  { icon: <IconAudienceStats className="w-4 h-4" />, text: 'Audience stats and insights' },
+  { icon: <IconCommunity className="w-4 h-4" />, text: 'Community management tools' },
+];
+
+// ── Page ──────────────────────────────────────────────────────────────────────
+
 export default function ArtistProPage() {
   const router = useRouter();
 
@@ -9,25 +133,18 @@ export default function ArtistProPage() {
     <div className="w-full font-sans">
 
       {/* ── SECTION 1: Dark Hero ── */}
-      <div className="relative bg-[#111] text-white overflow-hidden min-h-screen flex flex-col justify-between px-16 pt-24 pb-0">
-
-        {/* Dotted pattern background */}
-        <div
-          className="absolute inset-0 opacity-20 pointer-events-none"
-          style={{
-            backgroundImage: 'radial-gradient(circle, #555 1px, transparent 1px)',
-            backgroundSize: '24px 24px',
-          }}
-        />
-
-        {/* Top right instruments visual */}
-        <div className="absolute top-0 right-0 w-[55%] h-[70%] pointer-events-none select-none overflow-hidden">
-          <div className="relative w-full h-full">
-            <div className="absolute top-2 right-10 text-[9rem] opacity-50 rotate-6 filter grayscale">🎹</div>
-            <div className="absolute top-20 right-4 text-[16rem] opacity-80">🎧</div>
-            <div className="absolute bottom-10 right-0 text-[7rem] opacity-40 -rotate-6">🔊</div>
-          </div>
-        </div>
+      <div
+        className="relative text-white overflow-hidden min-h-screen flex flex-col justify-between px-16 pt-24 pb-0"
+        style={{
+          backgroundColor: '#111',
+          backgroundImage: 'url(https://checkout.sndcdn.com/checkout-hero-images/hero-background-image-speakers.svg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center right',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        {/* Dark overlay for text legibility */}
+        <div className="absolute inset-0 bg-black/50 pointer-events-none" />
 
         {/* Left: Headline + buttons */}
         <div className="relative z-10 max-w-2xl">
@@ -62,28 +179,28 @@ export default function ArtistProPage() {
         {/* Bottom: 4 feature columns */}
         <div className="relative z-10 grid grid-cols-4 gap-8 mt-24 pb-16 border-t border-white/10 pt-10">
           <div>
-            <div className="text-3xl mb-3">◎</div>
+            <IconGrowAudience className="w-8 h-8 mb-3 text-white" />
             <h3 className="font-bold text-base mb-2">Grow your audience</h3>
             <p className="text-sm text-gray-400 leading-relaxed">
               Artist Pro subscribers get on average 400% more listens, thanks to our audio algorithm and featured playlists.
             </p>
           </div>
           <div>
-            <div className="text-3xl mb-3">📊</div>
+            <IconInsights className="w-8 h-8 mb-3 text-white" />
             <h3 className="font-bold text-base mb-2">Know your audience</h3>
             <p className="text-sm text-gray-400 leading-relaxed">
               Get advanced fan insights and custom listening reports to build connections and plan promotions, releases, and tours.
             </p>
           </div>
           <div>
-            <div className="text-3xl mb-3">∞</div>
+            <IconUnlimitedUploads className="w-8 h-8 mb-3 text-white" />
             <h3 className="font-bold text-base mb-2">Upload unlimited tracks</h3>
             <p className="text-sm text-gray-400 leading-relaxed">
               Upload and replace unlimited tracks without losing your plays, likes, and comments.
             </p>
           </div>
           <div>
-            <div className="text-3xl mb-3">⚡</div>
+            <IconDistribution className="w-8 h-8 mb-3 text-white" />
             <h3 className="font-bold text-base mb-2">Distribution is included</h3>
             <p className="text-sm text-gray-400 leading-relaxed">
               Distribute and get paid on SoundCloud and 60+ platforms including Spotify, Apple Music, and TikTok.
@@ -119,16 +236,10 @@ export default function ArtistProPage() {
             </button>
 
             <div className="flex flex-col divide-y divide-gray-100">
-              {[
-                { icon: '↑', text: '3 hours of uploads', badge: null, badgeColor: '' },
-                { icon: '⚡', text: 'Boost tracks and get 100+ listeners', badge: '2X MONTH', badgeColor: 'text-[#5500ff] bg-purple-50' },
-                { icon: '⇄', text: 'Distribute & monetize tracks', badge: '2X MONTH', badgeColor: 'text-[#5500ff] bg-purple-50' },
-                { icon: '↔', text: 'Replace tracks without losing stats', badge: '3X MONTH', badgeColor: 'text-[#5500ff] bg-purple-50' },
-                { icon: '🎚', text: 'AI Mastering', badge: '1X MONTH', badgeColor: 'text-[#5500ff] bg-purple-50' },
-              ].map((f) => (
+              {artistFeatures.map((f) => (
                 <div key={f.text} className="flex items-center justify-between py-4">
                   <div className="flex items-center gap-3">
-                    <span className="text-base">{f.icon}</span>
+                    <span className="text-[#5500ff] flex items-center">{f.icon}</span>
                     <span className="text-sm font-medium">{f.text}</span>
                   </div>
                   {f.badge && (
@@ -166,16 +277,10 @@ export default function ArtistProPage() {
             </button>
 
             <div className="flex flex-col divide-y divide-gray-100">
-              {[
-                { icon: '↑', text: 'Unlimited uploads', badge: null, badgeColor: '' },
-                { icon: '⚡', text: 'Boost tracks and get 100+ listeners', badge: 'UNLIMITED', badgeColor: 'text-[#c9a84c] bg-amber-50' },
-                { icon: '⇄', text: 'Distribute & monetize tracks', badge: 'UNLIMITED', badgeColor: 'text-[#c9a84c] bg-amber-50' },
-                { icon: '↔', text: 'Replace tracks without losing stats', badge: 'UNLIMITED', badgeColor: 'text-[#c9a84c] bg-amber-50' },
-                { icon: '🎚', text: 'AI Mastering', badge: '3X MONTH', badgeColor: 'text-[#c9a84c] bg-amber-50' },
-              ].map((f) => (
+              {proFeatures.map((f) => (
                 <div key={f.text} className="flex items-center justify-between py-4">
                   <div className="flex items-center gap-3">
-                    <span className="text-base">{f.icon}</span>
+                    <span className="text-[#c9a84c] flex items-center">{f.icon}</span>
                     <span className="text-sm font-medium">{f.text}</span>
                   </div>
                   {f.badge && (
@@ -192,12 +297,9 @@ export default function ArtistProPage() {
                 <div className="flex-1 h-px bg-gray-200" />
               </div>
 
-              {[
-                { icon: '📈', text: 'Audience stats and insights' },
-                { icon: '💬', text: 'Community management tools' },
-              ].map((f) => (
+              {proExtras.map((f) => (
                 <div key={f.text} className="flex items-center gap-3 py-4">
-                  <span className="text-base">{f.icon}</span>
+                  <span className="text-[#c9a84c] flex items-center">{f.icon}</span>
                   <span className="text-sm font-medium">{f.text}</span>
                 </div>
               ))}
@@ -307,7 +409,6 @@ export default function ArtistProPage() {
               <div className="border-t border-gray-200">
                 {section.rows.map((row) => (
                   <div key={row.name} className="grid grid-cols-4 border-b border-gray-100 py-5 items-center">
-                    {/* Feature name */}
                     <div>
                       <p className="text-sm font-semibold">{row.name}</p>
                       {row.desc && <p className="text-xs text-gray-400 mt-1 leading-relaxed">{row.desc}</p>}
@@ -316,7 +417,7 @@ export default function ArtistProPage() {
                     {/* Basic */}
                     <div className="text-center">
                       {row.basic === null ? (
-                        <span className="text-gray-400 text-sm">Not Available–</span>
+                        <span className="text-gray-300 text-lg">—</span>
                       ) : (
                         <span className="text-gray-700 text-sm">{row.basic}</span>
                       )}
@@ -325,11 +426,15 @@ export default function ArtistProPage() {
                     {/* Artist */}
                     <div className="text-center">
                       {row.artist === null ? (
-                        <span className="text-gray-400 text-sm">Not Available–</span>
+                        <span className="text-gray-300 text-lg">—</span>
                       ) : row.artist === 'available' ? (
                         <span className="text-[#1a8a4a] text-sm font-medium flex items-center justify-center gap-1">
                           Available
-                          <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#1a8a4a] text-white text-xs">✓</span>
+                          <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#1a8a4a] text-white text-xs">
+                            <svg viewBox="0 0 12 12" width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="2 6 5 9 10 3"/>
+                            </svg>
+                          </span>
                         </span>
                       ) : row.artist === 'artist-badge' ? (
                         <span className="flex items-center justify-center gap-1 text-sm font-semibold text-[#5500ff]">
@@ -344,11 +449,15 @@ export default function ArtistProPage() {
                     {/* Artist Pro */}
                     <div className="text-center">
                       {row.pro === null ? (
-                        <span className="text-gray-400 text-sm">Not Available–</span>
+                        <span className="text-gray-300 text-lg">—</span>
                       ) : row.pro === 'available' ? (
                         <span className="text-[#1a8a4a] text-sm font-medium flex items-center justify-center gap-1">
                           Available
-                          <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#1a8a4a] text-white text-xs">✓</span>
+                          <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#1a8a4a] text-white text-xs">
+                            <svg viewBox="0 0 12 12" width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="2 6 5 9 10 3"/>
+                            </svg>
+                          </span>
                         </span>
                       ) : row.pro === 'pro-badge' ? (
                         <span className="flex items-center justify-center gap-1 text-sm font-semibold text-[#c9a84c]">
