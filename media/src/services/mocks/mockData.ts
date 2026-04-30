@@ -8,6 +8,7 @@ import { IComment } from '@/types/comment.types';
 import { IMessageThread, IInboxItem } from '@/types/message.types';
 import { IChart, IChartTrack } from '@/types/chart.types';
 import { INotification } from '@/types/notification.types';
+import { IAdminInsightPoint, IAdminStats, IAdminTrack } from '@/types/admin.types';
 
 // settings/privacy
 import { IPrivacySettings } from '@/types/settings-privacy.types';

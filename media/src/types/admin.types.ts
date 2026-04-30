@@ -51,6 +51,32 @@ export interface IAdminTrackModerationData {
   title: string;
 }
 
+export interface IAdminTrack {
+  id: string;
+  title: string;
+  artist: string;
+  albumArt: string;
+  plays: number;
+  likes: number;
+  uploadedAt: string;
+  isPrivate: boolean;
+}
+
+export interface IAdminStats {
+  totalUsers: number;
+  totalTracks: number;
+  totalPlays: number;
+  newUsersToday: number;
+  newTracksToday: number;
+  activeUsersThisWeek: number;
+}
+
+export interface IAdminInsightPoint {
+  date: string;
+  plays: number;
+  signups: number;
+}
+
 export type IReportStatus = "open" | "under_review" | "resolved" | "dismissed";
 
 export interface IAdminService {

@@ -9,8 +9,22 @@ import type {
 } from "@/types/admin.types";
 import { apiDelete, apiGet, apiPatch } from "./apiClient";
 
+interface IRawAdminReport {
+  report_id: string;
+  entity_type: "track" | "comment" | "user";
+  entity_id: string;
+  reason: string;
+  status: IReportStatus;
+  created_at: string | null;
+  reporter: { user_id: string; username: string; display_name: string };
+  reviewed_by: { user_id: string; username: string; display_name: string } | null;
+  reviewed_at: string | null;
+  resolution_note: string | null;
+  entity_preview: Record<string, unknown> | null;
+}
+
 // Map backend report shape (snake_case) -> frontend IAdminReportItem
-const mapReport = (r: any): IAdminReportItem => ({
+const mapReport = (r: IRawAdminReport): IAdminReportItem => ({
   reportId:       r.report_id,
   entityType:     r.entity_type,
   entityId:       r.entity_id,
@@ -71,19 +85,7 @@ export const realAdminService: IAdminService = {
     const qs = query.toString();
     const raw = await apiGet<{
       total: number;
-      reports: Array<{
-        report_id: string;
-        entity_type: "track" | "comment" | "user";
-        entity_id: string;
-        reason: string;
-        status: IReportStatus;
-        created_at: string | null;
-        reporter: { user_id: string; username: string; display_name: string };
-        reviewed_by: { user_id: string; username: string; display_name: string } | null;
-        reviewed_at: string | null;
-        resolution_note: string | null;
-        entity_preview: Record<string, unknown> | null;
-      }>;
+      reports: IRawAdminReport[];
     }>(`${getApiBaseUrl()}/admin/reports${qs ? `?${qs}` : ""}`);
 
     return {
@@ -97,19 +99,7 @@ export const realAdminService: IAdminService = {
     status: IReportStatus,
     resolutionNote?: string
   ): Promise<IAdminReportItem> => {
-    const raw = await apiPatch<{
-      report_id: string;
-      entity_type: "track" | "comment" | "user";
-      entity_id: string;
-      reason: string;
-      status: IReportStatus;
-      created_at: string | null;
-      reporter: { user_id: string; username: string; display_name: string };
-      reviewed_by: { user_id: string; username: string; display_name: string } | null;
-      reviewed_at: string | null;
-      resolution_note: string | null;
-      entity_preview: Record<string, unknown> | null;
-    }>(`${getApiBaseUrl()}/admin/reports/${reportId}`, {
+    const raw = await apiPatch<IRawAdminReport>(`${getApiBaseUrl()}/admin/reports/${reportId}`, {
       status,
       ...(resolutionNote ? { resolution_note: resolutionNote } : {}),
     });

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, Suspense } from "react";
+import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { AuthService } from "@/services";
@@ -26,10 +27,10 @@ function ResetPasswordForm() {
       <div className="min-h-screen bg-[#111111] flex items-center justify-center">
         <div className="bg-[#222222] max-w-md rounded-lg p-10">
           <p className="text-white text-[20px] font-bold text-center mb-4">Reset link missing</p>
-          <p className="text-[#999999] text-sm text-center mb-6">We couldn't find a reset token in the URL. Please request a new password reset link from the Forgot Password flow.</p>
+          <p className="text-[#999999] text-sm text-center mb-6">We could not find a reset token in the URL. Please request a new password reset link from the Forgot Password flow.</p>
           <div className="flex gap-3 justify-center">
-            <a href="/login" className="text-sm text-[#4a90e2] hover:underline">Back to sign in</a>
-            <a href="/login" className="text-sm text-[#4a90e2] hover:underline">Request reset link</a>
+            <Link href="/login" className="text-sm text-[#4a90e2] hover:underline">Back to sign in</Link>
+            <button type="button" onClick={() => router.push("/login")} className="text-sm text-[#4a90e2] hover:underline">Request reset link</button>
           </div>
         </div>
       </div>
