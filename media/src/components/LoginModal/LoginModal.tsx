@@ -31,7 +31,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
   const [isSuccess, setIsSuccess] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [resetCode, setResetCode] = useState("");
-  const [authChecked, setAuthChecked] = useState(false);
+  
 
   const router = useRouter();
   const [signinSubtitle, setSigninSubtitle] = useState<string | undefined>(undefined);
@@ -89,7 +89,6 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       try {
         setIsLoading(true);
         const { isExisting } = await AuthService.checkEmail(emailOrProfileUrl);
-        //console.log("isExisting:", isExisting);
         setStep(isExisting ? "signin" : "register");
       } catch {
         setError("Something went wrong. Please try again.");
