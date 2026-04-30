@@ -8,6 +8,8 @@ import {
   IUpdateProfileResponse,
   IResendVerificationResponse,
   IVerifyEmailResponse,
+  IForgotPasswordResponse, 
+  IResetPasswordResponse
 } from "@/types/auth.types";
 import { clearAuthCookie, setAuthCookie } from "@/lib/authCookie";
 
@@ -50,6 +52,7 @@ const clearTokens = () => {
   window.localStorage.removeItem("auth_profile_image");
   clearAuthCookie();
 };
+// `getAuthTokenFromStorage` was removed because `getAccessToken` covers its usage.
 
 const resolveBackendMediaUrl = (value: string | undefined): string => {
   const raw = value?.trim();
@@ -155,6 +158,7 @@ export const RealAuthService = {
         password,
         username: defaultDisplayName,
         display_name: defaultDisplayName,
+        account_type: "listener",
       }),
     });
 
@@ -179,27 +183,41 @@ export const RealAuthService = {
   },
 
   checkEmail: async (emailOrProfileUrl: string): Promise<ICheckEmailResponse> => {
-    const response = await fetch(apiUrl("/auth/check-email"), {
-      method: "POST",
+    // Uses GET ?email= query param — backend returns { available: boolean }.
+    // Note: available:false => email is taken, so we invert to produce isExisting.
+    const response = await fetch(apiUrl(`/auth/check-email?email=${encodeURIComponent(emailOrProfileUrl)}`), {
+      method: "GET",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: emailOrProfileUrl }),
     });
-
-    // Some deployments do not expose this endpoint yet.
-    // Fall back to registration flow instead of blocking auth UX.
-    if (response.status === 404) {
+  
+    if (!response.ok) {
       return { isExisting: false };
     }
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error?.detail || "Failed to check account status");
-    }
-
+  
     const json = await response.json();
     const data = json.data ?? json;
+  
     return {
-      isExisting: Boolean(data?.isExisting ?? data?.is_existing),
+      isExisting: !data.available, // available:false means email is taken = isExisting:true
+    };
+  },
+
+  verifyResetToken: async (token: string): Promise<{ valid: boolean; message: string }> => {
+    const response = await fetch(apiUrl("/auth/verify-reset-token"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    });
+  
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error?.detail || "Failed to verify token");
+    }
+  
+    const json = await response.json();
+    return {
+      valid: json.valid,
+      message: json.message,
     };
   },
 
@@ -266,6 +284,38 @@ export const RealAuthService = {
       throw new Error(error?.detail || "Invalid or expired code.");
     }
 
+    return { success: true };
+  },
+
+  forgotPassword: async (email: string): Promise<IForgotPasswordResponse> => {
+    const response = await fetch(apiUrl("/auth/forgot-password"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+  
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error?.message || "Failed to send reset link");
+    }
+  
+    return response.json();
+  },
+  
+  resetPassword: async (token: string, newPassword: string, signOutEverywhere: boolean ): Promise<IResetPasswordResponse> => {
+    const response = await fetch(apiUrl("/auth/reset-password"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      // Include the `sign_out_everywhere` flag collected from the UI so the
+      // backend can invalidate other sessions when requested.
+      body: JSON.stringify({ token, new_password: newPassword, sign_out_everywhere: !!signOutEverywhere }),
+    });
+  
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error?.detail || "Failed to reset password");
+    }
+  
     return { success: true };
   },
 

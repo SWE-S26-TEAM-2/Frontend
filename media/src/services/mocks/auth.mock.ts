@@ -1,5 +1,5 @@
 // src/services/mocks/auth.mock.ts
-import { ILoginResponse, IUser , ICheckEmailResponse, IRegisterResponse, IUpdateProfileRequest, IUpdateProfileResponse, IResendVerificationResponse, IVerifyEmailResponse } from "@/types/auth.types";
+import { ILoginResponse, IUser , ICheckEmailResponse, IRegisterResponse, IUpdateProfileRequest, IUpdateProfileResponse, IResendVerificationResponse,  IForgotPasswordResponse, IResetPasswordResponse, IVerifyEmailResponse } from "@/types/auth.types";
 
 /**
  * Mock authentication service for development/testing
@@ -109,6 +109,8 @@ export const MockAuthService = {
     return { success: true };
   },
 
+ 
+
   verifyEmail: async (_email: string, token: string): Promise<IVerifyEmailResponse> => {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -119,12 +121,48 @@ export const MockAuthService = {
     return { success: true };
   },
 
+
+  forgotPassword: async (email: string): Promise<IForgotPasswordResponse> => {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    
+    if (!email) {
+      throw new Error("Email is required");
+    }
+  
+    return { success: true };
+  },
+  
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  resetPassword: async (token: string, newPassword: string, signOutEverywhere: boolean): Promise<IResetPasswordResponse> => {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+  
+    if (!token) {
+      throw new Error("Invalid or expired reset token");
+    }
+  
+    if (newPassword.length < 8) {
+      throw new Error("Password must be at least 8 characters");
+    }
+
+    
+  
+    return { success: true };
+  },
+
   /**
    * Mock logout - clears session
    */
   logout: async (): Promise<{ success: boolean }> => {
     await new Promise((resolve) => setTimeout(resolve, 300));
     return { success: true };
+  },
+
+  verifyResetToken: async (token: string): Promise<{ valid: boolean; message: string }> => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    if (!token.trim()) {
+      return { valid: false, message: "Invalid or expired code." };
+    }
+    return { valid: true, message: "Token is valid." };
   },
 
   /**

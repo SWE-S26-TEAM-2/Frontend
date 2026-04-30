@@ -28,12 +28,12 @@ import {IInputStepProps} from "@/types/auth.types";
         <button
          type="submit"
          disabled={isLoading}
-         className="bg-[#555555] text-white w-full p-3 rounded cursor-pointer mb-10 text-[15px] font-semibold border-none"
+         className="bg-[#555555] text-white w-full p-3 rounded cursor-pointer mb-3 text-[15px] font-semibold border-none"
         >
          {isLoading ? "Loading..." : "Continue"}
         </button>
 
-        <Link href="#" className="text-[#ff5500] text-sm cursor-pointer mt-8">
+        <Link href="https://help.soundcloud.com" className="text-[#4a90e2] text-sm cursor-pointer">
         Need help?
         </Link>
         </form>
