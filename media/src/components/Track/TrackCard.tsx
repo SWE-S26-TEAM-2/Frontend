@@ -8,7 +8,7 @@ import { TrackCover } from "./TrackCover";
 import { Waveform } from "@/components/Track/Waveform";
 import { HeartIcon, ShareIcon, CopyIcon, MoreIcon, IconBtn } from "@/components/Icons/TrackIcons";
 import { ShareModal } from "@/components/Share/Share";
-import { seededWaveform } from "@/utils/seededWaveform";
+import { useWaveform } from "@/hooks/useWaveform";
 import { usePlayerStore } from "@/store/playerStore";
 
 export function TrackCard({ track, onPlay }: ITrackCardProps) {
@@ -56,7 +56,7 @@ export function TrackCard({ track, onPlay }: ITrackCardProps) {
       navigator.clipboard.writeText(`${track.artist} - ${track.title}`);
   };
 
-  const waveform = seededWaveform(Number(track.id) || 1);
+  const waveform = useWaveform(track.id);
 
   return (
     <>

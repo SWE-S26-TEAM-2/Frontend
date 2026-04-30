@@ -14,7 +14,51 @@ import { HeartIcon, RepostIcon } from "@/components/Icons/TrackIcons";
 import { PlayIcon } from "@/components/Icons/PlayerIcons";
 import { ShareIcon } from "@/components/Icons/TrackIcons";
 import { formatNumber } from "@/utils/formatNumber";
-import { seededWaveform } from "@/utils/seededWaveform";
+import { useWaveform } from "@/hooks/useWaveform";
+
+function LikedTrackRow({ track }: { track: ILikedTrack }) {
+  const waveform = useWaveform(track.id);
+  return (
+    <div className="flex items-start gap-4 py-5 border-b border-[#1a1a1a] group hover:bg-white/2 transition-colors px-2 -mx-2 rounded">
+      <div className="shrink-0">
+        <TrackCover size={160} url={track.coverUrl} alt={track.title} accentColor={track.accentColor ?? "#1a1a2e"} />
+      </div>
+      <div className="shrink-0 self-center">
+        <button className="w-11 h-11 rounded-full border-2 border-[#ff5500] flex items-center justify-center text-[#ff5500] hover:bg-[#ff5500] hover:text-white transition-colors cursor-pointer bg-transparent">
+          <PlayIcon />
+        </button>
+      </div>
+      <div className="flex-1 min-w-0 flex flex-col gap-2 pt-1">
+        <div className="flex items-baseline gap-2 min-w-0">
+          <span className="text-[#aaa] text-xs shrink-0 truncate">{track.artist}</span>
+          <span className="text-white text-sm font-semibold truncate">{track.title}</span>
+        </div>
+        <Waveform data={waveform} height={52} playedPercent={0} playedColor="#ff5500" unplayedColor="#333" />
+        <div className="flex items-center gap-3 flex-wrap">
+          <button className="flex items-center gap-1.5 text-[#ff5500] text-xs cursor-pointer bg-transparent border border-[#ff5500]/40 rounded px-2.5 py-1 hover:border-[#ff5500] transition-colors">
+            <HeartIcon isFilled={true} />
+            {track.likes !== undefined ? formatNumber(track.likes) : ""}
+          </button>
+          <button className="flex items-center gap-1.5 text-[#aaa] text-xs cursor-pointer bg-transparent border border-[#2e2e2e] rounded px-2.5 py-1 hover:border-white transition-colors">
+            <RepostIcon />
+            {track.reposts !== undefined ? formatNumber(track.reposts) : ""}
+          </button>
+          <button className="flex items-center gap-1.5 text-[#aaa] text-xs cursor-pointer bg-transparent border border-[#2e2e2e] rounded px-2.5 py-1 hover:border-white transition-colors">
+            <ShareIcon />
+          </button>
+          <div className="ml-auto flex items-center gap-3">
+            {track.plays !== undefined && (
+              <span className="text-[11px] text-[#555]">▶ {formatNumber(track.plays)}</span>
+            )}
+            {track.comments !== undefined && (
+              <span className="text-[11px] text-[#555]">💬 {track.comments}</span>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function LikesPage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = React.use(params);
@@ -124,58 +168,8 @@ export default function LikesPage({ params }: { params: Promise<{ username: stri
           </div>
         ) : (
           <div className="flex flex-col">
-            {likes.map((track, idx) => (
-              <div
-                key={track.id}
-                className="flex items-start gap-4 py-5 border-b border-[#1a1a1a] group hover:bg-white/2 transition-colors px-2 -mx-2 rounded"
-              >
-                <div className="shrink-0">
-                  <TrackCover size={160} url={track.coverUrl} alt={track.title} accentColor={track.accentColor ?? "#1a1a2e"} />
-                </div>
-
-                <div className="shrink-0 self-center">
-                  <button className="w-11 h-11 rounded-full border-2 border-[#ff5500] flex items-center justify-center text-[#ff5500] hover:bg-[#ff5500] hover:text-white transition-colors cursor-pointer bg-transparent">
-                    <PlayIcon />
-                  </button>
-                </div>
-
-                <div className="flex-1 min-w-0 flex flex-col gap-2 pt-1">
-                  <div className="flex items-baseline gap-2 min-w-0">
-                    <span className="text-[#aaa] text-xs shrink-0 truncate">{track.artist}</span>
-                    <span className="text-white text-sm font-semibold truncate">{track.title}</span>
-                  </div>
-
-                  <Waveform
-                    data={seededWaveform(idx)}
-                    height={52}
-                    playedPercent={0}
-                    playedColor="#ff5500"
-                    unplayedColor="#333"
-                  />
-
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <button className="flex items-center gap-1.5 text-[#ff5500] text-xs cursor-pointer bg-transparent border border-[#ff5500]/40 rounded px-2.5 py-1 hover:border-[#ff5500] transition-colors">
-                      <HeartIcon isFilled={true} />
-                      {track.likes !== undefined ? formatNumber(track.likes) : ""}
-                    </button>
-                    <button className="flex items-center gap-1.5 text-[#aaa] text-xs cursor-pointer bg-transparent border border-[#2e2e2e] rounded px-2.5 py-1 hover:border-white transition-colors">
-                      <RepostIcon />
-                      {track.reposts !== undefined ? formatNumber(track.reposts) : ""}
-                    </button>
-                    <button className="flex items-center gap-1.5 text-[#aaa] text-xs cursor-pointer bg-transparent border border-[#2e2e2e] rounded px-2.5 py-1 hover:border-white transition-colors">
-                      <ShareIcon />
-                    </button>
-                    <div className="ml-auto flex items-center gap-3">
-                      {track.plays !== undefined && (
-                        <span className="text-[11px] text-[#555]">▶ {formatNumber(track.plays)}</span>
-                      )}
-                      {track.comments !== undefined && (
-                        <span className="text-[11px] text-[#555]">💬 {track.comments}</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
+            {likes.map((track) => (
+              <LikedTrackRow key={track.id} track={track} />
             ))}
           </div>
         )}
