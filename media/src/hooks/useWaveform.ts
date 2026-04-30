@@ -27,13 +27,9 @@ function normalize(raw: unknown): number[] {
  * then silently replaces it with real bars once the fetch resolves.
  */
 export function useWaveform(trackId: string, sampleCount?: number): number[] {
-  const fallback = seededWaveform(Number(trackId) || 1, sampleCount ?? 220);
-  const [bars, setBars] = useState<number[]>(fallback);
+  const [fetched, setFetched] = useState<{ id: string; bars: number[] } | null>(null);
 
   useEffect(() => {
-    // Reset to the seeded waveform whenever the track changes
-    setBars(seededWaveform(Number(trackId) || 1, sampleCount ?? 220));
-
     if (!trackId) return;
 
     let cancelled = false;
@@ -43,8 +39,7 @@ export function useWaveform(trackId: string, sampleCount?: number): number[] {
       .then(json => {
         if (cancelled) return;
         const real = normalize(json);
-        if (real.length > 0) setBars(real);
-        // if empty, keep the seeded fallback already in state
+        if (real.length > 0) setFetched({ id: trackId, bars: real });
       })
       .catch(() => {
         // Network error or 404 — seeded fallback stays
@@ -53,5 +48,8 @@ export function useWaveform(trackId: string, sampleCount?: number): number[] {
     return () => { cancelled = true; };
   }, [trackId, sampleCount]);
 
-  return bars;
+  // Use fetched bars only when they belong to the current track
+  return fetched?.id === trackId
+    ? fetched.bars
+    : seededWaveform(Number(trackId) || 1, sampleCount ?? 220);
 }
