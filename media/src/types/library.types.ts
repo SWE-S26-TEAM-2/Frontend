@@ -10,9 +10,9 @@ export interface ILibraryTrack {
   likes?: number;
   reposts?: number;
   duration?: string;
-  likedAt?: string; // ISO date string
+  likedAt?: string; 
   genre?: string;
-  waveformData?: number[]; // normalized 0–1 amplitude values for the Waveform component
+  waveformData?: number[]; 
 }
 
 export interface ILibraryPlaylist {
@@ -75,9 +75,9 @@ export interface ILibraryService {
   getAlbums(): Promise<ILibraryAlbum[]>;
   getStations(): Promise<ILibraryStation[]>;
   getFollowing(): Promise<ILibraryFollowing[]>;
-  clearHistory(): Promise<void>; // FIX: was missing from interface — needed by HistoryTab
+  clearHistory(): Promise<void>; 
+  getRecentlyPlayed(): Promise<ILibraryRecentItem[]>;
 }
 
-// FIX: these are union type aliases, NOT interfaces — drop the "I" prefix per naming conventions
 export type LibraryTab = "Overview" | "Likes" | "Playlists" | "Albums" | "Stations" | "Following" | "History";
 export type ViewMode = "grid" | "list";

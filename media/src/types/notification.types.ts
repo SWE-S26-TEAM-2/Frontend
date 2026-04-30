@@ -44,6 +44,9 @@ export interface INotificationsResponse {
 export interface IRawNotification {
   notification_id: string;
   actor_id: string;
+  actor_username: string;
+  actor_display_name: string | null;
+  actor_profile_picture: string | null;
   notification_type: string;
   target_id: string | null;
   message: string;

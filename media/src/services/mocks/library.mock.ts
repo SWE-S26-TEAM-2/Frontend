@@ -8,48 +8,30 @@ import type {
   ILibraryAlbum,
   ILibraryStation,
   ILibraryFollowing,
+  ILibraryRecentItem
 } from "@/types/library.types";
 
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-// ─── Auth helpers (SSR-safe, matches apiClient.ts pattern) ───────────────────
-
-/**
- * Reads the logged-in user's username from localStorage.
- * auth.api.ts saves it under "auth_username" after login/googleLogin.
- */
 const getMockCurrentUsername = (): string => {
   if (typeof window === "undefined") return "you";
   return window.localStorage.getItem("auth_username") ?? "you";
 };
 
-/**
- * Reads the logged-in user's id from localStorage.
- * auth.api.ts saves it under "auth_user_id" after login/googleLogin.
- */
 const getMockCurrentUserId = (): string => {
   if (typeof window === "undefined") return "current-user";
   return window.localStorage.getItem("auth_user_id") ?? "current-user";
 };
 
-// ─── Waveform seed generator ─────────────────────────────────────────────────
-// Produces a stable normalized (0–1) waveform array from a string seed.
-// This replaces the inline WaveformPlaceholder in page.tsx — data is now
-// part of the track so the shared <Waveform> component can consume it.
 function generateWaveformData(seed: string, bars = 100): number[] {
   return Array.from({ length: bars }, (_, i) => {
     const s = seed.charCodeAt(i % seed.length);
     const raw = 0.15 + Math.abs(Math.sin(i * 0.5 + s) * 0.4) + Math.abs(Math.cos(i * 0.3 + s) * 0.25);
-    return Math.min(1, raw); // clamp to 0–1 as IWaveformProps expects
+    return Math.min(1, raw); 
   });
 }
 
 // ─── Mock Data ───────────────────────────────────────────────────────────────
-
-/**
- * Recently-played items are user-specific: the first entry is always the
- * logged-in user's own profile so the link and label are correct for everyone.
- */
 const buildMockRecentItems = () => {
   const username = getMockCurrentUsername();
   const userId   = getMockCurrentUserId();
@@ -156,7 +138,7 @@ export const mockLibraryService: ILibraryService = {
   async getOverview(): Promise<ILibraryOverview> {
     await delay(350);
     return {
-      recentlyPlayed: buildMockRecentItems(), // FIX: built dynamically so username/href are correct per user
+      recentlyPlayed: buildMockRecentItems(), 
       likes:          MOCK_LIKES,
       playlists:      MOCK_PLAYLISTS,
       albums:         MOCK_ALBUMS,
@@ -170,11 +152,11 @@ export const mockLibraryService: ILibraryService = {
   async getAlbums():    Promise<ILibraryAlbum[]>     { await delay(300); return MOCK_ALBUMS; },
   async getStations():  Promise<ILibraryStation[]>   { await delay(300); return MOCK_STATIONS; },
   async getFollowing(): Promise<ILibraryFollowing[]> { await delay(300); return MOCK_FOLLOWING; },
-
-  // FIX: clearHistory was missing — stub clears nothing in mock (no persistence), just resolves
+  async getRecentlyPlayed(): Promise<ILibraryRecentItem[]> {
+    await delay(300);
+    return buildMockRecentItems();
+  },
   async clearHistory(): Promise<void> {
     await delay(200);
-    // In mock mode there is no persistent history state, so this is intentionally a no-op.
-    // TODO: if a recentlyPlayed state slice is added, reset it here.
   },
 };

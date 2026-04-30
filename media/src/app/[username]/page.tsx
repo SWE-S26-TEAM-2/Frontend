@@ -86,7 +86,11 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
         }
 
         setUser(userToSet);
-        setTracks(fetchedTracks);
+        const likedTrackIds = new Set(fetchedLikes.map(l => l.id));
+        setTracks(fetchedTracks.map(t => ({
+          ...t,
+          isLiked: likedTrackIds.has(t.id),
+        })));
         setLikes(fetchedLikes);
         setFans(fetchedFans);
         setFollowers(fetchedFollowers);
@@ -165,7 +169,7 @@ const handleBannerHeaderChange = async (url: string, file?: File) => {
       case "All":            return tracks;
       case "Popular tracks": return [...tracks].sort((a, b) => b.plays - a.plays);
       case "Tracks":         return tracks;
-      case "Reposts":        return [];
+      case "Reposts":        return tracks.filter(t => t.isReposted);
       case "Albums":
       case "Playlists":      return [];
       default:               return tracks;

@@ -17,6 +17,8 @@ import {
   NextUpIcon, AddToPlaylistIcon, TracksIcon,
 } from "@/components/Icons/TrackIcons";
 import { userProfileService, engagementService } from "@/services/di";
+import { usePlayerStore } from "@/store/playerStore";
+
 
 // ─────────────────────────────────────────────────────────────
 // Track Dots Dropdown Menu
@@ -85,9 +87,10 @@ interface ILikeRowProps {
   like: ILikedTrack;
   isLiked: boolean;
   onToggleLike: (id: string) => void;
+  onPlay: (like: ILikedTrack) => void;
 }
 
-function LikeRow({ like, isLiked, onToggleLike }: ILikeRowProps) {
+function LikeRow({ like, isLiked, onToggleLike, onPlay }: ILikeRowProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isDotsOpen, setIsDotsOpen] = useState(false);
   const dotsRef = useRef<HTMLButtonElement>(null);
@@ -103,7 +106,7 @@ function LikeRow({ like, isLiked, onToggleLike }: ILikeRowProps) {
         <TrackCover size={44} accentColor={like.accentColor ?? "#1a1a2e"} url={like.coverUrl} alt={like.title} />
         {isHovered && (
           <button
-            onClick={() => {/* TODO: wire to player */ }}
+            onClick={() =>  onPlay(like)}
             className="absolute inset-0 flex items-center justify-center bg-black/50 rounded cursor-pointer border-none"
           >
             <PlayIcon />
@@ -251,6 +254,25 @@ export function ProfileSidebar({ user, likes, fans, followers, following, tracks
   // ── Fans also like — local shuffled state ──
   const [displayedFans, setDisplayedFans] = useState<IFanUser[]>(fans);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const { setTrack } = usePlayerStore();
+
+  const handlePlayLike = useCallback((like: ILikedTrack) => {
+  if (!like.url) return;
+  setTrack({
+    id:            like.id,
+    title:         like.title,
+    artist:        like.artist,
+    albumArt:      like.coverUrl ?? "",
+    url:           like.url,
+    duration:      like.duration ?? 0,
+    likes:         like.likes ?? 0,
+    plays:         like.plays ?? 0,
+    commentsCount: like.comments ?? 0,
+    isLiked:       true,
+    createdAt:     "",
+    updatedAt:     "",
+  });
+}, [setTrack]);
 
   const handleRefreshFans = useCallback(async () => {
     if (isRefreshing) return;
@@ -285,9 +307,6 @@ export function ProfileSidebar({ user, likes, fans, followers, following, tracks
     }
   }, [fanFollowState]);
 
-  // ── Following follow state ──
-  // Seed as true only for owner (they follow everyone in their list).
-  // For visitors, we fetch their own following list to check.
   const [followingState, setFollowingState] = useState<Record<string, boolean>>(
     () => user.isOwner
       ? Object.fromEntries(following.map(f => [f.username, true]))
@@ -478,6 +497,7 @@ export function ProfileSidebar({ user, likes, fans, followers, following, tracks
             like={like}
             isLiked={likedState[like.id] ?? true}
             onToggleLike={handleToggleLike}
+            onPlay={handlePlayLike}
           />
         ))}
       </div>

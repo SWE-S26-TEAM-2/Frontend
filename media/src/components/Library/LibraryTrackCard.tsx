@@ -6,6 +6,7 @@ import { Waveform } from "@/components/Track/Waveform";
 import { HeartIcon, RepostIcon, ShareIcon } from "@/components/Icons/TrackIcons";
 import { CoverBox } from "@/components/Library/CoverBox";
 import type { ILibraryTrack } from "@/types/library.types";
+import { engagementService } from "@/services/di";
 
 // ─── Track list row ───────────────────────────────────────────────────────────
 
@@ -16,9 +17,6 @@ interface ITrackListRowProps {
 export function TrackListRow({ track }: ITrackListRowProps) {
   const [commentText, setCommentText] = useState("");
 
-  // Lazy initialisers run once on the client (safe in "use client" components —
-  // no SSR execution) and never cause cascading renders, satisfying both
-  // react-hooks/purity and react-hooks/set-state-in-effect rules.
   const [userInitial] = useState<string>(() => {
     const username = window.localStorage.getItem("auth_username") ?? "";
     return username.charAt(0).toUpperCase() || "?";
@@ -40,6 +38,39 @@ export function TrackListRow({ track }: ITrackListRowProps) {
     if (!commentText.trim()) return;
     // Wire-up: commentService.postComment(track.id, commentText, currentTimestamp)
     setCommentText("");
+  };
+
+  const [isLiked, setIsLiked] = useState(true); // already liked since it's in likes page
+  const [likeCount, setLikeCount] = useState(track.likes ?? 0);
+  const [isReposted, setIsReposted] = useState(false);
+
+  const handleLikeToggle = async () => {
+    const newLiked = !isLiked;
+    setIsLiked(newLiked);
+    setLikeCount(prev => newLiked ? prev + 1 : prev - 1);
+    try {
+      const result = newLiked
+        ? await engagementService.likeTrack(track.id)
+        : await engagementService.unlikeTrack(track.id);
+      // Update with real count from API
+      if (result?.likeCount !== undefined) {
+        setLikeCount(result.likeCount);
+      }
+    } catch {
+      setIsLiked(!newLiked);
+      setLikeCount(prev => newLiked ? prev - 1 : prev + 1);
+    }
+  };
+
+  const handleRepost = async () => {
+    const newReposted = !isReposted;
+    setIsReposted(newReposted);
+    try {
+      if (newReposted) await engagementService.repostTrack(track.id);
+      else await engagementService.removeRepost(track.id);
+    } catch {
+      setIsReposted(!newReposted);
+    }
   };
 
   return (
@@ -112,11 +143,21 @@ export function TrackListRow({ track }: ITrackListRowProps) {
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-1.5 border border-[#333] rounded px-3 py-1 text-[12px] text-[#ff5500] cursor-pointer hover:border-[#ff5500] transition-colors bg-transparent">
-              <HeartIcon isFilled={true} />
-              {track.likes !== undefined && formatNumber(track.likes)}
+            <button
+              onClick={handleLikeToggle}
+              className={`flex items-center gap-1.5 border rounded px-3 py-1 text-[12px] cursor-pointer transition-colors bg-transparent ${
+                isLiked ? "border-[#ff5500] text-[#ff5500]" : "border-[#333] text-[#aaa] hover:border-[#555]"
+              }`}
+            >
+              <HeartIcon isFilled={isLiked} />
+              {formatNumber(likeCount)}
             </button>
-            <button className="flex items-center gap-1.5 border border-[#333] rounded px-3 py-1 text-[12px] text-[#aaa] cursor-pointer hover:border-[#555] transition-colors bg-transparent">
+            <button
+              onClick={handleRepost}
+              className={`flex items-center gap-1.5 border rounded px-3 py-1 text-[12px] cursor-pointer transition-colors bg-transparent ${
+                isReposted ? "border-[#ff5500] text-[#ff5500]" : "border-[#333] text-[#aaa] hover:border-[#555]"
+              }`}
+            >
               <RepostIcon />
               {track.reposts !== undefined && formatNumber(track.reposts)}
             </button>

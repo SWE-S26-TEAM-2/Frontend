@@ -19,15 +19,11 @@ function mapType(raw: string): INotification["type"] {
   return "new_track";
 }
 
-function extractUsernameFromMessage(message: string, fallback: string): string {
-  const firstWord = message.split(" ")[0];
-  return firstWord || fallback;
-}
-
 function normalizeNotification(raw: IRawNotification): INotification {
-  const username = extractUsernameFromMessage(raw.message, raw.actor_id);
-  const message = raw.message.startsWith(username)
-    ? raw.message.slice(username.length).trim()
+  // Message already excludes the actor name duplication
+  const username = raw.actor_username ?? raw.actor_id;
+  const message = raw.message.startsWith(raw.actor_display_name ?? username)
+    ? raw.message.slice((raw.actor_display_name ?? username).length).trim()
     : raw.message;
 
   return {
@@ -38,8 +34,8 @@ function normalizeNotification(raw: IRawNotification): INotification {
     message,
     actor: {
       id:          raw.actor_id,
-      username,
-      avatarUrl:   null,
+      username:    raw.actor_username,
+      avatarUrl:   raw.actor_profile_picture,
       isFollowing: false,
     },
   };
@@ -49,6 +45,34 @@ export const realNotificationService = {
 async getNotifications(): Promise<INotificationsResponse> {
   const data = await apiGet<IRawNotificationsResponse>(NOTIFICATIONS_BASE_URL);
   const notifications = (data.notifications ?? []).map(normalizeNotification);
+  try {
+    const username = typeof window !== "undefined"
+      ? window.localStorage.getItem("auth_username") ?? ""
+      : "";
+
+    if (username) {
+      const followingData = await apiGet<{ following?: { user_id: string }[] }>(
+        `${ENV.API_BASE_URL}/users/${username}/following`
+      );
+      const followingIds = new Set(
+        (followingData.following ?? []).map(f => f.user_id)
+      );
+
+      return {
+        notifications: notifications.map(n => ({
+          ...n,
+          actor: {
+            ...n.actor,
+            isFollowing: followingIds.has(n.actor.id),
+          },
+        })),
+        unreadCount:     notifications.filter(n => !n.isRead).length,
+        recentFollowers: [],
+      };
+    }
+  } catch {
+  }
+
   return {
     notifications,
     unreadCount:     notifications.filter(n => !n.isRead).length,

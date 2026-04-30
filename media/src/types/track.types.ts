@@ -47,6 +47,8 @@ export interface ITrack {
   likes: number;
   plays: number;
   commentsCount?: number;
+  reposts?: number;  
+  isReposted?: boolean;
 
   // UI state (frontend only)
   isLiked?: boolean;

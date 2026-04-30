@@ -163,7 +163,9 @@ export const realUserProfileService: IUserProfileService = {
         likes:         Number(t.like_count ?? 0),
         plays:         Number(t.play_count ?? 0),
         commentsCount: Number(t.comment_count ?? 0),
+        reposts:       Number(t.repost_count ?? 0), 
         isLiked:       false, 
+        isReposted: false,
         createdAt:     String(t.created_at ?? ""),
         updatedAt:     String(t.updated_at ?? ""),
       }));
@@ -198,8 +200,10 @@ export const realUserProfileService: IUserProfileService = {
         return {
           ...t,
           likes:         d.like_count    ?? t.likes,
+          reposts:    d.repost_count  ?? t.reposts,
           commentsCount: d.comment_count ?? t.commentsCount,
           isLiked:       d.is_liked      ?? false,
+          isReposted: d.is_reposted   ?? false,
         };
       }
       return t;
