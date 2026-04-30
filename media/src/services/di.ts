@@ -79,7 +79,7 @@ import { mockChartService } from "./mocks/chart.mock";
 import { realChartService } from "./api/chart.api";
 import type { IChartService } from "@/types/chart.types";
 
-// notification (new — page-level; distinct from settings notificationService)
+// notification 
 import { mockNotificationService } from "./mocks/notification.mock";
 import { realNotificationService } from "./api/notification.api";
 
@@ -173,20 +173,6 @@ export const accountService = {
   updateSettings: ENV.USE_MOCK_API ? updateMockAccountSettings : updateAccountSettingsOnAPI,
   sendPasswordResetEmail: ENV.USE_MOCK_API ? sendMockPasswordResetEmail : sendPasswordResetEmailFromAPI,
 };
-
-/**
- * Settings - Notification Service
- */
-// export const notificationService = {
-//   getSettings: ENV.USE_MOCK_API ? getMockNotificationSettings : getNotificationSettingsFromAPI,
-//   updateSettings: ENV.USE_MOCK_API ? updateMockNotificationSettings : updateNotificationSettingsOnAPI,
-// };
-export const notificationService = {
-  // Forced to Mock
-  getSettings: getMockNotificationSettings,
-  updateSettings: updateMockNotificationSettings,
-};
-
 /**
  * Settings - Content Service
  */
@@ -309,6 +295,10 @@ export const engagementService: IEngagementService = ENV.USE_MOCK_API
   ? mockEngagementService
   : realEngagementService;
   
+export const notificationService = ENV.USE_MOCK_API
+  ? mockNotificationService
+  : realNotificationService;
+
 // Export individual services for direct imports if needed
 export {
   RealAuthService,

@@ -17,14 +17,25 @@ export function HistoryTab({ overview, onClearHistory }: IHistoryTabProps) {
   const [isClearing, setIsClearing] = useState(false);
 
   const filteredRecent = useMemo(() =>
-    overview.recentlyPlayed.filter(i => i.label.toLowerCase().includes(filter.toLowerCase())),
+    overview.recentlyPlayed.filter(i =>
+      i.label.toLowerCase().includes(filter.toLowerCase())
+    ),
     [overview.recentlyPlayed, filter]);
 
+  const playedTrackIds = useMemo(() => {
+    const ids = new Set<string>();
+    overview.recentlyPlayed.forEach(i => { if (i.type === "track") ids.add(i.id); });
+    return ids;
+  }, [overview.recentlyPlayed]);
+
   const filteredTracks = useMemo(() =>
-    overview.likes.filter(t =>
-      t.title.toLowerCase().includes(filter.toLowerCase()) ||
-      t.artist.toLowerCase().includes(filter.toLowerCase())
-    ), [overview.likes, filter]);
+    overview.likes
+      .filter(t => playedTrackIds.has(t.id))
+      .filter(t =>
+        t.title.toLowerCase().includes(filter.toLowerCase()) ||
+        t.artist.toLowerCase().includes(filter.toLowerCase())
+      ),
+    [overview.likes, playedTrackIds, filter]);
 
   const handleClearHistory = async () => {
     try {

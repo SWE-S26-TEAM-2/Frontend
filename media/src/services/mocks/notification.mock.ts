@@ -2,6 +2,7 @@ import type {
   INotificationsResponse,
   INotification,
   IRecentFollower,
+  INotificationService,
 } from "@/types/notification.types";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -90,23 +91,22 @@ const MOCK_NOTIFICATIONS: INotification[] = [
 ];
 
 const MOCK_RECENT_FOLLOWERS: IRecentFollower[] = [
-  { id: "u1", username: "sc user", avatarUrl: null, isFollowing: false },
-  { id: "u5", username: "BeatMaker_X",  avatarUrl: null, isFollowing: false },
+  { id: "u1", username: "sc user",     avatarUrl: null, isFollowing: false },
+  { id: "u5", username: "BeatMaker_X", avatarUrl: null, isFollowing: false },
 ];
 
-// ── In-memory mutable state (simulates real server state) ────────────────────
-
 let mockNotifications = [...MOCK_NOTIFICATIONS];
+let mockRecentFollowers = [...MOCK_RECENT_FOLLOWERS];
 
-// ── Mock service ─────────────────────────────────────────────────────────────
+// ── Mock service ──────────────────────────────────────────────────────────────
 
-export const mockNotificationService = {
+export const mockNotificationService: INotificationService = {
   async getNotifications(): Promise<INotificationsResponse> {
     await new Promise(r => setTimeout(r, 300));
     return {
-      notifications: [...mockNotifications],
-      unreadCount: mockNotifications.filter(n => !n.isRead).length,
-      recentFollowers: MOCK_RECENT_FOLLOWERS,
+      notifications:   [...mockNotifications],
+      unreadCount:     mockNotifications.filter(n => !n.isRead).length,
+      recentFollowers: [...mockRecentFollowers],
     };
   },
 
@@ -121,15 +121,22 @@ export const mockNotificationService = {
       n.id === notificationId ? { ...n, isRead: true } : n
     );
   },
-
-  async toggleFollow(actorId: string): Promise<{ isFollowing: boolean }> {
+  async toggleFollow(
+    actorUsername: string,
+    currentlyFollowing: boolean,
+  ): Promise<{ isFollowing: boolean }> {
     await new Promise(r => setTimeout(r, 200));
-    let nextIsFollowing = false;
-    mockNotifications = mockNotifications.map(n => {
-      if (n.actor.id !== actorId) return n;
-      nextIsFollowing = !n.actor.isFollowing;
-      return { ...n, actor: { ...n.actor, isFollowing: nextIsFollowing } };
-    });
+    const nextIsFollowing = !currentlyFollowing;
+
+    mockNotifications = mockNotifications.map(n =>
+      n.actor.username === actorUsername
+        ? { ...n, actor: { ...n.actor, isFollowing: nextIsFollowing } }
+        : n
+    );
+    mockRecentFollowers = mockRecentFollowers.map(f =>
+      f.username === actorUsername ? { ...f, isFollowing: nextIsFollowing } : f
+    );
+
     return { isFollowing: nextIsFollowing };
   },
 };

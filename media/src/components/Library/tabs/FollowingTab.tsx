@@ -3,24 +3,9 @@
 import { useState, useMemo } from "react";
 import { FilterInput } from "@/components/Library/LibraryControls";
 import { CoverBox } from "@/components/Library/CoverBox";
-//import { VerifiedIcon } from "@/components/Icons/ProfileIcons";
+import { VerifiedIcon } from "@/components/Icons/ProfileIcons";
 import { formatNumber } from "@/utils/formatNumber";
 import type { ILibraryFollowing } from "@/types/library.types";
-
-// JUST TILL MERGING LAST PR
-export const VerifiedIcon = () => (
-  <svg width={14} height={14} viewBox="0 0 24 24">
-    <circle cx="12" cy="12" r="12" fill="#1da1f2" />
-    <path
-      d="M6.5 12.5l3.5 3.5 7-7"
-      stroke="white"
-      strokeWidth={2.2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      fill="none"
-    />
-  </svg>
-);
 
 interface IFollowingTabProps {
   following: ILibraryFollowing[];

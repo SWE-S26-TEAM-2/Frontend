@@ -24,16 +24,12 @@ export interface INotification {
   commentText?: string;
 }
 
-// ── Recent follower (sidebar) ────────────────────────────────────────────────
-
 export interface IRecentFollower {
   id: string;
   username: string;
   avatarUrl: string | null;
   isFollowing: boolean;
 }
-
-// ── Service response shapes ──────────────────────────────────────────────────
 
 export interface INotificationsResponse {
   notifications: INotification[];
@@ -56,4 +52,11 @@ export interface IRawNotification {
 
 export interface IRawNotificationsResponse {
   notifications: IRawNotification[];
+}
+
+export interface INotificationService {
+  getNotifications(): Promise<INotificationsResponse>;
+  markAllAsRead(): Promise<void>;
+  markAsRead(notificationId: string): Promise<void>;
+  toggleFollow(actorUsername: string, currentlyFollowing: boolean): Promise<{ isFollowing: boolean }>;
 }

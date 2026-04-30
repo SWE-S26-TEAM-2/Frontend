@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ENV } from "@/config/env";
-import { mockLibraryService } from "@/services/mocks/library.mock";
-import { realLibraryService } from "@/services/api/library.api";
+import { useRouter } from "next/navigation";
+import { libraryService } from "@/services/di";
 import { LikesTab }      from "@/components/Library/tabs/LikesTab";
 import { PlaylistsTab }  from "@/components/Library/tabs/PlaylistTab";
 import { AlbumsTab }     from "@/components/Library/tabs/AlbumsTab";
@@ -20,25 +19,36 @@ import {
 } from "@/components/Library/overview/LibraryOverviewSections";
 import type { ILibraryOverview, LibraryTab } from "@/types/library.types";
 
-// Module-level service selection is fine — ENV.USE_MOCK_API is a build-time
-// constant, so this never changes after initial evaluation.
-const libraryService = ENV.USE_MOCK_API ? mockLibraryService : realLibraryService;
+// Bug 1 fix: removed mockLibraryService/realLibraryService direct imports and the
+// manual ENV.USE_MOCK_API switch — libraryService from di.ts is already resolved.
+
+// Bug 3 fix: no useAuth hook exists in this codebase. Auth state lives in
+// localStorage under "auth_token" (written by RealAuthService.saveTokens).
+// Reading it directly here — no invented abstraction needed.
+const getIsAuthenticated = (): boolean => {
+  if (typeof window === "undefined") return false;
+  return Boolean(window.localStorage.getItem("auth_token"));
+};
 
 const TABS: LibraryTab[] = [
   "Overview", "Likes", "Playlists", "Albums", "Stations", "Following", "History",
 ];
 
 export default function LibraryPage() {
-  const [activeTab, setActiveTab]   = useState<LibraryTab>("Overview");
-  const [overview, setOverview]     = useState<ILibraryOverview | null>(null);
-  // Fix: renamed from `loading` → `isLoading` and `error` → `errorMessage`
-  // per the boolean-prefix and descriptive-naming conventions.
-  const [isLoading, setIsLoading]   = useState(true);
+  const router = useRouter();
+
+  const [activeTab, setActiveTab]       = useState<LibraryTab>("Overview");
+  const [overview, setOverview]         = useState<ILibraryOverview | null>(null);
+  const [isLoading, setIsLoading]       = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fix: renamed from `loadAsync` → `fetchOverviewAsync` per the
-    // fetchXxxAsync naming convention in the code style guide.
+    // Bug 3 fix: redirect unauthenticated users before any API call fires.
+    if (!getIsAuthenticated()) {
+      router.replace("/login");
+      return;
+    }
+
     async function fetchOverviewAsync() {
       try {
         setIsLoading(true);
@@ -50,9 +60,8 @@ export default function LibraryPage() {
         setIsLoading(false);
       }
     }
-    fetchOverviewAsync(); // eslint-disable-line react-hooks/exhaustive-deps
-    // libraryService is a stable module-level reference — safe to omit.
-  }, []);
+    fetchOverviewAsync();
+  }, [router]);
 
   const handleClearHistory = async () => {
     await libraryService.clearHistory();

@@ -2,19 +2,16 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import Image from "next/image";
-import { ENV } from "@/config/env";
-import { mockNotificationService } from "@/services/mocks/notification.mock";
-import { realNotificationService } from "@/services/api/notification.api";
+// Bug 6 fix: removed direct imports of mockNotificationService / realNotificationService
+// and the module-level ENV.USE_MOCK_API switch. notificationService is already resolved
+// in di.ts — importing it directly keeps DI centralised across all pages.
+import { notificationService } from "@/services/di";
 import type {
   INotification,
   INotificationsResponse,
   IRecentFollower,
   INotificationFilter,
 } from "@/types/notification.types";
-
-const notificationService = ENV.USE_MOCK_API
-  ? mockNotificationService
-  : realNotificationService;
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -42,7 +39,6 @@ function formatTimeAgo(isoDate: string): string {
 
 // ── Sub-components ───────────────────────────────────────────────────────────
 
-// Avatar circle with image or coloured initial fallback
 function NotificationAvatar({
   username,
   avatarUrl,
@@ -52,7 +48,6 @@ function NotificationAvatar({
   avatarUrl: string | null;
   size?: number;
 }) {
-  // Deterministic colour from username — same user always gets same colour
   const COLOURS = ["#0d6efd","#6f42c1","#d63384","#0dcaf0","#198754","#fd7e14","#dc3545"];
   const colourIndex = username.charCodeAt(0) % COLOURS.length;
   const bg = COLOURS[colourIndex];
@@ -71,7 +66,6 @@ function NotificationAvatar({
   );
 }
 
-// "..." context menu (dismiss / mark read)
 function NotificationMenu({
   notificationId,
   onMarkRead,
@@ -116,7 +110,6 @@ function NotificationMenu({
   );
 }
 
-// Follow / Unfollow button
 function FollowButton({
   actorId,
   isFollowing,
@@ -160,7 +153,6 @@ function NotificationItem({
   notification: INotification;
   onMarkRead:     (id: string)     => void;
   onToggleFollow: (actorId: string, currentlyFollowing: boolean) => Promise<void>;
-  
 }) {
   const timeAgo = useMemo(
     () => formatTimeAgo(notification.createdAt),
@@ -169,10 +161,10 @@ function NotificationItem({
   );
 
   const hasFollowButton =
-    notification.type === "follow" ||
-    notification.type === "like"   ||
-    notification.type === "repost" ||
-    notification.type === "comment"||
+    notification.type === "follow"    ||
+    notification.type === "like"      ||
+    notification.type === "repost"    ||
+    notification.type === "comment"   ||
     notification.type === "new_track";
 
   return (
@@ -181,7 +173,6 @@ function NotificationItem({
         !notification.isRead ? "bg-[#0f0f0f]" : ""
       }`}
     >
-      {/* Unread dot */}
       <div className="w-2 shrink-0">
         {!notification.isRead && (
           <div className="w-2 h-2 rounded-full bg-[#ff5500]" />
@@ -193,7 +184,6 @@ function NotificationItem({
         avatarUrl={notification.actor.avatarUrl}
       />
 
-      {/* Text block */}
       <div className="flex-1 min-w-0">
         <p className="text-[14px] text-white leading-snug">
           <span className="font-semibold">{notification.actor.username}</span>
@@ -207,7 +197,6 @@ function NotificationItem({
           <p className="text-[13px] text-[#888] mt-0.5 truncate">&ldquo;{notification.commentText}&rdquo;</p>
         )}
         <div className="flex items-center gap-1.5 mt-1 text-[12px] text-[#666]">
-          {/* Type icon */}
           {notification.type === "like" && (
             <svg width={12} height={12} viewBox="0 0 24 24" fill="#ff5500">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
@@ -231,15 +220,14 @@ function NotificationItem({
             </svg>
           )}
           {notification.type === "new_track" && (
-          <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth={2}>
-            <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
-           </svg>
-           )}
+            <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth={2}>
+              <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+            </svg>
+          )}
           <span>{timeAgo}</span>
         </div>
       </div>
 
-      {/* Actions */}
       <div className="flex items-center gap-2 shrink-0">
         {hasFollowButton && (
           <FollowButton
@@ -257,7 +245,6 @@ function NotificationItem({
   );
 }
 
-// Filter dropdown 
 function FilterDropdown({
   activeFilter,
   onChange,
@@ -314,7 +301,6 @@ function FilterDropdown({
   );
 }
 
-// Recent followers sidebar card
 function RecentFollowerCard({
   follower,
   onToggleFollow,
@@ -338,12 +324,11 @@ function RecentFollowerCard({
 // ── Main page ────────────────────────────────────────────────────────────────
 
 export default function NotificationsPage() {
-  const [data, setData]               = useState<INotificationsResponse | null>(null);
-  const [isLoading, setIsLoading]     = useState(true);
+  const [data, setData]                 = useState<INotificationsResponse | null>(null);
+  const [isLoading, setIsLoading]       = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<INotificationFilter>("all");
 
-  // Lazy initialisers — safe in "use client", avoids useEffect setState cascade
   const [nowMs] = useState<number>(() => Date.now());
 
   useEffect(() => {
@@ -358,7 +343,7 @@ export default function NotificationsPage() {
         setIsLoading(false);
       }
     }
-    fetchNotificationsAsync(); // eslint-disable-line react-hooks/exhaustive-deps
+    fetchNotificationsAsync();
   }, []);
 
   const filteredNotifications = useMemo(() => {
@@ -393,10 +378,12 @@ export default function NotificationsPage() {
     });
   };
 
-const handleToggleFollow = async (actorId: string, currentlyFollowing: boolean) => {
-  // Find the username for this actorId
-  const actor = data?.notifications.find(n => n.actor.id === actorId)?.actor;
-  const actorUsername = actor?.username ?? actorId;
+  // The page tracks actors by id internally. Before calling the service (which
+  // identifies users by username for API calls), we look up the username here.
+  const handleToggleFollow = async (actorId: string, currentlyFollowing: boolean) => {
+    const actor = data?.notifications.find(n => n.actor.id === actorId)?.actor
+               ?? data?.recentFollowers.find(f => f.id === actorId);
+    const actorUsername = actor?.username ?? actorId;
 
     const result = await notificationService.toggleFollow(actorUsername, currentlyFollowing);
     setData(prev => {
@@ -415,7 +402,6 @@ const handleToggleFollow = async (actorId: string, currentlyFollowing: boolean) 
     });
   };
 
-  // nowMs used to suppress hydration warning — formatTimeAgo runs client-only
   void nowMs;
 
   if (isLoading) return (
@@ -438,7 +424,6 @@ const handleToggleFollow = async (actorId: string, currentlyFollowing: boolean) 
           {/* ── Main column ────────────────────────────────────────────── */}
           <div className="flex-1 min-w-0">
 
-            {/* Header row */}
             <div className="flex items-center justify-between mb-8">
               <h1 className="text-[32px] font-bold text-white">Notifications</h1>
               {data.unreadCount > 0 && (
@@ -451,12 +436,10 @@ const handleToggleFollow = async (actorId: string, currentlyFollowing: boolean) 
               )}
             </div>
 
-            {/* Filter dropdown */}
             <div className="mb-6">
               <FilterDropdown activeFilter={activeFilter} onChange={setActiveFilter} />
             </div>
 
-            {/* Notification list */}
             {filteredNotifications.length === 0 ? (
               <div className="py-20 text-center text-[#555] text-[15px]">
                 No {activeFilter === "all" ? "" : activeFilter} notifications yet
