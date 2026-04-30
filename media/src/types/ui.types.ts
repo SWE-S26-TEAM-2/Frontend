@@ -33,6 +33,7 @@ export interface IProfileStatsProps {
 export interface IProfileActionsProps {
   user: IUser;
   onEditOpen?: () => void;
+  isFollowing?: boolean;
 }
 
 export interface IProfileSidebarProps {

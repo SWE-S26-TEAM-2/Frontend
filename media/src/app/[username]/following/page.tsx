@@ -15,6 +15,10 @@ export default function FollowingPage({ params }: { params: Promise<{ username: 
   const { username } = React.use(params);
   const router = useRouter();
 
+  const storedUsername = typeof window !== "undefined"
+    ? window.localStorage.getItem("auth_username") ?? ""
+    : "";
+
   const [user, setUser]           = useState<IUser | null>(null);
   const [following, setFollowing] = useState<IFollowing[]>([]);
   const [loading, setLoading]     = useState(true);
@@ -29,8 +33,16 @@ export default function FollowingPage({ params }: { params: Promise<{ username: 
         const fetchedFollowing = await userProfileService.getFollowing(username);
         setUser(fetchedUser);
         setFollowing(fetchedFollowing);
+
         if (fetchedUser.isOwner) {
+          // You follow everyone in your own following list
           setFollowed(new Set(fetchedFollowing.map(f => f.username)));
+        } else {
+          // Fetch the logged-in user's own following to know who they already follow
+          if (storedUsername) {
+            const myFollowing = await userProfileService.getFollowing(storedUsername);
+            setFollowed(new Set(myFollowing.map(f => f.username)));
+          }
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong");
@@ -127,6 +139,7 @@ export default function FollowingPage({ params }: { params: Promise<{ username: 
               {following.map((f) => {
                 const isFollowed = followed.has(f.username);
                 const isHovered = hoveredId === f.id;
+                const isSelf = f.username === storedUsername;
                 return (
                   <div
                     key={f.id}
@@ -137,17 +150,17 @@ export default function FollowingPage({ params }: { params: Promise<{ username: 
                   >
                     <div className="w-36 h-36 rounded-full overflow-hidden bg-[#2a2a2a] flex items-center justify-center shrink-0 group-hover:ring-2 group-hover:ring-[#ff5500] transition-all">
                       {f.avatarUrl ? (
-                        <Image src={f.avatarUrl} alt={f.username} width={144} height={144} className="object-cover w-full h-full" />
+                        <Image src={f.avatarUrl} alt={f.displayName ?? f.username} width={144} height={144} className="object-cover w-full h-full" />
                       ) : (
                         <span className="text-4xl font-bold text-white select-none">
-                          {f.username[0].toUpperCase()}
+                          {(f.displayName ?? f.username)[0].toUpperCase()}
                         </span>
                       )}
                     </div>
 
                     <div className="flex items-center gap-1 justify-center w-full">
                       <span className="text-[13px] text-[#ddd] font-medium text-center group-hover:text-white transition-colors truncate">
-                        {f.username}
+                        {f.displayName ?? f.username}
                       </span>
                       {f.isVerified && <VerifiedIcon />}
                     </div>
@@ -156,7 +169,7 @@ export default function FollowingPage({ params }: { params: Promise<{ username: 
                       {formatNumber(f.followers)} followers
                     </span>
 
-                    {isHovered ? (
+                    {isHovered && !isSelf ? (
                       <button
                         onClick={(e) => handleFollowToggle(e, f.username)}
                         className={`text-xs font-medium rounded px-4 py-1 border transition-all cursor-pointer ${

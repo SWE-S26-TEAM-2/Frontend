@@ -10,7 +10,8 @@ export interface IRelatedTracksProps {
 export interface ITrackCardProps {
   track: ITrack;
   onPlay: (track: ITrack) => void;
-}
+  onLikeChange?: (trackId: string, isLiked: boolean, likeCount: number) => void;
+} 
 
 export interface ITrackCoverProps {
   url?: string | null;
@@ -46,6 +47,8 @@ export interface ITrack {
   likes: number;
   plays: number;
   commentsCount?: number;
+  reposts?: number;  
+  isReposted?: boolean;
 
   // UI state (frontend only)
   isLiked?: boolean;

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { userProfileService } from "@/services/di";
+import { userProfileService, engagementService } from "@/services/di";
 import type { IUser, ILikedTrack } from "@/types/userProfile.types";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
@@ -15,8 +15,16 @@ import { PlayIcon } from "@/components/Icons/PlayerIcons";
 import { ShareIcon } from "@/components/Icons/TrackIcons";
 import { formatNumber } from "@/utils/formatNumber";
 import { useWaveform } from "@/hooks/useWaveform";
+import { usePlayerStore } from "@/store/playerStore";
 
-function LikedTrackRow({ track }: { track: ILikedTrack }) {
+interface ILikedTrackRowProps {
+  track: ILikedTrack;
+  isLiked: boolean;
+  onPlay: (track: ILikedTrack) => void;
+  onToggleLike: (trackId: string) => void;
+}
+
+function LikedTrackRow({ track, isLiked, onPlay, onToggleLike }: ILikedTrackRowProps) {
   const waveform = useWaveform(track.id);
   return (
     <div className="flex items-start gap-4 py-5 border-b border-[#1a1a1a] group hover:bg-white/2 transition-colors px-2 -mx-2 rounded">
@@ -24,7 +32,10 @@ function LikedTrackRow({ track }: { track: ILikedTrack }) {
         <TrackCover size={160} url={track.coverUrl} alt={track.title} accentColor={track.accentColor ?? "#1a1a2e"} />
       </div>
       <div className="shrink-0 self-center">
-        <button className="w-11 h-11 rounded-full border-2 border-[#ff5500] flex items-center justify-center text-[#ff5500] hover:bg-[#ff5500] hover:text-white transition-colors cursor-pointer bg-transparent">
+        <button
+          onClick={() => onPlay(track)}
+          className="w-11 h-11 rounded-full border-2 border-[#ff5500] flex items-center justify-center text-[#ff5500] hover:bg-[#ff5500] hover:text-white transition-colors cursor-pointer bg-transparent"
+        >
           <PlayIcon />
         </button>
       </div>
@@ -35,8 +46,15 @@ function LikedTrackRow({ track }: { track: ILikedTrack }) {
         </div>
         <Waveform data={waveform} height={52} playedPercent={0} playedColor="#ff5500" unplayedColor="#333" />
         <div className="flex items-center gap-3 flex-wrap">
-          <button className="flex items-center gap-1.5 text-[#ff5500] text-xs cursor-pointer bg-transparent border border-[#ff5500]/40 rounded px-2.5 py-1 hover:border-[#ff5500] transition-colors">
-            <HeartIcon isFilled={true} />
+          <button
+            onClick={() => onToggleLike(track.id)}
+            className={`flex items-center gap-1.5 text-xs cursor-pointer bg-transparent border rounded px-2.5 py-1 transition-colors ${
+              isLiked
+                ? "text-[#ff5500] border-[#ff5500]/40 hover:border-[#ff5500]"
+                : "text-[#aaa] border-[#2e2e2e] hover:border-white"
+            }`}
+          >
+            <HeartIcon isFilled={isLiked} />
             {track.likes !== undefined ? formatNumber(track.likes) : ""}
           </button>
           <button className="flex items-center gap-1.5 text-[#aaa] text-xs cursor-pointer bg-transparent border border-[#2e2e2e] rounded px-2.5 py-1 hover:border-white transition-colors">
@@ -66,10 +84,12 @@ export default function LikesPage({ params }: { params: Promise<{ username: stri
 
   const [user, setUser]       = useState<IUser | null>(null);
   const [likes, setLikes]     = useState<ILikedTrack[]>([]);
+  const [likedState, setLikedState] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState<string | null>(null);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const shareButtonRef = useRef<HTMLButtonElement>(null);
+  const { setTrack } = usePlayerStore();
 
   useEffect(() => {
     async function loadAsync() {
@@ -78,6 +98,7 @@ export default function LikesPage({ params }: { params: Promise<{ username: stri
         const fetchedLikes = await userProfileService.getUserLikes(username);
         setUser(fetchedUser);
         setLikes(fetchedLikes);
+        setLikedState(Object.fromEntries(fetchedLikes.map(l => [l.id, true])));
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong");
       } finally {
@@ -100,6 +121,38 @@ export default function LikesPage({ params }: { params: Promise<{ username: stri
   );
 
   const displayName = user.displayName ?? user.username;
+
+  const handleToggleLike = async (trackId: string) => {
+    const isCurrentlyLiked = likedState[trackId] ?? true;
+    setLikedState(prev => ({ ...prev, [trackId]: !isCurrentlyLiked }));
+    try {
+      if (isCurrentlyLiked) {
+        await engagementService.unlikeTrack(trackId);
+      } else {
+        await engagementService.likeTrack(trackId);
+      }
+    } catch {
+      setLikedState(prev => ({ ...prev, [trackId]: isCurrentlyLiked }));
+    }
+  };
+
+  const handlePlay = (track: ILikedTrack) => {
+    if (!track.url) return;
+    setTrack({
+      id:            track.id,
+      title:         track.title,
+      artist:        track.artist,
+      albumArt:      track.coverUrl ?? "",
+      url:           track.url,
+      duration:      track.duration ?? 0,
+      likes:         track.likes ?? 0,
+      plays:         track.plays ?? 0,
+      commentsCount: track.comments ?? 0,
+      isLiked:       true,
+      createdAt:     "",
+      updatedAt:     "",
+    });
+  };
 
   return (
     <div className="min-h-screen bg-black text-white font-sans pb-15">
@@ -169,7 +222,13 @@ export default function LikesPage({ params }: { params: Promise<{ username: stri
         ) : (
           <div className="flex flex-col">
             {likes.map((track) => (
-              <LikedTrackRow key={track.id} track={track} />
+              <LikedTrackRow
+                key={track.id}
+                track={track}
+                isLiked={likedState[track.id] ?? true}
+                onPlay={handlePlay}
+                onToggleLike={handleToggleLike}
+              />
             ))}
           </div>
         )}

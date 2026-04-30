@@ -6,17 +6,21 @@ import { ITrackCardProps } from "@/types/track.types";
 import { formatNumber } from "@/utils/formatNumber";
 import { TrackCover } from "./TrackCover";
 import { Waveform } from "@/components/Track/Waveform";
-import { HeartIcon, ShareIcon, CopyIcon, MoreIcon, IconBtn } from "@/components/Icons/TrackIcons";
+import { HeartIcon, ShareIcon, CopyIcon, MoreIcon, IconBtn, RepostIcon } from "@/components/Icons/TrackIcons";
 import { ShareModal } from "@/components/Share/Share";
 import { useWaveform } from "@/hooks/useWaveform";
 import { usePlayerStore } from "@/store/playerStore";
+import { engagementService } from "@/services/di";
 
-export function TrackCard({ track, onPlay }: ITrackCardProps) {
+export function TrackCard({ track, onPlay, onLikeChange }: ITrackCardProps) {
   const [isLiked, setIsLiked] = useState<boolean>(track.isLiked ?? false);
+  const [likes, setLikes] = useState<number>(track.likes);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const shareBtnRef = useRef<HTMLSpanElement>(null);
   const moreBtnRef = useRef<HTMLSpanElement>(null);
+  const [isReposted, setIsReposted] = useState<boolean>(track.isReposted ?? false);
+  const [reposts, setReposts] = useState<number>(track.reposts ?? 0);
 
   const { currentTrack, isPlaying, currentTime, duration, setCurrentTime, togglePlay, addToQueue } =
     usePlayerStore();
@@ -47,13 +51,43 @@ export function TrackCard({ track, onPlay }: ITrackCardProps) {
     return () => document.removeEventListener("mousedown", handler);
   }, [isMoreOpen]);
 
-  const handleLikeToggle = () => setIsLiked((v) => !v);
+  const handleLikeToggle = async () => {
+    const newLiked = !isLiked;
+    setIsLiked(newLiked);
+    setLikes((prev) => (newLiked ? prev + 1 : prev - 1));
+    try {
+      const result = newLiked
+        ? await engagementService.likeTrack(track.id)
+        : await engagementService.unlikeTrack(track.id);
+      setLikes(result.likeCount);
+      onLikeChange?.(track.id, newLiked, result.likeCount);
+    } catch {
+      setIsLiked(!newLiked);
+      setLikes(track.likes);
+    }
+  };
 
   const handleShare = () => setIsShareOpen(true);
 
   const handleCopy = () => {
     if (typeof window !== "undefined")
       navigator.clipboard.writeText(`${track.artist} - ${track.title}`);
+  };
+
+  const handleRepostToggle = async () => {
+    const newReposted = !isReposted;
+    setIsReposted(newReposted);
+    setReposts((prev) => (newReposted ? prev + 1 : prev - 1));
+    try {
+      if (newReposted) {
+        await engagementService.repostTrack(track.id);
+      } else {
+        await engagementService.removeRepost(track.id);
+      }
+    } catch {
+      setIsReposted(!newReposted);
+      setReposts((prev) => (newReposted ? prev - 1 : prev + 1));
+    }
   };
 
   const waveform = useWaveform(track.id);
@@ -106,9 +140,15 @@ export function TrackCard({ track, onPlay }: ITrackCardProps) {
           <div className="flex gap-1.5 items-center">
             <IconBtn
               icon={<HeartIcon isFilled={isLiked} />}
-              count={isLiked ? track.likes + 1 : track.likes}
+              count={likes}
               active={isLiked}
               onClick={handleLikeToggle}
+            />
+            <IconBtn
+              icon={<RepostIcon />}
+              count={reposts}
+              active={isReposted}
+              onClick={handleRepostToggle}
             />
             <span ref={shareBtnRef} className="inline-flex">
               <IconBtn icon={<ShareIcon />} onClick={handleShare} />

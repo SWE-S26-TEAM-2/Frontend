@@ -13,6 +13,10 @@ export default function FollowersPage({ params }: { params: Promise<{ username: 
   const { username } = React.use(params);
   const router = useRouter();
 
+  const storedUsername = typeof window !== "undefined"
+    ? window.localStorage.getItem("auth_username") ?? ""
+    : "";
+
   const [user, setUser]           = useState<IUser | null>(null);
   const [followers, setFollowers] = useState<IFollower[]>([]);
   const [loading, setLoading]     = useState(true);
@@ -27,6 +31,12 @@ export default function FollowersPage({ params }: { params: Promise<{ username: 
         const fetchedFollowers = await userProfileService.getFollowers(username);
         setUser(fetchedUser);
         setFollowers(fetchedFollowers);
+
+        // Seed who the logged-in user already follows
+        if (storedUsername) {
+          const myFollowing = await userProfileService.getFollowing(storedUsername);
+          setFollowing(new Set(myFollowing.map(f => f.username)));
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong");
       } finally {
@@ -122,6 +132,7 @@ export default function FollowersPage({ params }: { params: Promise<{ username: 
               {followers.map((f) => {
                 const isFollowing = following.has(f.username);
                 const isHovered = hoveredId === f.id;
+                const isSelf = f.username === storedUsername;
                 return (
                   <div
                     key={f.id}
@@ -132,19 +143,19 @@ export default function FollowersPage({ params }: { params: Promise<{ username: 
                   >
                     <div className="w-36 h-36 rounded-full overflow-hidden bg-[#2a2a2a] flex items-center justify-center shrink-0 group-hover:ring-2 group-hover:ring-[#ff5500] transition-all">
                       {f.avatarUrl ? (
-                        <Image src={f.avatarUrl} alt={f.username} width={144} height={144} className="object-cover w-full h-full" />
+                        <Image src={f.avatarUrl} alt={f.displayName ?? f.username} width={144} height={144} className="object-cover w-full h-full" />
                       ) : (
                         <span className="text-4xl font-bold text-white select-none">
-                          {f.username[0].toUpperCase()}
+                          {(f.displayName ?? f.username)[0].toUpperCase()}
                         </span>
                       )}
                     </div>
 
                     <span className="text-[13px] text-[#ddd] font-medium text-center group-hover:text-white transition-colors truncate w-full">
-                      {f.username}
+                      {f.displayName ?? f.username}
                     </span>
 
-                    {isHovered ? (
+                    {isHovered && !isSelf ? (
                       <button
                         onClick={(e) => handleFollowToggle(e, f.username)}
                         className={`text-xs font-medium rounded px-4 py-1 border transition-all cursor-pointer ${

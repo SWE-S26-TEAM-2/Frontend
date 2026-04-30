@@ -52,6 +52,12 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
     setIsEditOpen(true);
   };
 
+  const handleTrackLikeChange = (trackId: string, isLiked: boolean, likeCount: number) => {
+  setTracks(prev =>
+    prev.map(t => t.id === trackId ? { ...t, isLiked, likes: likeCount } : t)
+  );
+};
+
   // Keep tab in sync if user navigates back/forward
   useEffect(() => {
     setActiveTab(initialTab());
@@ -80,7 +86,11 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
         }
 
         setUser(userToSet);
-        setTracks(fetchedTracks);
+        const likedTrackIds = new Set(fetchedLikes.map(l => l.id));
+        setTracks(fetchedTracks.map(t => ({
+          ...t,
+          isLiked: likedTrackIds.has(t.id),
+        })));
         setLikes(fetchedLikes);
         setFans(fetchedFans);
         setFollowers(fetchedFollowers);
@@ -118,8 +128,6 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   const handleSaveProfile = async (payload: IEditProfilePayload) => {
     if (!user) return;
     const updated = await userProfileService.updateProfile(user.id, payload);
-    // Preserve the URL username (slug) — the backend may return display_name
-    // in the username field after PATCH, which would break the profile URL.
     setUser({ ...updated, username: user.username });
   };
 
@@ -161,7 +169,7 @@ const handleBannerHeaderChange = async (url: string, file?: File) => {
       case "All":            return tracks;
       case "Popular tracks": return [...tracks].sort((a, b) => b.plays - a.plays);
       case "Tracks":         return tracks;
-      case "Reposts":        return [];
+      case "Reposts":        return tracks.filter(t => t.isReposted);
       case "Albums":
       case "Playlists":      return [];
       default:               return tracks;
@@ -169,6 +177,9 @@ const handleBannerHeaderChange = async (url: string, file?: File) => {
   }
 
   const filteredTracks = getFilteredTracks(activeTab);
+  const storedId = typeof window !== "undefined" 
+  ? window.localStorage.getItem("auth_user_id") : null;
+  const alreadyFollowing = followers.some(f => f.id === storedId);
 
   if (loading) return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
@@ -242,7 +253,11 @@ const handleBannerHeaderChange = async (url: string, file?: File) => {
                 </button>
               ))}
             </div>
-            <ProfileActions user={user} onEditOpen={handleEditOpen} />
+            <ProfileActions 
+              user={user} 
+              onEditOpen={handleEditOpen}
+              isFollowing={alreadyFollowing}
+            />
           </div>
 
           {/* Track list or playlist list or empty state */}
@@ -308,6 +323,7 @@ const handleBannerHeaderChange = async (url: string, file?: File) => {
                 key={track.id}
                 track={track}
                 onPlay={(t) => { setQueue(filteredTracks); setTrack(t); }}
+                onLikeChange={handleTrackLikeChange}
               />
             ))
           )}

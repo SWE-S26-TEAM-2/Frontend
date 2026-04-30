@@ -79,10 +79,9 @@ import { mockChartService } from "./mocks/chart.mock";
 import { realChartService } from "./api/chart.api";
 import type { IChartService } from "@/types/chart.types";
 
-// notification (new — page-level; distinct from settings notificationService)
+// notification 
 import { mockNotificationService } from "./mocks/notification.mock";
 import { realNotificationService } from "./api/notification.api";
-import type { INotificationService } from "@/types/notification.types";
 
 // admin
 import { mockAdminService } from "./mocks/admin.mock";
@@ -94,6 +93,15 @@ import { mockInsightsService } from './mocks/insights.mock';
 import { realInsightsService } from './api/insights.api';
 import type { IInsightsService } from '@/types/insights.types';
 
+// library
+import { mockLibraryService } from "./mocks/library.mock";
+import { realLibraryService } from "./api/library.api";
+import type { ILibraryService } from "@/types/library.types";
+
+//engagement 
+import { realEngagementService } from "./api/engagement.api";
+import { mockEngagementService } from "./mocks/engagement.mock";
+import type { IEngagementService } from "./api/engagement.api";
 /**
  * Authentication Service
  * Automatically switches between mock and real based on USE_MOCK_API flag
@@ -255,11 +263,7 @@ export const chartService: IChartService = ENV.USE_MOCK_API
 
 /**
  * Activity Notification Service (page-level — distinct from settings notificationService)
- */
-export const activityNotificationService: INotificationService = ENV.USE_MOCK_API
-  ? mockNotificationService
-  : realNotificationService;
-
+ 
 /**
  * Admin Service
  */
@@ -292,6 +296,23 @@ export const serviceStatus = {
  */
 export const insightsService: IInsightsService = mockInsightsService;
 
+/**
+ * Library Service
+ * Scoped to the authenticated user via the Bearer token in apiClient.
+ * Switches between mock and real based on USE_MOCK_API flag.
+ */
+export const libraryService: ILibraryService = ENV.USE_MOCK_API
+  ? mockLibraryService
+  : realLibraryService;
+
+export const engagementService: IEngagementService = ENV.USE_MOCK_API
+  ? mockEngagementService
+  : realEngagementService;
+  
+export const notificationsService = ENV.USE_MOCK_API
+  ? mockNotificationService
+  : realNotificationService;
+  
 // Export individual services for direct imports if needed
 export {
   RealAuthService,
