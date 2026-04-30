@@ -1,145 +1,359 @@
 "use client";
 
-import { useEffect, useState, useCallback, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { trackService, userProfileService } from "@/services/di";
-import { usePlayerStore } from "@/store/playerStore";
+import React, { useState, useEffect, useCallback, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import SearchBar from "@/components/Search/SearchBar";
 import { TrackCard } from "@/components/Track/TrackCard";
-import SearchTabs from "@/components/Search/SearchTabs";
-import UserSearchCard from "@/components/Search/UserSearchCard";
+import { searchService } from "@/services/di";
+import { userProfileService } from "@/services/di";
+import { resolveAvatarUrl, resolvePlaylistCover } from "@/services/api/search.api";
+import type {
+  ISearchResults,
+  ISearchUser,
+  ISearchPlaylist,
+  ITab,
+} from "@/types/search.types";
 import type { ITrack } from "@/types/track.types";
-import type { ISearchUser } from "@/types/userProfile.types";
+import { usePlayerStore } from "@/store/playerStore";
 
-type Tab = "tracks" | "people";
+// ── TABS ──────────────────────────────────────────────────────────────────────
 
-function SearchResults() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const q = searchParams.get("q") ?? "";
-  const tabParam = searchParams.get("tab") as Tab | null;
-  const activeTab: Tab = tabParam === "people" ? "people" : "tracks";
+const TABS: { id: ITab; label: string }[] = [
+  { id: "all",       label: "All"       },
+  { id: "tracks",    label: "Tracks"    },
+  { id: "people",    label: "People"    },
+  { id: "playlists", label: "Playlists" },
+];
 
-  const [tracks, setTracks] = useState<ITrack[]>([]);
-  const [users, setUsers] = useState<ISearchUser[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [searched, setSearched] = useState("");
-
-  const setTrack = usePlayerStore((s) => s.setTrack);
-  const setQueue = usePlayerStore((s) => s.setQueue);
-
-  const handleTabChange = (tab: Tab) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("tab", tab);
-    router.replace(`/search?${params.toString()}`);
-  };
-
-  const runSearch = useCallback(async (query: string) => {
-    if (!query.trim()) return;
-    setLoading(true);
-    try {
-      const [trackResults, userResults] = await Promise.all([
-        trackService.search(query),
-        userProfileService.searchUsers(query),
-      ]);
-      setTracks(trackResults);
-      setUsers(userResults);
-      setSearched(query);
-    } catch (err) {
-      console.error("Search failed:", err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (q) runSearch(q);
-  }, [q, runSearch]);
-
-  const handlePlay = (track: ITrack) => {
-    setQueue(tracks);
-    setTrack(track);
-  };
-
-  // ── Empty / no-query state ────────────────────────────────────────────────────
-  if (!q) {
-    return (
-      <div style={{ textAlign: "center", padding: "80px 0", color: "#555" }}>
-        <div style={{ fontSize: "48px", marginBottom: "16px" }}>🔍</div>
-        <p style={{ fontSize: "16px" }}>Search for tracks, artists, and more</p>
-      </div>
-    );
-  }
-
-  return (
-    <>
-      {/* Header */}
-      <div style={{ marginBottom: "24px" }}>
-        <h1 style={{ color: "#fff", fontSize: "22px", fontWeight: 700, margin: 0 }}>
-          {loading ? "Searching…" : searched ? `Results for "${searched}"` : ""}
-        </h1>
-      </div>
-
-      {/* Tabs */}
-      <SearchTabs
-        active={activeTab}
-        trackCount={tracks.length}
-        peopleCount={users.length}
-        onTabChange={handleTabChange}
-      />
-
-      {/* Loading skeleton */}
-      {loading && (
-        <div style={{ color: "#555", textAlign: "center", padding: "40px 0" }}>
-          Loading…
-        </div>
-      )}
-
-      {/* Tracks tab */}
-      {!loading && activeTab === "tracks" && (
-        <>
-          {tracks.length === 0 ? (
-            <div style={{ color: "#555", textAlign: "center", padding: "40px 0" }}>
-              No tracks found for &quot;{q}&quot;
-            </div>
-          ) : (
-            tracks.map((track) => (
-              <TrackCard key={track.id} track={track} onPlay={handlePlay} />
-            ))
-          )}
-        </>
-      )}
-
-      {/* People tab */}
-      {!loading && activeTab === "people" && (
-        <>
-          {users.length === 0 ? (
-            <div style={{ color: "#555", textAlign: "center", padding: "40px 0" }}>
-              No users found for &quot;{q}&quot;
-            </div>
-          ) : (
-            users.map((user) => (
-              <UserSearchCard key={user.id} user={user} />
-            ))
-          )}
-        </>
-      )}
-    </>
-  );
-}
+// ── PAGE ──────────────────────────────────────────────────────────────────────
 
 export default function SearchPage() {
   return (
-    <div
-      style={{
-        maxWidth: "780px",
-        margin: "0 auto",
-        padding: "32px 16px 120px",
-        fontFamily: "'Helvetica Neue', Arial, sans-serif",
-      }}
-    >
-      <Suspense fallback={<div style={{ color: "#555", padding: "40px 0", textAlign: "center" }}>Loading…</div>}>
-        <SearchResults />
-      </Suspense>
+    <Suspense fallback={null}>
+      <SearchInner />
+    </Suspense>
+  );
+}
+
+function SearchInner() {
+  const searchParams  = useSearchParams();
+  const queryParam    = searchParams.get("q") ?? "";
+
+  const [tab, setTab]         = useState<ITab>("all");
+  const [results, setResults] = useState<ISearchResults>({ tracks: [], users: [], playlists: [] });
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState<string | null>(null);
+
+  // ── Single effect — avoids setState-in-effect lint error ──────────────────
+  useEffect(() => {
+    setTab("all");
+
+    if (!queryParam.trim()) {
+      setResults({ tracks: [], users: [], playlists: [] });
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+
+    searchService.searchAll(queryParam)
+      .then((data) => {
+        if (!cancelled) {
+          setResults(data);
+          setLoading(false);
+        }
+      })
+      .catch((err: Error) => {
+        if (!cancelled) {
+          setError(err.message ?? "Something went wrong");
+          setLoading(false);
+        }
+      });
+
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryParam]);
+
+  const total = results.tracks.length + results.users.length + results.playlists.length;
+
+  const counts: Record<ITab, number> = {
+    all:       total,
+    tracks:    results.tracks.length,
+    people:    results.users.length,
+    playlists: results.playlists.length,
+  };
+
+  const { setTrack, setQueue } = usePlayerStore();
+
+  const handlePlay = useCallback((track: ITrack) => {
+    setQueue(results.tracks);
+    setTrack(track);
+  }, [results.tracks, setTrack, setQueue]);
+
+  return (
+    <div style={pg.page}>
+
+      {/* Header */}
+      <header style={pg.header}>
+        <div style={pg.headerInner}>
+          <Link href="/" style={pg.logo}>soundcloud</Link>
+          <div style={pg.searchWrapper}>
+            <SearchBar defaultValue={queryParam} />
+          </div>
+        </div>
+      </header>
+
+      <div style={pg.body}>
+
+        {/* Heading */}
+        {queryParam && (
+          <div style={pg.heading}>
+            <h1 style={pg.headingTitle}>
+              {loading ? "Searching…" : `Results for "${queryParam}"`}
+            </h1>
+            {!loading && !error && (
+              <span style={pg.headingCount}>{total} result{total !== 1 ? "s" : ""}</span>
+            )}
+          </div>
+        )}
+
+        {!queryParam && <EmptyState message="Start typing to find tracks, artists and playlists." />}
+        {error        && <ErrorState message={error} />}
+        {loading      && <LoadingSkeleton />}
+
+        {!loading && !error && queryParam && (
+          <>
+            {/* Tabs */}
+            <div style={pg.tabs}>
+              {TABS.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setTab(t.id)}
+                  style={{
+                    ...pg.tab,
+                    color:        tab === t.id ? "#fff" : "#666",
+                    borderBottom: tab === t.id ? "2px solid #ff5500" : "2px solid transparent",
+                  }}
+                >
+                  {t.label}
+                  {counts[t.id] > 0 && <span style={pg.badge}>{counts[t.id]}</span>}
+                </button>
+              ))}
+            </div>
+
+            {total === 0 && (
+              <EmptyState message={`No results for "${queryParam}". Try a different keyword.`} />
+            )}
+
+            {/* Tracks */}
+            {(tab === "all" || tab === "tracks") && results.tracks.length > 0 && (
+              <section style={pg.section}>
+                {tab === "all" && (
+                  <SectionHeader title="Tracks" count={results.tracks.length} onSeeAll={() => setTab("tracks")} />
+                )}
+                <div>
+                  {(tab === "all" ? results.tracks.slice(0, 5) : results.tracks).map((track) => (
+                    <TrackCard key={track.id} track={track} onPlay={handlePlay} />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* People */}
+            {(tab === "all" || tab === "people") && results.users.length > 0 && (
+              <section style={pg.section}>
+                {tab === "all" && (
+                  <SectionHeader title="People" count={results.users.length} onSeeAll={() => setTab("people")} />
+                )}
+                <div style={pg.userGrid}>
+                  {(tab === "all" ? results.users.slice(0, 4) : results.users).map((user) => (
+                    <UserCard key={user.user_id} user={user} />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Playlists */}
+            {(tab === "all" || tab === "playlists") && results.playlists.length > 0 && (
+              <section style={pg.section}>
+                {tab === "all" && (
+                  <SectionHeader title="Playlists" count={results.playlists.length} onSeeAll={() => setTab("playlists")} />
+                )}
+                <div style={pg.playlistGrid}>
+                  {(tab === "all" ? results.playlists.slice(0, 4) : results.playlists).map((pl) => (
+                    <PlaylistCard key={pl.playlist_id} playlist={pl} />
+                  ))}
+                </div>
+              </section>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
+
+// ── SUB-COMPONENTS ────────────────────────────────────────────────────────────
+
+function SectionHeader({ title, count, onSeeAll }: { title: string; count: number; onSeeAll: () => void }) {
+  return (
+    <div style={pg.sectionHeader}>
+      <h2 style={pg.sectionTitle}>{title}</h2>
+      {count > 5 && <button style={pg.seeAll} onClick={onSeeAll}>See all {count} →</button>}
+    </div>
+  );
+}
+
+function UserCard({ user }: { user: ISearchUser }) {
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
+
+  const handleFollow = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (followLoading) return;
+
+    const next = !isFollowing;
+    setIsFollowing(next); // optimistic update
+
+    setFollowLoading(true);
+    try {
+      if (next) {
+        await userProfileService.followUser(user.user_id);
+      } else {
+        await userProfileService.unfollowUser(user.user_id);
+      }
+    } catch (err) {
+      setIsFollowing(!next); // revert on failure
+      console.error("Follow action failed:", err);
+    } finally {
+      setFollowLoading(false);
+    }
+  };
+
+  return (
+    <div style={pg.userCard}>
+      <img
+        src={resolveAvatarUrl(user.profile_picture)}
+        alt={user.display_name}
+        style={pg.avatar}
+        onError={(e) => { (e.target as HTMLImageElement).src = "/default-avatar.png"; }}
+      />
+      <span style={pg.userName}>{user.display_name}</span>
+      <span style={pg.userType}>{user.account_type}</span>
+      <div style={pg.userStats}>
+        <span style={pg.stat}>{user.follower_count.toLocaleString()} followers</span>
+        <span style={pg.stat}>{user.track_count} tracks</span>
+      </div>
+      <button
+        onClick={handleFollow}
+        disabled={followLoading}
+        style={{
+          ...pg.followBtn,
+          background:    isFollowing ? "transparent" : "transparent",
+          borderColor:   isFollowing ? "#666" : "#ff5500",
+          color:         isFollowing ? "#666" : "#ff5500",
+          opacity:       followLoading ? 0.6 : 1,
+          cursor:        followLoading ? "not-allowed" : "pointer",
+        }}
+      >
+        {isFollowing ? "Following" : followLoading ? "…" : "Follow"}
+      </button>
+    </div>
+  );
+}
+
+function PlaylistCard({ playlist }: { playlist: ISearchPlaylist }) {
+  return (
+    <div style={pg.playlistCard}>
+      <div style={pg.plCover}>
+        <img
+          src={resolvePlaylistCover(playlist.cover_photo)}
+          alt={playlist.title}
+          style={pg.plCoverImg}
+          onError={(e) => { (e.target as HTMLImageElement).src = "/default-track-cover.png"; }}
+        />
+        <div style={pg.plOverlay}>▶</div>
+      </div>
+      <span style={pg.plTitle}>{playlist.title}</span>
+      {playlist.description && (
+        <span style={pg.plDesc}>
+          {playlist.description.slice(0, 64)}{playlist.description.length > 64 ? "…" : ""}
+        </span>
+      )}
+      <span style={pg.plMeta}>{playlist.track_count} track{playlist.track_count !== 1 ? "s" : ""}</span>
+    </div>
+  );
+}
+
+function EmptyState({ message }: { message: string }) {
+  return (
+    <div style={pg.empty}>
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="1.5">
+        <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
+      <p style={pg.emptyText}>{message}</p>
+    </div>
+  );
+}
+
+function ErrorState({ message }: { message: string }) {
+  return (
+    <div style={pg.empty}>
+      <p style={{ ...pg.emptyText, color: "#ff5500" }}>Error: {message}</p>
+    </div>
+  );
+}
+
+function LoadingSkeleton() {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 24 }}>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} style={pg.skeleton} />
+      ))}
+    </div>
+  );
+}
+
+// ── STYLES ────────────────────────────────────────────────────────────────────
+
+const pg: Record<string, React.CSSProperties> = {
+  page:         { backgroundColor: "#0a0a0a", minHeight: "100vh", color: "#fff" },
+  header:       { position: "sticky", top: 0, zIndex: 1000, backgroundColor: "#111", borderBottom: "1px solid #1e1e1e", height: 60, display: "flex", alignItems: "center", justifyContent: "center" },
+  headerInner:  { width: "100%", maxWidth: 1240, padding: "0 20px", display: "flex", alignItems: "center", gap: 24 },
+  logo:         { color: "#fff", textDecoration: "none", fontSize: 15, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.02em", flexShrink: 0 },
+  searchWrapper:{ flex: 1, maxWidth: 560 },
+  body:         { maxWidth: 1240, margin: "0 auto", padding: "32px 20px 80px" },
+  heading:      { display: "flex", alignItems: "baseline", gap: 12, marginBottom: 24 },
+  headingTitle: { fontSize: 22, fontWeight: 800, color: "#fff", margin: 0 },
+  headingCount: { fontSize: 13, color: "#555" },
+  tabs:         { display: "flex", borderBottom: "1px solid #1e1e1e", marginBottom: 32 },
+  tab:          { background: "none", border: "none", padding: "10px 18px", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, transition: "color 0.15s" },
+  badge:        { fontSize: 10, background: "#ff5500", color: "#fff", borderRadius: 10, padding: "1px 6px", fontWeight: 700 },
+  section:      { marginBottom: 44 },
+  sectionHeader:{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 },
+  sectionTitle: { fontSize: 16, fontWeight: 700, color: "#fff", margin: 0 },
+  seeAll:       { background: "none", border: "none", color: "#ff5500", fontSize: 13, fontWeight: 600, cursor: "pointer" },
+  userGrid:     { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(155px, 1fr))", gap: 16 },
+  userCard:     { display: "flex", flexDirection: "column", alignItems: "center", gap: 7, padding: "20px 14px", background: "#111", borderRadius: 8, border: "1px solid #1e1e1e", cursor: "pointer", textAlign: "center" },
+  avatar:       { width: 68, height: 68, borderRadius: "50%", objectFit: "cover", background: "#1e1e1e" },
+  userName:     { color: "#fff", fontSize: 13, fontWeight: 600 },
+  userType:     { color: "#ff5500", fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" },
+  userStats:    { display: "flex", flexDirection: "column", gap: 2, alignItems: "center" },
+  stat:         { color: "#555", fontSize: 11 },
+  followBtn:    { marginTop: 4, padding: "4px 16px", borderRadius: 12, border: "1px solid #ff5500", background: "transparent", color: "#ff5500", fontSize: 12, fontWeight: 600, transition: "border-color 0.15s, color 0.15s" },
+  playlistGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(170px, 1fr))", gap: 20 },
+  playlistCard: { display: "flex", flexDirection: "column", gap: 5, cursor: "pointer" },
+  plCover:      { position: "relative", width: "100%", aspectRatio: "1", borderRadius: 6, overflow: "hidden", background: "#1e1e1e", marginBottom: 4 },
+  plCoverImg:   { width: "100%", height: "100%", objectFit: "cover" },
+  plOverlay:    { position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", opacity: 0, color: "#fff", fontSize: 20, transition: "opacity 0.15s" },
+  plTitle:      { color: "#fff", fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },
+  plDesc:       { color: "#555", fontSize: 12 },
+  plMeta:       { color: "#444", fontSize: 11 },
+  empty:        { display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "72px 20px" },
+  emptyText:    { color: "#444", fontSize: 14, textAlign: "center", maxWidth: 340, lineHeight: 1.6, margin: 0 },
+  skeleton:     { height: 72, borderRadius: 6, background: "#141414" },
+};

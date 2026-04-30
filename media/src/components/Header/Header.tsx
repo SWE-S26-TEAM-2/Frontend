@@ -8,8 +8,7 @@ import type { IMenuItem } from "@/types/ui.types";
 import { useAuthStore } from "@/store/authStore";
 import KeyboardShortcutsModal from "@/components/KeyboardShortcutsModal/KeyboardShortcutsModal";
 import { clearAuthCookie } from "@/lib/authCookie";
-
-// ── Icons ─────────────────────────────────────────────────────────────────────
+import SearchBar from "@/components/Search/SearchBar";
 
 const SearchIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -446,7 +445,14 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
           </nav>
         </div>
 
-        {/* ── MIDDLE: search bar — grows to fill available space ── */}
+        {/* ── MIDDLE: search bar — grows to fill available space ── 
+        
+        <SearchBar />
+        */
+        }
+
+
+
         <div className="flex-1 flex items-center justify-center px-3 min-w-0">
           <div className="relative flex items-center w-full max-w-[460px]">
             <input

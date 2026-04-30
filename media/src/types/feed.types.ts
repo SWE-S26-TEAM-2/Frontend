@@ -8,6 +8,18 @@ import type { IArtist } from "@/types/home.types";
 
 // ── RAW API SHAPES ────────────────────────────────────────────────────────────
 
+/** Nested artist object returned inside each feed track */
+export interface IRawFeedArtist {
+  user_id: string;
+  username: string;
+  display_name: string;
+  is_premium: boolean;
+  billing_cycle: string;
+  profile_picture: string | null;
+  follower_count: number;
+}
+
+/** Shape returned by GET /feed/following and GET /feed/discover */
 export interface IRawFeedTrack {
   track_id: string;
   title: string;
@@ -15,12 +27,17 @@ export interface IRawFeedTrack {
   genre: string | null;
   tags: string[];
   release_date: string | null;
-  file_url: string;
-  user_id: string;
-  visibility: "public" | "private";
-  processing_status: "finished" | "processing" | "failed";
-  play_count: number;
+  cover_image_url: string | null;   // was missing before
+  stream_url: string;               // renamed from file_url
   duration_seconds: number | null;
+  play_count: number;
+  like_count: number;               // new
+  repost_count: number;             // new
+  comment_count: number;            // new
+  is_liked: boolean;                // new
+  is_reposted: boolean;             // new
+  created_at: string;               // new
+  artist: IRawFeedArtist;           // new — replaces flat user_id
 }
 
 export interface IRawFeedUser {
@@ -57,9 +74,9 @@ export interface IRawHistoryEntry {
 // ── FEED PAGE DATA ────────────────────────────────────────────────────────────
 
 export interface IFeedPageData {
-  feedTracks: ITrack[];         // tracks from followed users
-  followSuggestions: IArtist[]; // users to follow
-  listeningHistory: ITrack[];   // last 3 from history
+  feedTracks: ITrack[];
+  followSuggestions: IArtist[];
+  listeningHistory: ITrack[];
 }
 
 // ── SERVICE INTERFACE ─────────────────────────────────────────────────────────

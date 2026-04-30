@@ -1,6 +1,6 @@
 ================================================================
   FRONTEND CODE REVIEW — AUTOMATED REPORT
-  Generated: 2026-04-29 07:08:01
+  Generated: 2026-04-30 15:26:29
 ================================================================
 
 ================================================================
@@ -10,16 +10,39 @@ STEP 1 — ESLINT
 C:\Frontend\media\e2e\tests\profile.spec.ts
   1:29  warning  'Page' is defined but never used  @typescript-eslint/no-unused-vars
 
-C:\Frontend\media\src\app\(auth)\search\page.tsx
-   79:1  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/exhaustive-deps')
-  245:7  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
-  266:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+C:\Frontend\media\src\app\(auth)\page.tsx
+  18:9  warning  'authUser' is assigned a value but never used            @typescript-eslint/no-unused-vars
+  24:9  warning  'redirectAfterLogin' is assigned a value but never used  @typescript-eslint/no-unused-vars
 
-C:\Frontend\media\src\app\(with-header)\creator\upload\page.tsx
-  12:10  warning  'useAuthStore' is defined but never used  @typescript-eslint/no-unused-vars
+C:\Frontend\media\src\app\(with-header)\creator\studio\page.tsx
+  112:6  warning  React Hook useEffect has missing dependencies: 'isLoggedIn' and 'router'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Frontend\media\src\app\(with-header)\search\page.tsx
+   78:3  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/exhaustive-deps')
+  239:7  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  273:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Frontend\media\src\app\(with-header)\settings\privacy\page.tsx
+  5:28  warning  'IBlockedUser' is defined but never used  @typescript-eslint/no-unused-vars
 
 C:\Frontend\media\src\app\(with-header)\stations\page.tsx
   43:6  warning  React Hook useEffect has a missing dependency: 'likeStation'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Frontend\media\src\app\[username]\followers\page.tsx
+  44:7  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  56:9  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+
+C:\Frontend\media\src\app\[username]\following\page.tsx
+  49:7  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  61:9  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+
+C:\Frontend\media\src\app\[username]\page.tsx
+  100:9   warning  'handleAvatarUpload' is assigned a value but never used                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+  113:9   warning  'handleCoverUpload' is assigned a value but never used                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+  272:25  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Frontend\media\src\components\Header\Header.tsx
+  11:8  warning  'SearchBar' is defined but never used  @typescript-eslint/no-unused-vars
 
 C:\Frontend\media\src\components\Home\ArtistsFollow.tsx
   77:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
@@ -34,9 +57,6 @@ C:\Frontend\media\src\components\Home\SideBar.tsx
    9:10  warning  'IArtist' is defined but never used  @typescript-eslint/no-unused-vars
   10:10  warning  'ITrack' is defined but never used   @typescript-eslint/no-unused-vars
 
-C:\Frontend\media\src\components\Search\SearchBar.tsx
-  126:7  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
-
 C:\Frontend\media\src\components\Station\StationCard.tsx
   128:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
@@ -44,17 +64,39 @@ C:\Frontend\media\src\components\Station\StationSlider.tsx
    7:15  warning  'IStation' is defined but never used                                                                         @typescript-eslint/no-unused-vars
   66:6   warning  React Hook useEffect has a missing dependency: 'nextPage'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
 
+C:\Frontend\media\src\components\Studio\StudioDistributionTab.tsx
+  249:11  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Frontend\media\src\components\Studio\StudioPromotionsTab.tsx
+  87:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
 C:\Frontend\media\src\components\Track\TrackSlider.tsx
   110:6  warning  React Hook useEffect has a missing dependency: 'nextPage'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
 
-C:\Frontend\media\src\services\api\feed.api.ts
-  8:10  warning  'mockFeedService' is defined but never used  @typescript-eslint/no-unused-vars
+C:\Frontend\media\src\components\Upload\TrackInfoForm.tsx
+  6:31  warning  'IUploadFile' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Frontend\media\src\components\Upload\UploadQuotaBar.tsx
+  3:15  warning  'IUploadQuota' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Frontend\media\src\services\api\auth.api.ts
+  321:24  warning  '_token' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Frontend\media\src\services\api\playlist.api.ts
+  88:28  warning  '_username' is defined but never used  @typescript-eslint/no-unused-vars
 
 C:\Frontend\media\src\services\api\stations.api.ts
   123:20  warning  '_stationId' is defined but never used  @typescript-eslint/no-unused-vars
 
-C:\Frontend\media\src\services\mocks\mockData.ts
-  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+C:\Frontend\media\src\services\di.ts
+  73:10  warning  'getNotificationSettingsFromAPI' is defined but never used   @typescript-eslint/no-unused-vars
+  73:42  warning  'updateNotificationSettingsOnAPI' is defined but never used  @typescript-eslint/no-unused-vars
+  77:10  warning  'getContentSettingsFromAPI' is defined but never used        @typescript-eslint/no-unused-vars
+  77:37  warning  'updateContentSettingsOnAPI' is defined but never used       @typescript-eslint/no-unused-vars
+  81:10  warning  'getAdvertisingSettingsFromAPI' is defined but never used    @typescript-eslint/no-unused-vars
+  81:41  warning  'updateAdvertisingSettingsOnAPI' is defined but never used   @typescript-eslint/no-unused-vars
+  85:10  warning  'getTwoFactorSettingsFromAPI' is defined but never used      @typescript-eslint/no-unused-vars
+  85:39  warning  'updateTwoFactorSettingsOnAPI' is defined but never used     @typescript-eslint/no-unused-vars
 
 C:\Frontend\media\src\services\mocks\trending.mock.ts
   2:10  warning  'IDotsMenuItem' is defined but never used  @typescript-eslint/no-unused-vars
@@ -62,8 +104,8 @@ C:\Frontend\media\src\services\mocks\trending.mock.ts
 C:\Frontend\media\src\store\stationstore.ts
   56:9  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
 
-✖ 21 problems (0 errors, 21 warnings)
-  0 errors and 2 warnings potentially fixable with the `--fix` option.
+✖ 43 problems (0 errors, 43 warnings)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
 
 RESULT: PASSED — No ESLint errors
 
@@ -83,24 +125,36 @@ STEP 3 — BUILD
 - Environments: .env.local
 
   Creating an optimized production build ...
-✓ Compiled successfully in 16.0s
+✓ Compiled successfully in 15.6s
   Running TypeScript ...
   Collecting page data using 7 workers ...
-  Generating static pages using 7 workers (0/19) ...
-  Generating static pages using 7 workers (4/19) 
-  Generating static pages using 7 workers (9/19) 
-  Generating static pages using 7 workers (14/19) 
-✓ Generating static pages using 7 workers (19/19) in 1011.2ms
+  Generating static pages using 7 workers (0/31) ...
+  Generating static pages using 7 workers (7/31) 
+  Generating static pages using 7 workers (15/31) 
+  Generating static pages using 7 workers (23/31) 
+✓ Generating static pages using 7 workers (31/31) in 494.5ms
   Finalizing page optimization ...
 
 Route (app)
 ┌ ○ /
 ├ ○ /_not-found
 ├ ƒ /[username]
+├ ƒ /[username]/followers
+├ ƒ /[username]/following
+├ ƒ /[username]/likes
+├ ○ /charts
+├ ○ /creator/distribute
+├ ○ /creator/monetize
+├ ○ /creator/studio
 ├ ○ /creator/upload
+├ ○ /discover
 ├ ○ /feed
 ├ ○ /home
+├ ○ /icon.svg
+├ ○ /library
 ├ ○ /login
+├ ○ /notifications
+├ ƒ /playlist/[id]
 ├ ○ /search
 ├ ○ /settings
 ├ ○ /settings/account
@@ -108,12 +162,18 @@ Route (app)
 ├ ○ /settings/content
 ├ ○ /settings/notifications
 ├ ○ /settings/privacy
-├ ○ /settings/privacy/auth
+├ ○ /settings/request-verification
 ├ ○ /settings/two-factor
 ├ ○ /stations
+├ ○ /store
+├ ○ /stream
 ├ ƒ /track/[id]
-└ ○ /trending
+├ ○ /trending
+├ ○ /who-to-follow
+└ ○ /you/insights
 
+
+ƒ Proxy (Middleware)
 
 ○  (Static)   prerendered as static content
 ƒ  (Dynamic)  server-rendered on demand
@@ -127,29 +187,27 @@ STEP 4 — TESTS
 > media@0.1.0 test
 > jest --silent
 
-PASS src/__tests__/Toggle.test.tsx
-PASS src/__tests__/SlideShow.test.tsx
-PASS src/__tests__/TrackPage.test.tsx
+PASS src/__tests__/components/ProfileActions.test.tsx
 PASS src/__tests__/Landing.test.tsx
-PASS src/__tests__/utils/formatNumber.test.ts
-PASS src/__tests__/utils/timeAgo.test.ts
 PASS src/__tests__/components/TrackCard.test.tsx
+PASS src/__tests__/Trending.test.tsx
+PASS src/__tests__/Home.test.tsx
 PASS src/__tests__/Footer.test.tsx
-PASS src/__tests__/Trending.test.tsx (5.105 s)
-PASS src/__tests__/Toggle.test.tsx
-PASS src/__tests__/Home.test.tsx (5.381 s)
-PASS src/__tests__/Header.test.tsx (5.353 s)
+PASS src/__tests__/components/UserSearchCard.test.tsx
 PASS src/__tests__/TrackPage.test.tsx
+PASS src/__tests__/components/Banner.test.tsx
+PASS src/__tests__/SlideShow.test.tsx
 PASS src/__tests__/utils/timeAgo.test.ts
-PASS src/__tests__/Stations.test.tsx
+PASS src/__tests__/Toggle.test.tsx
+PASS src/__tests__/Header.test.tsx
 PASS src/__tests__/utils/formatNumber.test.ts
-PASS src/__tests__/Landing.test.tsx
-PASS src/__tests__/services/userProfile.service.test.ts (7.644 s)
+PASS src/__tests__/Stations.test.tsx
+PASS src/__tests__/services/userProfile.service.test.ts (7.13 s)
 
-Test Suites: 13 passed, 13 total
-Tests:       153 passed, 153 total
+Test Suites: 16 passed, 16 total
+Tests:       167 passed, 167 total
 Snapshots:   0 total
-Time:        10.072 s
+Time:        9.673 s
 RESULT: PASSED — Tests successful
 
 ================================================================

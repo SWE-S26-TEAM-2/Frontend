@@ -5,7 +5,6 @@
 
 import axios from "axios";
 import { ENV } from "@/config/env";
-import { mockFeedService } from "@/services/mocks/feed.mock";
 import type { ITrack } from "@/types/track.types";
 import type { IArtist } from "@/types/home.types";
 import type {
@@ -20,21 +19,46 @@ const BASE_URL = ENV.API_BASE_URL.replace(/\/$/, "");
 
 // ── ADAPTERS ──────────────────────────────────────────────────────────────────
 
-function adaptTrack(raw: IRawFeedTrack | IRawHistoryEntry): ITrack {
+function adaptFeedTrack(raw: IRawFeedTrack): ITrack {
   return {
     id:            raw.track_id,
     title:         raw.title,
-    artist:        "Unknown Artist", // TODO: backend to bundle display_name in track response
-    albumArt:      "",               // TODO: backend to add cover_image field
+    artist:        raw.artist.display_name,
+    albumArt:      raw.cover_image_url
+                     ? raw.cover_image_url.startsWith("http")
+                       ? raw.cover_image_url
+                       : `${BASE_URL}${raw.cover_image_url}`
+                     : "/default-track-cover.png",
+    genre:         raw.genre ?? undefined,
+    description:   raw.description ?? undefined,
+    url:           raw.stream_url.startsWith("http")
+                     ? raw.stream_url
+                     : `${BASE_URL}${raw.stream_url}`,
+    duration:      raw.duration_seconds ?? 0,
+    likes:         raw.like_count,
+    plays:         raw.play_count,
+    commentsCount: raw.comment_count,
+    isLiked:       raw.is_liked,
+    createdAt:     raw.created_at,
+    updatedAt:     raw.created_at,
+  };
+}
+
+function adaptHistoryTrack(raw: IRawHistoryEntry): ITrack {
+  return {
+    id:            raw.track_id,
+    title:         raw.title,
+    artist:        "Unknown Artist",
+    albumArt:      "/default-track-cover.png",
     genre:         raw.genre ?? undefined,
     description:   raw.description ?? undefined,
     url:           raw.file_url.startsWith("http")
                      ? raw.file_url
                      : `${BASE_URL}${raw.file_url}`,
     duration:      raw.duration_seconds ?? 0,
-    likes:         0,                // TODO: backend to add likes count
+    likes:         0,
     plays:         raw.play_count,
-    commentsCount: 0,                // TODO: backend to add comments count
+    commentsCount: 0,
     isLiked:       false,
     createdAt:     raw.release_date ?? new Date().toISOString(),
     updatedAt:     new Date().toISOString(),
@@ -61,26 +85,23 @@ function adaptUser(raw: IRawFeedUser): IArtist {
 export const realFeedService: IFeedService = {
   async getFeedPageData(): Promise<IFeedPageData> {
     try {
-      const [historyRes, suggestionsRes] = await Promise.all([
+      const [feedRes, historyRes, suggestionsRes] = await Promise.all([
+        axios.get(`${BASE_URL}/feed/following`, { params: { limit: 20 } }),
         axios.get(`${BASE_URL}/users/me/listening-history`),
         axios.get(`${BASE_URL}/search/users`, { params: { keyword: "" } }),
       ]);
 
-      // History — last 3 entries only (for sidebar)
+      // Feed tracks from the new endpoint
+      const rawFeed: IRawFeedTrack[] = feedRes.data?.data?.items ?? [];
+      const feedTracks = rawFeed.map(adaptFeedTrack);
+
+      // History — last 3 entries for the sidebar
       const rawHistory: IRawHistoryEntry[] = historyRes.data?.data ?? [];
-      const listeningHistory = rawHistory
-        .slice(0, 3)
-        .map(adaptTrack);
+      const listeningHistory = rawHistory.slice(0, 3).map(adaptHistoryTrack);
 
       // Follow suggestions
       const rawUsers: IRawFeedUser[] = suggestionsRes.data?.data?.users ?? [];
       const followSuggestions = rawUsers.slice(0, 4).map(adaptUser);
-
-      // Feed tracks — recently played as feed content for now
-      // TODO: replace with a dedicated /feed endpoint once backend adds it
-      const recentRes = await axios.get(`${BASE_URL}/users/me/recently-played`);
-      const rawFeed: IRawFeedTrack[] = recentRes.data?.data ?? [];
-      const feedTracks = rawFeed.map(adaptTrack);
 
       return { feedTracks, followSuggestions, listeningHistory };
     } catch (error) {
@@ -102,10 +123,3 @@ export const realFeedService: IFeedService = {
     }
   },
 };
-
-// ── DI EXPORT ─────────────────────────────────────────────────────────────────
-// Add to services/index.ts:
-//   import { mockFeedService } from "./mocks/feed.mock";
-//   import { realFeedService } from "./api/feed.api";
-//   export const feedService = ENV.USE_MOCK_API ? mockFeedService : realFeedService;
-

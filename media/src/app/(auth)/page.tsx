@@ -27,7 +27,7 @@ export default function Home() {
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.localStorage.getItem("auth_token")) {
-      router.push("/discover");
+     router.push("/stream");
     }
     LandingApiService.getLandingData().then(setContent);
     LandingApiService.getTrendingTracks().then(setTracks);

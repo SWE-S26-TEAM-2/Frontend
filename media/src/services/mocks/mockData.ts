@@ -2,7 +2,7 @@
 
 import { ITrack } from '@/types/track.types';
 import { IProduct } from '@/types/store.types';
-import { IFeedItem } from '@/types/feed.types';
+// import { IFeedItem } from '@/types/feed.types';
 import { IPlaylist } from '@/types/playlist.types';
 import { IComment } from '@/types/comment.types';
 import { IMessageThread, IInboxItem } from '@/types/message.types';
@@ -347,23 +347,23 @@ export const MOCK_USERS = {
 };
 
 // ─── Feed ─────────────────────────────────────────────────────────────────────
-export const MOCK_FEED_ITEMS: IFeedItem[] = [
-  { id: 'f1',  type: 'track',  actor: MOCK_USERS.soundwave,    track: MOCK_TRACKS[0], createdAt: '2026-04-12T08:00:00Z' },
-  { id: 'f2',  type: 'repost', actor: MOCK_USERS.djremix,      track: MOCK_TRACKS[2], createdAt: '2026-04-12T07:30:00Z' },
-  { id: 'f3',  type: 'like',   actor: MOCK_USERS.beatmaker99,  track: MOCK_TRACKS[1], createdAt: '2026-04-12T07:00:00Z' },
-  { id: 'f4',  type: 'follow', actor: MOCK_USERS.listenerjane, followedUser: MOCK_USERS.soundwave, createdAt: '2026-04-12T06:45:00Z' },
-  { id: 'f5',  type: 'track',  actor: MOCK_USERS.beatmaker99,  track: MOCK_TRACKS[3], createdAt: '2026-04-11T20:00:00Z' },
-  { id: 'f6',  type: 'repost', actor: MOCK_USERS.newuser2026,  track: MOCK_TRACKS[0], createdAt: '2026-04-11T18:30:00Z' },
-  { id: 'f7',  type: 'like',   actor: MOCK_USERS.soundwave,    track: MOCK_TRACKS[3], createdAt: '2026-04-11T17:00:00Z' },
-  { id: 'f8',  type: 'track',  actor: MOCK_USERS.djremix,      track: MOCK_TRACKS[2], createdAt: '2026-04-11T14:00:00Z' },
-  { id: 'f9',  type: 'follow', actor: MOCK_USERS.beatmaker99,  followedUser: MOCK_USERS.djremix,   createdAt: '2026-04-11T12:00:00Z' },
-  { id: 'f10', type: 'track',  actor: MOCK_USERS.listenerjane, track: MOCK_TRACKS[1], createdAt: '2026-04-11T10:00:00Z' },
-  { id: 'f11', type: 'repost', actor: MOCK_USERS.djremix,      track: MOCK_TRACKS[1], createdAt: '2026-04-10T22:00:00Z' },
-  { id: 'f12', type: 'like',   actor: MOCK_USERS.newuser2026,  track: MOCK_TRACKS[2], createdAt: '2026-04-10T20:00:00Z' },
-  { id: 'f13', type: 'track',  actor: MOCK_USERS.soundwave,    track: MOCK_TRACKS[3], createdAt: '2026-04-10T18:00:00Z' },
-  { id: 'f14', type: 'follow', actor: MOCK_USERS.listenerjane, followedUser: MOCK_USERS.beatmaker99, createdAt: '2026-04-10T15:00:00Z' },
-  { id: 'f15', type: 'repost', actor: MOCK_USERS.soundwave,    track: MOCK_TRACKS[0], createdAt: '2026-04-10T12:00:00Z' },
-];
+// export const MOCK_FEED_ITEMS: IFeedItem[] = [
+//   { id: 'f1',  type: 'track',  actor: MOCK_USERS.soundwave,    track: MOCK_TRACKS[0], createdAt: '2026-04-12T08:00:00Z' },
+//   { id: 'f2',  type: 'repost', actor: MOCK_USERS.djremix,      track: MOCK_TRACKS[2], createdAt: '2026-04-12T07:30:00Z' },
+//   { id: 'f3',  type: 'like',   actor: MOCK_USERS.beatmaker99,  track: MOCK_TRACKS[1], createdAt: '2026-04-12T07:00:00Z' },
+//   { id: 'f4',  type: 'follow', actor: MOCK_USERS.listenerjane, followedUser: MOCK_USERS.soundwave, createdAt: '2026-04-12T06:45:00Z' },
+//   { id: 'f5',  type: 'track',  actor: MOCK_USERS.beatmaker99,  track: MOCK_TRACKS[3], createdAt: '2026-04-11T20:00:00Z' },
+//   { id: 'f6',  type: 'repost', actor: MOCK_USERS.newuser2026,  track: MOCK_TRACKS[0], createdAt: '2026-04-11T18:30:00Z' },
+//   { id: 'f7',  type: 'like',   actor: MOCK_USERS.soundwave,    track: MOCK_TRACKS[3], createdAt: '2026-04-11T17:00:00Z' },
+//   { id: 'f8',  type: 'track',  actor: MOCK_USERS.djremix,      track: MOCK_TRACKS[2], createdAt: '2026-04-11T14:00:00Z' },
+//   { id: 'f9',  type: 'follow', actor: MOCK_USERS.beatmaker99,  followedUser: MOCK_USERS.djremix,   createdAt: '2026-04-11T12:00:00Z' },
+//   { id: 'f10', type: 'track',  actor: MOCK_USERS.listenerjane, track: MOCK_TRACKS[1], createdAt: '2026-04-11T10:00:00Z' },
+//   { id: 'f11', type: 'repost', actor: MOCK_USERS.djremix,      track: MOCK_TRACKS[1], createdAt: '2026-04-10T22:00:00Z' },
+//   { id: 'f12', type: 'like',   actor: MOCK_USERS.newuser2026,  track: MOCK_TRACKS[2], createdAt: '2026-04-10T20:00:00Z' },
+//   { id: 'f13', type: 'track',  actor: MOCK_USERS.soundwave,    track: MOCK_TRACKS[3], createdAt: '2026-04-10T18:00:00Z' },
+//   { id: 'f14', type: 'follow', actor: MOCK_USERS.listenerjane, followedUser: MOCK_USERS.beatmaker99, createdAt: '2026-04-10T15:00:00Z' },
+//   { id: 'f15', type: 'repost', actor: MOCK_USERS.soundwave,    track: MOCK_TRACKS[0], createdAt: '2026-04-10T12:00:00Z' },
+// ];
 
 // ─── Playlists ────────────────────────────────────────────────────────────────
 export const MOCK_PLAYLISTS: IPlaylist[] = [
