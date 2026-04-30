@@ -7,6 +7,7 @@ import axios from "axios";
 import { ENV } from "@/config/env";
 import type { ITrack } from "@/types/track.types";
 import type { IStation, IStationService } from "@/types/station.types";
+import { apiGet } from "./apiClient";
 
 const BASE_URL = ENV.API_BASE_URL.replace(/\/$/, "");
 
@@ -98,27 +99,29 @@ return true;
   },
 
   // Discover stations for home page slider — also from history, genre-grouped
-  async getDiscoverStations(): Promise<IStation[]> {
-    try {
-      const res = await axios.get(`${BASE_URL}/users/me/recently-played`);
-const raw: IRawTrack[] = res.data?.data ?? [];
-      const seen = new Set<string>();
-      return raw
-        .filter((item) => {
-         const id = item.track_id ?? item.id;
+async getDiscoverStations(): Promise<IStation[]> {
+  try {
+    const res = await apiGet<{ items: IRawTrack[] }>(
+      "/users/me/recently-played?limit=20"
+    );
 
-if (!id) return false;
-if (seen.has(id)) return false;
+    const raw = res.items ?? [];
 
-seen.add(id);
-return true;
-        })
-        .map(adaptTrackToStation);
-    } catch (error) {
-      console.error("getDiscoverStations failed:", error);
-      return [];
-    }
-  },
+    const seen = new Set<string>();
+
+    return raw
+      .filter((item) => {
+        const id = item.track_id ?? item.id;
+        if (!id || seen.has(id)) return false;
+        seen.add(id);
+        return true;
+      })
+      .map(adaptTrackToStation);
+  } catch (error) {
+    console.error("getDiscoverStations failed:", error);
+    return [];
+  }
+},
 
   async toggleLike(_stationId: string): Promise<void> {
     // TODO: add like/unlike station endpoint when backend supports it

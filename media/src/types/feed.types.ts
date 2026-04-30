@@ -21,23 +21,31 @@ export interface IRawFeedArtist {
 
 /** Shape returned by GET /feed/following and GET /feed/discover */
 export interface IRawFeedTrack {
-  track_id: string;
-  title: string;
-  description: string | null;
-  genre: string | null;
-  tags: string[];
-  release_date: string | null;
-  cover_image_url: string | null;   // was missing before
-  stream_url: string;               // renamed from file_url
+  track_id:         string;
+  title:            string;
+  description:      string | null;
+  genre:            string | null;
+  tags:             string[];
+  release_date:     string | null;
+  cover_image_url:  string | null;
+  stream_url:       string | null;
   duration_seconds: number | null;
-  play_count: number;
-  like_count: number;               // new
-  repost_count: number;             // new
-  comment_count: number;            // new
-  is_liked: boolean;                // new
-  is_reposted: boolean;             // new
-  created_at: string;               // new
-  artist: IRawFeedArtist;           // new — replaces flat user_id
+  play_count:       number;
+  like_count:       number;
+  repost_count:     number;
+  comment_count:    number;
+  is_liked:         boolean;
+  is_reposted:      boolean;
+  created_at:       string;
+  artist: {
+    user_id:         string;
+    username:        string;
+    display_name:    string;
+    is_premium:      boolean;
+    billing_cycle:   string | null;
+    profile_picture: string | null;
+    follower_count:  number;
+  };
 }
 
 export interface IRawFeedUser {
@@ -62,7 +70,7 @@ export interface IRawHistoryEntry {
   genre: string | null;
   tags: string[];
   release_date: string | null;
-  file_url: string;
+  file_url: string | null;
   user_id: string;
   visibility: "public" | "private";
   processing_status: "finished" | "processing" | "failed";

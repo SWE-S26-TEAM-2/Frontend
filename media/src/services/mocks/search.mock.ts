@@ -83,6 +83,7 @@ albumArt: "/default-track-cover.png",
 const MOCK_USERS: ISearchUser[] = [
   {
     user_id: "mock-user-1",
+    username: "luna_waves",
     display_name: "Luna Waves",
     bio: "Electronic music producer based in Berlin.",
     location: "Berlin",
@@ -97,6 +98,7 @@ const MOCK_USERS: ISearchUser[] = [
   },
   {
     user_id: "mock-user-2",
+    username: "solar_drift",
     display_name: "SolarDrift",
     bio: "Ambient and downtempo. London based.",
     location: "London",
@@ -111,6 +113,7 @@ const MOCK_USERS: ISearchUser[] = [
   },
   {
     user_id: "mock-user-3",
+    username: "the_wanderers",
     display_name: "The Wanderers",
     bio: "Indie folk duo from Nashville.",
     location: "Nashville",

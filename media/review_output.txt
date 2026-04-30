@@ -1,6 +1,6 @@
 ================================================================
   FRONTEND CODE REVIEW — AUTOMATED REPORT
-  Generated: 2026-04-30 15:26:29
+  Generated: 2026-04-30 23:53:35
 ================================================================
 
 ================================================================
@@ -125,14 +125,14 @@ STEP 3 — BUILD
 - Environments: .env.local
 
   Creating an optimized production build ...
-✓ Compiled successfully in 15.6s
+✓ Compiled successfully in 16.7s
   Running TypeScript ...
   Collecting page data using 7 workers ...
   Generating static pages using 7 workers (0/31) ...
   Generating static pages using 7 workers (7/31) 
   Generating static pages using 7 workers (15/31) 
   Generating static pages using 7 workers (23/31) 
-✓ Generating static pages using 7 workers (31/31) in 494.5ms
+✓ Generating static pages using 7 workers (31/31) in 558.1ms
   Finalizing page optimization ...
 
 Route (app)
@@ -191,23 +191,23 @@ PASS src/__tests__/components/ProfileActions.test.tsx
 PASS src/__tests__/Landing.test.tsx
 PASS src/__tests__/components/TrackCard.test.tsx
 PASS src/__tests__/Trending.test.tsx
+PASS src/__tests__/Stations.test.tsx
 PASS src/__tests__/Home.test.tsx
-PASS src/__tests__/Footer.test.tsx
+PASS src/__tests__/components/Banner.test.tsx
 PASS src/__tests__/components/UserSearchCard.test.tsx
 PASS src/__tests__/TrackPage.test.tsx
-PASS src/__tests__/components/Banner.test.tsx
-PASS src/__tests__/SlideShow.test.tsx
 PASS src/__tests__/utils/timeAgo.test.ts
-PASS src/__tests__/Toggle.test.tsx
-PASS src/__tests__/Header.test.tsx
+PASS src/__tests__/SlideShow.test.tsx
 PASS src/__tests__/utils/formatNumber.test.ts
-PASS src/__tests__/Stations.test.tsx
-PASS src/__tests__/services/userProfile.service.test.ts (7.13 s)
+PASS src/__tests__/Toggle.test.tsx
+PASS src/__tests__/Header.test.tsx (5.498 s)
+PASS src/__tests__/Footer.test.tsx
+PASS src/__tests__/services/userProfile.service.test.ts (7.338 s)
 
 Test Suites: 16 passed, 16 total
 Tests:       167 passed, 167 total
 Snapshots:   0 total
-Time:        9.673 s
+Time:        11.121 s
 RESULT: PASSED — Tests successful
 
 ================================================================

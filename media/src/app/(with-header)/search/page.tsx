@@ -97,7 +97,7 @@ function SearchInner() {
   return (
     <div style={pg.page}>
 
-      {/* Header */}
+      {/* Header
       <header style={pg.header}>
         <div style={pg.headerInner}>
           <Link href="/" style={pg.logo}>soundcloud</Link>
@@ -105,7 +105,7 @@ function SearchInner() {
             <SearchBar defaultValue={queryParam} />
           </div>
         </div>
-      </header>
+      </header> */}
 
       <div style={pg.body}>
 
@@ -222,9 +222,9 @@ function UserCard({ user }: { user: ISearchUser }) {
     setFollowLoading(true);
     try {
       if (next) {
-        await userProfileService.followUser(user.user_id);
+await userProfileService.followUser(user.username);
       } else {
-        await userProfileService.unfollowUser(user.user_id);
+        await userProfileService.unfollowUser(user.username);
       }
     } catch (err) {
       setIsFollowing(!next); // revert on failure

@@ -27,6 +27,7 @@ export type ITab = "all" | "tracks" | "people" | "playlists";
 
 export interface ISearchUser {
   user_id: string;
+   username: string;
   display_name: string;
   bio: string | null;
   location: string | null;

@@ -150,7 +150,7 @@ const SignOutIcon = () => (
 // ── Data ──────────────────────────────────────────────────────────────────────
 
 const NAV_ITEMS = [
-  { label: "Home",    href: "/discover" },
+  { label: "Home",    href: "/home" },
   { label: "Feed",    href: "/stream" },
   { label: "Library", href: "/library" },
 ];
@@ -447,11 +447,13 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
 
         {/* ── MIDDLE: search bar — grows to fill available space ── 
         
-        <SearchBar />
         */
         }
+<div className="flex-1 flex items-center justify-center px-3 min-w-0">
+  <SearchBar placeholder="Search" />
+</div>
 
-
+{/* 
 
         <div className="flex-1 flex items-center justify-center px-3 min-w-0">
           <div className="relative flex items-center w-full max-w-[460px]">
@@ -472,7 +474,7 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
               <SearchIcon />
             </button>
           </div>
-        </div>
+        </div> */}
 
         {/* ── RIGHT: actions + user nav ── */}
         <div className="flex items-center gap-0.5 shrink-0">

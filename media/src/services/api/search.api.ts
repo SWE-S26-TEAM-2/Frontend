@@ -27,9 +27,11 @@ function adaptTrack(raw: IRawSearchTrack): ITrack {
     albumArt:     "",               // TODO: backend to add cover_image field
     genre:        raw.genre ?? undefined,
     description:  raw.description ?? undefined,
-    url:          raw.file_url.startsWith("http")
-                    ? raw.file_url
-                    : `${BASE_URL}${raw.file_url}`,
+   url: raw.file_url
+  ? raw.file_url.startsWith("http")
+    ? raw.file_url
+    : `${BASE_URL}${raw.file_url}`
+  : "",
     duration:     raw.duration_seconds ?? 0,
     likes:        0,                // TODO: backend to add likes count
     plays:        raw.play_count,
@@ -43,8 +45,15 @@ function adaptTrack(raw: IRawSearchTrack): ITrack {
 // ── FETCH HELPER ──────────────────────────────────────────────────────────────
 
 async function apiFetch<T>(path: string): Promise<T> {
+  const token = typeof window !== "undefined"
+    ? window.localStorage.getItem("auth_token")
+    : null;
+
   const res = await fetch(`${BASE_URL}${path}`, {
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     credentials: "include",
   });
 
@@ -68,12 +77,12 @@ export const realSearchService = {
     return (data.tracks ?? []).map(adaptTrack);
   },
 
-  async searchUsers(keyword: string): Promise<ISearchUser[]> {
-    if (!keyword.trim()) return [];
-    const data = await apiFetch<{ users: ISearchUser[] }>(
-      `/search/users?keyword=${encodeURIComponent(keyword.trim())}`
-    );
-    return data.users ?? [];
+ async searchUsers(keyword: string): Promise<ISearchUser[]> {
+  const data = await apiFetch<{ users: ISearchUser[] }>(
+    `/search/users?keyword=${encodeURIComponent(keyword.trim())}`
+  );
+
+  return data.users ?? [];
   },
 
   async searchPlaylists(keyword: string): Promise<ISearchPlaylist[]> {
