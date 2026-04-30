@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { FaFacebook, FaApple, FaGoogle } from "react-icons/fa";
 import Link from "next/link";
-import { GoogleLogin } from "@react-oauth/google";
 import InputStep from "./InputStep";
 import RegisterStep from "./RegisterStep";
 import SignInStep from "./SignInStep";
@@ -17,7 +16,7 @@ import { useGoogleLogin } from "@react-oauth/google";
 import ForgotPasswordStep from "./ForgotPasswordStep";
 import CheckYourEmailStep from "./CheckYourEmailStep";
 import { useRouter } from "next/navigation";
-import { useRef } from "react";
+// no local refs needed for Google button
 
 export default function LoginModal({ onClose }: ILoginModalProps) {
   const authStore = useAuthStore();
@@ -26,11 +25,11 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
   const [error, setError] = useState("");
   const [step, setStep] = useState<"main" | "input" | "register" | "signin"|"tell-us-more"|"verify-email"| "forgot-password" | "check-your-email"| "enter-reset-code">("main");
   const [password, setPassword] = useState("");
-  const googleButtonRef = useRef<HTMLDivElement>(null);
+  // We use the hook `useGoogleLogin` and call the returned handler directly
+  // from the custom button to avoid relying on internal DOM structure.
   const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const [resetCode, setResetCode] = useState("");
   
 
   const router = useRouter();
@@ -41,22 +40,22 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
     setEmailOrProfileUrl(e.target.value);
   };
   const handleGoogleLogin = useGoogleLogin({
-    onSuccess:async (response)=> {
-      try{
-      setIsLoading(true);
-      await AuthService.googleLogin(response.access_token);
-      router.push("/track/1");
-      
-      }catch{
+    onSuccess: async (response) => {
+      try {
+        setIsLoading(true);
+        await AuthService.googleLogin(response.access_token);
+        onClose();
+        router.push("/stream");
+      } catch {
         setError("Google login failed. Please try again.");
-      }finally{
+      } finally {
         setIsLoading(false);
       }
     },
-    onError: () =>{
+    onError: () => {
       setError("Google login failed. Please try again.");
-    }
-  })
+    },
+  });
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
@@ -69,7 +68,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
   const resetToMain = () => {
     setStep("main");
     setError("");
-    setIsSuccess(false);
+    setSuccessMessage("");
     setSigninSubtitle(undefined);
   };
 
@@ -125,7 +124,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
           authStore.login(response.user, response.token);
           window.localStorage.setItem("auth_token", response.token);
           window.localStorage.setItem("auth_user_id", String(response.user.id));
-          setIsSuccess(true);
+          setSuccessMessage("Successfully signed in!");
           setTimeout(onClose, 1500);
         }
       } catch (err) {
@@ -136,7 +135,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
             authStore.login(response.user, response.token);
             window.localStorage.setItem("auth_token", response.token);
             window.localStorage.setItem("auth_user_id", String(response.user.id));
-            setIsSuccess(true);
+            setSuccessMessage("Successfully signed in!");
             setTimeout(onClose, 1500);
           } catch {
             setStep("signin");
@@ -198,7 +197,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       authStore.login(response.user, response.token);
       window.localStorage.setItem("auth_token", response.token);
       window.localStorage.setItem("auth_user_id", String(response.user.id));
-      setIsSuccess(true);
+      setSuccessMessage("Successfully signed in!");
       setTimeout(onClose, 1500);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "";
@@ -213,6 +212,11 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       onClick={onClose}
       className="fixed inset-0 bg-[rgba(0,0,0,0.7)] flex items-center justify-center z-1000"
     >
+      {successMessage && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-[#333333] text-white px-6 py-4 rounded-lg z-2000">
+          {successMessage}
+        </div>
+      )}
       {/* Modal box — stop click from closing when clicking inside */}
       <div
         onClick={(e) => e.stopPropagation()}
@@ -239,37 +243,12 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
               Continue with Facebook
             </button>
 
-            <div className="hidden" ref={googleButtonRef}>
-              <GoogleLogin
-                onSuccess={async (credentialResponse) => {
-                  if (!credentialResponse.credential) return;
-                  try {
-                    setIsLoading(true);
-                    const response = await AuthService.googleLogin(credentialResponse.credential);
-                    authStore.login(response.user, response.token);
-                    window.localStorage.setItem("auth_token", response.token);
-                    window.localStorage.setItem("auth_user_id", String(response.user.id));
-                    setIsSuccess(true);
-                    setTimeout(onClose, 1500);
-                  } catch {
-                    setError("Google login failed. Please try again.");
-                  } finally {
-                    setIsLoading(false);
-                  }
-                }}
-                onError={() => setError("Google login failed. Please try again.")}
-                theme="filled_black"
-                text="continue_with"
-                width="400"
-              />
-            </div>
-
             <button
-            onClick={() => googleButtonRef.current?.querySelector("div[role=button]")?.dispatchEvent(new MouseEvent("click", { bubbles: true }))}
-            className="bg-[#333333] text-white w-full p-3 rounded cursor-pointer mb-3 text-[15px] font-semibold border border-[#444444] flex items-center justify-center gap-2"
+              onClick={() => handleGoogleLogin()}
+              className="bg-[#333333] text-white w-full p-3 rounded cursor-pointer mb-3 text-[15px] font-semibold border border-[#444444] flex items-center justify-center gap-2"
             >
-            <FaGoogle size={20} />
-            Continue with Google
+              <FaGoogle size={20} />
+              Continue with Google
             </button>
 
             <button className="bg-black text-white w-full p-3 rounded cursor-pointer mb-8 text-[15px] font-semibold border border-[#444444] flex items-center justify-center gap-2">
@@ -380,7 +359,6 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
           <EnterResetCodeStep
           onBack={() => setStep("check-your-email")}
           onContinue={(code) => {
-          setResetCode(code);
           onClose();
           router.push(`/reset-password?token=${encodeURIComponent(code)}`);
         }}

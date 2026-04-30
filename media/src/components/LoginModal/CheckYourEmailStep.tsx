@@ -1,11 +1,7 @@
 "use client";
 
 import Link from "next/link";
-
-interface ICheckYourEmailStepProps {
-  onBack: () => void;
-  onContinue: () => void;  // ← new prop
-}
+import type { ICheckYourEmailStepProps } from "@/types/auth.types";
 
 export default function CheckYourEmailStep({ onBack, onContinue }: ICheckYourEmailStepProps) {
   return (

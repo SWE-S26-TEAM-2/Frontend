@@ -1,5 +1,4 @@
 import { getApiBaseUrl, normalizeApiUrl } from "../../config/env";
-import { ENV } from "../../config/env";
 import {
   ILoginResponse,
   IUser,
@@ -53,12 +52,7 @@ const clearTokens = () => {
   window.localStorage.removeItem("auth_profile_image");
   clearAuthCookie();
 };
-const getAuthTokenFromStorage = (): string | null => {
-  let token: string | null = null;
-  if (typeof window !== "undefined") {
-    token = window.localStorage.getItem("auth_token");
-  }
-  return token;};
+// `getAuthTokenFromStorage` was removed because `getAccessToken` covers its usage.
 
 const resolveBackendMediaUrl = (value: string | undefined): string => {
   const raw = value?.trim();
@@ -189,6 +183,8 @@ export const RealAuthService = {
   },
 
   checkEmail: async (emailOrProfileUrl: string): Promise<ICheckEmailResponse> => {
+    // Uses GET ?email= query param — backend returns { available: boolean }.
+    // Note: available:false => email is taken, so we invert to produce isExisting.
     const response = await fetch(apiUrl(`/auth/check-email?email=${encodeURIComponent(emailOrProfileUrl)}`), {
       method: "GET",
       headers: { "Content-Type": "application/json" },
@@ -310,7 +306,9 @@ export const RealAuthService = {
     const response = await fetch(apiUrl("/auth/reset-password"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, new_password: newPassword   }),
+      // Include the `sign_out_everywhere` flag collected from the UI so the
+      // backend can invalidate other sessions when requested.
+      body: JSON.stringify({ token, new_password: newPassword, sign_out_everywhere: !!signOutEverywhere }),
     });
   
     if (!response.ok) {

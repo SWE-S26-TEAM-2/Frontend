@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { adminService } from "@/services";
 import type {
   IAdminAnalyticsData,
@@ -13,12 +14,20 @@ import AdminAnalytics from "@/components/Admin/AdminAnalytics";
 import AdminReports from "@/components/Admin/AdminReports";
 
 export default function AdminDashboardPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<IAdminTab>("analytics");
   const [analytics, setAnalytics] = useState<IAdminAnalyticsData | null>(null);
   const [reports, setReports] = useState<IAdminReportItem[]>([]);
   const [totalReports, setTotalReports] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && !window.localStorage.getItem("auth_token")) {
+      router.replace("/login");
+      return;
+    }
+  }, [router]);
 
   useEffect(() => {
     const loadAllAsync = async () => {

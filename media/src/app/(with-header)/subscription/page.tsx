@@ -85,6 +85,7 @@ export default function SubscriptionPage() {
             'Understand sales tax and VAT',
           ].map((link) => (
             <li key={link}>
+              {/* TODO: replace `#` placeholders with real help URLs when available */}
               <a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">
                 {link}
               </a>

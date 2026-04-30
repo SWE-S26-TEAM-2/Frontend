@@ -18,6 +18,24 @@ function ResetPasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [signOutEverywhere, setSignOutEverywhere] = useState(false);
 
+  // If the page is opened without a token, show an early warning instead of
+  // letting the form submit and fail later. This improves UX when users
+  // navigate directly to /reset-password.
+  if (!token) {
+    return (
+      <div className="min-h-screen bg-[#111111] flex items-center justify-center">
+        <div className="bg-[#222222] max-w-md rounded-lg p-10">
+          <p className="text-white text-[20px] font-bold text-center mb-4">Reset link missing</p>
+          <p className="text-[#999999] text-sm text-center mb-6">We couldn't find a reset token in the URL. Please request a new password reset link from the Forgot Password flow.</p>
+          <div className="flex gap-3 justify-center">
+            <a href="/login" className="text-sm text-[#4a90e2] hover:underline">Back to sign in</a>
+            <a href="/login" className="text-sm text-[#4a90e2] hover:underline">Request reset link</a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const handleSubmit = async () => {
     if (!newPassword || !confirmPassword) {
       setError("Please fill in both fields.");

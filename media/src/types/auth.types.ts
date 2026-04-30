@@ -121,6 +121,7 @@ export interface IResetPasswordResponse {
 
 export interface ICheckYourEmailStepProps {
   onBack: () => void;
+  onContinue: () => void;
 }
 
 export interface IVerifyEmailResponse {

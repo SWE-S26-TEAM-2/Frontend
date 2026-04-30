@@ -14,7 +14,9 @@ const PROTECTED_PREFIXES = [
 ];
 
 const ADMIN_PREFIXES = ["/admin"];
-const ADMIN_EMAILS = ["example@gmail.com"]; //Put you real email to test admin dashboard with real API
+
+// Admins should be determined by role/claims returned from the backend verify
+// endpoint rather than hardcoding an email list in source control.
 
 const isProtectedPath = (pathname: string): boolean =>
   PROTECTED_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
@@ -67,11 +69,11 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
       return redirectToLogin(request);
     }
 
-    // Admin-only check
+    // Admin-only check — prefer role claim from the verify response.
     if (isAdminPath(pathname)) {
       const data = await verify.json();
-      const email = data?.data?.email ?? data?.email ?? "";
-      if (!ADMIN_EMAILS.includes(email)) {
+      const role = data?.data?.role ?? data?.role ?? "";
+      if (role !== "admin") {
         return redirectToHome(request);
       }
     }

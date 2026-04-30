@@ -9,6 +9,29 @@ import type {
 } from "@/types/admin.types";
 import { apiDelete, apiGet, apiPatch } from "./apiClient";
 
+// Map backend report shape (snake_case) -> frontend IAdminReportItem
+const mapReport = (r: any): IAdminReportItem => ({
+  reportId:       r.report_id,
+  entityType:     r.entity_type,
+  entityId:       r.entity_id,
+  reason:         r.reason,
+  status:         r.status,
+  createdAt:      r.created_at,
+  reporter: {
+    userId:      r.reporter.user_id,
+    username:    r.reporter.username,
+    displayName: r.reporter.display_name,
+  },
+  reviewedBy: r.reviewed_by ? {
+    userId:      r.reviewed_by.user_id,
+    username:    r.reviewed_by.username,
+    displayName: r.reviewed_by.display_name,
+  } : null,
+  reviewedAt:     r.reviewed_at,
+  resolutionNote: r.resolution_note,
+  entityPreview:  r.entity_preview,
+});
+
 export const realAdminService: IAdminService = {
   getAnalytics: async (): Promise<IAdminAnalyticsData> => {
     const raw = await apiGet<{
@@ -65,27 +88,7 @@ export const realAdminService: IAdminService = {
 
     return {
       total: raw.total,
-      reports: raw.reports.map((r) => ({
-        reportId:       r.report_id,
-        entityType:     r.entity_type,
-        entityId:       r.entity_id,
-        reason:         r.reason,
-        status:         r.status,
-        createdAt:      r.created_at,
-        reporter: {
-          userId:      r.reporter.user_id,
-          username:    r.reporter.username,
-          displayName: r.reporter.display_name,
-        },
-        reviewedBy: r.reviewed_by ? {
-          userId:      r.reviewed_by.user_id,
-          username:    r.reviewed_by.username,
-          displayName: r.reviewed_by.display_name,
-        } : null,
-        reviewedAt:     r.reviewed_at,
-        resolutionNote: r.resolution_note,
-        entityPreview:  r.entity_preview,
-      })),
+      reports: raw.reports.map(mapReport),
     };
   },
 
@@ -111,27 +114,7 @@ export const realAdminService: IAdminService = {
       ...(resolutionNote ? { resolution_note: resolutionNote } : {}),
     });
 
-    return {
-      reportId:       raw.report_id,
-      entityType:     raw.entity_type,
-      entityId:       raw.entity_id,
-      reason:         raw.reason,
-      status:         raw.status,
-      createdAt:      raw.created_at,
-      reporter: {
-        userId:      raw.reporter.user_id,
-        username:    raw.reporter.username,
-        displayName: raw.reporter.display_name,
-      },
-      reviewedBy: raw.reviewed_by ? {
-        userId:      raw.reviewed_by.user_id,
-        username:    raw.reviewed_by.username,
-        displayName: raw.reviewed_by.display_name,
-      } : null,
-      reviewedAt:     raw.reviewed_at,
-      resolutionNote: raw.resolution_note,
-      entityPreview:  raw.entity_preview,
-    };
+    return mapReport(raw);
   },
 
   suspendUser: async (
