@@ -2,10 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import Image from "next/image";
-// Bug 6 fix: removed direct imports of mockNotificationService / realNotificationService
-// and the module-level ENV.USE_MOCK_API switch. notificationService is already resolved
-// in di.ts — importing it directly keeps DI centralised across all pages.
-import { notificationService } from "@/services/di";
+import { notificationsService } from "@/services/di";
 import type {
   INotification,
   INotificationsResponse,
@@ -335,7 +332,7 @@ export default function NotificationsPage() {
     async function fetchNotificationsAsync() {
       try {
         setIsLoading(true);
-        const result = await notificationService.getNotifications();
+        const result = await notificationsService.getNotifications();
         setData(result);
       } catch (err) {
         setErrorMessage(err instanceof Error ? err.message : "Failed to load notifications");
@@ -353,7 +350,7 @@ export default function NotificationsPage() {
   }, [data, activeFilter]);
 
   const handleMarkRead = async (notificationId: string) => {
-    await notificationService.markAsRead(notificationId);
+    await notificationsService.markAsRead(notificationId);
     setData(prev => {
       if (!prev) return prev;
       return {
@@ -367,7 +364,7 @@ export default function NotificationsPage() {
   };
 
   const handleMarkAllRead = async () => {
-    await notificationService.markAllAsRead();
+    await notificationsService.markAllAsRead();
     setData(prev => {
       if (!prev) return prev;
       return {
@@ -385,7 +382,7 @@ export default function NotificationsPage() {
                ?? data?.recentFollowers.find(f => f.id === actorId);
     const actorUsername = actor?.username ?? actorId;
 
-    const result = await notificationService.toggleFollow(actorUsername, currentlyFollowing);
+    const result = await notificationsService.toggleFollow(actorUsername, currentlyFollowing);
     setData(prev => {
       if (!prev) return prev;
       return {

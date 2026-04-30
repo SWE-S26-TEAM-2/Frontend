@@ -173,6 +173,20 @@ export const accountService = {
   updateSettings: ENV.USE_MOCK_API ? updateMockAccountSettings : updateAccountSettingsOnAPI,
   sendPasswordResetEmail: ENV.USE_MOCK_API ? sendMockPasswordResetEmail : sendPasswordResetEmailFromAPI,
 };
+
+/**
+ * Settings - Notification Service
+ */
+// export const notificationService = {
+//   getSettings: ENV.USE_MOCK_API ? getMockNotificationSettings : getNotificationSettingsFromAPI,
+//   updateSettings: ENV.USE_MOCK_API ? updateMockNotificationSettings : updateNotificationSettingsOnAPI,
+// };
+export const notificationService = {
+  // Forced to Mock
+  getSettings: getMockNotificationSettings,
+  updateSettings: updateMockNotificationSettings,
+};
+
 /**
  * Settings - Content Service
  */
@@ -295,10 +309,10 @@ export const engagementService: IEngagementService = ENV.USE_MOCK_API
   ? mockEngagementService
   : realEngagementService;
   
-export const notificationService = ENV.USE_MOCK_API
+export const notificationsService = ENV.USE_MOCK_API
   ? mockNotificationService
   : realNotificationService;
-
+  
 // Export individual services for direct imports if needed
 export {
   RealAuthService,
