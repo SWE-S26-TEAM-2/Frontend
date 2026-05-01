@@ -19,6 +19,7 @@ export default function CommentSection({ trackId }: ICommentSectionProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [commentBody, setCommentBody] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   useEffect(() => {
     commentService.getTrackComments(trackId).then((data) => {
@@ -30,10 +31,16 @@ export default function CommentSection({ trackId }: ICommentSectionProps) {
   const handleSubmit = async () => {
     if (!commentBody.trim()) return;
     setIsSubmitting(true);
-    const newComment = await commentService.addComment(trackId, commentBody.trim());
-    setComments((prev) => [newComment, ...prev]);
-    setCommentBody("");
-    setIsSubmitting(false);
+    setSubmitError("");
+    try {
+      const newComment = await commentService.addComment(trackId, commentBody.trim());
+      setComments((prev) => [newComment, ...prev]);
+      setCommentBody("");
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Failed to post comment");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleReply = async (commentId: string, body: string) => {
@@ -68,22 +75,27 @@ export default function CommentSection({ trackId }: ICommentSectionProps) {
               </div>
             )}
           </div>
-          <div className="flex-1 flex gap-2">
-            <textarea
-              value={commentBody}
-              onChange={(e) => setCommentBody(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSubmit()}
-              placeholder="Write a comment…"
-              rows={1}
-              className="flex-1 bg-(--sc-bg-surface) border border-(--sc-border) rounded px-3 py-2 text-sm text-(--sc-text) placeholder-(--sc-text-muted) outline-none focus:border-(--sc-orange) resize-none"
-            />
-            <button
-              onClick={handleSubmit}
-              disabled={isSubmitting || !commentBody.trim()}
-              className="px-4 py-2 bg-(--sc-orange) text-white text-sm font-semibold rounded hover:bg-(--sc-orange-hover) disabled:opacity-40 transition-colors self-end"
-            >
-              Post
-            </button>
+          <div className="flex-1 flex flex-col gap-1">
+            <div className="flex gap-2">
+              <textarea
+                value={commentBody}
+                onChange={(e) => setCommentBody(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSubmit()}
+                placeholder="Write a comment…"
+                rows={1}
+                className="flex-1 bg-(--sc-bg-surface) border border-(--sc-border) rounded px-3 py-2 text-sm text-(--sc-text) placeholder-(--sc-text-muted) outline-none focus:border-(--sc-orange) resize-none"
+              />
+              <button
+                onClick={handleSubmit}
+                disabled={isSubmitting || !commentBody.trim()}
+                className="px-4 py-2 bg-(--sc-orange) text-white text-sm font-semibold rounded hover:bg-(--sc-orange-hover) disabled:opacity-40 transition-colors self-end"
+              >
+                Post
+              </button>
+            </div>
+            {submitError && (
+              <p className="text-xs text-red-400">{submitError}</p>
+            )}
           </div>
         </div>
       ) : (

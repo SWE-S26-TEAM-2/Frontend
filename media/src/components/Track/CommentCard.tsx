@@ -31,15 +31,19 @@ export default function CommentCard({ comment, onReply }: ICommentCardProps) {
     <div className="flex gap-3 py-4 border-b border-(--sc-border)">
       {/* Avatar */}
       <div className="shrink-0">
-        <div className="w-9 h-9 rounded-full bg-(--sc-bg-surface) overflow-hidden">
-          <Image
-            src={comment.user.avatarUrl}
-            alt={comment.user.username}
-            width={36}
-            height={36}
-            className="object-cover w-full h-full"
-            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-          />
+        <div className="w-9 h-9 rounded-full bg-(--sc-bg-surface) overflow-hidden flex items-center justify-center text-(--sc-text-muted) text-sm font-bold">
+          {comment.user.avatarUrl ? (
+            <Image
+              src={comment.user.avatarUrl}
+              alt={comment.user.username}
+              width={36}
+              height={36}
+              className="object-cover w-full h-full"
+              onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+            />
+          ) : (
+            (comment.user.username?.[0] ?? "?").toUpperCase()
+          )}
         </div>
       </div>
 
@@ -108,15 +112,19 @@ export default function CommentCard({ comment, onReply }: ICommentCardProps) {
           <div className="mt-3 pl-4 border-l-2 border-(--sc-border) flex flex-col gap-3">
             {comment.replies.map((reply) => (
               <div key={reply.id} className="flex gap-2">
-                <div className="w-7 h-7 rounded-full bg-(--sc-bg-surface) overflow-hidden shrink-0">
-                  <Image
-                    src={reply.user.avatarUrl}
-                    alt={reply.user.username}
-                    width={28}
-                    height={28}
-                    className="object-cover w-full h-full"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-                  />
+                <div className="w-7 h-7 rounded-full bg-(--sc-bg-surface) overflow-hidden shrink-0 flex items-center justify-center text-(--sc-text-muted) text-xs font-bold">
+                  {reply.user.avatarUrl ? (
+                    <Image
+                      src={reply.user.avatarUrl}
+                      alt={reply.user.username}
+                      width={28}
+                      height={28}
+                      className="object-cover w-full h-full"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                    />
+                  ) : (
+                    (reply.user.username?.[0] ?? "?").toUpperCase()
+                  )}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-0.5">
