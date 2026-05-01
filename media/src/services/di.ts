@@ -168,14 +168,11 @@ export const storeService: IStoreService = ENV.USE_MOCK_API
 /**
  * Settings - Privacy Service
  */
-/** Trending Service
- * TODO: replace getCuratedTracksAPI, getEmergingTracksAPI, getPowerPlaylistsAPI
- * with real endpoints once backend ships them.
- */
+// Uses /feed/discover — confirmed available in backend
 export const trendingService = {
-  getCurated: ENV.USE_MOCK_API ? getCuratedTracks : getCuratedTracksAPI,
+  getCurated:  ENV.USE_MOCK_API ? getCuratedTracks  : getCuratedTracksAPI,
   getEmerging: ENV.USE_MOCK_API ? getEmergingTracks : getEmergingTracksAPI,
-  getPower: ENV.USE_MOCK_API ? getPowerPlaylists : getPowerPlaylistsAPI,
+  getPower:    ENV.USE_MOCK_API ? getPowerPlaylists : getPowerPlaylistsAPI,
 };
 
 /** Home Service */
@@ -193,7 +190,6 @@ export const feedService: IFeedService = ENV.USE_MOCK_API
   ? mockFeedService
   : realFeedService;
 
-/** Station Service */
 export const stationService: IStationService = ENV.USE_MOCK_API
   ? mockStationService
   : realStationService;

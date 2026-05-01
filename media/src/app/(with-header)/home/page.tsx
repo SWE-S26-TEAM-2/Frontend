@@ -12,23 +12,29 @@ import type { IHomePageData } from "@/types/home.types";
 import type { IStation } from "@/types/station.types";
 
 export default function HomePage() {
-  const router = useRouter();
+  const router          = useRouter();
   const { isAuthenticated } = useAuthStore();
 
-  const [data, setData]                         = useState<IHomePageData | null>(null);
-  const [discoverStations, setDiscoverStations] = useState<IStation[]>([]);
-  const [isLoading, setIsLoading]               = useState(true);
+  const [mounted,           setMounted]           = useState(false);
+  const [data,              setData]              = useState<IHomePageData | null>(null);
+  const [discoverStations,  setDiscoverStations]  = useState<IStation[]>([]);
+  const [isLoading,         setIsLoading]         = useState(true);
 
-  // ── Auth guard ─────────────────────────────────────────────────────────────
+  // ── Mount + auth guard ────────────────────────────────────────────────────
+  // Must run in useEffect so server and client agree on the first render
+  // (avoids typeof window hydration mismatch).
   useEffect(() => {
-    if (!isAuthenticated) {
+    setMounted(true);
+    const token = window.localStorage.getItem("auth_token");
+    if (!isAuthenticated && !token) {
       router.push("/login");
     }
   }, [isAuthenticated, router]);
 
-  // ── Fetch ──────────────────────────────────────────────────────────────────
+  // ── Data fetch ────────────────────────────────────────────────────────────
   useEffect(() => {
-    if (!isAuthenticated) return;
+    const token = window.localStorage.getItem("auth_token");
+    if (!isAuthenticated && !token) return;
 
     Promise.all([
       homeService.getHomePageData(),
@@ -38,16 +44,18 @@ export default function HomePage() {
         setData(homeData);
         setDiscoverStations(stations);
       })
-      .catch((error) => console.error("Failed to fetch home data:", error))
+      .catch((err) => console.error("Failed to fetch home data:", err))
       .finally(() => setIsLoading(false));
   }, [isAuthenticated]);
 
-  if (!isAuthenticated) return null;
+  // ── Render ────────────────────────────────────────────────────────────────
+  // Return null before mount so server and client produce identical HTML.
+  if (!mounted) return null;
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-[#121212]">
-        <div className="px-5 py-4 border border-[#333] rounded-lg bg-[#1a1a1a] text-[#ccc] text-sm font-[Inter,sans-serif]">
+        <div className="px-5 py-4 border border-[#333] rounded-lg bg-[#1a1a1a] text-[#ccc] text-sm">
           Loading SoundCloud...
         </div>
       </div>
@@ -58,25 +66,21 @@ export default function HomePage() {
 
   return (
     <div className="bg-[#121212] min-h-screen w-full overflow-x-hidden">
-      <div className="flex flex-col lg:flex-row gap-[30px] max-w-[1240px] mx-auto px-5 py-10 lg:py-10">
+      <div className="flex flex-col lg:flex-row gap-[30px] max-w-[1240px] mx-auto px-5 py-10">
 
-        {/* Main content */}
         <main className="flex-1 min-w-0 overflow-hidden">
           <TrackSlider
             title="More of what you like"
             subtitle="Suggestions based on your recent plays"
             tracks={data.moreOfWhatYouLike}
           />
-
           <RecentlyPlayedGrid items={data.recentlyPlayed} />
-
           <TrackSlider
             title="Mixed for you"
             subtitle="Your personal daily music update"
             tracks={data.mixedForUser}
             showFollow={false}
           />
-
           <StationSlider
             title="Discover with stations"
             subtitle="Pick a track and we'll play similar music"
@@ -84,7 +88,6 @@ export default function HomePage() {
           />
         </main>
 
-        {/* Sidebar */}
         <aside className="w-full lg:w-[320px] lg:flex-shrink-0">
           <RightSidebar
             followSuggestions={data.followSuggestions}

@@ -1,19 +1,12 @@
 /**
  * Trending API Service
- * Place at: services/api/trending.api.ts
- *
- * NOTE: Backend has no dedicated trending endpoints.
- * Using /feed/following as the data source for all three sliders.
- * TODO: Replace with dedicated endpoints once backend ships:
- *   - GET /feed/discover       (currently 404)
- *   - GET /tracks/curated      (not yet implemented)
- *   - GET /tracks/power        (not yet implemented)
+ * Uses /feed/discover — the curated discovery feed.
+ * /tracks/curated, /tracks/emerging, /tracks/power do not exist in the backend;
+ * all three sliders pull from the same discover feed for now.
  */
 
 import { apiGet } from "./apiClient";
 import type { ITrack } from "@/types/track.types";
-
-// ── RAW FEED SHAPE ────────────────────────────────────────────────────────────
 
 interface IRawFeedItem {
   track_id:         string;
@@ -38,8 +31,6 @@ interface IFeedResponse {
   items: IRawFeedItem[];
 }
 
-// ── ADAPTER ───────────────────────────────────────────────────────────────────
-
 function adaptFeedItemToTrack(raw: IRawFeedItem): ITrack {
   return {
     id:            raw.track_id,
@@ -59,19 +50,15 @@ function adaptFeedItemToTrack(raw: IRawFeedItem): ITrack {
   };
 }
 
-// ── SHARED FETCH ──────────────────────────────────────────────────────────────
-
-async function getFollowingFeed(limit = 20): Promise<ITrack[]> {
+async function getDiscoverFeed(limit = 20): Promise<ITrack[]> {
   try {
-    const res = await apiGet<IFeedResponse>(`/feed/following?limit=${limit}`);
+    const res = await apiGet<IFeedResponse>(`/feed/discover?limit=${limit}`);
     return (res?.items ?? []).map(adaptFeedItemToTrack);
   } catch {
     return [];
   }
 }
 
-// ── API FUNCTIONS ─────────────────────────────────────────────────────────────
-
-export const getCuratedTracksAPI  = (): Promise<ITrack[]> => getFollowingFeed(20);
-export const getEmergingTracksAPI = (): Promise<ITrack[]> => getFollowingFeed(20);
-export const getPowerPlaylistsAPI = (): Promise<ITrack[]> => getFollowingFeed(20);
+export const getCuratedTracksAPI  = (): Promise<ITrack[]> => getDiscoverFeed(20);
+export const getEmergingTracksAPI = (): Promise<ITrack[]> => getDiscoverFeed(20);
+export const getPowerPlaylistsAPI = (): Promise<ITrack[]> => getDiscoverFeed(20);

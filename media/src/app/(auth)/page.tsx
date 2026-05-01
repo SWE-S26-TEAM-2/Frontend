@@ -103,7 +103,7 @@ export default function Home() {
   showFollow={true}
 />
               <HoverButton
-                onClick={() => router.push('/discover')}
+                onClick={() => router.push('/trending')}
                 className="px-10 py-[14px] bg-white text-black rounded font-bold text-base border-none"
               >
                 Explore trending playlists

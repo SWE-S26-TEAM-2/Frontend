@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
-import TrendingPage from "../app/(auth)/trending/page"; 
+import TrendingPage from "../app/(with-header)/trending/page";
 import "@testing-library/jest-dom";
 import { trendingService,trackService } from "@/services/di";
 

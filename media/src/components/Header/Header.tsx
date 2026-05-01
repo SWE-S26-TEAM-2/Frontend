@@ -125,6 +125,11 @@ const SupportIcon = () => (
     <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
   </svg>
 );
+const TrendingIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" /><polyline points="16 7 22 7 22 13" />
+  </svg>
+);
 const KeyboardIcon = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="2" y="4" width="20" height="16" rx="2" /><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10" />
@@ -165,7 +170,7 @@ const getAvatarMenu = (profileHref: string): IMenuItem[] => {
   return [
     { icon: <ProfileIcon />,     label: "Profile",        href: profileHref },
     { icon: <LikesIcon />,       label: "Likes",          href: profileLikesHref },
-    { icon: <StationsIcon />,    label: "Stations",       href: "/stream" },
+    { icon: <StationsIcon />,    label: "Stations",       href: "/stations" },
     { icon: <WhoToFollowIcon />, label: "Who to follow",  href: "/who-to-follow", dividerBefore: true },
     { icon: <ArtistProBadge />,  label: "Try Artist Pro", href: "/artist-pro", orange: true },
     { icon: <TracksIcon />,      label: "Tracks",         href: "/library", dividerBefore: true },
@@ -177,7 +182,8 @@ const getAvatarMenu = (profileHref: string): IMenuItem[] => {
 };
 
 const DOTS_MENU: IMenuItem[] = [
-  { icon: <GlobeIcon />,        label: "About us",           href: "/about" },
+  { icon: <TrendingIcon />,     label: "Trending",           href: "/trending" },
+  { icon: <GlobeIcon />,        label: "About us",           href: "/about",        dividerBefore: true },
   { icon: <GlobeIcon />,        label: "Legal",              href: "/legal" },
   { icon: <GlobeIcon />,        label: "Copyright",          href: "/copyright" },
   { icon: <PhoneIcon />,        label: "Mobile apps",        href: "/mobile",       dividerBefore: true },
@@ -252,6 +258,8 @@ function MobileDrawer({ isOpen, onClose, profileHref, isLoggedIn, onSignOut }: {
           <div className="h-px bg-[#303030] my-1" />
           <Link href="/creator/upload" onClick={onClose} className={linkClass}>Upload</Link>
           <Link href="/creator/studio" onClick={onClose} className={linkClass}>For Artists</Link>
+          <Link href="/trending" onClick={onClose} className={linkClass}>Trending</Link>
+          <Link href="/stations" onClick={onClose} className={linkClass}>Stations</Link>
           {isLoggedIn && (
             <>
               <div className="h-px bg-[#303030] my-1" />
@@ -419,7 +427,7 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
           </button>
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-1.5 no-underline shrink-0">
+          <Link href="/home" className="flex items-center gap-1.5 no-underline shrink-0">
             <SoundCloudLogo />
             <span className="text-white text-sm font-bold tracking-tight hidden sm:block select-none">soundcloud</span>
           </Link>

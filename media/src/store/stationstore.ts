@@ -63,6 +63,7 @@ export const useStationStore = create<IStationStore>()(
       // Serialize Set as array for localStorage
       storage: {
         getItem: (name) => {
+          if (typeof window === "undefined") return null;
           const str = localStorage.getItem(name);
           if (!str) return null;
           const parsed = JSON.parse(str);
@@ -75,6 +76,7 @@ export const useStationStore = create<IStationStore>()(
           };
         },
         setItem: (name, value) => {
+          if (typeof window === "undefined") return;
           const serialized = {
             ...value,
             state: {
@@ -84,7 +86,10 @@ export const useStationStore = create<IStationStore>()(
           };
           localStorage.setItem(name, JSON.stringify(serialized));
         },
-        removeItem: (name) => localStorage.removeItem(name),
+        removeItem: (name) => {
+          if (typeof window === "undefined") return;
+          localStorage.removeItem(name);
+        },
       },
     }
   )
