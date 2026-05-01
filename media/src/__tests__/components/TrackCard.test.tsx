@@ -4,6 +4,20 @@ import { TrackCard } from "@/components/Track/TrackCard";
 import { TrackCover } from "@/components/Track/TrackCover";
 import { type ITrack } from "@/types/track.types";
 
+// ── Stubs for network-dependent hooks ───────────────────────────────────────
+// useWaveform calls fetch() internally; mock it so jsdom doesn't crash.
+jest.mock("@/hooks/useWaveform", () => ({
+  useWaveform: () => [],
+}));
+
+// Provide a no-op global fetch so any residual direct fetch calls are silent.
+if (typeof global.fetch === "undefined") {
+  global.fetch = jest.fn().mockResolvedValue({
+    ok: false,
+    json: async () => ({}),
+  }) as jest.Mock;
+}
+
 const sampleTrack: ITrack = {
   id: "1",
   title: "Une vie à t'aimer",

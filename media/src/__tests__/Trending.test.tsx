@@ -15,7 +15,14 @@ beforeAll(() => {
 const mockPush = jest.fn();
 jest.mock("next/navigation", () => ({
   useRouter: () => ({ push: mockPush }),
+  usePathname: () => "/trending",
 }));
+
+// Mock Header — TrendingPage lives inside the (with-header) layout which renders
+// <Header />. The Header is not what we're testing here; a stub avoids pulling
+// in its full dependency tree (SearchBar, useAuthStore, etc.).
+jest.mock("@/components/Header/Header", () => function MockHeader() { return null; });
+jest.mock("@/components/Search/SearchBar", () => function MockSearchBar() { return null; });
 
 // Mock Data
 jest.mock("@/services/di", () => ({
@@ -63,19 +70,11 @@ describe("TrendingPage Component", () => {
     expect(screen.getByText(/Discover Tracks and Playlists/i)).toBeInTheDocument();
   });
 
-  // --- FIX 2: Use getAllBy and specific selectors ---
-  test("toggles the dots menu in the header", async () => {
+  // The dots-menu (Header) is in the layout wrapper, not rendered by TrendingPage itself.
+  // We verify the page renders its primary content heading instead.
+  test("renders the trending page without crashing", async () => {
     await act(async () => { render(<TrendingPage />); });
-
-    // Instead of getByRole("button", {name: ""}), use a more specific way to find the header dots
-    // Looking for the dots icon SVG inside a button
-    const buttons = screen.getAllByRole("button");
-    const dotsBtn = buttons.find(btn => btn.innerHTML.includes("circle")); 
-    
-    if (dotsBtn) {
-      fireEvent.click(dotsBtn);
-      expect(screen.getByText("About us")).toBeInTheDocument();
-    }
+    expect(screen.getByText(/Discover Tracks and Playlists/i)).toBeInTheDocument();
   });
 
   test("interacts with a Track Card (Like button)", async () => {
