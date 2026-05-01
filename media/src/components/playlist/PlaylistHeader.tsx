@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePlayerStore } from "@/store/playerStore";
+import { playlistService } from "@/services/di";
 import type { IPlaylist, IPlaylistTrack } from "@/types/playlist.types";
 import type { ITrack } from "@/types/track.types";
 import { resolveTrackUrl } from "@/utils/resolveTrackUrl";
@@ -13,6 +14,12 @@ interface IPlaylistHeaderProps {
   playlist: IPlaylist;
   tracks: IPlaylistTrack[];
   canEdit?: boolean;
+  /** Pre-hydrated like state from useLikedPlaylists */
+  isLiked?: boolean;
+  /** True while a like/unlike request is in-flight */
+  isLiking?: boolean;
+  /** Called when user clicks Like button. If provided, parent owns like logic. */
+  onLike?: () => void;
 }
 
 function toPlayerTrack(track: IPlaylistTrack): ITrack {
@@ -34,10 +41,17 @@ export default function PlaylistHeader({
   playlist,
   tracks,
   canEdit = true,
+  isLiked: isLikedProp,
+  isLiking: isLikingProp,
+  onLike: onLikeProp,
 }: IPlaylistHeaderProps) {
   const { id, title, creator, coverArt, description } = playlist;
 
-  const [isLiked, setIsLiked] = useState(false);
+  const [isLikedLocal, setIsLikedLocal] = useState(false);
+  const [isLikingLocal, setIsLikingLocal] = useState(false);
+  // Controlled vs uncontrolled: if parent passes isLiked/isLiking, use those
+  const isLiked = isLikedProp !== undefined ? isLikedProp : isLikedLocal;
+  const isLiking = isLikingProp !== undefined ? isLikingProp : isLikingLocal;
   const [shareMessage, setShareMessage] = useState("");
 
   const setQueue = usePlayerStore((s) => s.setQueue);
@@ -50,7 +64,28 @@ export default function PlaylistHeader({
     setTrack(playerTracks[0]);
   };
 
-  const handleLike = () => setIsLiked((prev) => !prev);
+  const handleLike = useCallback(async () => {
+    // If parent controls like logic, delegate to them
+    if (onLikeProp) {
+      onLikeProp();
+      return;
+    }
+    if (isLiking) return;
+    setIsLikingLocal(true);
+    const wasLiked = isLiked;
+    setIsLikedLocal(!wasLiked);
+    try {
+      if (wasLiked) {
+        await playlistService.unlikePlaylist(id);
+      } else {
+        await playlistService.likePlaylist(id);
+      }
+    } catch {
+      setIsLikedLocal(wasLiked);
+    } finally {
+      setIsLikingLocal(false);
+    }
+  }, [id, isLiked, isLiking, onLikeProp]);
 
   const showShareFeedback = (message: string) => {
     setShareMessage(message);
@@ -81,7 +116,7 @@ export default function PlaylistHeader({
         {/* Cover art */}
         <div className={styles.playlistHeader__coverWrap}>
           <Image
-            src={coverArt}
+            src={coverArt ?? "/default.jpg"}
             alt={`${title} cover art`}
             width={220}
             height={220}
@@ -155,7 +190,10 @@ export default function PlaylistHeader({
               ]
                 .filter(Boolean)
                 .join(" ")}
-              onClick={handleLike}
+              onClick={() => { void handleLike(); }}
+              disabled={isLiking}
+              aria-pressed={isLiked}
+              aria-label={isLiked ? "Unlike playlist" : "Like playlist"}
             >
               {isLiked ? "Liked" : "Like"}
             </button>

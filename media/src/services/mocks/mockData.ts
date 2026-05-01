@@ -1,4 +1,3 @@
-/*  eslint-disable @typescript-eslint/no-unused-vars */
 
 import { ITrack } from '@/types/track.types';
 import { IProduct } from '@/types/store.types';
@@ -348,7 +347,15 @@ export const MOCK_PLAYLISTS: IPlaylist[] = [
     totalDuration: 611,
     createdAt: '2026-03-01T10:00:00Z',
     updatedAt: '2026-04-10T08:00:00Z',
-    tracks: MOCK_TRACKS.map((t, i) => ({ position: i + 1, track: t })),
+    tracks: MOCK_TRACKS.map((t) => ({
+      id: t.id,
+      title: t.title,
+      artist: t.artist,
+      albumArt: t.albumArt,
+      duration: t.duration,
+      url: t.url,
+      genre: t.genre,
+    })),
   },
   {
     id: 'pl2',
@@ -363,11 +370,15 @@ export const MOCK_PLAYLISTS: IPlaylist[] = [
     totalDuration: 421,
     createdAt: '2026-02-15T22:00:00Z',
     updatedAt: '2026-04-08T20:00:00Z',
-    tracks: [
-      { position: 1, track: MOCK_TRACKS[3] },
-      { position: 2, track: MOCK_TRACKS[0] },
-      { position: 3, track: MOCK_TRACKS[2] },
-    ],
+    tracks: [MOCK_TRACKS[3], MOCK_TRACKS[0], MOCK_TRACKS[2]].map((t) => ({
+      id: t.id,
+      title: t.title,
+      artist: t.artist,
+      albumArt: t.albumArt,
+      duration: t.duration,
+      url: t.url,
+      genre: t.genre,
+    })),
   },
   {
     id: 'pl3',
@@ -382,7 +393,15 @@ export const MOCK_PLAYLISTS: IPlaylist[] = [
     totalDuration: 611,
     createdAt: '2026-01-20T12:00:00Z',
     updatedAt: '2026-04-01T10:00:00Z',
-    tracks: MOCK_TRACKS.map((t, i) => ({ position: i + 1, track: t })),
+    tracks: MOCK_TRACKS.map((t) => ({
+      id: t.id,
+      title: t.title,
+      artist: t.artist,
+      albumArt: t.albumArt,
+      duration: t.duration,
+      url: t.url,
+      genre: t.genre,
+    })),
   },
   {
     id: 'pl4',
@@ -396,10 +415,15 @@ export const MOCK_PLAYLISTS: IPlaylist[] = [
     totalDuration: 211,
     createdAt: '2026-03-10T16:00:00Z',
     updatedAt: '2026-04-05T14:00:00Z',
-    tracks: [
-      { position: 1, track: MOCK_TRACKS[1] },
-      { position: 2, track: MOCK_TRACKS[0] },
-    ],
+    tracks: [MOCK_TRACKS[1], MOCK_TRACKS[0]].map((t) => ({
+      id: t.id,
+      title: t.title,
+      artist: t.artist,
+      albumArt: t.albumArt,
+      duration: t.duration,
+      url: t.url,
+      genre: t.genre,
+    })),
   },
   {
     id: 'pl5',
@@ -414,7 +438,15 @@ export const MOCK_PLAYLISTS: IPlaylist[] = [
     totalDuration: 611,
     createdAt: '2025-12-01T10:00:00Z',
     updatedAt: '2026-04-11T08:00:00Z',
-    tracks: MOCK_TRACKS.map((t, i) => ({ position: i + 1, track: t })),
+    tracks: MOCK_TRACKS.map((t) => ({
+      id: t.id,
+      title: t.title,
+      artist: t.artist,
+      albumArt: t.albumArt,
+      duration: t.duration,
+      url: t.url,
+      genre: t.genre,
+    })),
   },
 ];
 

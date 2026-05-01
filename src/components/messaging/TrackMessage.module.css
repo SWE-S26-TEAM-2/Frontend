@@ -1,0 +1,146 @@
+/* src/components/messaging/TrackMessage.module.css */
+
+.wrapper {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.wrapper.own {
+  flex-direction: row-reverse;
+}
+
+.avatarSpacer {
+  width: 28px;
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  display: block;
+}
+
+.card {
+  max-width: 260px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--pl-surface-2);
+  border: 1px solid var(--pl-border);
+  cursor: pointer;
+  transition: transform var(--pl-transition), border-color var(--pl-transition);
+  text-decoration: none;
+  display: block;
+}
+
+.card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(var(--pl-accent-rgb), 0.4);
+}
+
+.wrapper.own .card {
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(var(--pl-accent-rgb), 0.15);
+}
+
+.coverWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 260px;
+}
+
+.cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.playOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--pl-transition);
+}
+
+.card:hover .playOverlay {
+  opacity: 1;
+}
+
+.playIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--pl-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: #fff;
+}
+
+.info {
+  padding: 10px 12px;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pl-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.artist {
+  font-size: 11px;
+  color: var(--pl-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.duration {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--pl-text-dim);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 3px;
+  padding: 0 4px;
+}
+
+.wrapper.own .meta {
+  justify-content: flex-end;
+}
+
+.time {
+  font-size: 10px;
+  color: var(--pl-text-dim);
+}
+
+.seenStatus {
+  font-size: 11px;
+  color: var(--pl-text-muted);
+}
+
+.seenStatus.seen {
+  color: var(--pl-accent);
+}

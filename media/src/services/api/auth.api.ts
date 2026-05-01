@@ -232,6 +232,32 @@ export const RealAuthService = {
     };
   },
 
+  resetPassword: async (token: string, newPassword: string, _signOutEverywhere?: boolean): Promise<{ success: boolean }> => {
+    const response = await fetch(`${ENV.API_BASE_URL}/auth/reset-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, new_password: newPassword }),
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error?.detail || "Failed to reset password");
+    }
+    return { success: true };
+  },
+
+  verifyResetToken: async (code: string): Promise<{ valid: boolean; message?: string }> => {
+    const response = await fetch(`${ENV.API_BASE_URL}/auth/verify-reset-token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: code }),
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      return { valid: false, message: error?.detail || "Invalid or expired code." };
+    }
+    return { valid: true };
+  },
+
   refreshToken: async (_token: string): Promise<{ token: string }> => {
     const storedRefresh = getRefreshToken();
 

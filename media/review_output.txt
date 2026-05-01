@@ -1,33 +1,31 @@
 ================================================================
   FRONTEND CODE REVIEW — AUTOMATED REPORT
-  Generated: 2026-04-12 22:24:19
+  Generated: 2026-05-01 08:04:32
 ================================================================
 
 ================================================================
 STEP 1 — ESLINT
 ================================================================
+(node:20136) ExperimentalWarning: CommonJS module C:\Users\User37\AppData\Roaming\npm\node_modules\npm\node_modules\debug\src\node.js is loading ES Module C:\Users\User37\AppData\Roaming\npm\node_modules\npm\node_modules\supports-color\index.js using require().
+Support for loading ES Module in require() is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
 
-C:\Users\MOH\Documents\GitHub\Frontend\media\e2e\tests\profile.spec.ts
-  1:29  warning  'Page' is defined but never used  @typescript-eslint/no-unused-vars
+D:\downloads\fixed\media\src\app\(with-header)\subscription\checkout\page.tsx
+  37:10  warning  'isLoading' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
 
-C:\Users\MOH\Documents\GitHub\Frontend\media\src\app\(with-header)\creator\upload\page.tsx
-  12:10  warning  'useAuthStore' is defined but never used  @typescript-eslint/no-unused-vars
+D:\downloads\fixed\media\src\hooks\usePlaylistController.ts
+  149:13  warning  'mutateMeta' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
 
-C:\Users\MOH\Documents\GitHub\Frontend\media\src\services\api\auth.api.ts
-  139:22  warning  '_emailOrProfileUrl' is defined but never used  @typescript-eslint/no-unused-vars
-  231:24  warning  '_token' is defined but never used              @typescript-eslint/no-unused-vars
-
-C:\Users\MOH\Documents\GitHub\Frontend\media\src\services\mocks\mockData.ts
-  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
-
-✖ 5 problems (0 errors, 5 warnings)
-  0 errors and 1 warning potentially fixable with the `--fix` option.
+✖ 2 problems (0 errors, 2 warnings)
 
 RESULT: PASSED — No ESLint errors
 
 ================================================================
 STEP 2 — TYPESCRIPT
 ================================================================
+(node:32828) ExperimentalWarning: CommonJS module C:\Users\User37\AppData\Roaming\npm\node_modules\npm\node_modules\debug\src\node.js is loading ES Module C:\Users\User37\AppData\Roaming\npm\node_modules\npm\node_modules\supports-color\index.js using require().
+Support for loading ES Module in require() is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
 RESULT: PASSED — No TypeScript errors
 
 ================================================================
@@ -37,26 +35,47 @@ STEP 3 — BUILD
 > media@0.1.0 build
 > next build
 
-▲ Next.js 16.1.6 (Turbopack)
-- Environments: .env.local, .env.production
+▲ Next.js 16.2.4 (Turbopack)
+- Environments: .env.local
 
   Creating an optimized production build ...
-✓ Compiled successfully in 15.5s
+✓ Compiled successfully in 16.1s
   Running TypeScript ...
+  Finished TypeScript in 10.9s ...
   Collecting page data using 7 workers ...
-  Generating static pages using 7 workers (0/15) ...
-  Generating static pages using 7 workers (3/15) 
-  Generating static pages using 7 workers (7/15) 
-  Generating static pages using 7 workers (11/15) 
-✓ Generating static pages using 7 workers (15/15) in 1369.9ms
+  Generating static pages using 7 workers (0/38) ...
+  Generating static pages using 7 workers (9/38) 
+  Generating static pages using 7 workers (18/38) 
+  Generating static pages using 7 workers (28/38) 
+✓ Generating static pages using 7 workers (38/38) in 1011ms
   Finalizing page optimization ...
 
 Route (app)
 ┌ ○ /
 ├ ○ /_not-found
 ├ ƒ /[username]
+├ ƒ /[username]/followers
+├ ƒ /[username]/following
+├ ƒ /[username]/likes
+├ ○ /admin/dashboard
+├ ○ /charts
+├ ○ /creator/distribute
+├ ○ /creator/monetize
+├ ○ /creator/studio
 ├ ○ /creator/upload
+├ ○ /discover
+├ ○ /icon.svg
+├ ○ /library
 ├ ○ /login
+├ ○ /messages
+├ ƒ /messages/[id]
+├ ○ /notifications
+├ ƒ /playlist/[id]
+├ ƒ /playlist/[id]/edit
+├ ○ /playlist/create
+├ ○ /reset-password
+├ ○ /reset-password/success
+├ ○ /search
 ├ ○ /settings
 ├ ○ /settings/account
 ├ ○ /settings/advertising
@@ -64,9 +83,18 @@ Route (app)
 ├ ○ /settings/notifications
 ├ ○ /settings/privacy
 ├ ○ /settings/privacy/auth
+├ ○ /settings/request-verification
 ├ ○ /settings/two-factor
 ├ ○ /store
-└ ƒ /track/[id]
+├ ○ /stream
+├ ○ /subscription
+├ ○ /subscription/artist-pro
+├ ○ /subscription/checkout
+├ ○ /subscription/go-plus
+├ ○ /subscription/success
+├ ƒ /track/[id]
+├ ○ /who-to-follow
+└ ○ /you/insights
 
 
 ○  (Static)   prerendered as static content
@@ -81,21 +109,24 @@ STEP 4 — TESTS
 > media@0.1.0 test
 > jest --silent
 
-PASS src/__tests__/Toggle.test.tsx
 PASS src/__tests__/TrackPage.test.tsx
+PASS src/__tests__/components/ProfileActions.test.tsx
+PASS src/__tests__/components/Banner.test.tsx
 PASS src/__tests__/SlideShow.test.tsx
-PASS src/__tests__/utils/formatNumber.test.ts
-PASS src/__tests__/Landing.test.tsx
-PASS src/__tests__/utils/timeAgo.test.ts
 PASS src/__tests__/components/TrackCard.test.tsx
+PASS src/__tests__/Landing.test.tsx
 PASS src/__tests__/Footer.test.tsx
-PASS src/__tests__/Header.test.tsx
-PASS src/__tests__/services/userProfile.service.test.ts (7.498 s)
+PASS src/__tests__/utils/formatNumber.test.ts
+PASS src/__tests__/utils/timeAgo.test.ts
+PASS src/__tests__/Toggle.test.tsx
+PASS src/__tests__/components/UserSearchCard.test.tsx
+PASS src/__tests__/Header.test.tsx (5.48 s)
+PASS src/__tests__/services/userProfile.service.test.ts (7.429 s)
 
-Test Suites: 10 passed, 10 total
-Tests:       129 passed, 129 total
+Test Suites: 13 passed, 13 total
+Tests:       144 passed, 144 total
 Snapshots:   0 total
-Time:        13.04 s
+Time:        11.451 s
 RESULT: PASSED — Tests successful
 
 ================================================================
@@ -106,13 +137,13 @@ RESULT: PASSED — No console.log found
 ================================================================
 STEP 6 — BRANCH NAME
 ================================================================
-RESULT: FAILED — Invalid branch name: main
+RESULT: FAILED — Invalid branch name: 
 
 ================================================================
 STEP 7 — COMMIT MESSAGE
 ================================================================
 RESULT: FAILED — Invalid commit message:
-feat(auth): complete auth integration, hydration fixes, and UX improvements
+
 
 ================================================================
 ❌ FINAL RESULT: ISSUES FOUND — FIX BEFORE MERGE

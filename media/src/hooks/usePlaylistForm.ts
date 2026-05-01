@@ -79,6 +79,7 @@ export interface IUsePlaylistFormReturn {
 
   // Submit
   handleSubmit: () => Promise<string | null>;
+  stepLabel: string;
 
   // Draft handlers
   handleRestoreDraft: () => void;
@@ -176,6 +177,7 @@ export function usePlaylistForm({
     handleUndoRemove:        formState.handleUndoRemove,
     handleReorderTracks:     formState.handleReorderTracks,
     handleSubmit:            persistence.submit,
+    stepLabel:               persistence.stepLabel,
 
     // Draft handlers
     handleRestoreDraft: draft.handleRestoreDraft,

@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import SlideShow from "../../components/SlideShow/SlideShow";
 import LoginModal from "@/components/LoginModal/LoginModal";
 import HoverButton from "@/components/HoverButton/HoverButton";
-import { useAuthStore } from "@/store/authStore";
 
 import { LandingApiService } from "@/services/api/landing.api";
 import { ILandingData } from "@/types/landing.types";
@@ -14,7 +13,6 @@ import type { ITrack } from "@/types/track.types";
 
 export default function Home() {
   const router = useRouter();
-  const authUser = useAuthStore((state) => state.user);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [content, setContent] = useState<ILandingData | null>(null);

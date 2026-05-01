@@ -3,6 +3,11 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter, usePathname } from "next/navigation";
+import type { IMenuItem } from "@/types/ui.types";
+import { useAuthStore } from "@/store/authStore";
+import KeyboardShortcutsModal from "@/components/KeyboardShortcutsModal/KeyboardShortcutsModal";
+import { NAV_ITEMS } from "@/constants/navigation";
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -18,17 +23,64 @@ const BellIcon = () => (
 );
 const MailIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" />
+    <rect x="3" y="5" width="18" height="14" rx="2" ry="2" />
+    <polyline points="3 7 12 13 21 7" />
   </svg>
 );
-const DotsIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-    <circle cx="5" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" />
+
+// ── Nav item icons (keyed by INavItem.icon) ───────────────────────────────────
+
+const NavHomeIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z" />
+    <polyline points="9 21 9 12 15 12 15 21" />
   </svg>
 );
+const NavFeedIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" />
+    <line x1="8" y1="18" x2="21" y2="18" />
+    <line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" />
+    <line x1="3" y1="18" x2="3.01" y2="18" />
+  </svg>
+);
+const NavLibraryIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+  </svg>
+);
+const NavMessagesIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+  </svg>
+);
+const NavPlaylistIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" />
+    <line x1="8" y1="18" x2="21" y2="18" />
+    <circle cx="3" cy="6" r="1" /><circle cx="3" cy="12" r="1" /><circle cx="3" cy="18" r="1" />
+  </svg>
+);
+
+/** Maps INavItem.icon keys → React components */
+const NAV_ICONS: Record<string, () => React.ReactElement> = {
+  home:     NavHomeIcon,
+  feed:     NavFeedIcon,
+  library:  NavLibraryIcon,
+  messages: NavMessagesIcon,
+  playlist: NavPlaylistIcon,
+};
 const ChevronDown = () => (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="6 9 12 15 18 9" />
+  </svg>
+);
+const DotsIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+    <circle cx="5" cy="12" r="2" />
+    <circle cx="12" cy="12" r="2" />
+    <circle cx="19" cy="12" r="2" />
   </svg>
 );
 const SoundCloudLogo = () => (
@@ -138,31 +190,20 @@ const SignOutIcon = () => (
   </svg>
 );
 
-// ── Data ──────────────────────────────────────────────────────────────────────
+// ── Dropdown data ─────────────────────────────────────────────────────────────
 
-type IMenuItem = {
-  icon: React.ReactNode;
-  label: string;
-  href: string;
-  orange?: boolean;
-  dividerBefore?: boolean;
-};
-
-const NAV_ITEMS = [
-  { label: "Home",    href: "/" },
-  { label: "Feed",    href: "/feed" },
-  { label: "Library", href: "/library" },
-];
-
-const AVATAR_MENU: IMenuItem[] = [
-  { icon: <ProfileIcon />,     label: "Profile",        href: "/profile" },
-  { icon: <LikesIcon />,       label: "Likes",          href: "/likes" },
-  { icon: <StationsIcon />,    label: "Stations",       href: "/stations" },
+const getAvatarMenu = (profileHref: string): IMenuItem[] => [
+  { icon: <ProfileIcon />,     label: "Profile",        href: profileHref },
+  { icon: <LikesIcon />,       label: "Likes",          href: `${profileHref}/likes` },
+  { icon: <StationsIcon />,    label: "Stations",       href: "/stream" },
   { icon: <WhoToFollowIcon />, label: "Who to follow",  href: "/who-to-follow", dividerBefore: true },
   { icon: <span style={{ width: 15, height: 15, borderRadius: "50%", background: "#FF5500", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#fff", fontWeight: 700 }}>★</span>, label: "Try Artist Pro", href: "/artist-pro", orange: true },
-  { icon: <TracksIcon />,      label: "Tracks",         href: "/tracks",      dividerBefore: true },
+  { icon: <TracksIcon />,      label: "Tracks",         href: "/library",      dividerBefore: true },
   { icon: <InsightsIcon />,    label: "Insights",       href: "/insights" },
-  { icon: <DistributeIcon />,  label: "Distribute",     href: "/distribute" },
+  { icon: <DistributeIcon />,  label: "Distribute",     href: "/creator/distribute" },
+  { icon: <InsightsIcon />,    label: "Dashboard",      href: "/creator/studio", dividerBefore: true },
+  { icon: <SettingsIcon />,    label: "Settings",       href: "/settings" },
+  { icon: <StoreIcon />,       label: "Store",          href: "/store" },
 ];
 
 const DOTS_MENU: IMenuItem[] = [
@@ -180,7 +221,7 @@ const DOTS_MENU: IMenuItem[] = [
   { icon: <KeyboardIcon />,     label: "Keyboard shortcuts",href: "/shortcuts" },
   { icon: <SubscriptionIcon />, label: "Subscription",      href: "/subscription",  dividerBefore: true },
   { icon: <SettingsIcon />,     label: "Settings",          href: "/settings" },
-  { icon: <SignOutIcon />,      label: "Sign out",          href: "/signout" },
+  { icon: <SignOutIcon />,      label: "Sign out",          href: "/" },
 ];
 
 // ── Shared styles ─────────────────────────────────────────────────────────────
@@ -223,35 +264,58 @@ function DropdownMenu({
         overflow: "hidden",
       }}
     >
-      {items.map((item, i) => (
-        <div key={i}>
-          {item.dividerBefore && (
-            <div style={{ height: "1px", background: "rgba(80, 80, 80)", margin: "0" }} />
-          )}
-          <Link
-            href={item.href}
-            onClick={onClose}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
-              padding: "10px 16px",
-              color: item.orange ? "#f50" : "#ddd",
-              textDecoration: "none",
-              fontSize: "14px",
-              fontWeight: 500,
-              transition: "background 0.1s",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#2a2a2a")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-          >
-            <span style={{ color: item.orange ? "#f50" : "#aaa", display: "flex", alignItems: "center" }}>
-              {item.icon}
-            </span>
-            {item.label}
-          </Link>
-        </div>
-      ))}
+      {items.map((item, i) => {
+        const sharedStyle: React.CSSProperties = {
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          padding: "10px 16px",
+          color: item.orange ? "#f50" : "#ddd",
+          textDecoration: "none",
+          fontSize: "14px",
+          fontWeight: 500,
+          transition: "background 0.1s",
+          width: "100%",
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          textAlign: "left",
+          boxSizing: "border-box",
+        };
+        return (
+          <div key={i}>
+            {item.dividerBefore && (
+              <div style={{ height: "1px", background: "rgba(80, 80, 80)", margin: "0" }} />
+            )}
+            {item.noNav ? (
+              <button
+                onClick={() => { item.onClick?.(); onClose(); }}
+                style={sharedStyle}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "#2a2a2a")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+              >
+                <span style={{ color: item.orange ? "#f50" : "#aaa", display: "flex", alignItems: "center" }}>
+                  {item.icon}
+                </span>
+                {item.label}
+              </button>
+            ) : (
+              <Link
+                href={item.href}
+                onClick={() => { item.onClick?.(); onClose(); }}
+                style={sharedStyle}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "#2a2a2a")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+              >
+                <span style={{ color: item.orange ? "#f50" : "#aaa", display: "flex", alignItems: "center" }}>
+                  {item.icon}
+                </span>
+                {item.label}
+              </Link>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -259,19 +323,77 @@ function DropdownMenu({
 // ── Header component ──────────────────────────────────────────────────────────
 
 export default function Header({
-  avatarUrl = "https://i.pravatar.cc/32",
-  isLoggedIn = true,
+  isLoggedIn: isLoggedInProp,
 }: {
-  avatarUrl?: string;
   isLoggedIn?: boolean;
 }) {
   const [query, setQuery]             = useState("");
-  const [activeNav, setActiveNav]     = useState("Home");
   const [avatarOpen, setAvatarOpen]   = useState(false);
   const [dotsOpen, setDotsOpen]       = useState(false);
+  const [drawerOpen, setDrawerOpen]   = useState(false);
+  const [hasToken, setHasToken]             = useState(false);
+  const [storedUserId, setStoredUserId]     = useState<string | null>(null);
+  const [shortcutsOpen, setShortcutsOpen]   = useState(false);
+  const authUser        = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const storeLogin      = useAuthStore((state) => state.login);
+  const logout          = useAuthStore((state) => state.logout);
+  const router          = useRouter();
+  const pathname        = usePathname();
+
+  /** Derive active nav item from current URL — no manual state needed */
+  const isNavActive = (item: { href: string; exact?: boolean }) =>
+    item.exact ? pathname === item.href : pathname.startsWith(item.href);
+
+  useEffect(() => {
+    const token = window.localStorage.getItem("auth_token");
+    const userId = window.localStorage.getItem("auth_user_id");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (token) setHasToken(true);
+    if (userId) setStoredUserId(userId);
+    if (isAuthenticated || !token) return;
+    import("@/services").then(({ AuthService: authService }) => {
+      authService.getCurrentUser(token)
+        .then((user) => storeLogin(user, token))
+        .catch((err: unknown) => {
+          const msg = err instanceof Error ? err.message : "";
+          if (msg.includes("401") || msg.includes("unauthorized") || msg.includes("Failed to fetch user") || msg.includes("Invalid token")) {
+            window.localStorage.removeItem("auth_token");
+            window.localStorage.removeItem("refresh_token");
+            setHasToken(false);
+          }
+        });
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const isLoggedIn = isLoggedInProp !== undefined ? isLoggedInProp : (isAuthenticated || hasToken);
 
   const avatarRef = useRef<HTMLDivElement>(null);
   const dotsRef   = useRef<HTMLDivElement>(null);
+  const profileHref = authUser?.id
+    ? `/${authUser.id}`
+    : storedUserId
+    ? `/${storedUserId}`
+    : "/";
+
+  const handleSignOut = () => {
+    logout();
+    window.localStorage.removeItem("auth_token");
+    window.localStorage.removeItem("refresh_token");
+    window.localStorage.removeItem("auth_user_id");
+    window.localStorage.removeItem("auth_username");
+    setHasToken(false);
+    setStoredUserId(null);
+    router.push("/login");
+  };
+
+  // Enrich module-level DOTS_MENU with runtime onClick handlers
+  const dotsMenu = DOTS_MENU.map((item) => {
+    if (item.label === "Sign out")           return { ...item, onClick: handleSignOut };
+    if (item.label === "Keyboard shortcuts") return { ...item, noNav: true, onClick: () => setShortcutsOpen(true) };
+    return item;
+  });
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -284,7 +406,9 @@ export default function Header({
   }, []);
 
   return (
+    <>
     <header
+      className="flex items-center"
       style={{
         background: "rgba(18, 18, 18)",
         borderBottom: "1px solid rgba(18,18,18)",
@@ -311,13 +435,13 @@ export default function Header({
 
         {/* Nav */}
         <nav style={{ display: "flex", alignItems: "stretch", height: "48px", flexShrink: 0 }}>
-          {NAV_ITEMS.map((item) => {
-            const isActive = activeNav === item.label;
+          {NAV_ITEMS.filter((item) => !item.authRequired || isLoggedIn).map((item) => {
+            const isActive = isNavActive(item);
+            const IconComponent = NAV_ICONS[item.icon];
             return (
               <Link
-                key={item.label}
+                key={item.href}
                 href={item.href}
-                onClick={() => setActiveNav(item.label)}
                 style={{
                   color: isActive ? "#fff" : "#aaa",
                   textDecoration: "none",
@@ -326,11 +450,19 @@ export default function Header({
                   padding: "0 10px",
                   display: "flex",
                   alignItems: "center",
-                  borderBottom: isActive ? "0.5px solid #fff" : "2px solid transparent",
+                  gap: "6px",
+                  borderBottom: isActive ? "2px solid #f50" : "2px solid transparent",
                   transition: "color 0.15s, border-color 0.15s",
                   whiteSpace: "nowrap",
                 }}
+                onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = "#fff"; }}
+                onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = "#aaa"; }}
               >
+                {IconComponent && (
+                  <span style={{ display: "flex", alignItems: "center", opacity: isActive ? 1 : 0.7 }}>
+                    <IconComponent />
+                  </span>
+                )}
                 {item.label}
               </Link>
             );
@@ -346,7 +478,15 @@ export default function Header({
             type="text"
             placeholder="Search"
             value={query}
+            aria-label="Search"
+            className="w-full"
             onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && query.trim()) {
+                router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+                setQuery("");
+              }
+            }}
             style={{
               width: "200px",
               height: "30px",
@@ -363,18 +503,30 @@ export default function Header({
             onFocus={(e) => (e.currentTarget.style.borderColor = "#666")}
             onBlur={(e) => (e.currentTarget.style.borderColor = "#3a3a3a")}
           />
+          <button
+            aria-label="Search"
+            onClick={() => {
+              if (query.trim()) {
+                router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+                setQuery("");
+              }
+            }}
+            style={{ position: "absolute", right: "6px", background: "none", border: "none", cursor: "pointer", color: "#777", display: "flex", alignItems: "center", padding: "2px" }}
+          >
+            <SearchIcon />
+          </button>
         </div>
 
         {/* Spacer */}
         <div style={{ flex: 1 }} />
 
-        {/* Try Artist Pro */}
+        {/* Upgrade now — shown to logged-out visitors */}
         <Link href="/artist-pro" style={{ color: "#f50", fontSize: "14px", fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap", padding: "0 6px", flexShrink: 0 }}>
-          Try Artist Pro
+          Upgrade now
         </Link>
 
         {/* For Artists */}
-        <Link href="/for-artists"
+        <Link href="/creator/studio"
           style={{ color: "#ccc", fontSize: "14px", textDecoration: "none", whiteSpace: "nowrap", padding: "0 6px", flexShrink: 0 }}
           onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
           onMouseLeave={(e) => (e.currentTarget.style.color = "#ccc")}
@@ -383,7 +535,7 @@ export default function Header({
         </Link>
 
         {/* Upload */}
-        <Link href="/upload"
+        <Link href="/creator/upload"
           style={{ color: "#ccc", fontSize: "14px", textDecoration: "none", whiteSpace: "nowrap", padding: "0 6px", flexShrink: 0 }}
           onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
           onMouseLeave={(e) => (e.currentTarget.style.color = "#ccc")}
@@ -398,26 +550,43 @@ export default function Header({
           <>
             {/* Avatar dropdown */}
             <div ref={avatarRef} style={{ position: "relative", flexShrink: 0 }}>
-              <button
-                onClick={() => { setAvatarOpen((o) => !o); setDotsOpen(false); }}
-                style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", padding: "0 4px" }}
-              >
-                <Image src={avatarUrl} alt="User avatar" width={28} height={28} style={{ borderRadius: "50%", objectFit: "cover" }} />
-                <span style={{ color: "#888" }}><ChevronDown /></span>
-              </button>
-              {avatarOpen && <DropdownMenu items={AVATAR_MENU} onClose={() => setAvatarOpen(false)} />}
+              <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                <Link
+                  href={profileHref}
+                  aria-label="Go to profile"
+                  style={{ display: "flex", alignItems: "center", textDecoration: "none" }}
+                >
+                  {(authUser?.profileImageUrl?.startsWith("http")) ? (
+                    <Image src={authUser.profileImageUrl} alt="User avatar" width={28} height={28} style={{ borderRadius: "50%", objectFit: "cover" }} />
+                  ) : (
+                    <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, borderRadius: "50%", background: "#555", color: "#fff", fontSize: 14, fontWeight: 600 }}>?</span>
+                  )}
+                </Link>
+                <button
+                  aria-label="Open profile menu"
+                  onClick={() => { setAvatarOpen((o) => !o); setDotsOpen(false); }}
+                  style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", padding: "0 2px" }}
+                >
+                  <span style={{ color: "#888" }}><ChevronDown /></span>
+                </button>
+              </div>
+              {avatarOpen && <DropdownMenu items={getAvatarMenu(profileHref)} onClose={() => setAvatarOpen(false)} />}
             </div>
 
             {/* Bell */}
             <button style={iconBtnStyle} aria-label="Notifications"
+              onClick={() => router.push("/notifications")}
               onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
               onMouseLeave={(e) => (e.currentTarget.style.color = "#999")}
             >
               <BellIcon />
             </button>
 
-            {/* Mail */}
-            <button style={iconBtnStyle} aria-label="Messages"
+            {/* Mail — navigates to DM inbox */}
+            <button
+              aria-label="Messages"
+              onClick={() => router.push("/messages")}
+              style={{ ...iconBtnStyle, textDecoration: "none" }}
               onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
               onMouseLeave={(e) => (e.currentTarget.style.color = "#999")}
             >
@@ -435,11 +604,79 @@ export default function Header({
               >
                 <DotsIcon />
               </button>
-              {dotsOpen && <DropdownMenu items={DOTS_MENU} onClose={() => setDotsOpen(false)} />}
+              {dotsOpen && <DropdownMenu items={dotsMenu} onClose={() => setDotsOpen(false)} />}
             </div>
           </>
         )}
+
+        {/* Hamburger — mobile drawer toggle */}
+        <button
+          aria-label="Open menu"
+          onClick={() => setDrawerOpen((o) => !o)}
+          style={{ ...iconBtnStyle, marginLeft: "4px" }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
       </div>
     </header>
+
+    {/* Mobile drawer */}
+    {drawerOpen && (
+      <nav
+        style={{
+          position: "fixed", top: 48, left: 0, right: 0, bottom: 0,
+          background: "rgba(18,18,18,0.97)", zIndex: 200,
+          display: "flex", flexDirection: "column", padding: "16px",
+          overflowY: "auto",
+        }}
+      >
+        {/* Nav links */}
+        {[
+          { label: "Home",       href: "/discover" },
+          { label: "Feed",       href: "/stream" },
+          { label: "Library",    href: "/library" },
+          { label: "Upload",     href: "/creator/upload" },
+          { label: "For Artists",href: "/creator/studio" },
+        ].map((item) => (
+          <Link key={item.href} href={item.href}
+            onClick={() => setDrawerOpen(false)}
+            style={{ color: "#ddd", padding: "12px 0", fontSize: "16px", textDecoration: "none", borderBottom: "1px solid #2a2a2a" }}
+          >{item.label}</Link>
+        ))}
+
+        {/* Logged-in links */}
+        {isLoggedIn && (
+          <>
+            <Link href={profileHref} onClick={() => setDrawerOpen(false)}
+              style={{ color: "#ddd", padding: "12px 0", fontSize: "16px", textDecoration: "none", borderBottom: "1px solid #2a2a2a" }}
+            >Profile</Link>
+            <Link href={`${profileHref}/likes`} onClick={() => setDrawerOpen(false)}
+              style={{ color: "#ddd", padding: "12px 0", fontSize: "16px", textDecoration: "none", borderBottom: "1px solid #2a2a2a" }}
+            >Likes</Link>
+            <Link href="/creator/studio" onClick={() => setDrawerOpen(false)}
+              style={{ color: "#ddd", padding: "12px 0", fontSize: "16px", textDecoration: "none", borderBottom: "1px solid #2a2a2a" }}
+            >Dashboard</Link>
+            <Link href="/settings" onClick={() => setDrawerOpen(false)}
+              style={{ color: "#ddd", padding: "12px 0", fontSize: "16px", textDecoration: "none", borderBottom: "1px solid #2a2a2a" }}
+            >Settings</Link>
+            <Link href="/store" onClick={() => setDrawerOpen(false)}
+              style={{ color: "#ddd", padding: "12px 0", fontSize: "16px", textDecoration: "none", borderBottom: "1px solid #2a2a2a" }}
+            >Store</Link>
+            <Link href="/notifications" onClick={() => setDrawerOpen(false)}
+              style={{ color: "#ddd", padding: "12px 0", fontSize: "16px", textDecoration: "none", borderBottom: "1px solid #2a2a2a" }}
+            >Notifications</Link>
+            <button
+              onClick={() => { handleSignOut(); setDrawerOpen(false); }}
+              style={{ color: "#f55", padding: "12px 0", fontSize: "16px", background: "none", border: "none", cursor: "pointer", textAlign: "left", borderBottom: "1px solid #2a2a2a" }}
+            >Sign out</button>
+          </>
+        )}
+      </nav>
+    )}
+
+    {shortcutsOpen && <KeyboardShortcutsModal onClose={() => setShortcutsOpen(false)} />}
+    </>
   );
-} 
+}

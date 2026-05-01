@@ -10,12 +10,19 @@ const PROTECTED_PREFIXES = [
   "/creator/upload",
   "/who-to-follow",
   "/search",
-  "/messages",
-  "/playlist",
+  "/admin",
 ];
+
+const ADMIN_PREFIXES = ["/admin"];
+
+// Admins should be determined by role/claims returned from the backend verify
+// endpoint rather than hardcoding an email list in source control.
 
 const isProtectedPath = (pathname: string): boolean =>
   PROTECTED_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+
+const isAdminPath = (pathname: string): boolean =>
+  ADMIN_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 
 const redirectToLogin = (request: NextRequest): NextResponse => {
   const url = request.nextUrl.clone();
@@ -25,6 +32,13 @@ const redirectToLogin = (request: NextRequest): NextResponse => {
   const response = NextResponse.redirect(url);
   response.cookies.set({ name: AUTH_COOKIE_NAME, value: "", path: "/", maxAge: 0 });
   return response;
+};
+
+const redirectToHome = (request: NextRequest): NextResponse => {
+  const url = request.nextUrl.clone();
+  url.pathname = "/";
+  url.search = "";
+  return NextResponse.redirect(url);
 };
 
 export async function middleware(request: NextRequest): Promise<NextResponse> {
@@ -50,9 +64,18 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
       },
       cache: "no-store",
     });
-
+ 
     if (!verify.ok) {
       return redirectToLogin(request);
+    }
+
+    // Admin-only check — prefer role claim from the verify response.
+    if (isAdminPath(pathname)) {
+      const data = await verify.json();
+      const role = data?.data?.role ?? data?.role ?? "";
+      if (role !== "admin") {
+        return redirectToHome(request);
+      }
     }
 
     return NextResponse.next();

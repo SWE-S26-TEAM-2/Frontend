@@ -1,11 +1,30 @@
 // src/components/Banner/Banner.tsx
+"use client";
 import Image from "next/image";
+import { useRef } from "react";
 import type { IBannerProps } from "@/types/ui.types";
 
 const AVATAR_SIZE = 180;
 const AVATAR_LEFT = 20;
 
-export function Banner({ user }: IBannerProps) {
+export function Banner({ user, onAvatarChange, onHeaderChange }: IBannerProps) {
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    onHeaderChange?.(url, file);
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    onAvatarChange?.(url, file);
+  };
+
   return (
     <div
       className="relative overflow-hidden"
@@ -16,9 +35,32 @@ export function Banner({ user }: IBannerProps) {
           : "linear-gradient(160deg, #3d7080 0%, #4d909f 40%, #3d7888 100%)",
       }}
     >
-      {/* Upload header — owner only */}
+      {/* Hidden file inputs — owner only */}
       {user.isOwner && (
-        <button className="absolute top-3 right-3 z-10 bg-[#111] text-white text-sm font-medium px-4 py-2 rounded cursor-pointer border-none">
+        <>
+          <input
+            ref={coverInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={handleCoverChange}
+          />
+          <input
+            ref={avatarInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={handleAvatarChange}
+          />
+        </>
+      )}
+
+      {/* Upload header button — owner only */}
+      {user.isOwner && (
+        <button
+          className="absolute top-3 right-3 z-10 bg-[#111] text-white text-sm font-medium px-4 py-2 rounded cursor-pointer border-none"
+          onClick={() => coverInputRef.current?.click()}
+        >
           Upload header image
         </button>
       )}
@@ -33,13 +75,14 @@ export function Banner({ user }: IBannerProps) {
         )}
       </div>
 
-      {/* Upload avatar — owner only */}
+      {/* Upload avatar button — owner only */}
       {user.isOwner && (
         <button
           className="absolute z-20 bg-black/70 text-white text-xs px-2 py-1 rounded cursor-pointer border-none"
           style={{ left: AVATAR_LEFT + 40, top: `calc(50% + ${AVATAR_SIZE * 0.18}px)` }}
+          onClick={() => avatarInputRef.current?.click()}
         >
-          Upload image
+          Edit photo
         </button>
       )}
 
@@ -62,7 +105,7 @@ export function Banner({ user }: IBannerProps) {
             ? "bg-orange-500/20 border-orange-500 text-orange-400"
             : "bg-white/10 border-white/30 text-gray-300"
         }`}>
-          {user.role === "artist" ? "⭐ Artist" : "🎧 Listener"}
+          {user.role === "artist" ? "Artist" : "Listener"}
         </span>
 
         {/* Favorite genres */}

@@ -1,30 +1,18 @@
-import type { AudioFormat, TrackVisibility } from './upload.types';
- 
-export type TrackProcessingStatus = 'processing' | 'finished' | 'error';
- 
+/**
+ * src/types/studio.types.ts
+ *
+ * Type definitions for the Creator Studio feature.
+ * Covers track management, playlist management, and bulk editing.
+ */
+
+import type { TrackVisibility } from './upload.types';
+
+// ── Studio Tabs ───────────────────────────────────────────────────────────────
+
 export type StudioTab = 'tracks' | 'distribution' | 'vinyl' | 'comments' | 'promotions';
- 
-export interface IStudioTrack {
-  id: string;
-  title: string;
-  genre: string;
-  format: AudioFormat;
-  duration: number; // in seconds
-  visibility: TrackVisibility;
-  processingStatus: TrackProcessingStatus;
-  plays: number;
-  likes: number;
-  artworkUrl?: string;
-  createdAt: string;
-}
- 
-export interface IStudioTracksResponse {
-  tracks: IStudioTrack[];
-  total: number;
-  page: number;
-  pageSize: number;
-}
- 
+
+// ── Studio Stats ──────────────────────────────────────────────────────────────
+
 export interface IStudioStats {
   scPlays: number;
   reposts: number;
@@ -32,9 +20,36 @@ export interface IStudioStats {
   likes: number;
   comments: number;
 }
- 
-// ── Playlist ──────────────────────────────────────────────────────────────────
- 
+
+// ── Bulk Privacy Option ───────────────────────────────────────────────────────
+
+export type BulkPrivacyOption = 'public' | 'private' | 'no-change';
+
+// ── Studio Track ──────────────────────────────────────────────────────────────
+
+export interface IStudioTrack {
+  id: string;
+  title: string;
+  genre: string;
+  format: string;
+  duration: number; // seconds
+  visibility: TrackVisibility;
+  processingStatus: 'processing' | 'finished' | 'error';
+  plays: number;
+  likes: number;
+  artworkUrl?: string;
+  createdAt: string; // ISO 8601
+}
+
+export interface IStudioTracksResponse {
+  tracks: IStudioTrack[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+// ── Studio Playlist ───────────────────────────────────────────────────────────
+
 export interface IPlaylist {
   id: string;
   title: string;
@@ -42,20 +57,18 @@ export interface IPlaylist {
   artworkUrl?: string;
   visibility: TrackVisibility;
 }
- 
-// ── Bulk edit ─────────────────────────────────────────────────────────────────
- 
-export type BulkPrivacyOption = 'no-change' | 'public' | 'private';
- 
+
+// ── Bulk Edit ─────────────────────────────────────────────────────────────────
+
 export interface IBulkEditPayload {
   genre?: string;
+  privacy: TrackVisibility | 'no-change';
   tags?: string[];
   artwork?: File;
-  privacy: BulkPrivacyOption;
 }
- 
-// ── Service ───────────────────────────────────────────────────────────────────
- 
+
+// ── Service Interface ─────────────────────────────────────────────────────────
+
 export interface IStudioService {
   getTracks(page: number, pageSize: number): Promise<IStudioTracksResponse>;
   deleteTrack(trackId: string): Promise<void>;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Toggle from "@/components/Toggle/Toggle";
 import { getPrivacySettings, updatePrivacySettings } from "@/services/di";
 import { IPrivacySettings } from "@/types/settings-privacy.types";
@@ -10,21 +10,21 @@ export default function PrivacySettings() {
   const [isLoading, setIsLoading] = useState(true);
 
   // Load settings when page opens
-  useEffect(() => {
-    loadSettings();
-  }, []);
-
-  const loadSettings = async () => {
+  const loadSettings = useCallback(async () => {
     try {
       const data = await getPrivacySettings();
-      console.warn("Loaded settings:", data);  // check
       setSettings(data);
     } catch (error) {
       console.error("Failed to load settings:", error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadSettings();
+  }, [loadSettings]);
 
   const handleToggle = async (key: keyof IPrivacySettings, value: boolean) => {
     if (!settings) return;

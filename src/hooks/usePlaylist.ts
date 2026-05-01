@@ -1,28 +1,35 @@
+"use client";
+
 /**
  * usePlaylist — custom hook
  *
  * Responsibilities (Playlists & Interactions domain):
- *  - Fetch playlist by ID via DI-aware playlistService
+ *  - Fetch playlist by ID via playlistService (DI layer)
  *  - Skeleton loading state (isLoading starts true — skeleton renders immediately)
  *  - Error state with human-readable message
  *  - Retry mechanism (up to MAX_RETRIES attempts)
- *  - Managing arrays of tracks: add / remove / reorder
+ *  - Local track array management: add / remove / reorder
+ *
+ * DI compliance:
+ *  - playlistService imported from "@/services" (DI barrel)
+ *  - Array helpers imported from "@/utils/playlistUtils" (pure utils)
+ *  - NO imports from "@/services/mocks/*" or "@/services/api/*"
  *
  * React Compiler note:
- *   Uses inline async IIFE inside useEffect to satisfy the
- *   react-hooks/set-state-in-effect rule enforced by Next.js 16 +
- *   reactCompiler:true. All setState calls happen inside the async
- *   boundary, not synchronously in the effect body.
+ *  Uses inline async IIFE inside useEffect to satisfy the
+ *  react-hooks/set-state-in-effect rule enforced by Next.js 16 +
+ *  reactCompiler:true. All setState calls happen inside the async
+ *  boundary, not synchronously in the effect body.
  */
 
 import { useEffect, useState, useCallback } from "react";
-import { IPlaylist, IPlaylistTrack } from "@/types/playlist.types";
+import type { IPlaylist, IPlaylistTrack } from "@/types/playlist.types";
 import { playlistService } from "@/services";
 import {
   addTrackToList,
   removeTrackFromList,
   reorderTracks,
-} from "@/services/mocks/playlistMockData";
+} from "@/utils/playlistUtils";
 
 const MAX_RETRIES = 3;
 
@@ -84,17 +91,38 @@ export function usePlaylist(id: string): IUsePlaylistReturn {
     setRetryCount((prev) => prev + 1);
   }, [retryCount]);
 
-  // ── Track array management ─────────────────────────────────────────────────
+  // ── Local track array management ──────────────────────────────────────────
+  // These handlers update local state only.
+  // They use pure utils from @/utils/playlistUtils (no service calls).
   // Each handler uses the functional setState form to guarantee it always
   // operates on the latest state, avoiding stale-closure bugs.
 
   const handleAddTrack = useCallback((track: IPlaylistTrack) => {
     setTracks((prev) => addTrackToList(prev, track));
-  }, []);
+    // Fire-and-forget API call (optimistic — already updated UI)
+    if (id) {
+      playlistService.addTrackToPlaylist(id, track).catch(() => {
+        // Rollback on failure
+        setTracks((prev) => removeTrackFromList(prev, track.id));
+      });
+    }
+  }, [id]);
 
   const handleRemoveTrack = useCallback((trackId: string) => {
-    setTracks((prev) => removeTrackFromList(prev, trackId));
-  }, []);
+    // Save for rollback
+    let removed: IPlaylistTrack | undefined;
+    setTracks((prev) => {
+      removed = prev.find((t) => t.id === trackId);
+      return removeTrackFromList(prev, trackId);
+    });
+    // Fire-and-forget API call (optimistic — already updated UI)
+    if (id) {
+      playlistService.removeTrackFromPlaylist(id, trackId).catch(() => {
+        // Rollback on failure
+        if (removed) setTracks((prev) => addTrackToList(prev, removed!));
+      });
+    }
+  }, [id]);
 
   const handleReorderTracks = useCallback(
     (fromIndex: number, toIndex: number) => {

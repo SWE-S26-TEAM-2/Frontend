@@ -1,20 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import { IHoverButtonProps } from "@/types/hover.types";
 
-interface IHoverButtonProps {
-  children: React.ReactNode;
-  style?: React.CSSProperties;
-  onClick?: () => void;
-}
 
-const HoverButton = ({ children, style = {}, onClick }: IHoverButtonProps) => {
+
+
+const HoverButton = ({ children, style = {}, onClick, className }: IHoverButtonProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const finalStyle: React.CSSProperties = {
     ...style,
-    color: isHovered ? "grey" : (style.color || "black"),
+    color: isHovered ? "grey" : (style.color || undefined),
     transition: "color 0.2s ease",
+    cursor: "pointer", 
   };
 
   return (
@@ -23,6 +22,7 @@ const HoverButton = ({ children, style = {}, onClick }: IHoverButtonProps) => {
       onMouseLeave={() => setIsHovered(false)}
       onClick={onClick}
       style={finalStyle}
+      className={className}
     >
       {children}
     </button>

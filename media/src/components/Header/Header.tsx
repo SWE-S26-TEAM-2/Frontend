@@ -194,13 +194,16 @@ const SignOutIcon = () => (
 
 const getAvatarMenu = (profileHref: string): IMenuItem[] => [
   { icon: <ProfileIcon />,     label: "Profile",        href: profileHref },
-  { icon: <LikesIcon />,       label: "Likes",          href: "/likes" },
-  { icon: <StationsIcon />,    label: "Stations",       href: "/stations" },
+  { icon: <LikesIcon />,       label: "Likes",          href: `${profileHref}/likes` },
+  { icon: <StationsIcon />,    label: "Stations",       href: "/stream" },
   { icon: <WhoToFollowIcon />, label: "Who to follow",  href: "/who-to-follow", dividerBefore: true },
   { icon: <span style={{ width: 15, height: 15, borderRadius: "50%", background: "#FF5500", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#fff", fontWeight: 700 }}>★</span>, label: "Try Artist Pro", href: "/artist-pro", orange: true },
-  { icon: <TracksIcon />,      label: "Tracks",         href: "/tracks",      dividerBefore: true },
+  { icon: <TracksIcon />,      label: "Tracks",         href: "/library",      dividerBefore: true },
   { icon: <InsightsIcon />,    label: "Insights",       href: "/insights" },
-  { icon: <DistributeIcon />,  label: "Distribute",     href: "/distribute" },
+  { icon: <DistributeIcon />,  label: "Distribute",     href: "/creator/distribute" },
+  { icon: <InsightsIcon />,    label: "Dashboard",      href: "/creator/studio", dividerBefore: true },
+  { icon: <SettingsIcon />,    label: "Settings",       href: "/settings" },
+  { icon: <StoreIcon />,       label: "Store",          href: "/store" },
 ];
 
 const DOTS_MENU: IMenuItem[] = [
@@ -327,6 +330,7 @@ export default function Header({
   const [query, setQuery]             = useState("");
   const [avatarOpen, setAvatarOpen]   = useState(false);
   const [dotsOpen, setDotsOpen]       = useState(false);
+  const [drawerOpen, setDrawerOpen]   = useState(false);
   const [hasToken, setHasToken]             = useState(false);
   const [storedUserId, setStoredUserId]     = useState<string | null>(null);
   const [shortcutsOpen, setShortcutsOpen]   = useState(false);
@@ -344,6 +348,7 @@ export default function Header({
   useEffect(() => {
     const token = window.localStorage.getItem("auth_token");
     const userId = window.localStorage.getItem("auth_user_id");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (token) setHasToken(true);
     if (userId) setStoredUserId(userId);
     if (isAuthenticated || !token) return;
@@ -403,6 +408,7 @@ export default function Header({
   return (
     <>
     <header
+      className="flex items-center"
       style={{
         background: "rgba(18, 18, 18)",
         borderBottom: "1px solid rgba(18,18,18)",
@@ -472,6 +478,8 @@ export default function Header({
             type="text"
             placeholder="Search"
             value={query}
+            aria-label="Search"
+            className="w-full"
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && query.trim()) {
@@ -495,18 +503,30 @@ export default function Header({
             onFocus={(e) => (e.currentTarget.style.borderColor = "#666")}
             onBlur={(e) => (e.currentTarget.style.borderColor = "#3a3a3a")}
           />
+          <button
+            aria-label="Search"
+            onClick={() => {
+              if (query.trim()) {
+                router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+                setQuery("");
+              }
+            }}
+            style={{ position: "absolute", right: "6px", background: "none", border: "none", cursor: "pointer", color: "#777", display: "flex", alignItems: "center", padding: "2px" }}
+          >
+            <SearchIcon />
+          </button>
         </div>
 
         {/* Spacer */}
         <div style={{ flex: 1 }} />
 
-        {/* Try Artist Pro */}
+        {/* Upgrade now — shown to logged-out visitors */}
         <Link href="/artist-pro" style={{ color: "#f50", fontSize: "14px", fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap", padding: "0 6px", flexShrink: 0 }}>
-          Try Artist Pro
+          Upgrade now
         </Link>
 
         {/* For Artists */}
-        <Link href="/for-artists"
+        <Link href="/creator/studio"
           style={{ color: "#ccc", fontSize: "14px", textDecoration: "none", whiteSpace: "nowrap", padding: "0 6px", flexShrink: 0 }}
           onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
           onMouseLeave={(e) => (e.currentTarget.style.color = "#ccc")}
@@ -536,7 +556,11 @@ export default function Header({
                   aria-label="Go to profile"
                   style={{ display: "flex", alignItems: "center", textDecoration: "none" }}
                 >
-                  <Image src={(authUser?.profileImageUrl?.startsWith("http") ? authUser.profileImageUrl : null) || "https://i.pravatar.cc/32"} alt="User avatar" width={28} height={28} style={{ borderRadius: "50%", objectFit: "cover" }} />
+                  {(authUser?.profileImageUrl?.startsWith("http")) ? (
+                    <Image src={authUser.profileImageUrl} alt="User avatar" width={28} height={28} style={{ borderRadius: "50%", objectFit: "cover" }} />
+                  ) : (
+                    <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, borderRadius: "50%", background: "#555", color: "#fff", fontSize: 14, fontWeight: 600 }}>?</span>
+                  )}
                 </Link>
                 <button
                   aria-label="Open profile menu"
@@ -551,6 +575,7 @@ export default function Header({
 
             {/* Bell */}
             <button style={iconBtnStyle} aria-label="Notifications"
+              onClick={() => router.push("/notifications")}
               onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
               onMouseLeave={(e) => (e.currentTarget.style.color = "#999")}
             >
@@ -558,15 +583,15 @@ export default function Header({
             </button>
 
             {/* Mail — navigates to DM inbox */}
-            <Link
-              href="/messages"
-              style={{ ...iconBtnStyle, textDecoration: "none" }}
+            <button
               aria-label="Messages"
+              onClick={() => router.push("/messages")}
+              style={{ ...iconBtnStyle, textDecoration: "none" }}
               onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
               onMouseLeave={(e) => (e.currentTarget.style.color = "#999")}
             >
               <MailIcon />
-            </Link>
+            </button>
 
             {/* Dots dropdown */}
             <div ref={dotsRef} style={{ position: "relative", flexShrink: 0 }}>
@@ -583,10 +608,75 @@ export default function Header({
             </div>
           </>
         )}
+
+        {/* Hamburger — mobile drawer toggle */}
+        <button
+          aria-label="Open menu"
+          onClick={() => setDrawerOpen((o) => !o)}
+          style={{ ...iconBtnStyle, marginLeft: "4px" }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
       </div>
     </header>
+
+    {/* Mobile drawer */}
+    {drawerOpen && (
+      <nav
+        style={{
+          position: "fixed", top: 48, left: 0, right: 0, bottom: 0,
+          background: "rgba(18,18,18,0.97)", zIndex: 200,
+          display: "flex", flexDirection: "column", padding: "16px",
+          overflowY: "auto",
+        }}
+      >
+        {/* Nav links */}
+        {[
+          { label: "Home",       href: "/discover" },
+          { label: "Feed",       href: "/stream" },
+          { label: "Library",    href: "/library" },
+          { label: "Upload",     href: "/creator/upload" },
+          { label: "For Artists",href: "/creator/studio" },
+        ].map((item) => (
+          <Link key={item.href} href={item.href}
+            onClick={() => setDrawerOpen(false)}
+            style={{ color: "#ddd", padding: "12px 0", fontSize: "16px", textDecoration: "none", borderBottom: "1px solid #2a2a2a" }}
+          >{item.label}</Link>
+        ))}
+
+        {/* Logged-in links */}
+        {isLoggedIn && (
+          <>
+            <Link href={profileHref} onClick={() => setDrawerOpen(false)}
+              style={{ color: "#ddd", padding: "12px 0", fontSize: "16px", textDecoration: "none", borderBottom: "1px solid #2a2a2a" }}
+            >Profile</Link>
+            <Link href={`${profileHref}/likes`} onClick={() => setDrawerOpen(false)}
+              style={{ color: "#ddd", padding: "12px 0", fontSize: "16px", textDecoration: "none", borderBottom: "1px solid #2a2a2a" }}
+            >Likes</Link>
+            <Link href="/creator/studio" onClick={() => setDrawerOpen(false)}
+              style={{ color: "#ddd", padding: "12px 0", fontSize: "16px", textDecoration: "none", borderBottom: "1px solid #2a2a2a" }}
+            >Dashboard</Link>
+            <Link href="/settings" onClick={() => setDrawerOpen(false)}
+              style={{ color: "#ddd", padding: "12px 0", fontSize: "16px", textDecoration: "none", borderBottom: "1px solid #2a2a2a" }}
+            >Settings</Link>
+            <Link href="/store" onClick={() => setDrawerOpen(false)}
+              style={{ color: "#ddd", padding: "12px 0", fontSize: "16px", textDecoration: "none", borderBottom: "1px solid #2a2a2a" }}
+            >Store</Link>
+            <Link href="/notifications" onClick={() => setDrawerOpen(false)}
+              style={{ color: "#ddd", padding: "12px 0", fontSize: "16px", textDecoration: "none", borderBottom: "1px solid #2a2a2a" }}
+            >Notifications</Link>
+            <button
+              onClick={() => { handleSignOut(); setDrawerOpen(false); }}
+              style={{ color: "#f55", padding: "12px 0", fontSize: "16px", background: "none", border: "none", cursor: "pointer", textAlign: "left", borderBottom: "1px solid #2a2a2a" }}
+            >Sign out</button>
+          </>
+        )}
+      </nav>
+    )}
 
     {shortcutsOpen && <KeyboardShortcutsModal onClose={() => setShortcutsOpen(false)} />}
     </>
   );
-} 
+}

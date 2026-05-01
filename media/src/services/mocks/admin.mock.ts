@@ -1,5 +1,5 @@
 import { MOCK_ADMIN_USERS, MOCK_ADMIN_TRACKS, MOCK_ADMIN_STATS, MOCK_ADMIN_INSIGHTS } from "./mockData";
-import type { IAdminService, IAdminUser, IAdminTrack, IAdminStats, IAdminInsightPoint } from "@/types/admin.types";
+import type { IAdminService, IAdminUser, IAdminTrack, IAdminStats, IAdminInsightPoint, IAdminAnalyticsData, IAdminReportsResponse, IAdminReportItem, IReportStatus } from "@/types/admin.types";
 
 let userStore = [...MOCK_ADMIN_USERS];
 
@@ -29,5 +29,46 @@ export const mockAdminService: IAdminService = {
     userStore = userStore.map((u) =>
       u.id === userId ? { ...u, isSuspended: !u.isSuspended } : u
     );
+  },
+
+  getAnalytics: async (): Promise<IAdminAnalyticsData> => {
+    await new Promise((r) => setTimeout(r, 300));
+    return {
+      totalUsers: userStore.length,
+      totalTracks: MOCK_ADMIN_TRACKS.length,
+      totalComments: 0,
+      suspendedUsers: userStore.filter((u) => u.isSuspended).length,
+      activeStreamsToday: 0,
+      totalReports: 0,
+      openReports: 0,
+      underReviewReports: 0,
+      resolvedReports: 0,
+      dismissedReports: 0,
+    };
+  },
+
+  getReports: async (_params?: { limit?: number; offset?: number }): Promise<IAdminReportsResponse> => {
+    await new Promise((r) => setTimeout(r, 300));
+    return { reports: [], total: 0 };
+  },
+
+  reviewReport: async (reportId: string, status: IReportStatus, _note?: string): Promise<IAdminReportItem> => {
+    await new Promise((r) => setTimeout(r, 300));
+    return {
+      reportId,
+      entityType: "track",
+      entityId: "",
+      reason: "",
+      status,
+      reporter: { userId: "", username: "" },
+    };
+  },
+
+  deleteTrack: async (_trackId: string): Promise<void> => {
+    await new Promise((r) => setTimeout(r, 300));
+  },
+
+  deleteComment: async (_commentId: string): Promise<void> => {
+    await new Promise((r) => setTimeout(r, 300));
   },
 };

@@ -66,13 +66,30 @@ export interface IPlaylistTrack extends ITrackBase {
   addedBy?: Pick<IUser, "id" | "username">;
 }
 
+export interface IPlaylistOwner {
+  id: string;
+  username: string;
+  avatarUrl?: string;
+}
+
 export interface IPlaylist {
   id: string;
   title: string;
-  description: string;
-  coverArt: string;
-  creator: string;
-  isPublic: boolean;
+  description?: string;
+  coverArt?: string;
+  creator?: string;
+  isPublic?: boolean;
+  /** slug used in playlist URLs (e.g. "summer-vibes-2026") */
+  slug?: string;
+  /** owner of the playlist */
+  owner?: IPlaylistOwner;
+  artworkUrl?: string;
+  type?: string;
+  isPrivate?: boolean;
+  trackCount?: number;
+  totalDuration?: number;
+  createdAt?: string;
+  updatedAt?: string;
   genre?: PlaylistGenre;
   mood?: PlaylistMood;
   tracks: IPlaylistTrack[];
@@ -130,12 +147,17 @@ export interface IPlaylistUpdateInput extends Partial<IPlaylistCreateInput> {
  */
 export interface IPlaylistService {
   getById(id: string): Promise<IPlaylist | null>;
-  getUserPlaylists(userId: string): Promise<IPlaylist[]>;
+  getUserPlaylists(username: string): Promise<IPlaylist[]>;
   create(input: IPlaylistCreateInput, creatorName: string): Promise<IPlaylist>;
   update(input: IPlaylistUpdateInput): Promise<IPlaylist>;
   deletePlaylist(id: string): Promise<void>;
   addTrackToPlaylist(playlistId: string, track: IPlaylistTrack): Promise<IPlaylist>;
   removeTrackFromPlaylist(playlistId: string, trackId: string): Promise<IPlaylist>;
+  createPlaylist(name: string, description?: string): Promise<IPlaylist>;
+  uploadCover(playlistId: string, file: File): Promise<string>;
+  likePlaylist(id: string): Promise<void>;
+  unlikePlaylist(id: string): Promise<void>;
+  getLikedPlaylists(): Promise<IPlaylist[]>;
 }
 
 // -- Undo-remove ----------------------------------------------------------------

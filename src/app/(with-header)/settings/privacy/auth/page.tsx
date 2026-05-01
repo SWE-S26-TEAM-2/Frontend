@@ -1,19 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Toggle from "@/components/Toggle/Toggle";
-import { getPrivacySettings, updatePrivacySettings } from "@/services/privacy.service";
-import { IPrivacySettings } from "@/types/privacy.types";
+import { getPrivacySettings, updatePrivacySettings } from "@/services/di";
+import { IPrivacySettings } from "@/types/settings-privacy.types";
 
 export default function PrivacySettings() {
   const [settings, setSettings] = useState<IPrivacySettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    loadSettings();
-  }, []);
-
-  const loadSettings = async () => {
+  // Load settings when page opens
+  const loadSettings = useCallback(async () => {
     try {
       const data = await getPrivacySettings();
       setSettings(data);
@@ -22,17 +19,25 @@ export default function PrivacySettings() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadSettings();
+  }, [loadSettings]);
 
   const handleToggle = async (key: keyof IPrivacySettings, value: boolean) => {
     if (!settings) return;
-
+    
+    // Update UI immediately
     const previousSettings = { ...settings };
     setSettings({ ...settings, [key]: value });
-
+    
+    // Save to mock/API
     try {
       await updatePrivacySettings({ [key]: value });
     } catch (error) {
+      // If save fails, revert
       setSettings(previousSettings);
       console.error("Failed to update:", error);
     }

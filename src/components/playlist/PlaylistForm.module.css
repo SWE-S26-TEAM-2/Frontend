@@ -1,0 +1,581 @@
+/*
+ * PlaylistForm.module.css
+ * Scoped styles for the playlist create / edit form.
+ * Covers: page wrapper, two-column layout, sections, form fields,
+ *         inputs, textarea, privacy toggle, cover art, submit actions,
+ *         spinner, char-count, breadcrumb, draft restore banner.
+ * Origin: globals.css §"PHASE 2 — PLAYLIST CREATE / EDIT FORM"
+ *         + §"PHASE 2 — ADDITIONS & FIXES"
+ *         + §"TIER 1 — STYLES" (draft banner, genre/mood selects)
+ */
+
+/* ── Page wrapper ───────────────────────────────────────────── */
+.pfPageWrapper {
+  background: #0d0d0e;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.pfPage {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 24px 120px;
+  color: #f0ece4;
+}
+
+.pfPage__heading {
+  margin-bottom: 36px;
+}
+
+.pfPage__title {
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #f0ece4;
+  margin: 0 0 8px;
+}
+
+.pfPage__subtitle {
+  font-size: 0.92rem;
+  color: #7a7874;
+  margin: 0;
+}
+
+/* ── Breadcrumb ─────────────────────────────────────────────── */
+.pfPage__breadcrumb {
+  margin-bottom: 16px;
+}
+
+.pfBreadcrumbBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: #7a7874;
+  font-size: 0.82rem;
+  cursor: pointer;
+  padding: 0;
+  transition: color 180ms ease;
+}
+
+.pfBreadcrumbBtn:hover {
+  color: #f0ece4;
+}
+
+/* ── Two-column layout ──────────────────────────────────────── */
+.pfLayout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 32px;
+  align-items: start;
+}
+
+.pfLayout__left  { display: flex; flex-direction: column; gap: 32px; }
+.pfLayout__right { position: sticky; top: 72px; }
+
+/* ── Section card ───────────────────────────────────────────── */
+.pfSection {
+  background: #161617;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 28px;
+}
+
+.pfSection__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f0ece4;
+  margin: 0 0 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* ── Shared label ───────────────────────────────────────────── */
+.pfLabel {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #7a7874;
+  margin-bottom: 8px;
+}
+
+.pfLabel--required::after {
+  content: " *";
+  color: var(--pl-accent);
+}
+
+.pfLabel__optional {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--pl-text-dim);
+  font-size: 0.78rem;
+}
+
+/* ── Input / textarea ───────────────────────────────────────── */
+.pfInput,
+.pfTextarea {
+  width: 100%;
+  background: #1e1e20;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 6px;
+  color: #f0ece4;
+  font-size: 0.92rem;
+  padding: 10px 14px;
+  outline: none;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+  box-sizing: border-box;
+}
+
+.pfInput::placeholder,
+.pfTextarea::placeholder {
+  color: #4a4845;
+}
+
+.pfInput:focus,
+.pfTextarea:focus {
+  border-color: var(--pl-accent);
+  box-shadow: 0 0 0 3px rgba(var(--pl-accent-rgb), 0.15);
+}
+
+/* Accessibility: visible focus ring for keyboard users */
+.pfInput:focus-visible,
+.pfTextarea:focus-visible {
+  outline: 2px solid #ff5500;
+  outline-offset: 2px;
+}
+
+.pfInput--error {
+  border-color: #e05555;
+}
+
+.pfInput--error:focus {
+  box-shadow: 0 0 0 3px rgba(224, 85, 85, 0.2);
+}
+
+.pfTextarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* ── Field wrapper ──────────────────────────────────────────── */
+.pfField {
+  margin-bottom: 20px;
+}
+
+.pfField:last-child {
+  margin-bottom: 0;
+}
+
+.pfField__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.pfField__header .pfLabel {
+  margin-bottom: 0;
+}
+
+/* Row variant — label + control side by side */
+.pfField--row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.pfField__text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pfField__text .pfLabel {
+  margin-bottom: 0;
+}
+
+/* Grow variant for select fields */
+.pfField--grow {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Genre + mood selects row */
+.pfField--selects {
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* ── Hints, char count, errors ──────────────────────────────── */
+.pfHint {
+  font-size: 0.78rem;
+  color: #4a4845;
+  display: block;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.pfCharCount {
+  font-size: 0.75rem;
+  color: #4a4845;
+  font-variant-numeric: tabular-nums;
+}
+
+.pfCharCount--warn {
+  color: var(--pl-accent);
+}
+
+.pfCharCount--danger {
+  color: #e05555;
+  font-weight: 700;
+}
+
+.pfError {
+  display: block;
+  font-size: 0.8rem;
+  color: #e05555;
+  margin-top: 6px;
+}
+
+/* ── Privacy toggle ─────────────────────────────────────────── */
+.pfToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.pfToggle__track {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 100px;
+  background: #1e1e20;
+  border: 1px solid rgba(255,255,255,0.07);
+  transition: background 180ms ease, border-color 180ms ease;
+  display: block;
+}
+
+/* Standalone modifier class — must exist so CSS Modules exports it as a key */
+.pfToggle--on { /* applied to toggle root when checked — child rules below */ }
+
+.pfToggle--on .pfToggle__track {
+  background: var(--pl-accent);
+  border-color: var(--pl-accent);
+}
+
+.pfToggle__thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #4a4845;
+  transition: transform 180ms ease, background 180ms ease;
+}
+
+.pfToggle--on .pfToggle__thumb {
+  transform: translateX(20px);
+  background: #fff;
+}
+
+.pfToggle__label {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #f0ece4;
+  min-width: 48px;
+}
+
+/* ── Cover art section ──────────────────────────────────────── */
+.pfMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.pfMeta__coverSection {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.pfMeta__coverWrap {
+  position: relative;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.pfMeta__cover {
+  display: block;
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: var(--pl-radius-lg);
+  border: 1px solid var(--pl-border);
+}
+
+.pfMeta__coverOverlay {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--pl-radius-lg);
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity var(--pl-transition);
+  pointer-events: none;
+}
+
+.pfMeta__coverWrap:hover .pfMeta__coverOverlay {
+  opacity: 1;
+}
+
+.pfMeta__coverUrl {
+  flex: 1;
+  min-width: 0;
+  padding-top: 4px;
+}
+
+/* ── Genre + Mood selects ───────────────────────────────────── */
+.pfSelectWrap {
+  position: relative;
+}
+
+.pfSelect {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  background: #1e1e20;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 6px;
+  color: #f0ece4;
+  font-size: 0.92rem;
+  padding: 10px 36px 10px 14px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+  box-sizing: border-box;
+}
+
+.pfSelect:focus {
+  border-color: #ff5500;
+  box-shadow: 0 0 0 3px rgba(255, 85, 0, 0.15);
+}
+
+.pfSelect option {
+  background: #ffffff;
+  color: #111111;
+}
+
+.pfSelectWrap__chevron {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #7a7874;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Submit actions ─────────────────────────────────────────── */
+.pfActions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pfActions__buttons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.pfActions__error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(224, 85, 85, 0.1);
+  border: 1px solid rgba(224, 85, 85, 0.3);
+  border-radius: var(--pl-radius);
+  padding: 10px 14px;
+  color: #e05555;
+  font-size: 0.88rem;
+}
+
+.pfActions__success {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(26, 122, 60, 0.12);
+  border: 1px solid rgba(26, 122, 60, 0.3);
+  border-radius: 6px;
+  padding: 10px 14px;
+  color: #4ade80;
+  font-size: 0.88rem;
+}
+
+.pfActions__unsaved {
+  font-size: 0.78rem;
+  color: #7a7874;
+  margin: 0;
+  text-align: right;
+}
+
+/* ── Submit spinner ─────────────────────────────────────────── */
+.pfSpinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Draft restore banner ───────────────────────────────────── */
+@keyframes draftSlideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.pfDraftBanner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(255, 85, 0, 0.06);
+  border: 1px solid rgba(255, 85, 0, 0.2);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 28px;
+  animation: draftSlideIn 0.2s ease;
+}
+
+.pfDraftBanner__icon {
+  color: #ff5500;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.pfDraftBanner__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pfDraftBanner__text strong {
+  font-size: 0.88rem;
+  color: #f0ece4;
+  font-weight: 600;
+}
+
+.pfDraftBanner__text span {
+  font-size: 0.78rem;
+  color: #7a7874;
+}
+
+.pfDraftBanner__actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.pfDraftBanner__btn {
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 100px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 180ms ease, border-color 180ms ease;
+}
+
+.pfDraftBanner__btn--restore {
+  background: #ff5500;
+  color: #fff;
+  border-color: #ff5500;
+}
+
+.pfDraftBanner__btn--restore:hover {
+  background: #ff6a1f;
+  border-color: #ff6a1f;
+}
+
+.pfDraftBanner__btn--discard {
+  background: transparent;
+  color: #7a7874;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.pfDraftBanner__btn--discard:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #f0ece4;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .pfLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .pfLayout__right {
+    position: static;
+    order: -1;
+  }
+}
+
+@media (max-width: 860px) {
+  .pfPage {
+    padding: 24px 16px 100px;
+  }
+
+  .pfMeta__coverSection {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pfMeta__coverUrl {
+    width: 100%;
+  }
+
+  .pfActions__buttons {
+    flex-direction: column-reverse;
+  }
+}
+
+@media (max-width: 600px) {
+  .pfField--selects {
+    flex-direction: column;
+  }
+
+  .pfDraftBanner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

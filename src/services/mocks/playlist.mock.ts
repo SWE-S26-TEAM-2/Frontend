@@ -1,22 +1,69 @@
-/**
- * Mock playlist service for development / testing.
- * Pattern mirrors src/services/mocks/trackService.ts (mockTrackService).
- *
- * Returns the correct playlist for each ID, and null for unknown IDs
- * so the error state is exercisable from the browser.
- */
+import { MOCK_PLAYLISTS } from "./mockData";
+import type { IPlaylist, IPlaylistService, IPlaylistCreateInput, IPlaylistUpdateInput, IPlaylistTrack } from "@/types/playlist.types";
 
-import { IPlaylist } from "@/types/playlist.types";
-import { getMockPlaylistById } from "@/services/mocks/playlistMockData";
-import { PLAYLIST_MOCK_DELAY_MS } from "@/constants/playlist.constants";
+const delay = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
-const delay = (ms: number) =>
-  new Promise<void>((resolve) => setTimeout(resolve, ms));
-
-export const mockPlaylistService = {
+export const mockPlaylistService: IPlaylistService = {
   async getById(id: string): Promise<IPlaylist | null> {
-    await delay(PLAYLIST_MOCK_DELAY_MS);
-    if (!id) return null;
-    return getMockPlaylistById(id);
+    await delay(300);
+    return MOCK_PLAYLISTS.find((p) => p.id === id || p.slug === id) ?? null;
+  },
+
+  async getUserPlaylists(userId: string): Promise<IPlaylist[]> {
+    await delay(250);
+    return MOCK_PLAYLISTS.filter((p) => p.owner?.id === userId || p.owner?.username === userId || p.creator === userId);
+  },
+
+  async create(input: IPlaylistCreateInput, creatorName: string): Promise<IPlaylist> {
+    await delay(400);
+    const newPlaylist: IPlaylist = {
+      id: `playlist-${Date.now()}`,
+      slug: input.title.toLowerCase().replace(/\s+/g, "-"),
+      title: input.title,
+      description: input.description,
+      coverArt: input.coverArt,
+      isPublic: input.isPublic,
+      creator: creatorName,
+      owner: { id: creatorName, username: creatorName },
+      genre: input.genre,
+      mood: input.mood,
+      tracks: input.tracks ?? [],
+      trackCount: input.tracks?.length ?? 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    MOCK_PLAYLISTS.push(newPlaylist);
+    return newPlaylist;
+  },
+
+  async update(input: IPlaylistUpdateInput): Promise<IPlaylist> {
+    await delay(300);
+    const idx = MOCK_PLAYLISTS.findIndex((p) => p.id === input.id);
+    if (idx === -1) throw new Error(`Playlist "${input.id}" not found`);
+    const updated = { ...MOCK_PLAYLISTS[idx], ...input, updatedAt: new Date().toISOString() };
+    MOCK_PLAYLISTS[idx] = updated;
+    return updated;
+  },
+
+  async deletePlaylist(id: string): Promise<void> {
+    await delay(200);
+    const idx = MOCK_PLAYLISTS.findIndex((p) => p.id === id);
+    if (idx !== -1) MOCK_PLAYLISTS.splice(idx, 1);
+  },
+
+  async addTrackToPlaylist(playlistId: string, track: IPlaylistTrack): Promise<IPlaylist> {
+    await delay(200);
+    const playlist = MOCK_PLAYLISTS.find((p) => p.id === playlistId);
+    if (!playlist) throw new Error(`Playlist "${playlistId}" not found`);
+    playlist.tracks = [...(playlist.tracks ?? []), track];
+    return playlist;
+  },
+
+  async removeTrackFromPlaylist(playlistId: string, trackId: string): Promise<IPlaylist> {
+    await delay(200);
+    const playlist = MOCK_PLAYLISTS.find((p) => p.id === playlistId);
+    if (!playlist) throw new Error(`Playlist "${playlistId}" not found`);
+    playlist.tracks = (playlist.tracks ?? []).filter((t) => t.id !== trackId);
+    return playlist;
   },
 };

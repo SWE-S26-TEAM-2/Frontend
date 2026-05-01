@@ -99,11 +99,30 @@ export function usePlaylist(id: string): IUsePlaylistReturn {
 
   const handleAddTrack = useCallback((track: IPlaylistTrack) => {
     setTracks((prev) => addTrackToList(prev, track));
-  }, []);
+    // Fire-and-forget API call (optimistic — already updated UI)
+    if (id) {
+      playlistService.addTrackToPlaylist(id, track).catch(() => {
+        // Rollback on failure
+        setTracks((prev) => removeTrackFromList(prev, track.id));
+      });
+    }
+  }, [id]);
 
   const handleRemoveTrack = useCallback((trackId: string) => {
-    setTracks((prev) => removeTrackFromList(prev, trackId));
-  }, []);
+    // Save for rollback
+    let removed: IPlaylistTrack | undefined;
+    setTracks((prev) => {
+      removed = prev.find((t) => t.id === trackId);
+      return removeTrackFromList(prev, trackId);
+    });
+    // Fire-and-forget API call (optimistic — already updated UI)
+    if (id) {
+      playlistService.removeTrackFromPlaylist(id, trackId).catch(() => {
+        // Rollback on failure
+        if (removed) setTracks((prev) => addTrackToList(prev, removed!));
+      });
+    }
+  }, [id]);
 
   const handleReorderTracks = useCallback(
     (fromIndex: number, toIndex: number) => {

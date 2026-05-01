@@ -94,3 +94,25 @@ export interface IUpdateProfileResponse {
 export interface IResendVerificationResponse {
   success: boolean;
 }
+
+export interface IVerifyEmailResponse {
+  success: boolean;
+}
+
+export interface ICheckYourEmailStepProps {
+  onBack: () => void;
+  onContinue: () => void;
+}
+
+export interface IEnterResetCodeStepProps {
+  onBack: () => void;
+  onContinue: (code: string) => void;
+}
+
+export interface IForgotPasswordStepProps {
+  emailOrProfileUrl: string;
+  onBack: () => void;
+  onSubmit: (email: string) => void;
+  isLoading: boolean;
+  error: string;
+}

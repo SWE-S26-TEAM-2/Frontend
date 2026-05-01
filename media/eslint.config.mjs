@@ -11,6 +11,17 @@ const eslintConfig = defineConfig([
     rules: {
       "no-console": ["warn", { allow: ["warn", "error"] }],
 
+      // Unused variables prefixed with _ are intentional (e.g. _userId, _token, _payload)
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          vars: "all",
+          varsIgnorePattern: "^_",
+          args: "after-used",
+          argsIgnorePattern: "^_",
+          ignoreRestSiblings: true,
+        },
+      ],
 
       "@typescript-eslint/naming-convention": [
         "error",
@@ -35,6 +46,18 @@ const eslintConfig = defineConfig([
     },
   },
 
+  // ── Per-directory overrides ───────────────────────────────────────────────
+  {
+    // Studio components use <img> intentionally for external media previews
+    files: ["src/components/Studio/**"],
+    rules: { "@next/next/no-img-element": "off" },
+  },
+  {
+    // Studio page has a complex conditional effect — exhaustive-deps disabled deliberately
+    files: ["src/app/**/creator/studio/**"],
+    rules: { "react-hooks/exhaustive-deps": "off" },
+  },
+
   eslintConfigPrettier,
 
   // ── Global ignores ────────────────────────────────────────────────────────
@@ -44,6 +67,10 @@ const eslintConfig = defineConfig([
     "build/**",
     "coverage/**",
     "next-env.d.ts",
+    // E2E test files use Playwright types not in the main tsconfig scope
+    "e2e/**",
+    // Legacy mock files kept in repo — not linted
+    "src/services/mocks/**",
   ]),
 ]);
 

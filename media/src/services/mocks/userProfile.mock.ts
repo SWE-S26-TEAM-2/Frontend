@@ -54,8 +54,8 @@ const MOCK_USERS: IUser[] = [
     role: "listener",
     socialLinks: {},
     isPrivate: false,
-    followers: 0,
-    following: 3,
+    followers: 8,
+    following: 2,
     tracks: 0,
     likes: 4,
     avatarUrl: null,
@@ -172,31 +172,26 @@ export const mockUserProfileService: IUserProfileService = {
     return MOCK_TRACKS.map(toCanonicalTrack);
   },
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async getUserLikes(_userId: string): Promise<ILikedTrack[]> {
     await delay(300);
     return MOCK_LIKES;
   },
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async getFansAlsoLike(_userId: string): Promise<IFanUser[]> {
     await delay(300);
     return MOCK_FANS;
   },
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async getFollowers(_userId: string): Promise<IFollower[]> {
     await delay(300);
     return MOCK_FOLLOWERS;
   },
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async getFollowing(_userId: string): Promise<IFollowing[]> {
     await delay(300);
     return MOCK_FOLLOWING;
   },
 
-  // FIX issue #6: corrected indentation to match the rest of the object literal
   async updateProfile(userId: string, payload: IEditProfilePayload): Promise<IUser> {
     await delay(500);
     const index = MOCK_USERS.findIndex(u => u.id === userId);
@@ -235,12 +230,10 @@ export const mockUserProfileService: IUserProfileService = {
     return { ...owner };
   },
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async followUser(_userId: string): Promise<void> {
     await delay(200);
   },
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async unfollowUser(_userId: string): Promise<void> {
     await delay(200);
   },

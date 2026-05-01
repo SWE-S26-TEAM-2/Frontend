@@ -1,10 +1,6 @@
 "use client";
 
-interface IToggleProps {
-  value: boolean;
-  // onChange: () => void; //removed by reta
-  onChange: (value: boolean) => void;  // added by reta // add the boolean parameter
-}
+import type { IToggleProps } from "@/types/ui.types";
 
 const Toggle = ({ value, onChange }: IToggleProps) => (
   <button

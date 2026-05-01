@@ -31,6 +31,7 @@ export default function PlaylistForm({ mode, playlistId }: IPlaylistFormProps) {
     handleCoverArtChange, handleGenreChange, handleMoodChange,
     handleAddTrack, handleRemoveTrack, handleUndoRemove, handleReorderTracks,
     handleSubmit,
+    stepLabel,
     handleRestoreDraft, handleDiscardDraft,
   } = usePlaylistForm({ mode, playlistId });
 
@@ -169,6 +170,7 @@ export default function PlaylistForm({ mode, playlistId }: IPlaylistFormProps) {
                 genre={genre}
                 mood={mood}
                 validationErrors={validationErrors}
+                playlistId={mode === "edit" ? playlistId : undefined}
                 onTitleChange={handleTitleChange}
                 onDescriptionChange={handleDescriptionChange}
                 onTogglePublic={handleTogglePublic}
@@ -197,6 +199,7 @@ export default function PlaylistForm({ mode, playlistId }: IPlaylistFormProps) {
               hasUnsavedChanges={hasUnsavedChanges}
               onSubmit={handleFormSubmit}
               onCancel={handleCancel}
+              stepLabel={stepLabel}
             />
           </div>
 

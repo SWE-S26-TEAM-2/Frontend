@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { IProfileActionsProps } from "@/types/ui.types";
 import { ShareIcon } from "@/components/Icons/TrackIcons";
 import { ShareModal } from "@/components/Share/Share";
+import { userProfileService } from "@/services/di";
 
 const StationIcon = () => (
   <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
@@ -15,9 +16,23 @@ const StationIcon = () => (
   </svg>
 );
 
-export function ProfileActions({ user }: IProfileActionsProps) {
+export function ProfileActions({ user, onEditOpen }: IProfileActionsProps) {
   const [isFollowing, setIsFollowing] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
+
+  const handleFollowToggle = async () => {
+    const next = !isFollowing;
+    setIsFollowing(next);
+    try {
+      if (next) {
+        await userProfileService.followUser(user.username);
+      } else {
+        await userProfileService.unfollowUser(user.username);
+      }
+    } catch {
+      setIsFollowing(!next);
+    }
+  };
 
   if (user.isOwner) {
     return (
@@ -29,8 +44,11 @@ export function ProfileActions({ user }: IProfileActionsProps) {
           >
             <ShareIcon /> Share
           </button>
-          <button className="flex items-center gap-1.5 bg-transparent border border-[#2e2e2e] text-[#ccc] rounded px-4 py-1.5 text-sm cursor-pointer hover:border-white transition-colors">
-            ✏ Edit
+          <button
+            onClick={onEditOpen}
+            className="flex items-center gap-1.5 bg-transparent border border-[#2e2e2e] text-[#ccc] rounded px-4 py-1.5 text-sm cursor-pointer hover:border-white transition-colors"
+          >
+            Edit
           </button>
         </div>
 
@@ -48,14 +66,14 @@ export function ProfileActions({ user }: IProfileActionsProps) {
           <StationIcon /> Station
         </button>
         <button
-          onClick={() => setIsFollowing(f => !f)}
+          onClick={handleFollowToggle}
           className={`flex items-center gap-1.5 rounded px-3 py-1.5 text-sm cursor-pointer font-medium transition-colors ${
             isFollowing
               ? "bg-transparent border border-[#2e2e2e] text-[#ccc] hover:border-white"
               : "bg-[#ff5500] border border-[#ff5500] text-white hover:bg-[#e64d00]"
           }`}
         >
-          👤 {isFollowing ? "Following" : "Follow"}
+          {isFollowing ? "Following" : "Follow"}
         </button>
         <button
           onClick={() => setIsShareOpen(true)}

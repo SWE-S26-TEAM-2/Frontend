@@ -68,6 +68,18 @@ import type { INotificationService } from "@/types/notification.types";
 import { realAdminService } from "./api/admin.api";
 import type { IAdminService } from "@/types/admin.types";
 
+// studio
+import { realStudioService } from "./api/studio.api";
+import type { IStudioService } from "@/types/studio.types";
+
+// insights
+import { realInsightsService } from "./api/insights.api";
+import type { IInsightsService } from "@/types/insights.types";
+
+// engagement
+import { realEngagementService } from "./api/engagement.api";
+import type { IEngagementService } from "./api/engagement.api";
+
 // ── Service exports ───────────────────────────────────────────────────────────
 
 export const AuthService = RealAuthService;
@@ -132,6 +144,12 @@ export const chartService: IChartService = realChartService;
 export const activityNotificationService: INotificationService = realNotificationService;
 
 export const adminService: IAdminService = realAdminService;
+
+export const studioService: IStudioService = realStudioService;
+
+export const insightsService: IInsightsService = realInsightsService;
+
+export const engagementService: IEngagementService = realEngagementService;
 
 // Re-export real implementations for any direct consumers
 export {

@@ -10,6 +10,8 @@ interface ISubmitActionsProps {
   hasUnsavedChanges: boolean;
   onSubmit: () => void;
   onCancel: () => void;
+  /** Optional granular step label shown while submitting */
+  stepLabel?: string;
 }
 
 export default function SubmitActions({
@@ -18,6 +20,7 @@ export default function SubmitActions({
   hasUnsavedChanges,
   onSubmit,
   onCancel,
+  stepLabel,
 }: ISubmitActionsProps) {
   const isSubmitting = status.kind === "submitting";
   const isSuccess    = status.kind === "success";
@@ -25,7 +28,7 @@ export default function SubmitActions({
   const errorMessage = status.kind === "error" ? status.message : "";
 
   const submitLabel     = mode === "create" ? "Create Playlist" : "Save Changes";
-  const submittingLabel = mode === "create" ? "Creating…"       : "Saving…";
+  const submittingLabel = stepLabel || (mode === "create" ? "Creating…" : "Saving…");
 
   return (
     <div className={styles.pfActions}>

@@ -14,16 +14,18 @@ export default function UserSearchCard({ user }: { user: ISearchUser }) {
   const handleFollow = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (loading) return;
+    const next = !isFollowing;
+    setIsFollowing(next);
     setLoading(true);
     try {
-      if (isFollowing) {
-        await userProfileService.unfollowUser(user.id);
+      if (next) {
+        await userProfileService.followUser(user.username);
       } else {
-        await userProfileService.followUser(user.id);
+        await userProfileService.unfollowUser(user.username);
       }
-      setIsFollowing((f) => !f);
     } catch (err) {
       console.error("Follow action failed:", err);
+      setIsFollowing(!next);
     } finally {
       setLoading(false);
     }
@@ -106,7 +108,7 @@ export default function UserSearchCard({ user }: { user: ISearchUser }) {
           if (!loading && isFollowing) e.currentTarget.style.borderColor = "#555";
         }}
       >
-        {loading ? "..." : isFollowing ? "Following" : "Follow"}
+        {isFollowing ? "Following" : "Follow"}
       </button>
     </div>
   );

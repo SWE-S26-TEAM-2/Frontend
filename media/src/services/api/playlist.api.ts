@@ -29,16 +29,16 @@ import type {
 
 // ── Backend response shapes ───────────────────────────────────────────────────
 
-interface BackendPlaylist {
+interface IBackendPlaylist {
   playlist_id: string;
   user_id?: string;
   name: string;
   description?: string | null;
   cover_photo_url?: string | null;
-  tracks?: BackendTrack[];
+  tracks?: IBackendTrack[];
 }
 
-interface BackendTrack {
+interface IBackendTrack {
   track_id: string;
   user_id?: string | null;
   title: string;
@@ -52,7 +52,7 @@ interface BackendTrack {
 
 // ── Normalizers ───────────────────────────────────────────────────────────────
 
-function normalizeTrack(t: BackendTrack): IPlaylistTrack {
+function normalizeTrack(t: IBackendTrack): IPlaylistTrack {
   return {
     id: t.track_id,
     title: t.title,
@@ -63,7 +63,7 @@ function normalizeTrack(t: BackendTrack): IPlaylistTrack {
   };
 }
 
-function normalizePlaylist(d: BackendPlaylist): IPlaylist {
+function normalizePlaylist(d: IBackendPlaylist): IPlaylist {
   return {
     id: d.playlist_id,
     title: d.name,
@@ -81,7 +81,7 @@ export const realPlaylistService: IPlaylistService = {
   /** GET /playlists/:id — returns null on 404 or auth error */
   async getById(id: string): Promise<IPlaylist | null> {
     try {
-      const data = await apiGet<BackendPlaylist>(
+      const data = await apiGet<IBackendPlaylist>(
         `${ENV.API_BASE_URL}/playlists/${id}`
       );
       return normalizePlaylist(data);
@@ -90,9 +90,20 @@ export const realPlaylistService: IPlaylistService = {
     }
   },
 
-  /** Not a dedicated backend endpoint — returns empty array gracefully */
-  async getUserPlaylists(_userId: string): Promise<IPlaylist[]> {
-    return [];
+  /**
+   * GET /{username}/playlists — returns all playlists for a user by username.
+   * Falls back to empty array on error.
+   */
+  async getUserPlaylists(username: string): Promise<IPlaylist[]> {
+    try {
+      const data = await apiGet<IBackendPlaylist[]>(
+        `${ENV.API_BASE_URL}/users/${username}/playlists`
+      );
+      if (!Array.isArray(data)) return [];
+      return data.map(normalizePlaylist);
+    } catch {
+      return [];
+    }
   },
 
   /**
@@ -102,10 +113,9 @@ export const realPlaylistService: IPlaylistService = {
    */
   async create(
     input: IPlaylistCreateInput,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _creatorName: string
   ): Promise<IPlaylist> {
-    const data = await apiPost<BackendPlaylist>(
+    const data = await apiPost<IBackendPlaylist>(
       `${ENV.API_BASE_URL}/playlists/`,
       {
         name: input.title,
@@ -116,24 +126,58 @@ export const realPlaylistService: IPlaylistService = {
     // tracks so the frontend can navigate to the new playlist page immediately.
     const playlist = normalizePlaylist(data);
     playlist.tracks = input.tracks ?? [];
+
+    // If a cover URL was provided, patch it immediately after creation
+    if (input.coverArt && input.coverArt.startsWith("http")) {
+      try {
+        await apiPatch(`${ENV.API_BASE_URL}/playlists/${playlist.id}`, {
+          cover_photo_url: input.coverArt,
+        });
+        playlist.coverArt = input.coverArt;
+      } catch {
+        // Non-critical — proceed without cover
+      }
+    }
+
     return playlist;
   },
 
   /**
    * PATCH /playlists/:id
    * Body: { name?, description? }
+   * Backend may return partial data — re-fetch to get full playlist.
    */
   async update(input: IPlaylistUpdateInput): Promise<IPlaylist> {
-    const { id, title, description } = input;
+    const { id, title, description, coverArt } = input;
     const body: Record<string, string> = {};
     if (title !== undefined) body.name = title;
     if (description !== undefined) body.description = description;
+    if (coverArt !== undefined && coverArt !== null) body.cover_photo_url = coverArt;
 
-    const data = await apiPatch<BackendPlaylist>(
-      `${ENV.API_BASE_URL}/playlists/${id}`,
-      body
-    );
-    return normalizePlaylist(data);
+    try {
+      const data = await apiPatch<IBackendPlaylist>(
+        `${ENV.API_BASE_URL}/playlists/${id}`,
+        body
+      );
+      // If backend returned full playlist data use it; otherwise re-fetch
+      if (data && data.playlist_id) {
+        const normalized = normalizePlaylist(data);
+        // Preserve tracks from input since PATCH may not return them
+        if (!normalized.tracks || normalized.tracks.length === 0) {
+          normalized.tracks = input.tracks ?? [];
+        }
+        return normalized;
+      }
+    } catch {
+      // If PATCH fails, try to get the current state
+    }
+
+    // Fallback: re-fetch the playlist
+    const updated = await realPlaylistService.getById(id);
+    if (!updated) throw new Error('Failed to fetch playlist after update');
+    // Merge in the new track list from input (track order changes are local)
+    if (input.tracks) updated.tracks = input.tracks;
+    return updated;
   },
 
   /** DELETE /playlists/:id */
@@ -170,5 +214,58 @@ export const realPlaylistService: IPlaylistService = {
     if (!updated)
       throw new Error("Failed to fetch playlist after removing track");
     return updated;
+  },
+
+  /** POST /playlists — create a new playlist */
+  async createPlaylist(name: string, description?: string): Promise<IPlaylist> {
+    const username =
+      typeof window !== "undefined"
+        ? (window.localStorage.getItem("auth_username") ?? "")
+        : "";
+    return realPlaylistService.create(
+      { title: name, description: description ?? "", isPublic: true, coverArt: "", tracks: [] },
+      username
+    );
+  },
+
+  /** POST /playlists/:id/cover — multipart file upload; returns the new URL */
+  async uploadCover(playlistId: string, file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append("file", file);
+    // Use raw fetch so we can skip the Content-Type header (browser sets multipart boundary)
+    const token = typeof window !== "undefined" ? window.localStorage.getItem("auth_token") : null;
+    const res = await fetch(`${ENV.API_BASE_URL}/playlists/${playlistId}/cover`, {
+      method: "POST",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err?.detail || err?.message || "Cover upload failed");
+    }
+    const json = await res.json();
+    // Response: { success, message, data: { playlist_id, cover_photo_url } }
+    return (json?.data?.cover_photo_url ?? "") as string;
+  },
+
+  /** POST /playlists/:id/like */
+  async likePlaylist(id: string): Promise<void> {
+    await apiPost(`${ENV.API_BASE_URL}/playlists/${id}/like`);
+  },
+
+  /** DELETE /playlists/:id/like */
+  async unlikePlaylist(id: string): Promise<void> {
+    await apiDelete(`${ENV.API_BASE_URL}/playlists/${id}/like`);
+  },
+
+  /** GET /playlists/liked — returns current user liked playlists */
+  async getLikedPlaylists(): Promise<IPlaylist[]> {
+    try {
+      const data = await apiGet<IBackendPlaylist[]>(`${ENV.API_BASE_URL}/playlists/liked`);
+      if (!Array.isArray(data)) return [];
+      return data.map(normalizePlaylist);
+    } catch {
+      return [];
+    }
   },
 };

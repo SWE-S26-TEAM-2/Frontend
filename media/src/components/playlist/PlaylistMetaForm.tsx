@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import {
   PLAYLIST_TITLE_MAX_LENGTH,
@@ -23,6 +23,8 @@ interface IPlaylistMetaFormProps {
   genre: PlaylistGenre | "";
   mood: PlaylistMood | "";
   validationErrors: IPlaylistFormErrors;
+  /** playlistId is only provided in edit mode — enables direct file upload */
+  playlistId?: string;
   onTitleChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
   onTogglePublic: () => void;
@@ -39,6 +41,7 @@ export default function PlaylistMetaForm({
   genre,
   mood,
   validationErrors,
+  playlistId,
   onTitleChange,
   onDescriptionChange,
   onTogglePublic,
@@ -47,6 +50,9 @@ export default function PlaylistMetaForm({
   onMoodChange,
 }: IPlaylistMetaFormProps) {
   const [hasImgError, setHasImgError] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const safeTitle    = title    ?? "";
   const safeCoverArt = coverArt ?? "";
@@ -61,7 +67,41 @@ export default function PlaylistMetaForm({
 
   const handleCoverChange = (url: string) => {
     setHasImgError(false);
+    setUploadError("");
     onCoverArtChange(url);
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadError("");
+    setHasImgError(false);
+
+    if (playlistId) {
+      // Edit mode: upload directly to backend
+      setIsUploading(true);
+      try {
+        const { playlistService } = await import("@/services/di");
+        const newUrl = await playlistService.uploadCover(playlistId, file);
+        onCoverArtChange(newUrl);
+      } catch (err) {
+        setUploadError(err instanceof Error ? err.message : "Upload failed");
+      } finally {
+        setIsUploading(false);
+      }
+    } else {
+      // Create mode: convert to data URL so it shows as preview;
+      // the persistence hook will PATCH the cover URL after creation.
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === "string") {
+          onCoverArtChange(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+    // Reset input so the same file can be re-selected if needed
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   return (
@@ -89,21 +129,49 @@ export default function PlaylistMetaForm({
         </div>
 
         <div className={styles.pfMeta__coverUrl}>
-          <label className={styles.pfLabel} htmlFor="cover-art-input">Cover image URL</label>
+          {/* Hidden file input */}
+          <input
+            ref={fileInputRef}
+            id="cover-file-input"
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={(e) => { void handleFileSelect(e); }}
+            aria-label="Upload cover image file"
+          />
+
+          <div style={{ display: "flex", gap: 8, marginBottom: 6 }}>
+            <button
+              type="button"
+              className={styles.pfInput}
+              style={{ cursor: "pointer", textAlign: "left", color: isUploading ? "#888" : undefined }}
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              aria-label="Upload cover image from file"
+            >
+              {isUploading ? "Uploading…" : "📁 Upload image file"}
+            </button>
+          </div>
+
+          <label className={styles.pfLabel} htmlFor="cover-art-input">Or paste image URL</label>
           <input
             id="cover-art-input"
             type="url"
             className={styles.pfInput}
-            value={safeCoverArt}
+            value={safeCoverArt.startsWith("data:") ? "" : safeCoverArt}
             onChange={(e) => handleCoverChange(e.target.value)}
             placeholder="https://example.com/cover.jpg"
             aria-label="Cover image URL"
             autoComplete="off"
           />
           <span className={styles.pfHint}>
-            {hasImgError && safeCoverArt
-              ? "⚠ Image could not be loaded — showing default cover."
-              : "Paste an image URL or leave blank to use the default cover."}
+            {uploadError
+              ? `⚠ ${uploadError}`
+              : hasImgError && safeCoverArt
+                ? "⚠ Image could not be loaded — showing default cover."
+                : safeCoverArt.startsWith("data:")
+                  ? "✓ Image selected — will be uploaded on save."
+                  : "Upload a file or paste an image URL."}
           </span>
         </div>
       </div>

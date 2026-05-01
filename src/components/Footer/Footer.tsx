@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { usePlayerStore } from "@/store/playerStore";
 import { trackService } from "@/services";
 
@@ -35,10 +36,11 @@ const ICON_BTN: React.CSSProperties = {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function Footer() {
+  const router = useRouter();
   const {
-    currentTrack, isPlaying, currentTime, volume, liked, shuffle, repeat,
-    togglePlay, setCurrentTime, setVolume, toggleLike, toggleShuffle,
-    toggleRepeat, playNext, playPrev, setTrack, setQueue,
+    currentTrack, queue, isPlaying, currentTime, duration, volume, liked, shuffle, repeat,
+    togglePlay, setCurrentTime, setDuration, setVolume, toggleLike, toggleShuffle,
+    toggleRepeat, playNext, playPrev, setTrack, setQueue, playFromQueue, moveQueueItem,
   } = usePlayerStore();
 
   const audioRef        = useRef<HTMLAudioElement>(null);
@@ -46,15 +48,21 @@ export default function Footer() {
   const leaveTimer      = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [muted, setMuted]               = useState(false);
   const [volVisible, setVolVisible]     = useState(false);
+  const [queueOpen, setQueueOpen]       = useState(false);
+  const [dragFromIndex, setDragFromIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   // Load tracks on mount
   useEffect(() => {
+    if (queue.length > 0) return;
+
     void trackService.getAll().then((tracks) => {
       setQueue(tracks);
-      setTrack(tracks[0]);
+      if (!currentTrack && tracks.length > 0) {
+        setTrack(tracks[0]);
+      }
     }).catch(() => {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [currentTrack, queue.length, setQueue, setTrack]);
 
   // Sync play/pause
   useEffect(() => {
@@ -76,15 +84,25 @@ export default function Footer() {
     if (audioRef.current) audioRef.current.volume = muted ? 0 : volume;
   }, [volume, muted]);
 
+  // Allow external controls (track page waveform/button) to seek global audio.
+  useEffect(() => {
+    if (!audioRef.current || !currentTrack) return;
+    const drift = Math.abs(audioRef.current.currentTime - currentTime);
+    if (drift > 0.4) {
+      audioRef.current.currentTime = currentTime;
+    }
+  }, [currentTime, currentTrack]);
+
   const handleTimeUpdate = () => {
-    if (audioRef.current) setCurrentTime(Math.floor(audioRef.current.currentTime));
+    if (audioRef.current) setCurrentTime(audioRef.current.currentTime);
   };
 
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!progressRef.current || !audioRef.current || !currentTrack) return;
     const rect  = progressRef.current.getBoundingClientRect();
     const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    const seekTo = Math.floor(ratio * currentTrack.duration);
+    const effectiveDuration = duration || currentTrack.duration;
+    const seekTo = ratio * effectiveDuration;
     audioRef.current.currentTime = seekTo;
     setCurrentTime(seekTo);
   };
@@ -98,12 +116,21 @@ export default function Footer() {
     leaveTimer.current = setTimeout(() => setVolVisible(false), 400);
   };
 
-  const duration = currentTrack?.duration ?? 0;
-  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const effectiveDuration = duration || currentTrack?.duration || 0;
+  const progress = effectiveDuration > 0 ? (currentTime / effectiveDuration) * 100 : 0;
 
   return (
     <>
-      <audio ref={audioRef} onTimeUpdate={handleTimeUpdate} onEnded={playNext} />
+      <audio
+        ref={audioRef}
+        onLoadedMetadata={() => {
+          if (audioRef.current) {
+            setDuration(audioRef.current.duration || 0);
+          }
+        }}
+        onTimeUpdate={handleTimeUpdate}
+        onEnded={playNext}
+      />
 
       <footer style={{
         position: "fixed", bottom: 0, left: 0, right: 0,
@@ -176,7 +203,7 @@ export default function Footer() {
           </div>
 
           <span style={{ color: "rgba(200,200,200)", fontSize: "11px", flexShrink: 0, minWidth: "28px" }}>
-            {formatTime(duration)}
+            {formatTime(effectiveDuration)}
           </span>
 
           {/* Volume — icon always shown, slider slides in on hover */}
@@ -218,19 +245,34 @@ export default function Footer() {
         {/* ── RIGHT: track info + actions ── */}
         {currentTrack && (
           <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
-            <Image
-              src={currentTrack.albumArt} alt={currentTrack.title}
-              width={38} height={38}
-              style={{ borderRadius: "2px", objectFit: "cover", flexShrink: 0 }}
-            />
-            <div style={{ overflow: "hidden", maxWidth: "160px" }}>
+            <button
+              onClick={() => router.push(`/track/${currentTrack.id}`)}
+              aria-label={`Open ${currentTrack.title}`}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                background: "none",
+                border: "none",
+                padding: 0,
+                color: "inherit",
+                cursor: "pointer",
+              }}
+            >
+              <Image
+                src={currentTrack.albumArt} alt={currentTrack.title}
+                width={38} height={38}
+                style={{ borderRadius: "2px", objectFit: "cover", flexShrink: 0 }}
+              />
+              <div style={{ overflow: "hidden", maxWidth: "160px", textAlign: "left" }}>
               <div style={{ color: "#fff", fontSize: "12px", fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {currentTrack.title}
               </div>
               <div style={{ color: "rgba(200,200,200)", fontSize: "11px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {currentTrack.artist}
               </div>
-            </div>
+              </div>
+            </button>
 
             <div style={{ width: "1px", height: "20px", background: "rgba(80,80,80)", flexShrink: 0 }} />
 
@@ -246,12 +288,175 @@ export default function Footer() {
             ><AddUserIcon /></button>
 
             <button style={ICON_BTN} aria-label="Queue"
+              onClick={() => setQueueOpen((prev) => !prev)}
               onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
               onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.8)")}
             ><QueueIcon /></button>
           </div>
         )}
       </footer>
+
+      {queueOpen && (
+        <aside
+          style={{
+            position: "fixed",
+            right: 16,
+            bottom: 64,
+            width: "min(420px, calc(100vw - 24px))",
+            maxHeight: "60vh",
+            background: "#121212",
+            border: "1px solid rgba(80,80,80)",
+            borderRadius: "8px",
+            boxShadow: "0 10px 32px rgba(0,0,0,0.45)",
+            zIndex: 250,
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+            fontFamily: "'Helvetica Neue', Arial, sans-serif",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "10px 12px",
+              borderBottom: "1px solid rgba(80,80,80)",
+              color: "#fff",
+              fontSize: "13px",
+              fontWeight: 700,
+            }}
+          >
+            <span>Queue ({queue.length})</span>
+            <button
+              onClick={() => setQueueOpen(false)}
+              style={{
+                ...ICON_BTN,
+                color: "rgba(255,255,255,0.8)",
+                padding: 0,
+                width: 24,
+                height: 24,
+              }}
+              aria-label="Close queue"
+            >
+              x
+            </button>
+          </div>
+
+          <div style={{ overflowY: "auto", padding: "6px 0" }}>
+            {queue.length === 0 ? (
+              <p style={{ color: "#999", fontSize: "12px", padding: "12px" }}>Queue is empty.</p>
+            ) : (
+              queue.map((track, index) => {
+                const isCurrent = currentTrack?.id === track.id;
+                const isDropTarget = dragOverIndex === index && dragFromIndex !== index;
+
+                return (
+                  <div
+                    key={`${track.id}-${index}`}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setDragOverIndex(index);
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      if (dragFromIndex === null || dragFromIndex === index) return;
+                      moveQueueItem(dragFromIndex, index);
+                      setDragFromIndex(null);
+                      setDragOverIndex(null);
+                    }}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "26px 44px minmax(0,1fr) auto",
+                      alignItems: "center",
+                      gap: "8px",
+                      padding: "6px 10px",
+                      borderBottom: "1px solid rgba(40,40,40)",
+                      background: isCurrent ? "rgba(255,85,0,0.12)" : "transparent",
+                      outline: isDropTarget ? "1px solid #FF5500" : "none",
+                      outlineOffset: "-1px",
+                    }}
+                  >
+                    <span style={{ color: isCurrent ? "#FF5500" : "#888", fontSize: "12px", textAlign: "right" }}>
+                      {index + 1}
+                    </span>
+
+                    <button
+                      onClick={() => playFromQueue(index)}
+                      aria-label={`Play ${track.title}`}
+                      style={{
+                        border: "none",
+                        background: "none",
+                        padding: 0,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Image
+                        src={track.albumArt}
+                        alt={track.title}
+                        width={36}
+                        height={36}
+                        style={{ borderRadius: "2px", objectFit: "cover" }}
+                      />
+                    </button>
+
+                    <button
+                      onClick={() => playFromQueue(index)}
+                      style={{
+                        border: "none",
+                        background: "none",
+                        color: isCurrent ? "#FF5500" : "#e7e7e7",
+                        textAlign: "left",
+                        cursor: "pointer",
+                        minWidth: 0,
+                        padding: 0,
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: "12px",
+                          fontWeight: isCurrent ? 700 : 500,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {track.artist} - {track.title}
+                      </div>
+                    </button>
+
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                      <button
+                        draggable
+                        onDragStart={() => setDragFromIndex(index)}
+                        onDragEnd={() => {
+                          setDragFromIndex(null);
+                          setDragOverIndex(null);
+                        }}
+                        style={{
+                          ...ICON_BTN,
+                          width: 28,
+                          height: 22,
+                          color: "rgba(255,255,255,0.65)",
+                          border: "1px solid rgba(80,80,80)",
+                          borderRadius: "4px",
+                          cursor: "grab",
+                        }}
+                        aria-label="Drag to reorder"
+                      >
+                        |||
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </aside>
+      )}
     </>
   );
 }
