@@ -41,7 +41,11 @@ export default function FollowersPage({ params }: { params: Promise<{ username: 
     const isCurrentlyFollowing = following.has(targetUsername);
     setFollowing(prev => {
       const next = new Set(prev);
-      next.has(targetUsername) ? next.delete(targetUsername) : next.add(targetUsername);
+      if (next.has(targetUsername)) {
+        next.delete(targetUsername);
+      } else {
+        next.add(targetUsername);
+      }
       return next;
     });
     try {
@@ -53,7 +57,11 @@ export default function FollowersPage({ params }: { params: Promise<{ username: 
     } catch {
       setFollowing(prev => {
         const next = new Set(prev);
-        next.has(targetUsername) ? next.delete(targetUsername) : next.add(targetUsername);
+        if (next.has(targetUsername)) {
+          next.delete(targetUsername);
+        } else {
+          next.add(targetUsername);
+        }
         return next;
       });
     }

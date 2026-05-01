@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
-import SearchBar from "@/components/Search/SearchBar";
 import { TrackCard } from "@/components/Track/TrackCard";
 import { searchService } from "@/services/di";
 import { userProfileService } from "@/services/di";
@@ -45,8 +43,9 @@ function SearchInner() {
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState<string | null>(null);
 
-  // ── Single effect — avoids setState-in-effect lint error ──────────────────
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTab("all");
 
     if (!queryParam.trim()) {
@@ -75,7 +74,6 @@ function SearchInner() {
       });
 
     return () => { cancelled = true; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryParam]);
 
   const total = results.tracks.length + results.users.length + results.playlists.length;

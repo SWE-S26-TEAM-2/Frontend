@@ -89,7 +89,7 @@ export const realStationService: IStationService = {
     }
   },
 
-  async toggleLike(_stationId: string): Promise<void> {
+  async toggleLike(): Promise<void> {
     // TODO: wire once backend ships a like/unlike station endpoint
   },
 };

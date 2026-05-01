@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import StationCard from "@/components/Station/StationCard";
-import type { IStation } from "@/types/station.types";
 import type { IStationSliderProps } from "@/types/station.types";
 
 
@@ -23,8 +22,8 @@ export default function StationSlider({ title, subtitle, stations }: IStationSli
 
   const maxIndex = Math.max(0, stations.length - VISIBLE);
 
-  const nextPage = () => { setIndex((i) => Math.min(i + VISIBLE, maxIndex)); setPeekOffset(0); };
-  const prevPage = () => { setIndex((i) => Math.max(i - VISIBLE, 0)); setPeekOffset(0); };
+  const nextPage = useCallback(() => { setIndex((i) => Math.min(i + VISIBLE, maxIndex)); setPeekOffset(0); }, [maxIndex]);
+  const prevPage = useCallback(() => { setIndex((i) => Math.max(i - VISIBLE, 0)); setPeekOffset(0); }, [maxIndex]);
 
   const handlePeek = (offset: number) => {
     setPeekOffset(offset);
@@ -63,7 +62,7 @@ export default function StationSlider({ title, subtitle, stations }: IStationSli
     };
     container.addEventListener("wheel", handleWheel as EventListener, { passive: true });
     return () => container.removeEventListener("wheel", handleWheel as EventListener);
-  }, []);
+  }, [nextPage, prevPage]);
 
   const activePeek =
     (index === 0 && peekOffset > 0) || (index === maxIndex && peekOffset < 0)

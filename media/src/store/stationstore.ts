@@ -53,7 +53,11 @@ export const useStationStore = create<IStationStore>()(
 
       toggleLike: (station: IStation) => {
         const { isLiked, likeStation, unlikeStation } = get();
-        isLiked(station.id) ? unlikeStation(station.id) : likeStation(station);
+        if (isLiked(station.id)) {
+          unlikeStation(station.id);
+        } else {
+          likeStation(station);
+        }
       },
 
       isLiked: (stationId: string) => get().likedStationIds.has(stationId),

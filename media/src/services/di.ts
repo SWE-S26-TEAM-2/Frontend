@@ -70,19 +70,15 @@ import { sendPasswordResetEmailFromAPI } from "./api/settings-account.api";
 
 // settings/notification
 import { getMockNotificationSettings, updateMockNotificationSettings } from "./mocks/settings-notification.mock";
-import { getNotificationSettingsFromAPI, updateNotificationSettingsOnAPI } from "./api/settings-notification.api";
 
 // settings/content
 import { getMockContentSettings, updateMockContentSettings } from "./mocks/settings-content.mock";
-import { getContentSettingsFromAPI, updateContentSettingsOnAPI } from "./api/settings-content.api";
 
 // settings/advertising
 import { getMockAdvertisingSettings, updateMockAdvertisingSettings } from "./mocks/settings-advertising.mock";
-import { getAdvertisingSettingsFromAPI, updateAdvertisingSettingsOnAPI } from "./api/settings-advertising.api";
 
 // settings/two-factor
 import { getMockTwoFactorSettings, updateMockTwoFactorSettings } from "./mocks/settings-two-factor.mock";
-import { getTwoFactorSettingsFromAPI, updateTwoFactorSettingsOnAPI } from "./api/settings-two-factor.api";
 
 
 

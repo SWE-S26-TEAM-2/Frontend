@@ -109,7 +109,7 @@ export default function StudioPage() {
     };
 
     void fetchData();
-  }, [isAuthenticated]);
+  }, [isLoggedIn, router]);
 
   // ── Delete: remove from source array so useMemo recomputes correctly ──────
   const handleDeleteTrack = (trackId: string) => {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import TrackCard2 from "./TrackCard2";
@@ -23,15 +23,15 @@ export default function TrackSlider({
 
   /* ---------------- NAVIGATION ---------------- */
 
-  const nextPage = () => {
+  const nextPage = useCallback(() => {
     setIndex((i) => Math.min(i + visible, maxIndex));
     setPeekOffset(0);
-  };
+  }, [maxIndex]);
 
-  const prevPage = () => {
+  const prevPage = useCallback(() => {
     setIndex((i) => Math.max(i - visible, 0));
     setPeekOffset(0);
-  };
+  }, [maxIndex]);
 
   /* ---------------- PEEK ---------------- */
 
@@ -107,7 +107,7 @@ export default function TrackSlider({
     return () => {
       container.removeEventListener("wheel", handleWheel as EventListener);
     };
-  }, []);
+  }, [nextPage, prevPage]);
 
   /* ---------------- ACTIVE PEAK ---------------- */
 

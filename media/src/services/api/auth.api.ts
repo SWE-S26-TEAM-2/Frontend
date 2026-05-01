@@ -318,7 +318,7 @@ export const RealAuthService = {
     return user;
   },
 
-  refreshToken: async (_token: string): Promise<{ token: string }> => {
+  refreshToken: async (): Promise<{ token: string }> => {
     const storedRefresh = getRefreshToken();
 
     const response = await fetch(apiUrl("/auth/refresh"), {

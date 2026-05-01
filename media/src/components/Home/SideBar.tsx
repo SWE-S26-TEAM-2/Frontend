@@ -6,8 +6,6 @@ import ArtistTools from './ArtistsTools';
 import ArtistsFollow from './ArtistsFollow';
 import ListeningHistory from './ListeningHistory';
 import HoverButton from '../../components/HoverButton/HoverButton';
-import { IArtist } from '../../types/home.types';
-import { ITrack } from '../../types/track.types';
 import { IRightSidebarProps } from '../../types/home.types';
 
 const RightSidebar = ({ followSuggestions, listeningHistory }: IRightSidebarProps) => {

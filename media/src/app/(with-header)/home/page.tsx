@@ -20,11 +20,13 @@ export default function HomePage() {
   const [discoverStations,  setDiscoverStations]  = useState<IStation[]>([]);
   const [isLoading,         setIsLoading]         = useState(true);
 
-  // ── Mount + auth guard ────────────────────────────────────────────────────
-  // Must run in useEffect so server and client agree on the first render
-  // (avoids typeof window hydration mismatch).
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
+    // This effect runs only once after first render to set mounted=true
+    // and check auth status
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
+    
     const token = window.localStorage.getItem("auth_token");
     if (!isAuthenticated && !token) {
       router.push("/login");
