@@ -116,11 +116,11 @@ export const realStudioService: IStudioService = {
   },
 
   async deleteTrack(trackId: string): Promise<void> {
-    await apiDelete(`/tracks/${trackId}`);
+    await apiDelete(`${ENV.API_BASE_URL}/tracks/${trackId}`);
   },
 
   async updateVisibility(trackId: string, visibility: TrackVisibility): Promise<IStudioTrack> {
-    const raw = await apiPut<IBackendTrack>(`/tracks/${trackId}`, { visibility });
+    const raw = await apiPut<IBackendTrack>(`${ENV.API_BASE_URL}/tracks/${trackId}`, { visibility });
     return normalizeTrack(raw);
   },
 

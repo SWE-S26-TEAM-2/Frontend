@@ -37,13 +37,32 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmailOrProfileUrl(e.target.value);
   };
+  const redirectAfterLogin = async (token: string) => {
+    try {
+      const res = await fetch(`${ENV.API_BASE_URL}/users/me`, {
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      });
+      if (res.ok) {
+        const json = await res.json();
+        const role = json?.data?.role ?? json?.role;
+        if (role === "admin") {
+          router.push("/admin/dashboard");
+          return;
+        }
+      }
+    } catch {
+      // fall through to default
+    }
+    router.push("/stream");
+  };
+
   const handleGoogleLoginSuccess = async (credential: string) => {
     try {
       setIsLoading(true);
       const result = await AuthService.googleLogin(credential);
       authStore.login(result.user, result.token);
       onClose();
-      router.push("/stream");
+      await redirectAfterLogin(result.token);
     } catch {
       setError("Google login failed. Please try again.");
     } finally {
@@ -118,8 +137,8 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
           authStore.login(response.user, response.token);
           window.localStorage.setItem("auth_token", response.token);
           window.localStorage.setItem("auth_user_id", String(response.user.id));
-          setSuccessMessage("Successfully signed in!");
-          setTimeout(onClose, 1500);
+          onClose();
+          await redirectAfterLogin(response.token);
         }
       } catch (err) {
         const msg = err instanceof Error ? err.message : "";
@@ -129,8 +148,8 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
             authStore.login(response.user, response.token);
             window.localStorage.setItem("auth_token", response.token);
             window.localStorage.setItem("auth_user_id", String(response.user.id));
-            setSuccessMessage("Successfully signed in!");
-            setTimeout(onClose, 1500);
+            onClose();
+            await redirectAfterLogin(response.token);
           } catch {
             setStep("signin");
             setError("An account with this email already exists. Please sign in.");
@@ -191,8 +210,8 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       authStore.login(response.user, response.token);
       window.localStorage.setItem("auth_token", response.token);
       window.localStorage.setItem("auth_user_id", String(response.user.id));
-      setSuccessMessage("Successfully signed in!");
-      setTimeout(onClose, 1500);
+      onClose();
+      await redirectAfterLogin(response.token);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "";
       setStep("signin");

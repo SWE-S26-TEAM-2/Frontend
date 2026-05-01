@@ -11,6 +11,8 @@ export interface ITrackCardProps {
   track: ITrack;
   onPlay: (track: ITrack) => void;
   onLikeChange?: (trackId: string, isLiked: boolean, likeCount: number) => void;
+  isOwner?: boolean;
+  onDelete?: (trackId: string) => void;
 } 
 
 export interface ITrackCoverProps {

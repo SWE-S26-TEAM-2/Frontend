@@ -50,10 +50,14 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   };
 
   const handleTrackLikeChange = (trackId: string, isLiked: boolean, likeCount: number) => {
-  setTracks(prev =>
-    prev.map(t => t.id === trackId ? { ...t, isLiked, likes: likeCount } : t)
-  );
-};
+    setTracks(prev =>
+      prev.map(t => t.id === trackId ? { ...t, isLiked, likes: likeCount } : t)
+    );
+  };
+
+  const handleDeleteTrack = async (trackId: string) => {
+    setTracks(prev => prev.filter(t => t.id !== trackId));
+  };
 
   // Keep tab in sync if user navigates back/forward
   useEffect(() => {
@@ -303,6 +307,8 @@ const handleBannerHeaderChange = async (url: string, file?: File) => {
                 track={track}
                 onPlay={(t) => { setQueue(filteredTracks); setTrack(t); }}
                 onLikeChange={handleTrackLikeChange}
+                isOwner={user.isOwner}
+                onDelete={handleDeleteTrack}
               />
             ))
           )}

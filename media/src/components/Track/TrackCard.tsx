@@ -10,9 +10,9 @@ import { HeartIcon, ShareIcon, CopyIcon, MoreIcon, IconBtn, RepostIcon } from "@
 import { ShareModal } from "@/components/Share/Share";
 import { useWaveform } from "@/hooks/useWaveform";
 import { usePlayerStore } from "@/store/playerStore";
-import { engagementService } from "@/services/di";
+import { engagementService, studioService } from "@/services/di";
 
-export function TrackCard({ track, onPlay, onLikeChange }: ITrackCardProps) {
+export function TrackCard({ track, onPlay, onLikeChange, isOwner, onDelete }: ITrackCardProps) {
   const [isLiked, setIsLiked] = useState<boolean>(track.isLiked ?? false);
   const [likes, setLikes] = useState<number>(track.likes);
   const [isShareOpen, setIsShareOpen] = useState(false);
@@ -21,6 +21,8 @@ export function TrackCard({ track, onPlay, onLikeChange }: ITrackCardProps) {
   const moreBtnRef = useRef<HTMLSpanElement>(null);
   const [isReposted, setIsReposted] = useState<boolean>(track.isReposted ?? false);
   const [reposts, setReposts] = useState<number>(track.reposts ?? 0);
+  const [deleteConfirming, setDeleteConfirming] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { currentTrack, isPlaying, currentTime, duration, setCurrentTime, togglePlay, addToQueue } =
     usePlayerStore();
@@ -72,6 +74,20 @@ export function TrackCard({ track, onPlay, onLikeChange }: ITrackCardProps) {
   const handleCopy = () => {
     if (typeof window !== "undefined")
       navigator.clipboard.writeText(`${track.artist} - ${track.title}`);
+  };
+
+  const handleDeleteConfirm = async () => {
+    setIsDeleting(true);
+    try {
+      await studioService.deleteTrack(track.id);
+      onDelete?.(track.id);
+    } catch (err) {
+      console.error("[TrackCard] delete failed:", err);
+      setDeleteConfirming(false);
+    } finally {
+      setIsDeleting(false);
+      setIsMoreOpen(false);
+    }
   };
 
   const handleRepostToggle = async () => {
@@ -164,6 +180,31 @@ export function TrackCard({ track, onPlay, onLikeChange }: ITrackCardProps) {
                   >
                     Add to queue
                   </button>
+                  {isOwner && !deleteConfirming && (
+                    <button
+                      onClick={() => setDeleteConfirming(true)}
+                      className="w-full text-left px-3 py-2 text-xs text-[#ff5555] hover:bg-[#2e2e2e] transition-colors cursor-pointer"
+                    >
+                      Delete track
+                    </button>
+                  )}
+                  {isOwner && deleteConfirming && (
+                    <>
+                      <button
+                        onClick={handleDeleteConfirm}
+                        disabled={isDeleting}
+                        className="w-full text-left px-3 py-2 text-xs text-[#ff5555] font-semibold hover:bg-[#2e2e2e] transition-colors cursor-pointer disabled:opacity-50"
+                      >
+                        {isDeleting ? "Deleting…" : "Confirm delete"}
+                      </button>
+                      <button
+                        onClick={() => setDeleteConfirming(false)}
+                        className="w-full text-left px-3 py-2 text-xs text-[#999] hover:bg-[#2e2e2e] transition-colors cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
             </span>
