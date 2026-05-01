@@ -12,11 +12,10 @@ import EnterResetCodeStep from "./EnterResetCodeStep";
 import { AuthService } from "@/services";
 import { useAuthStore } from "@/store/authStore";
 import type { ILoginModalProps } from "@/types/ui.types";
-import { useGoogleLogin } from "@react-oauth/google";
+import { GoogleLogin } from "@react-oauth/google";
 import ForgotPasswordStep from "./ForgotPasswordStep";
 import CheckYourEmailStep from "./CheckYourEmailStep";
 import { useRouter } from "next/navigation";
-// no local refs needed for Google button
 
 export default function LoginModal({ onClose }: ILoginModalProps) {
   const authStore = useAuthStore();
@@ -25,8 +24,6 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
   const [error, setError] = useState("");
   const [step, setStep] = useState<"main" | "input" | "register" | "signin"|"tell-us-more"|"verify-email"| "forgot-password" | "check-your-email"| "enter-reset-code">("main");
   const [password, setPassword] = useState("");
-  // We use the hook `useGoogleLogin` and call the returned handler directly
-  // from the custom button to avoid relying on internal DOM structure.
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
@@ -39,23 +36,19 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmailOrProfileUrl(e.target.value);
   };
-  const handleGoogleLogin = useGoogleLogin({
-    onSuccess: async (response) => {
-      try {
-        setIsLoading(true);
-        await AuthService.googleLogin(response.access_token);
-        onClose();
-        router.push("/stream");
-      } catch {
-        setError("Google login failed. Please try again.");
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    onError: () => {
+  const handleGoogleLoginSuccess = async (credential: string) => {
+    try {
+      setIsLoading(true);
+      const result = await AuthService.googleLogin(credential);
+      authStore.login(result.user, result.token);
+      onClose();
+      router.push("/stream");
+    } catch {
       setError("Google login failed. Please try again.");
-    },
-  });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
@@ -243,13 +236,27 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
               Continue with Facebook
             </button>
 
-            <button
-              onClick={() => handleGoogleLogin()}
-              className="bg-[#333333] text-white w-full p-3 rounded cursor-pointer mb-3 text-[15px] font-semibold border border-[#444444] flex items-center justify-center gap-2"
-            >
-              <FaGoogle size={20} />
-              Continue with Google
-            </button>
+            <div className="relative w-full mb-3">
+              <button
+                className="bg-[#333333] text-white w-full p-3 rounded text-[15px] font-semibold border border-[#444444] flex items-center justify-center gap-2 pointer-events-none"
+                tabIndex={-1}
+                aria-hidden="true"
+              >
+                <FaGoogle size={20} />
+                Continue with Google
+              </button>
+              {/* GoogleLogin provides an id_token (credential); useGoogleLogin only gives an access_token which the backend rejects */}
+              <div className="absolute inset-0 opacity-0 overflow-hidden">
+                <GoogleLogin
+                  onSuccess={(cred) => {
+                    if (cred.credential) handleGoogleLoginSuccess(cred.credential);
+                  }}
+                  onError={() => setError("Google login failed. Please try again.")}
+                  width={500}
+                  size="large"
+                />
+              </div>
+            </div>
 
             <button className="bg-black text-white w-full p-3 rounded cursor-pointer mb-8 text-[15px] font-semibold border border-[#444444] flex items-center justify-center gap-2">
               <FaApple size={20} />
