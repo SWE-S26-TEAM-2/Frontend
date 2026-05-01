@@ -21,10 +21,10 @@ export async function seedAuthToken(
     {
       name: 'sc_auth_token',
       value: token,
-      domain: '127.0.0.1',
+      domain: 'streamline-swp.duckdns.org',
       path: '/',
       httpOnly: false,
-      secure: false,
+      secure: true,
       sameSite: 'Lax',
     },
   ]);

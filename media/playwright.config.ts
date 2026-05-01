@@ -8,7 +8,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: [['html', { open: 'never' }], ['list']],
   use: {
-    baseURL: 'http://127.0.0.1:3100',
+    baseURL: 'https://streamline-swp.duckdns.org',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -19,13 +19,4 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: {
-    command: 'npm run dev -- --port 3100 --webpack',
-    url: 'http://127.0.0.1:3100',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
-    env: {
-      NEXT_PUBLIC_USE_MOCK_API: 'true',
-    },
-  },
 });
