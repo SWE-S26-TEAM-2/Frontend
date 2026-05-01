@@ -16,6 +16,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import ForgotPasswordStep from "./ForgotPasswordStep";
 import CheckYourEmailStep from "./CheckYourEmailStep";
 import { useRouter } from "next/navigation";
+import { ENV } from "@/config/env";
 
 export default function LoginModal({ onClose }: ILoginModalProps) {
   const authStore = useAuthStore();
@@ -236,27 +237,37 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
               Continue with Facebook
             </button>
 
-            <div className="relative w-full mb-3">
+            {ENV.USE_MOCK_API ? (
+              /* Mock mode: skip OAuth widget entirely — no Google Cloud origin check needed */
               <button
-                className="bg-[#333333] text-white w-full p-3 rounded text-[15px] font-semibold border border-[#444444] flex items-center justify-center gap-2 pointer-events-none"
-                tabIndex={-1}
-                aria-hidden="true"
+                onClick={() => handleGoogleLoginSuccess("mock-google-token")}
+                className="bg-[#333333] text-white w-full p-3 rounded cursor-pointer mb-3 text-[15px] font-semibold border border-[#444444] flex items-center justify-center gap-2"
               >
                 <FaGoogle size={20} />
                 Continue with Google
               </button>
-              {/* GoogleLogin provides an id_token (credential); useGoogleLogin only gives an access_token which the backend rejects */}
-              <div className="absolute inset-0 opacity-0 overflow-hidden">
-                <GoogleLogin
-                  onSuccess={(cred) => {
-                    if (cred.credential) handleGoogleLoginSuccess(cred.credential);
-                  }}
-                  onError={() => setError("Google login failed. Please try again.")}
-                  width={500}
-                  size="large"
-                />
+            ) : (
+              /* Real mode: GoogleLogin provides an id_token (credential); useGoogleLogin only gives an access_token which the backend rejects */
+              <div className="relative w-full mb-3">
+                <button
+                  className="bg-[#333333] text-white w-full p-3 rounded text-[15px] font-semibold border border-[#444444] flex items-center justify-center gap-2 pointer-events-none"
+                  tabIndex={-1}
+                  aria-hidden="true"
+                >
+                  <FaGoogle size={20} />
+                  Continue with Google
+                </button>
+                <div className="absolute inset-0 opacity-0 overflow-hidden">
+                  <GoogleLogin
+                    onSuccess={(cred) => {
+                      if (cred.credential) handleGoogleLoginSuccess(cred.credential);
+                    }}
+                    onError={() => setError("Google login failed. Please try again.")}
+                    width={500}
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             <button className="bg-black text-white w-full p-3 rounded cursor-pointer mb-8 text-[15px] font-semibold border border-[#444444] flex items-center justify-center gap-2">
               <FaApple size={20} />
