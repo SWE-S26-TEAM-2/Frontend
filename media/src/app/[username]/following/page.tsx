@@ -58,7 +58,11 @@ export default function FollowingPage({ params }: { params: Promise<{ username: 
     const isCurrentlyFollowing = followed.has(targetUsername);
     setFollowed(prev => {
       const next = new Set(prev);
-      next.has(targetUsername) ? next.delete(targetUsername) : next.add(targetUsername);
+      if (next.has(targetUsername)) {
+        next.delete(targetUsername);
+      } else {
+        next.add(targetUsername);
+      }
       return next;
     });
     try {
@@ -70,7 +74,11 @@ export default function FollowingPage({ params }: { params: Promise<{ username: 
     } catch {
       setFollowed(prev => {
         const next = new Set(prev);
-        next.has(targetUsername) ? next.delete(targetUsername) : next.add(targetUsername);
+        if (next.has(targetUsername)) {
+          next.delete(targetUsername);
+        } else {
+          next.add(targetUsername);
+        }
         return next;
       });
     }

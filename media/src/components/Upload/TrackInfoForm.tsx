@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react';
 import Image from 'next/image';
 import Toggle from '@/components/Toggle/Toggle';
-import type { ITrackMetadata, IUploadFile, TrackVisibility, ITrackInfoFormProps } from '@/types/upload.types';
+import type { ITrackMetadata, TrackVisibility, ITrackInfoFormProps } from '@/types/upload.types';
 import { useAuthStore } from '@/store/authStore';
 
 const GENRES = [

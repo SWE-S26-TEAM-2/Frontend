@@ -2,7 +2,7 @@
 // privacy page
 import { useState, useEffect } from "react";
 import { privacyService } from "@/services/di";
-import { IPrivacySettings, IBlockedUser } from "@/types/settings-privacy.types";
+import { IPrivacySettings } from "@/types/settings-privacy.types";
 import BlockedUserCard from "@/components/Settings/BlockedUserCard";
 import SettingsFooter from "@/components/Settings/SettingsFooter";
 

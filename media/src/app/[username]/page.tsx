@@ -15,7 +15,6 @@ import { ProfileActions } from "@/components/Profile/ProfileActions";
 import { EditProfileModal } from "@/components/Profile/EditProfileModal";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
-import { useAuthStore } from "@/store/authStore";
 import { usePlayerStore } from "@/store/playerStore";
 
 const TABS = ["All", "Popular tracks", "Tracks", "Albums", "Playlists", "Reposts"] as const;
@@ -24,8 +23,6 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   const { username } = React.use(params);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const authStoreUser = useAuthStore((state) => state.user);
-  const storeLogin = useAuthStore((state) => state.login);
   const { setQueue, setTrack } = usePlayerStore();
 
   // Read ?tab= from URL, fall back to "All"
@@ -106,24 +103,6 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   }, [username]);
 
   const handleTabChange = (tab: IActiveTab) => setActiveTab(tab);
-
-  const handleAvatarUpload = async (file: File) => {
-    const updated = await userProfileService.uploadAvatar(file);
-    setUser(prev => prev ? { ...prev, avatarUrl: updated.avatarUrl } : prev);
-
-    const token = typeof window !== "undefined" ? window.localStorage.getItem("auth_token") : null;
-    if (updated.avatarUrl && token && authStoreUser) {
-      storeLogin({
-        ...authStoreUser,
-        profileImageUrl: updated.avatarUrl ?? authStoreUser.profileImageUrl,
-      }, token);
-    }
-  };
-
-  const handleCoverUpload = async (file: File) => {
-    const updated = await userProfileService.uploadCover(file);
-    setUser(updated);
-  };
 
   const handleSaveProfile = async (payload: IEditProfilePayload) => {
     if (!user) return;

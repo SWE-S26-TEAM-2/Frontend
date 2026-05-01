@@ -85,7 +85,7 @@ export const realPlaylistService: IPlaylistService = {
     unsupportedApiFeature("playlistService.getPlaylist(username, slug)");
   },
 
-  getUserPlaylists: async (_username: string): Promise<IPlaylist[]> => {
+  getUserPlaylists: async (): Promise<IPlaylist[]> => {
     try {
       const data = await apiGet<{ playlists?: IBackendPlaylist[] } | IBackendPlaylist[]>(
         `${ENV.API_BASE_URL}/playlists/liked`
