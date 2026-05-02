@@ -143,9 +143,8 @@ async getRecentlyPlayed(): Promise<ILibraryRecentItem[]> {
       ? window.localStorage.getItem("auth_token")
       : null;
 
-    if (!token) {
-      return [];
-    }
+    if (!token) return [];
+
     const res = await fetch(`${BASE}/users/me/recently-played`, {
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -157,15 +156,15 @@ async getRecentlyPlayed(): Promise<ILibraryRecentItem[]> {
 
     const raw = await res.json();
     const list: Record<string, unknown>[] =
-      Array.isArray(raw)               ? raw :
-      Array.isArray(raw?.data)         ? raw.data :
-      Array.isArray(raw?.data?.history)? raw.data.history :
-      Array.isArray(raw?.history)      ? raw.history :
-      Array.isArray(raw?.data?.items)  ? raw.data.items :
-      Array.isArray(raw?.items)        ? raw.items :
+      Array.isArray(raw)                ? raw :
+      Array.isArray(raw?.data)          ? raw.data :
+      Array.isArray(raw?.data?.history) ? raw.data.history :
+      Array.isArray(raw?.history)       ? raw.history :
+      Array.isArray(raw?.data?.items)   ? raw.data.items :
+      Array.isArray(raw?.items)         ? raw.items :
       [];
 
-    return list.map((item) => {
+    const mapped: ILibraryRecentItem[] = list.map((item) => {
       const track = (item.track as Record<string, unknown>) ?? item;
       const trackId = String(track.track_id ?? item.track_id ?? "");
       return {
@@ -176,6 +175,15 @@ async getRecentlyPlayed(): Promise<ILibraryRecentItem[]> {
         href:     `/track/${trackId}`,
       };
     });
+
+    // Deduplicate by id — keep first occurrence (most recently played)
+    const seen = new Set<string>();
+    return mapped.filter(item => {
+      if (!item.id || seen.has(item.id)) return false;
+      seen.add(item.id);
+      return true;
+    });
+
   } catch (err) {
     console.error("getRecentlyPlayed failed:", err);
     return [];

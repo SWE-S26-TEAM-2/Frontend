@@ -13,8 +13,6 @@ import { TrackCard } from "@/components/Track/TrackCard";
 import { ProfileSidebar } from "@/components/Profile/ProfileSidebar";
 import { ProfileActions } from "@/components/Profile/ProfileActions";
 import { EditProfileModal } from "@/components/Profile/EditProfileModal";
-import Header from "@/components/Header/Header";
-import Footer from "@/components/Footer/Footer";
 import { usePlayerStore } from "@/store/playerStore";
 
 const TABS = ["All", "Popular tracks", "Tracks", "Albums", "Playlists", "Reposts"] as const;
@@ -183,7 +181,6 @@ const handleBannerHeaderChange = async (url: string, file?: File) => {
   // Privacy Control
   if (user.isPrivate && !user.isOwner) return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
-      <Header />
       <div className="max-w-7xl mx-auto bg-[#111]">
         <Banner
           key={user.username}
@@ -205,7 +202,6 @@ const handleBannerHeaderChange = async (url: string, file?: File) => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans pb-15">
-      <Header />
 
       <div className="max-w-7xl mx-auto bg-[#111]">
         <Banner
@@ -328,8 +324,6 @@ const handleBannerHeaderChange = async (url: string, file?: File) => {
           tracksCount={tracks.length}
         />
       </div>
-
-      <Footer/>
 
       {/* Edit Profile Modal */}
       {isEditOpen && (

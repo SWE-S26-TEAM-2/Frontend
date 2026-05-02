@@ -63,8 +63,8 @@ export function HistoryTab({ overview, onClearHistory }: IHistoryTabProps) {
       </div>
 
       <div className="grid grid-cols-6 gap-6 mb-16">
-        {filteredRecent.map(item => (
-          <Link key={item.id} href={item.href} className="flex flex-col items-center gap-3 group no-underline">
+        {filteredRecent.map((item, index) => (
+          <Link key={`${item.id}-${index}`} href={item.href} className="flex flex-col items-center gap-3 group no-underline">
             <CoverBox
               url={item.coverUrl}
               alt={item.label}
