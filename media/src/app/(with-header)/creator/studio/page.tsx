@@ -146,9 +146,9 @@ export default function StudioPage() {
 
     result.sort((a, b) => {
       switch (activeSort) {
-        case 'plays':    return b.plays - a.plays;
+        case 'plays':    return (b.plays ?? 0) - (a.plays ?? 0);
         case 'duration': return b.duration - a.duration;
-        case 'likes':    return b.likes - a.likes;
+        case 'likes':    return (b.likes ?? 0) - (a.likes ?? 0);
         case 'date':
         default:         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       }

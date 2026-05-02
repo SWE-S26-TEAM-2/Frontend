@@ -108,6 +108,7 @@ export default function SearchBar({
   const submit = useCallback((value: string) => {
     if (!value.trim()) return;
     setOpen(false);
+    setQuery("");
     if (onSearch) { onSearch(value.trim()); return; }
     router.push(`/search?q=${encodeURIComponent(value.trim())}`);
   }, [onSearch, router]);
@@ -135,13 +136,19 @@ export default function SearchBar({
   };
 
   return (
-    <div ref={wrapperRef} style={s.wrapper}>
+    <div ref={wrapperRef} style={{ ...s.wrapper, width: "100%" }}>
       <div style={{
         ...s.box,
         borderColor: focused ? "#ff5500" : "#2e2e2e",
         boxShadow:   focused ? "0 0 0 2px rgba(255,85,0,0.12)" : "none",
       }}>
-        <SearchIcon active={focused} />
+        <button
+          aria-label="Search"
+          style={s.searchIconBtn}
+          onClick={() => submit(query)}
+        >
+          <SearchIcon active={focused} />
+        </button>
         <input
           ref={inputRef}
           type="text"
@@ -154,6 +161,8 @@ export default function SearchBar({
           style={s.input}
           autoComplete="off"
           spellCheck={false}
+          aria-label="Search"
+          className="w-full"
         />
         {loading && <Spinner />}
         {query && !loading && (
@@ -210,6 +219,7 @@ function Spinner() {
 const s: Record<string, React.CSSProperties> = {
   wrapper:      { position: "relative", width: "100%", maxWidth: 480 },
   box:          { display: "flex", alignItems: "center", gap: 8, background: "#1a1a1a", borderRadius: 6, padding: "0 12px", height: 36, border: "1px solid #2e2e2e", transition: "border-color 0.2s, box-shadow 0.2s" },
+  searchIconBtn:{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", padding: 0, flexShrink: 0 },
   input:        { flex: 1, background: "transparent", border: "none", color: "#fff", outline: "none", fontSize: 13, fontFamily: "inherit", minWidth: 0 },
   clearBtn:     { background: "none", border: "none", color: "#555", fontSize: 18, cursor: "pointer", lineHeight: 1, display: "flex", alignItems: "center", padding: "0 2px" },
   dropdown:     { position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, background: "#1a1a1a", border: "1px solid #2e2e2e", borderRadius: 6, zIndex: 1200, boxShadow: "0 16px 40px rgba(0,0,0,0.7)", overflow: "hidden" },

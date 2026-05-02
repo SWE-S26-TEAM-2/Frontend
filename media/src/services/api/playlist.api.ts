@@ -52,7 +52,7 @@ interface IBackendTrack {
 
 // ── Normalizers ───────────────────────────────────────────────────────────────
 
-function normalizeTrack(t: IBackendTrack): IPlaylistTrack {
+function normalizeTrack(t: IBackendTrack, index = 0): IPlaylistTrack {
   return {
     id: t.track_id,
     title: t.title,
@@ -60,6 +60,7 @@ function normalizeTrack(t: IBackendTrack): IPlaylistTrack {
     albumArt: t.cover_image_url ?? "",
     url: t.stream_url ?? "",
     duration: t.duration_seconds ?? 0,
+    position: index + 1,
   };
 }
 
@@ -71,7 +72,7 @@ function normalizePlaylist(d: IBackendPlaylist): IPlaylist {
     coverArt: d.cover_photo_url ?? "",
     creator: d.user_id ?? "",
     isPublic: true,
-    tracks: Array.isArray(d.tracks) ? d.tracks.map(normalizeTrack) : [],
+    tracks: Array.isArray(d.tracks) ? d.tracks.map((t, i) => normalizeTrack(t, i)) : [],
   };
 }
 
@@ -190,5 +191,14 @@ export const realPlaylistService: IPlaylistService = {
     if (!updated)
       throw new Error("Failed to fetch playlist after removing track");
     return updated;
+  },
+
+  /** POST /playlists/ with just a title */
+  async createPlaylist(title: string): Promise<IPlaylist> {
+    const data = await apiPost<IBackendPlaylist>(
+      `${ENV.API_BASE_URL}/playlists/`,
+      { name: title, description: "" }
+    );
+    return normalizePlaylist(data);
   },
 };

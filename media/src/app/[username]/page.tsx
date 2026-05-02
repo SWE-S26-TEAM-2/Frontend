@@ -150,7 +150,7 @@ const handleBannerHeaderChange = async (url: string, file?: File) => {
   function getFilteredTracks(tab: IActiveTab): ITrack[] {
     switch (tab) {
       case "All":            return tracks;
-      case "Popular tracks": return [...tracks].sort((a, b) => b.plays - a.plays);
+      case "Popular tracks": return [...tracks].sort((a, b) => (b.plays ?? 0) - (a.plays ?? 0));
       case "Tracks":         return tracks;
       case "Reposts":        return tracks.filter(t => t.isReposted);
       case "Albums":

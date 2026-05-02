@@ -66,4 +66,18 @@ export const mockPlaylistService: IPlaylistService = {
     playlist.tracks = (playlist.tracks ?? []).filter((t) => t.id !== trackId);
     return playlist;
   },
+
+  async createPlaylist(title: string): Promise<IPlaylist> {
+    await delay(300);
+    const newPlaylist: IPlaylist = {
+      id: `playlist-${Date.now()}`,
+      slug: title.toLowerCase().replace(/\s+/g, "-"),
+      title,
+      tracks: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    MOCK_PLAYLISTS.push(newPlaylist);
+    return newPlaylist;
+  },
 };

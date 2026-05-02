@@ -7,13 +7,14 @@ import { useRouter } from "next/navigation";
 import {
   Play,
   Heart,
-  UserPlus,
+  Plus,
   MoreHorizontal,
   Repeat2,
   Share2,
   Link2,
   ListMusic,
-  Pause
+  Pause,
+  Globe
 } from "lucide-react";
 
 import { ITrack } from "@/types/track.types";
@@ -53,7 +54,8 @@ const MoreMenu = ({
     { icon: <Repeat2 size={12} />, label: "Repost" },
     { icon: <Share2 size={12} />, label: "Share" },
     { icon: <Link2 size={12} />, label: "Link" },
-    { icon: <ListMusic size={12} />, label: "Queue" }
+    { icon: <ListMusic size={12} />, label: "Queue" },
+    { icon: <Globe size={12} />, label: "About us" },
   ];
 
   const leftPos = Math.min(anchorRect.left, window.innerWidth - 140);
@@ -210,7 +212,7 @@ export default function TrackCard2({
                 following ? "text-orange-500" : ""
               }`}
             >
-              <UserPlus size={14} />
+              <Plus size={14} />
             </button>
           )}
 

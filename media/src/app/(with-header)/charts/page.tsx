@@ -173,8 +173,8 @@ export default function ChartsPage() {
 
                 {/* Stats */}
                 <div className="hidden sm:flex items-center gap-4 flex-shrink-0 text-xs text-(--sc-text-muted)">
-                  <span>♥ {formatNumber(entry.track.likes)}</span>
-                  <span>▶ {formatNumber(entry.track.plays)}</span>
+                  <span>♥ {formatNumber(entry.track.likes ?? 0)}</span>
+                  <span>▶ {formatNumber(entry.track.plays ?? 0)}</span>
                 </div>
               </div>
             ))}

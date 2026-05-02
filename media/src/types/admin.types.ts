@@ -56,8 +56,8 @@ export interface IAdminTrack {
   title: string;
   artist: string;
   albumArt: string;
-  plays: number;
-  likes: number;
+  plays?: number;
+  likes?: number;
   uploadedAt: string;
   isPrivate: boolean;
 }

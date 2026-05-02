@@ -430,8 +430,8 @@ export const MOCK_PLAYLISTS: IPlaylist[] = [
     createdAt: '2026-03-10T16:00:00Z',
     updatedAt: '2026-04-05T14:00:00Z',
     tracks: [
-      { position: 1, track: MOCK_TRACKS[1] },
-      { position: 2, track: MOCK_TRACKS[0] },
+      { position: 1, ...MOCK_TRACKS[1] },
+      { position: 2, ...MOCK_TRACKS[0] },
     ],
   },
   {
@@ -447,7 +447,7 @@ export const MOCK_PLAYLISTS: IPlaylist[] = [
     totalDuration: 611,
     createdAt: '2025-12-01T10:00:00Z',
     updatedAt: '2026-04-11T08:00:00Z',
-    tracks: MOCK_TRACKS.map((t, i) => ({ position: i + 1, track: t })),
+    tracks: MOCK_TRACKS.map((t, i) => ({ position: i + 1, ...t })),
   },
 ];
 
@@ -603,7 +603,7 @@ export const MOCK_ADMIN_TRACKS: IAdminTrack[] = MOCK_TRACKS.map((t) => ({
 export const MOCK_ADMIN_STATS: IAdminStats = {
   totalUsers: 5,
   totalTracks: 4,
-  totalPlays: MOCK_TRACKS.reduce((sum, t) => sum + t.plays, 0),
+  totalPlays: MOCK_TRACKS.reduce((sum, t) => sum + (t.plays ?? 0), 0),
   newUsersToday: 1,
   newTracksToday: 0,
   activeUsersThisWeek: 4,

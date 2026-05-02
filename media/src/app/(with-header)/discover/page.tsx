@@ -32,7 +32,7 @@ function TrackRow({ track, index }: { track: ITrack; index: number }) {
       </div>
       <div className="hidden sm:flex items-center gap-3 text-xs text-(--sc-text-muted) flex-shrink-0">
         <span>{formatDuration(track.duration)}</span>
-        <span>▶ {formatNumber(track.plays)}</span>
+        <span>▶ {formatNumber(track.plays ?? 0)}</span>
       </div>
     </div>
   );

@@ -8,7 +8,7 @@ import { engagementService } from "@/services/di";
 export default function TrackActions({ track }: { track: ITrack }) {
   const shareBtnRef = useRef<HTMLButtonElement>(null);
   const [liked, setLiked] = useState(track.isLiked ?? false);
-  const [likes, setLikes] = useState(track.likes);
+  const [likes, setLikes] = useState<number>(track.likes ?? 0);
   const [isShareOpen, setIsShareOpen] = useState(false);
 
   const handleLike = async () => {
@@ -22,7 +22,7 @@ export default function TrackActions({ track }: { track: ITrack }) {
       setLikes(result.likeCount); // sync real count
     } catch {
       setLiked(!newLiked);
-      setLikes(track.likes); // revert
+      setLikes(track.likes ?? 0); // revert
     }
   };
   return (

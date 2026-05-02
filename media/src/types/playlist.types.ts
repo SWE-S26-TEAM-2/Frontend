@@ -156,6 +156,7 @@ export interface IPlaylistService {
   deletePlaylist(id: string): Promise<void>;
   addTrackToPlaylist(playlistId: string, track: IPlaylistTrack): Promise<IPlaylist>;
   removeTrackFromPlaylist(playlistId: string, trackId: string): Promise<IPlaylist>;
+  createPlaylist(title: string): Promise<IPlaylist>;
 }
 
 // -- Undo-remove ----------------------------------------------------------------

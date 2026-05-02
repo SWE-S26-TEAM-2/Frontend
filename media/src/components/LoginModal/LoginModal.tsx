@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { FaFacebook, FaApple, FaGoogle } from "react-icons/fa";
 import Link from "next/link";
 import InputStep from "./InputStep";
@@ -12,12 +13,15 @@ import EnterResetCodeStep from "./EnterResetCodeStep";
 import { AuthService } from "@/services";
 import { useAuthStore } from "@/store/authStore";
 import type { ILoginModalProps } from "@/types/ui.types";
-import { GoogleLogin } from "@react-oauth/google";
 import ForgotPasswordStep from "./ForgotPasswordStep";
 import CheckYourEmailStep from "./CheckYourEmailStep";
 import { useRouter } from "next/navigation";
 import { ENV } from "@/config/env";
 
+const GoogleLogin = dynamic(
+  () => import("@react-oauth/google").then((mod) => mod.GoogleLogin),
+  { ssr: false }
+);
 export default function LoginModal({ onClose }: ILoginModalProps) {
   const authStore = useAuthStore();
 

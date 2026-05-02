@@ -77,7 +77,7 @@ export const mockTrackService: ITrackService = {
   async getTrending(limit: number = 10): Promise<ITrack[]> {
     await delay(300);
     return [...MOCK_TRACKS]
-      .sort((a, b) => b.plays - a.plays) // sort by plays for trending
+      .sort((a, b) => (b.plays ?? 0) - (a.plays ?? 0)) // sort by plays for trending
       .slice(0, limit);
   },
 
@@ -89,6 +89,6 @@ export const mockTrackService: ITrackService = {
 
   return MOCK_TRACKS
   .filter((t) => t.genre && current.genre && t.genre.toLowerCase() === current.genre.toLowerCase() && t.id !== trackId)
-  .sort((a, b) => b.plays - a.plays)
+  .sort((a, b) => (b.plays ?? 0) - (a.plays ?? 0))
   .slice(0, limit);}
 }

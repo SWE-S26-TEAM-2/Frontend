@@ -27,7 +27,9 @@ const ChevronDown = () => (
 );
 const DotsIcon = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-    <path d="M4 8c0-.832-.67-1.5-1.511-1.5C1.67 6.5 1 7.168 1 8s.67 1.5 1.489 1.5C3.33 9.5 4 8.832 4 8zm5.5 0c0-.832-.67-1.5-1.504-1.5C7.17 6.5 6.5 7.168 6.5 8s.67 1.5 1.496 1.5C8.831 9.5 9.5 8.832 9.5 8zM15 8c0-.832-.664-1.5-1.493-1.5C12.664 6.5 12 7.168 12 8s.664 1.5 1.507 1.5C14.336 9.5 15 8.832 15 8z" />
+    <circle cx="2.5" cy="8" r="1.5"/>
+    <circle cx="8" cy="8" r="1.5"/>
+    <circle cx="13.5" cy="8" r="1.5"/>
   </svg>
 );
 const SoundCloudLogo = () => (
@@ -150,7 +152,7 @@ const SignOutIcon = () => (
 // ── Data ──────────────────────────────────────────────────────────────────────
 
 const NAV_ITEMS = [
-  { label: "Home",    href: "/home" },
+  { label: "Home",    href: "/discover" },
   { label: "Feed",    href: "/stream" },
   { label: "Library", href: "/library" },
 ];
@@ -165,7 +167,7 @@ const getAvatarMenu = (profileHref: string): IMenuItem[] => {
   return [
     { icon: <ProfileIcon />,     label: "Profile",        href: profileHref },
     { icon: <LikesIcon />,       label: "Likes",          href: profileLikesHref },
-    { icon: <StationsIcon />,    label: "Stations",       href: "/stations" },
+    { icon: <StationsIcon />,    label: "Stations",       href: "/stream" },
     { icon: <WhoToFollowIcon />, label: "Who to follow",  href: "/who-to-follow", dividerBefore: true },
     { icon: <ArtistProBadge />,  label: "Try Artist Pro", href: "/artist-pro", orange: true },
     { icon: <TracksIcon />,      label: "Tracks",         href: "/library", dividerBefore: true },
@@ -416,7 +418,7 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
           </button>
 
           {/* Logo */}
-          <Link href="/home" className="flex items-center gap-1.5 no-underline shrink-0">
+          <Link href="/" className="flex items-center gap-1.5 no-underline shrink-0">
             <SoundCloudLogo />
             <span className="text-white text-sm font-bold tracking-tight hidden sm:block select-none">soundcloud</span>
           </Link>
@@ -550,20 +552,20 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
               >
                 <MailIcon />
               </button>
-
-              {/* More (dots) */}
-              <div ref={dotsRef} className="relative">
-                <button
-                  onClick={() => { setDotsOpen((o) => !o); setAvatarOpen(false); }}
-                  aria-label="More options"
-                  className="bg-transparent border-none cursor-pointer text-[#bbb] flex items-center justify-center w-9 h-9 transition-colors hover:text-white"
-                >
-                  <DotsIcon />
-                </button>
-                {dotsOpen && <DropdownMenu items={dotsMenu} onClose={() => setDotsOpen(false)} />}
-              </div>
             </>
           )}
+
+          {/* More (dots) — always visible */}
+          <div ref={dotsRef} className="relative">
+            <button
+              onClick={() => { setDotsOpen((o) => !o); setAvatarOpen(false); }}
+              aria-label="More options"
+              className="bg-transparent border-none cursor-pointer text-[#bbb] flex items-center justify-center w-9 h-9 transition-colors hover:text-white"
+            >
+              <DotsIcon />
+            </button>
+            {dotsOpen && <DropdownMenu items={dotsMenu} onClose={() => setDotsOpen(false)} />}
+          </div>
 
           {!isLoggedIn && (
             <div className="flex items-center gap-1.5 ml-1">

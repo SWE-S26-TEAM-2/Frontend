@@ -23,13 +23,14 @@ export default function TrackSelector({
   // Load all tracks from backend on mount
   useEffect(() => {
     trackService.getAll().then((tracks) => {
-      const normalized: IPlaylistTrack[] = tracks.map((t) => ({
+      const normalized: IPlaylistTrack[] = tracks.map((t, i) => ({
         id: t.id,
         title: t.title,
         artist: t.artist,
         albumArt: t.albumArt,
         url: t.url,
         duration: t.duration,
+        position: i + 1,
       }));
       setCatalogue(normalized);
     }).catch(() => {

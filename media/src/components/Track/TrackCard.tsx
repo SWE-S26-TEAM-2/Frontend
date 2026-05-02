@@ -14,7 +14,7 @@ import { engagementService, studioService } from "@/services/di";
 
 export function TrackCard({ track, onPlay, onLikeChange, isOwner, onDelete }: ITrackCardProps) {
   const [isLiked, setIsLiked] = useState<boolean>(track.isLiked ?? false);
-  const [likes, setLikes] = useState<number>(track.likes);
+  const [likes, setLikes] = useState<number>(track.likes ?? 0);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const shareBtnRef = useRef<HTMLSpanElement>(null);
@@ -65,7 +65,7 @@ export function TrackCard({ track, onPlay, onLikeChange, isOwner, onDelete }: IT
       onLikeChange?.(track.id, newLiked, result.likeCount);
     } catch {
       setIsLiked(!newLiked);
-      setLikes(track.likes);
+      setLikes(track.likes ?? 0);
     }
   };
 
@@ -210,7 +210,7 @@ export function TrackCard({ track, onPlay, onLikeChange, isOwner, onDelete }: IT
             </span>
           </div>
           <div className="flex justify-end gap-3 text-[#444] text-xs">
-            <span>▶ {formatNumber(track.plays)}</span>
+            <span>▶ {formatNumber(track.plays ?? 0)}</span>
             <span>💬 {formatNumber(track.commentsCount ?? 0)}</span>
           </div>
         </div>

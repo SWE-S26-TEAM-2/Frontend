@@ -48,6 +48,12 @@ export interface ITrack extends ITrackBase {
   // UI state (frontend only)
   isLiked?: boolean;
 
+  // Stats
+  genre?: string;
+  likes?: number;
+  plays?: number;
+  description?: string;
+
   // Timestamps
   createdAt: string;
   updatedAt: string;
