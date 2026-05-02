@@ -6,6 +6,7 @@ import type {
 } from '@/types/studio.types';
 import type { TrackVisibility } from '@/types/upload.types';
 import { apiDelete, apiGet, apiPut, apiPost } from './apiClient';
+import { ENV } from '@/config/env';
 
 // ── Backend response shapes ───────────────────────────────────────────────────
 
@@ -98,8 +99,10 @@ export const realStudioService: IStudioService = {
   async getTracks(page: number, pageSize: number): Promise<IStudioTracksResponse> {
     try {
       const username = await getUsername();
-      const raw = await apiGet<IBackendTracksResponse>(`/users/${username}/tracks`);
-      const allTracks = raw.tracks.map(normalizeTrack);
+      const raw = await apiGet<IBackendTracksResponse | IBackendTrack[]>(
+        `${ENV.API_BASE_URL}/users/${username}/tracks`,
+      );
+      const allTracks = (Array.isArray(raw) ? raw : (raw.tracks ?? [])).map(normalizeTrack);
 
       // Client-side pagination since backend returns all tracks
       const start = (page - 1) * pageSize;
@@ -113,11 +116,11 @@ export const realStudioService: IStudioService = {
   },
 
   async deleteTrack(trackId: string): Promise<void> {
-    await apiDelete(`/tracks/${trackId}`);
+    await apiDelete(`${ENV.API_BASE_URL}/tracks/${trackId}`);
   },
 
   async updateVisibility(trackId: string, visibility: TrackVisibility): Promise<IStudioTrack> {
-    const raw = await apiPut<IBackendTrack>(`/tracks/${trackId}`, { visibility });
+    const raw = await apiPut<IBackendTrack>(`${ENV.API_BASE_URL}/tracks/${trackId}`, { visibility });
     return normalizeTrack(raw);
   },
 
@@ -129,7 +132,7 @@ export const realStudioService: IStudioService = {
   async getPlaylists(): Promise<IPlaylist[]> {
     try {
       const username = await getUsername();
-      const raw = await apiGet<IBackendPlaylist[]>(`/users/${username}/playlists`);
+      const raw = await apiGet<IBackendPlaylist[]>(`${ENV.API_BASE_URL}/users/${username}/playlists`);
       return raw.map(normalizePlaylist);
     } catch (err) {
       console.warn('Studio getPlaylists failed, returning empty state:', err);

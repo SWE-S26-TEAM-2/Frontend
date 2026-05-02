@@ -262,5 +262,7 @@ export const mockUserProfileService: IUserProfileService = {
   async getSocialLinks(): Promise<IUser["socialLinks"]> {
   return {};
 },
-
+  async getUserReposts(_username: string): Promise<ITrack[]> {
+    return []; // or [] if you have no mock data yet
+  },
 };

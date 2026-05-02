@@ -107,17 +107,12 @@ export const realUserProfileService: IUserProfileService = {
   async getUserProfile(userId: string): Promise<IUser> {
     const token = getAuthToken();
     const storedId = getStoredUserId();
-
-    // If viewing own profile, use the authenticated endpoint
     const isOwn = token && storedId;
     if (isOwn) {
-      // First fetch public profile to get username/follower data
       const pubRes = await fetch(apiUrl(`/users/${userId}`));
       if (!pubRes.ok) throw new Error(`User "${userId}" not found`);
       const pubJson = await pubRes.json();
       const pubData = (pubJson.data ?? pubJson) as Record<string, unknown>;
-
-      // Check if this is actually the logged-in user
       if (pubData.user_id === storedId) {
       const meRes = await fetch(apiUrl(`/users/me`), {
         headers: { Authorization: `Bearer ${token}` },
@@ -126,8 +121,6 @@ export const realUserProfileService: IUserProfileService = {
         const meJson = await meRes.json();
         const meData = (meJson.data ?? meJson) as Record<string, unknown>;
         const normalizedUser = normalizeUser({ ...pubData, ...meData }, storedId);
-
-        // fetch and merge social links
         const socialLinks = await realUserProfileService.getSocialLinks();
         return { ...normalizedUser, socialLinks };
       }
@@ -151,24 +144,59 @@ export const realUserProfileService: IUserProfileService = {
         `${ENV.API_BASE_URL}/users/${username}/tracks`,
       );
       const rawTracks = Array.isArray(data) ? data : (data.tracks ?? []);
-      return rawTracks.map((t) => {
-      const id = String(t.track_id ?? "");
-      return {
-        id,
-        title:         String(t.title             ?? ""),
-        artist:        String(t.display_name      ?? username),
+
+      const tracks: ITrack[] = rawTracks.map((t) => ({
+        id:            String(t.track_id ?? ""),
+        title:         String(t.title ?? ""),
+        artist:        String(t.display_name ?? username),
         albumArt:      resolveMediaUrl(t.cover_image_url) ?? "",
-        genre:         t.genre ? String(t.genre)  : undefined,
+        genre:         t.genre ? String(t.genre) : undefined,
         url:           resolveMediaUrl(t.stream_url) ?? "",
-        duration:      Number(t.duration_seconds  ?? 0),
-        likes:         Number(t.like_count        ?? 0),
-        plays:         Number(t.play_count        ?? 0),
-        commentsCount: Number(t.comment_count     ?? 0),
-        isLiked:       Boolean(t.is_liked         ?? false),
-        createdAt:     String(t.created_at        ?? ""),
-        updatedAt:     String(t.updated_at        ?? ""),
+        duration:      Number(t.duration_seconds ?? 0),
+        likes:         Number(t.like_count ?? 0),
+        plays:         Number(t.play_count ?? 0),
+        commentsCount: Number(t.comment_count ?? 0),
+        reposts:       Number(t.repost_count ?? 0), 
+        isLiked:       false, 
+        isReposted: false,
+        createdAt:     String(t.created_at ?? ""),
+        updatedAt:     String(t.updated_at ?? ""),
+      }));
+
+      const token = getAuthToken();
+      if (!token || tracks.length === 0) return tracks;
+      const summaries = await Promise.allSettled(
+        tracks.map((t) =>
+          apiGet<{
+            like_count: number;
+            repost_count: number;
+            comment_count: number;
+            liked_by_me: boolean;
+            reposted_by_me: boolean;
+          }>(`${ENV.API_BASE_URL}/tracks/${t.id}/engagement-summary`)
+        )
+      );
+      return tracks.map((t, i) => {
+        const result = summaries[i];
+        if (result.status === "fulfilled" && result.value) {
+      const d = result.value as unknown as {
+        like_count: number;
+        repost_count: number;
+        comment_count: number;
+        liked_by_me: boolean;
+        reposted_by_me: boolean;
       };
-    });
+          return {
+            ...t,
+            likes:         d.like_count      ?? t.likes,
+            reposts:       d.repost_count    ?? t.reposts,
+            commentsCount: d.comment_count   ?? t.commentsCount,
+            isLiked:       d.liked_by_me     ?? false,
+            isReposted:    d.reposted_by_me  ?? false,
+          };
+        }
+        return t;
+      });
     } catch {
       return [];
     }
@@ -176,26 +204,62 @@ export const realUserProfileService: IUserProfileService = {
 
   async getUserLikes(username: string): Promise<ILikedTrack[]> {
     try {
-      const tracks = await apiGet<Record<string, unknown>[]>(
+      const data = await apiGet<{ tracks?: Record<string, unknown>[] }>(
         `${ENV.API_BASE_URL}/users/${username}/liked-tracks`,
       );
-      const list = Array.isArray(tracks) ? tracks : [];
-      return list.map((t) => ({
+      const list = Array.isArray(data) ? data : (data.tracks ?? []);
+      
+      const tracks: ILikedTrack[] = list.map((t) => ({
         id:       String(t.track_id ?? t.id ?? ""),
         title:    String(t.title ?? ""),
-        artist:   String(t.artist ?? t.display_name ?? ""),
+        artist:   String(t.display_name ?? t.artist ?? ""),
+        url:      resolveMediaUrl(t.stream_url) ?? undefined,
+        duration: Number(t.duration_seconds ?? 0),
         plays:    (t.play_count as number) ?? undefined,
-        likes:    (t.like_count as number) ?? (t.likes as number) ?? undefined,
-        reposts:  (t.repost_count as number) ?? (t.reposts as number) ?? undefined,
-        comments: (t.comment_count as number) ?? (t.comments as number) ?? undefined,
+        likes:    0,
+        reposts:  0,
+        comments: (t.comment_count as number) ?? undefined,
         coverUrl: resolveMediaUrl(t.cover_image_url ?? t.cover_url ?? t.cover_photo ?? t.coverUrl),
       }));
+
+      if (tracks.length === 0) return tracks;
+
+      // Enrich with engagement summary
+      const summaries = await Promise.allSettled(
+        tracks.map((t) =>
+          apiGet<{
+            like_count: number;
+            repost_count: number;
+            comment_count: number;
+            liked_by_me: boolean;
+            reposted_by_me: boolean;
+          }>(`${ENV.API_BASE_URL}/tracks/${t.id}/engagement-summary`)
+        )
+      );
+
+      return tracks.map((t, i) => {
+        const result = summaries[i];
+        if (result.status === "fulfilled" && result.value) {
+          const s = result.value as unknown as {
+            like_count: number;
+            repost_count: number;
+            comment_count: number;
+            liked_by_me: boolean;
+            reposted_by_me: boolean;
+          };
+          return {
+            ...t,
+            likes:   s.like_count   ?? 0,
+            reposts: s.repost_count ?? 0,
+          };
+        }
+        return t;
+      });
     } catch {
       console.warn("getUserLikes: failed to fetch, returning empty list");
       return [];
     }
   },
-
   async getFansAlsoLike(userId: string): Promise<IFanUser[]> {
     // backend /users/{id}/fans endpoint not implemented yet
     console.warn("getFansAlsoLike: endpoint not available, using mock data");
@@ -208,12 +272,12 @@ export const realUserProfileService: IUserProfileService = {
         `${ENV.API_BASE_URL}/users/${username}/followers`,
       );
       return (data.followers ?? []).map((f) => ({
-        id: f.user_id as string,
-        username: (f.display_name as string) ?? "",
+        id:        f.user_id as string,
+        username:  (f.username as string) ?? (f.display_name as string) ?? "",
+        displayName: (f.display_name as string) ?? "",
         avatarUrl: resolveMediaUrl(f.profile_picture),
       }));
     } catch {
-      console.warn("getFollowers: failed to fetch, returning empty list");
       return [];
     }
   },
@@ -223,15 +287,15 @@ export const realUserProfileService: IUserProfileService = {
       const data = await apiGet<{ following?: Record<string, unknown>[] }>(
         `${ENV.API_BASE_URL}/users/${username}/following`,
       );
-      return (data.following ?? []).map((f) => ({
-        id: f.user_id as string,
-        username: (f.display_name as string) ?? "",
-        avatarUrl: resolveMediaUrl(f.profile_picture),
-        followers: 0,
-        tracks: 0,
-      }));
+    return (data.following ?? []).map((f) => ({
+      id:          f.user_id as string,
+      username:    (f.username as string) ?? (f.display_name as string) ?? "",
+      displayName: (f.display_name as string) ?? "",
+      avatarUrl:   resolveMediaUrl(f.profile_picture),
+      followers:   0,
+      tracks:      0,
+    }));
     } catch {
-      console.warn("getFollowing: failed to fetch, returning empty list");
       return [];
     }
   },
@@ -275,8 +339,6 @@ export const realUserProfileService: IUserProfileService = {
       const error = await res.json().catch(() => ({}));
       throw new Error((error as { detail?: string }).detail || "Failed to update profile");
     }
-
-     // save social links if provided
     if (payload.links) {
       const socialLinksBody = Object.entries(payload.links)
         .filter(([, url]) => url)
@@ -362,12 +424,12 @@ export const realUserProfileService: IUserProfileService = {
     return { ...fullUser, headerUrl: coverUrl ?? fullUser.headerUrl };
   },
 
-  async followUser(userId: string): Promise<void> {
-    await apiPost(`${ENV.API_BASE_URL}/users/${userId}/follow`);
+  async followUser(username: string): Promise<void> {
+    await apiPost(`${ENV.API_BASE_URL}/users/${username}/follow`);
   },
 
-  async unfollowUser(userId: string): Promise<void> {
-    await apiDelete(`${ENV.API_BASE_URL}/users/${userId}/follow`);
+  async unfollowUser(username: string): Promise<void> {
+    await apiDelete(`${ENV.API_BASE_URL}/users/${username}/follow`);
   },
 
   async searchUsers(query: string): Promise<ISearchUser[]> {
@@ -377,7 +439,6 @@ export const realUserProfileService: IUserProfileService = {
     );
     const users = Array.isArray(data) ? data : (data.users ?? []);
 
-   // After
     return users.map((u) => ({
       id:            String(u.user_id ?? ""),
       username:      String(u.username ?? u.display_name ?? ""),
@@ -389,4 +450,83 @@ export const realUserProfileService: IUserProfileService = {
     }));
       },
 
+async getUserReposts(username: string): Promise<ITrack[]> {
+  try {
+    const res = await fetch(
+      normalizeApiUrl(`${ENV.API_BASE_URL}/reposts/users/${username}`)
+    );
+    if (!res.ok) return [];
+    const json = await res.json();
+
+    const reposts: Array<{
+      track_id: string;
+      title: string;
+      stream_url: string;
+      cover_image_url?: string | null;
+      reposted_at: string;
+    }> = json?.data?.reposts ?? [];
+
+    if (reposts.length === 0) return [];
+// Enrich each repost with full track details + engagement summary
+const [enriched, summaries] = await Promise.all([
+  Promise.allSettled(
+    reposts.map((r) =>
+      apiGet<{
+        track_id: string;
+        title: string;
+        stream_url: string;
+        cover_image_url?: string | null;
+        duration_seconds?: number | null;
+        genre?: string | null;
+        display_name?: string;
+        username?: string;
+        play_count?: number;
+      }>(`${ENV.API_BASE_URL}/tracks/${r.track_id}`)
+    )
+  ),
+  Promise.allSettled(
+    reposts.map((r) =>
+      apiGet<{
+        like_count: number;
+        repost_count: number;
+        comment_count: number;
+        liked_by_me: boolean;
+        reposted_by_me: boolean;
+      }>(`${ENV.API_BASE_URL}/tracks/${r.track_id}/engagement-summary`)
+    )
+  ),
+]);
+
+return reposts.map((r, i) => {
+  const t = enriched[i].status === "fulfilled" ? enriched[i].value : null;
+  const s = summaries[i].status === "fulfilled" ? summaries[i].value as unknown as {
+    like_count: number;
+    repost_count: number;
+    comment_count: number;
+    liked_by_me: boolean;
+    reposted_by_me: boolean;
+  } : null;
+
+  return {
+    id:            r.track_id,
+    title:         t?.title         ?? r.title,
+    artist:        t?.display_name  ?? t?.username ?? username,
+    albumArt:      resolveMediaUrl(t?.cover_image_url ?? r.cover_image_url) ?? "",
+    url:           resolveMediaUrl(t?.stream_url ?? r.stream_url) ?? "",
+    genre:         t?.genre ?? undefined,
+    duration:      t?.duration_seconds  ?? 0,
+    likes:         s?.like_count        ?? 0,
+    plays:         t?.play_count        ?? 0,
+    commentsCount: s?.comment_count     ?? 0,
+    reposts:       s?.repost_count      ?? 0,
+    isLiked:       s?.liked_by_me       ?? false,
+    isReposted:    s?.reposted_by_me    ?? true,
+    createdAt:     r.reposted_at,
+    updatedAt:     r.reposted_at,
+  };
+});
+  } catch (err) {
+    return [];
+  }
+},
 };

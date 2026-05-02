@@ -34,7 +34,7 @@ export default function TrackSlider({
     setPeekOffset(0);
   }, [maxIndex]);
 
-  /* ---------------- PEEK ---------------- */
+  /* ---------------- PEEK ----------------*/ 
 
   const handlePeek = (offset: number) => {
     setPeekOffset(offset);
@@ -110,7 +110,7 @@ export default function TrackSlider({
     };
   }, [nextPage, prevPage]);
 
-  /* ---------------- ACTIVE PEAK ---------------- */
+  /* ---------------- ACTIVE PEAK ----------------*/ 
 
   const activePeek =
     (index === 0 && peekOffset > 0) ||

@@ -175,7 +175,7 @@ export default function TrackCard2({
           }`}
         />
 
-        {/* play button */}
+        {/* play button*/} 
         <div
           className={`absolute inset-0 flex items-center justify-center transition duration-300 ${
             menuOpen || isCurrentTrack

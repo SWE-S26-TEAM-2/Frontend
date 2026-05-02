@@ -5,6 +5,7 @@ import GlobalPlayer from "@/components/GlobalPlayer/GlobalPlayer";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    const useMock = process.env.NEXT_PUBLIC_USE_MOCK_API === "true";
 
     const content = (
         <ThemeProvider>
@@ -13,8 +14,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         </ThemeProvider>
     );
 
-    if (!clientId) {
-      console.warn("NEXT_PUBLIC_GOOGLE_CLIENT_ID is not set. Google OAuth will not be available.");
+    if (!clientId || useMock) {
       return content;
     }
 

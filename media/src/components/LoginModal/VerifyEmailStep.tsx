@@ -103,20 +103,34 @@ export default function VerifyEmailStep({
         ) : (
           <span
             onClick={handleResend}
-            className="text-[#ff5500] cursor-pointer hover:underline"
+            className="text-[#4a90e2] cursor-pointer hover:underline"
           >
             {isResending ? "Sending..." : "Send again"}
           </span>
         )}
-        {resendError && <p className="text-red-500 text-xs mt-1">{resendError}</p>}
-      </p>
+        {resendError && <span className="text-red-500 text-xs mt-1">{resendError}</span>}
+        </p>
 
-      <p className="text-[#999999] text-sm text-center">
-        Wrong address?{" "}
-        <span onClick={onBack} className="text-[#ff5500] cursor-pointer hover:underline">
-          Back to login
+
+        <p className="text-[#999999] text-sm text-center mb-2">
+         Wrong address?{" "}
+        <span
+        onClick={onBack}
+        className="text-[#4a90e2] cursor-pointer hover:underline"
+        >
+        Back to login
         </span>
-      </p>
-    </div>
-  );
-}
+        </p>
+
+        <p className="text-[#999999] text-sm text-center">
+        If you still need help, visit our{" "}
+        <span className="text-[#4a90e2] cursor-pointer hover:underline">
+        Help Center.
+        </span>
+        </p>
+
+
+
+      </div>
+    );
+  }

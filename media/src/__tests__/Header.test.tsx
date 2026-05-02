@@ -427,7 +427,7 @@ describe("Header Component", () => {
     test("Upgrade now link has correct href", () => {
       render(<Header />);
       const link = screen.getByText("Upgrade now").closest("a");
-      expect(link).toHaveAttribute("href", "/artist-pro");
+      expect(link).toHaveAttribute("href", "/subscription/artist-pro");
     });
 
     test("For Artists link has correct href", () => {

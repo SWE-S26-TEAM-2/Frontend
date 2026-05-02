@@ -53,6 +53,8 @@ export interface ILikedTrack {
   id: string;
   title: string;
   artist: string;
+  url?: string;        
+  duration?: number;  
   plays?: number;
   likes?: number;
   reposts?: number;
@@ -72,12 +74,14 @@ export interface IFanUser {
 export interface IFollower {
   id: string;
   username: string;
+  displayName?: string; 
   avatarUrl: string | null;
 }
 
 export interface IFollowing {
   id: string;
   username: string;
+  displayName?: string; 
   avatarUrl: string | null;
   followers: number;
   tracks: number;
@@ -102,7 +106,7 @@ export interface IEditProfilePayload {
   country?: string;
   bio?: string;
   profileUrl?: string;
-  avatarFile?: File; // FIX issue #7: carries the selected avatar file through to the service
+  avatarFile?: File; 
   links?: {
     website?: string;
     instagram?: string;
@@ -125,4 +129,5 @@ export interface IUserProfileService {
   unfollowUser(username: string): Promise<void>;
   searchUsers(query: string): Promise<ISearchUser[]>;
   getSocialLinks(): Promise<IUser["socialLinks"]>;
+  getUserReposts(username: string): Promise<ITrack[]>;
 }

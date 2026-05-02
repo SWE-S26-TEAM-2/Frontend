@@ -42,11 +42,22 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState<string | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [reposts, setReposts] = useState<ITrack[]>([]);
 
     const handleEditOpen = async () => {
     const links = await userProfileService.getSocialLinks();
     setUser(prev => prev ? { ...prev, socialLinks: links } : prev);
     setIsEditOpen(true);
+  };
+
+  const handleTrackLikeChange = (trackId: string, isLiked: boolean, likeCount: number) => {
+    setTracks(prev =>
+      prev.map(t => t.id === trackId ? { ...t, isLiked, likes: likeCount } : t)
+    );
+  };
+
+  const handleDeleteTrack = async (trackId: string) => {
+    setTracks(prev => prev.filter(t => t.id !== trackId));
   };
 
   // Keep tab in sync if user navigates back/forward
@@ -60,13 +71,14 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
       try {
         setLoading(true);
         const fetchedUser = await userProfileService.getUserProfile(username);
-        const [fetchedTracks, fetchedLikes, fetchedFans, fetchedFollowers, fetchedFollowing, fetchedPlaylists] = await Promise.all([
+        const [fetchedTracks, fetchedLikes, fetchedFans, fetchedFollowers, fetchedFollowing, fetchedPlaylists,fetchedReposts] = await Promise.all([
           userProfileService.getUserTracks(fetchedUser.username),
           userProfileService.getUserLikes(fetchedUser.username),
           userProfileService.getFansAlsoLike(fetchedUser.id),
           userProfileService.getFollowers(fetchedUser.username),
           userProfileService.getFollowing(fetchedUser.username),
           playlistService.getUserPlaylists(fetchedUser.username),
+          userProfileService.getUserReposts(fetchedUser.username),
         ]);
 
        // After — create a new object so React detects the change
@@ -77,12 +89,17 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
         }
 
         setUser(userToSet);
-        setTracks(fetchedTracks);
+        const likedTrackIds = new Set(fetchedLikes.map(l => l.id));
+        setTracks(fetchedTracks.map(t => ({
+          ...t,
+          isLiked: likedTrackIds.has(t.id),
+        })));
         setLikes(fetchedLikes);
         setFans(fetchedFans);
         setFollowers(fetchedFollowers);
         setFollowing(fetchedFollowing);
         setPlaylists(fetchedPlaylists);
+        setReposts(fetchedReposts); 
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong");
       } finally {
@@ -97,8 +114,6 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   const handleSaveProfile = async (payload: IEditProfilePayload) => {
     if (!user) return;
     const updated = await userProfileService.updateProfile(user.id, payload);
-    // Preserve the URL username (slug) — the backend may return display_name
-    // in the username field after PATCH, which would break the profile URL.
     setUser({ ...updated, username: user.username });
   };
 
@@ -137,10 +152,11 @@ const handleBannerHeaderChange = async (url: string, file?: File) => {
 
   function getFilteredTracks(tab: IActiveTab): ITrack[] {
     switch (tab) {
-      case "All":            return tracks;
+      case "All": return [...tracks, ...reposts].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       case "Popular tracks": return [...tracks].sort((a, b) => b.plays - a.plays);
       case "Tracks":         return tracks;
-      case "Reposts":        return [];
+      case "Reposts":        return reposts;
       case "Albums":
       case "Playlists":      return [];
       default:               return tracks;
@@ -148,6 +164,9 @@ const handleBannerHeaderChange = async (url: string, file?: File) => {
   }
 
   const filteredTracks = getFilteredTracks(activeTab);
+  const storedId = typeof window !== "undefined" 
+  ? window.localStorage.getItem("auth_user_id") : null;
+  const alreadyFollowing = followers.some(f => f.id === storedId);
 
   if (loading) return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
@@ -221,7 +240,11 @@ const handleBannerHeaderChange = async (url: string, file?: File) => {
                 </button>
               ))}
             </div>
-            <ProfileActions user={user} onEditOpen={handleEditOpen} />
+            <ProfileActions 
+              user={user} 
+              onEditOpen={handleEditOpen}
+              isFollowing={alreadyFollowing}
+            />
           </div>
 
           {/* Track list or playlist list or empty state */}
@@ -282,11 +305,14 @@ const handleBannerHeaderChange = async (url: string, file?: File) => {
               )}
             </div>
           ) : (
-            filteredTracks.map(track => (
-              <TrackCard
-                key={track.id}
+          filteredTracks.map((track, index) => (
+            <TrackCard
+              key={`${activeTab}-${track.id}-${index}`}
                 track={track}
                 onPlay={(t) => { setQueue(filteredTracks); setTrack(t); }}
+                onLikeChange={handleTrackLikeChange}
+                isOwner={user.isOwner}
+                onDelete={handleDeleteTrack}
               />
             ))
           )}

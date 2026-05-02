@@ -6,18 +6,24 @@ import { ITrackCardProps } from "@/types/track.types";
 import { formatNumber } from "@/utils/formatNumber";
 import { TrackCover } from "./TrackCover";
 import { Waveform } from "@/components/Track/Waveform";
-import { HeartIcon, ShareIcon, CopyIcon, MoreIcon, IconBtn } from "@/components/Icons/TrackIcons";
+import { HeartIcon, ShareIcon, CopyIcon, MoreIcon, IconBtn, RepostIcon } from "@/components/Icons/TrackIcons";
 import { ShareModal } from "@/components/Share/Share";
-import { seededWaveform } from "@/utils/seededWaveform";
+import { useWaveform } from "@/hooks/useWaveform";
 import { usePlayerStore } from "@/store/playerStore";
+import { engagementService, studioService } from "@/services/di";
 import { realTrackService } from "@/services/api/trackService";
 
-export function TrackCard({ track, onPlay }: ITrackCardProps) {
+export function TrackCard({ track, onPlay, onLikeChange, isOwner, onDelete }: ITrackCardProps) {
   const [isLiked, setIsLiked] = useState<boolean>(track.isLiked ?? false);
+  const [likes, setLikes] = useState<number>(track.likes);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const shareBtnRef = useRef<HTMLSpanElement>(null);
   const moreBtnRef = useRef<HTMLSpanElement>(null);
+  const [isReposted, setIsReposted] = useState<boolean>(track.isReposted ?? false);
+  const [reposts, setReposts] = useState<number>(track.reposts ?? 0);
+  const [deleteConfirming, setDeleteConfirming] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { currentTrack, isPlaying, currentTime, duration, setCurrentTime, togglePlay, addToQueue } =
     usePlayerStore();
@@ -51,7 +57,21 @@ export function TrackCard({ track, onPlay }: ITrackCardProps) {
     return () => document.removeEventListener("mousedown", handler);
   }, [isMoreOpen]);
 
-  const handleLikeToggle = () => setIsLiked((v) => !v);
+  const handleLikeToggle = async () => {
+    const newLiked = !isLiked;
+    setIsLiked(newLiked);
+    setLikes((prev) => (newLiked ? prev + 1 : prev - 1));
+    try {
+      const result = newLiked
+        ? await engagementService.likeTrack(track.id)
+        : await engagementService.unlikeTrack(track.id);
+      setLikes(result.likeCount);
+      onLikeChange?.(track.id, newLiked, result.likeCount);
+    } catch {
+      setIsLiked(!newLiked);
+      setLikes(track.likes);
+    }
+  };
 
   const handleShare = () => setIsShareOpen(true);
 
@@ -60,7 +80,37 @@ export function TrackCard({ track, onPlay }: ITrackCardProps) {
       navigator.clipboard.writeText(`${track.artist} - ${track.title}`);
   };
 
-  const waveform = seededWaveform(Number(track.id) || 1);
+  const handleDeleteConfirm = async () => {
+    setIsDeleting(true);
+    try {
+      await studioService.deleteTrack(track.id);
+      onDelete?.(track.id);
+    } catch (err) {
+      console.error("[TrackCard] delete failed:", err);
+      setDeleteConfirming(false);
+    } finally {
+      setIsDeleting(false);
+      setIsMoreOpen(false);
+    }
+  };
+
+  const handleRepostToggle = async () => {
+    const newReposted = !isReposted;
+    setIsReposted(newReposted);
+    setReposts((prev) => (newReposted ? prev + 1 : prev - 1));
+    try {
+      if (newReposted) {
+        await engagementService.repostTrack(track.id);
+      } else {
+        await engagementService.removeRepost(track.id);
+      }
+    } catch {
+      setIsReposted(!newReposted);
+      setReposts((prev) => (newReposted ? prev - 1 : prev + 1));
+    }
+  };
+
+  const waveform = useWaveform(track.id);
 
   return (
     <>
@@ -73,7 +123,15 @@ export function TrackCard({ track, onPlay }: ITrackCardProps) {
         <div className="flex justify-between items-center mb-1">
           <span className="text-xs text-[#888] truncate">{track.artist}</span>
           <div className="flex items-center gap-2 shrink-0 ml-2">
-            <span className="text-xs text-[#555]">{track.createdAt}</span>
+            <span className="text-xs text-[#555]">
+              {track.createdAt
+                ? new Date(track.createdAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })
+                : ""}
+            </span>
             {track.genre && (
               <span className="text-[11px] bg-[#1c1c1c] border border-[#2e2e2e] text-[#999] rounded px-2 py-0.5">
                 # {track.genre}
@@ -110,9 +168,15 @@ export function TrackCard({ track, onPlay }: ITrackCardProps) {
           <div className="flex gap-1.5 items-center">
             <IconBtn
               icon={<HeartIcon isFilled={isLiked} />}
-              count={isLiked ? track.likes + 1 : track.likes}
+              count={likes}
               active={isLiked}
               onClick={handleLikeToggle}
+            />
+            <IconBtn
+              icon={<RepostIcon />}
+              count={reposts}
+              active={isReposted}
+              onClick={handleRepostToggle}
             />
             <span ref={shareBtnRef} className="inline-flex">
               <IconBtn icon={<ShareIcon />} onClick={handleShare} />
@@ -128,6 +192,31 @@ export function TrackCard({ track, onPlay }: ITrackCardProps) {
                   >
                     Add to queue
                   </button>
+                  {isOwner && !deleteConfirming && (
+                    <button
+                      onClick={() => setDeleteConfirming(true)}
+                      className="w-full text-left px-3 py-2 text-xs text-[#ff5555] hover:bg-[#2e2e2e] transition-colors cursor-pointer"
+                    >
+                      Delete track
+                    </button>
+                  )}
+                  {isOwner && deleteConfirming && (
+                    <>
+                      <button
+                        onClick={handleDeleteConfirm}
+                        disabled={isDeleting}
+                        className="w-full text-left px-3 py-2 text-xs text-[#ff5555] font-semibold hover:bg-[#2e2e2e] transition-colors cursor-pointer disabled:opacity-50"
+                      >
+                        {isDeleting ? "Deleting…" : "Confirm delete"}
+                      </button>
+                      <button
+                        onClick={() => setDeleteConfirming(false)}
+                        className="w-full text-left px-3 py-2 text-xs text-[#999] hover:bg-[#2e2e2e] transition-colors cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
             </span>

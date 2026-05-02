@@ -8,7 +8,7 @@ import { IComment } from '@/types/comment.types';
 import { IMessageThread, IInboxItem } from '@/types/message.types';
 import { IChart, IChartTrack } from '@/types/chart.types';
 import { INotification } from '@/types/notification.types';
-import { IAdminUser, IAdminTrack, IAdminStats, IAdminInsightPoint } from '@/types/admin.types';
+import { IAdminInsightPoint, IAdminStats, IAdminTrack } from '@/types/admin.types';
 
 // settings/privacy
 import { IPrivacySettings } from '@/types/settings-privacy.types';
@@ -338,12 +338,13 @@ export const MOCK_PRODUCTS: IProduct[] = [
 ];
 
 // ─── Shared mock users ────────────────────────────────────────────────────────
+// FIX: Added `isFollowing: false` to satisfy INotificationActor interface
 export const MOCK_USERS = {
-  soundwave:   { id: 'u1', username: 'soundwave',   avatarUrl: '/avatars/soundwave.jpg' },
-  beatmaker99: { id: 'u2', username: 'beatmaker99', avatarUrl: '/avatars/beatmaker99.jpg' },
-  listenerjane:{ id: 'u3', username: 'listenerjane',avatarUrl: '/avatars/listenerjane.jpg' },
-  djremix:     { id: 'u4', username: 'djremix',     avatarUrl: '/avatars/djremix.jpg' },
-  newuser2026: { id: 'u5', username: 'newuser2026', avatarUrl: '/avatars/newuser2026.jpg' },
+  soundwave:    { id: 'u1', username: 'soundwave',    avatarUrl: '/avatars/soundwave.jpg',    isFollowing: false },
+  beatmaker99:  { id: 'u2', username: 'beatmaker99',  avatarUrl: '/avatars/beatmaker99.jpg',  isFollowing: false },
+  listenerjane: { id: 'u3', username: 'listenerjane', avatarUrl: '/avatars/listenerjane.jpg', isFollowing: false },
+  djremix:      { id: 'u4', username: 'djremix',      avatarUrl: '/avatars/djremix.jpg',      isFollowing: false },
+  newuser2026:  { id: 'u5', username: 'newuser2026',  avatarUrl: '/avatars/newuser2026.jpg',  isFollowing: false },
 };
 
 // ─── Feed ─────────────────────────────────────────────────────────────────────
@@ -580,26 +581,18 @@ export const MOCK_CHART: IChart = {
 
 // ─── Notifications ────────────────────────────────────────────────────────────
 export const MOCK_NOTIFICATIONS: INotification[] = [
-  { id: 'n1',  type: 'like',    actor: MOCK_USERS.djremix,      track: { id: '1', title: 'Vodafone',       albumArt: '/covers/song1.jpg' }, message: 'djremix liked your track Vodafone',              isRead: false, createdAt: '2026-04-12T08:00:00Z' },
-  { id: 'n2',  type: 'follow',  actor: MOCK_USERS.beatmaker99,  message: 'beatmaker99 started following you',                                                                                           isRead: false, createdAt: '2026-04-12T07:30:00Z' },
-  { id: 'n3',  type: 'repost',  actor: MOCK_USERS.listenerjane, track: { id: '2', title: 'kol howa allah ahad', albumArt: '/covers/song2.jpg' }, message: 'listenerjane reposted your track',          isRead: false, createdAt: '2026-04-12T06:00:00Z' },
-  { id: 'n4',  type: 'comment', actor: MOCK_USERS.newuser2026,  track: { id: '3', title: 'Eg Bank',         albumArt: '/covers/song4.jpg' }, message: 'newuser2026 commented on your track Eg Bank',   isRead: true,  createdAt: '2026-04-11T20:00:00Z' },
-  { id: 'n5',  type: 'like',    actor: MOCK_USERS.soundwave,    track: { id: '4', title: 'Orange',           albumArt: '/covers/song3.jpg' }, message: 'soundwave liked your track Orange',             isRead: true,  createdAt: '2026-04-11T18:00:00Z' },
-  { id: 'n6',  type: 'follow',  actor: MOCK_USERS.listenerjane, message: 'listenerjane started following you',                                                                                          isRead: true,  createdAt: '2026-04-11T15:00:00Z' },
-  { id: 'n7',  type: 'repost',  actor: MOCK_USERS.djremix,      track: { id: '1', title: 'Vodafone',         albumArt: '/covers/song1.jpg' }, message: 'djremix reposted your track Vodafone',         isRead: true,  createdAt: '2026-04-10T22:00:00Z' },
-  { id: 'n8',  type: 'comment', actor: MOCK_USERS.beatmaker99,  track: { id: '2', title: 'kol howa allah ahad', albumArt: '/covers/song2.jpg' }, message: 'beatmaker99 commented on your track',      isRead: true,  createdAt: '2026-04-10T20:00:00Z' },
-  { id: 'n9',  type: 'like',    actor: MOCK_USERS.newuser2026,  track: { id: '3', title: 'Eg Bank',           albumArt: '/covers/song4.jpg' }, message: 'newuser2026 liked your track Eg Bank',        isRead: true,  createdAt: '2026-04-09T14:00:00Z' },
-  { id: 'n10', type: 'mention', actor: MOCK_USERS.djremix,      track: { id: '4', title: 'Orange',            albumArt: '/covers/song3.jpg' }, message: 'djremix mentioned you in a comment on Orange', isRead: true, createdAt: '2026-04-08T10:00:00Z' },
+  { id: 'n1',  type: 'like',    actor: MOCK_USERS.djremix,      trackTitle: 'Vodafone',            message: 'djremix liked your track Vodafone',              isRead: false, createdAt: '2026-04-12T08:00:00Z' },
+  { id: 'n2',  type: 'follow',  actor: MOCK_USERS.beatmaker99,                                     message: 'beatmaker99 started following you',               isRead: false, createdAt: '2026-04-12T07:30:00Z' },
+  { id: 'n3',  type: 'repost',  actor: MOCK_USERS.listenerjane, trackTitle: 'kol howa allah ahad', message: 'listenerjane reposted your track',                isRead: false, createdAt: '2026-04-12T06:00:00Z' },
+  { id: 'n4',  type: 'comment', actor: MOCK_USERS.newuser2026,  trackTitle: 'Eg Bank',             message: 'newuser2026 commented on your track Eg Bank',    isRead: true,  createdAt: '2026-04-11T20:00:00Z' },
+  { id: 'n5',  type: 'like',    actor: MOCK_USERS.soundwave,    trackTitle: 'Orange',              message: 'soundwave liked your track Orange',               isRead: true,  createdAt: '2026-04-11T18:00:00Z' },
+  { id: 'n6',  type: 'follow',  actor: MOCK_USERS.listenerjane,                                    message: 'listenerjane started following you',              isRead: true,  createdAt: '2026-04-11T15:00:00Z' },
+  { id: 'n7',  type: 'repost',  actor: MOCK_USERS.djremix,      trackTitle: 'Vodafone',            message: 'djremix reposted your track Vodafone',           isRead: true,  createdAt: '2026-04-10T22:00:00Z' },
+  { id: 'n8',  type: 'comment', actor: MOCK_USERS.beatmaker99,  trackTitle: 'kol howa allah ahad', message: 'beatmaker99 commented on your track',            isRead: true,  createdAt: '2026-04-10T20:00:00Z' },
+  { id: 'n9',  type: 'like',    actor: MOCK_USERS.newuser2026,  trackTitle: 'Eg Bank',             message: 'newuser2026 liked your track Eg Bank',           isRead: true,  createdAt: '2026-04-09T14:00:00Z' },
+  { id: 'n10', type: 'comment', actor: MOCK_USERS.djremix,      trackTitle: 'Orange',              message: 'djremix mentioned you in a comment on Orange',   isRead: true,  createdAt: '2026-04-08T10:00:00Z' },
 ];
 
-// ─── Admin ────────────────────────────────────────────────────────────────────
-export const MOCK_ADMIN_USERS: IAdminUser[] = [
-  { id: 'u1', username: 'soundwave',    email: 'soundwave@example.com',    avatarUrl: '/avatars/soundwave.jpg',    role: 'artist',   trackCount: 12, followerCount: 3402, joinedAt: '2024-01-10T00:00:00Z', isSuspended: false },
-  { id: 'u2', username: 'beatmaker99',  email: 'beatmaker99@example.com',  avatarUrl: '/avatars/beatmaker99.jpg',  role: 'artist',   trackCount: 8,  followerCount: 1892, joinedAt: '2024-02-14T00:00:00Z', isSuspended: false },
-  { id: 'u3', username: 'listenerjane', email: 'listenerjane@example.com', avatarUrl: '/avatars/listenerjane.jpg', role: 'listener', trackCount: 0,  followerCount: 124,  joinedAt: '2024-03-05T00:00:00Z', isSuspended: false },
-  { id: 'u4', username: 'djremix',      email: 'djremix@example.com',      avatarUrl: '/avatars/djremix.jpg',      role: 'artist',   trackCount: 21, followerCount: 7830, joinedAt: '2023-11-20T00:00:00Z', isSuspended: false },
-  { id: 'u5', username: 'newuser2026',  email: 'newuser2026@example.com',  avatarUrl: '/avatars/newuser2026.jpg',  role: 'listener', trackCount: 0,  followerCount: 8,    joinedAt: '2026-04-01T00:00:00Z', isSuspended: false },
-];
 
 export const MOCK_ADMIN_TRACKS: IAdminTrack[] = MOCK_TRACKS.map((t) => ({
   id: t.id, title: t.title, artist: t.artist, albumArt: t.albumArt,

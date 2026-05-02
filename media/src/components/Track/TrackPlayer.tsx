@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { ITrack } from "@/types/track.types";
 import { usePlayerStore } from "@/store/playerStore";
-import { seededWaveform } from "@/utils/seededWaveform";
+import { useWaveform } from "@/hooks/useWaveform";
 import { Waveform } from "./Waveform";
 
 function formatTime(totalSeconds: number) {
@@ -19,7 +19,7 @@ export default function TrackPlayer({ track }: { track: ITrack }) {
 
   const isCurrent = currentTrack?.id === track.id;
   const sampleCount = Math.max(180, Math.min(320, Math.floor(track.duration * 1.5)));
-  const waveform = seededWaveform(Number(track.id) || 1, sampleCount);
+  const waveform = useWaveform(track.id, sampleCount);
   const effectiveDuration = isCurrent && duration > 0 ? duration : track.duration;
   const playedPercent =
     isCurrent && effectiveDuration > 0

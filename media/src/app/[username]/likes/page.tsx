@@ -4,28 +4,46 @@ import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { userProfileService } from "@/services/di";
 import type { IUser, ILikedTrack } from "@/types/userProfile.types";
+import type { ITrack } from "@/types/track.types";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
 import { SubPageHeader } from "@/components/Profile/SubPageHeader";
-import { Waveform } from "@/components/Track/Waveform";
-import { TrackCover } from "@/components/Track/TrackCover";
 import { ShareModal } from "@/components/Share/Share";
-import { HeartIcon, RepostIcon } from "@/components/Icons/TrackIcons";
-import { PlayIcon } from "@/components/Icons/PlayerIcons";
 import { ShareIcon } from "@/components/Icons/TrackIcons";
-import { formatNumber } from "@/utils/formatNumber";
-import { seededWaveform } from "@/utils/seededWaveform";
+import { TrackCard } from "@/components/Track/TrackCard";
+import { usePlayerStore } from "@/store/playerStore";
+
+function likedTrackToITrack(t: ILikedTrack): ITrack {
+  return {
+    id:            t.id,
+    title:         t.title,
+    artist:        t.artist,
+    albumArt:      t.coverUrl ?? "",
+    url:           t.url ?? "",
+    genre:         undefined,
+    duration:      t.duration ?? 0,
+    likes:         t.likes ?? 0,
+    plays:         t.plays ?? 0,
+    commentsCount: t.comments ?? 0,
+    reposts:       t.reposts ?? 0,
+    isLiked:       true,
+    isReposted:    false,
+    createdAt:     "",
+    updatedAt:     "",
+  };
+}
 
 export default function LikesPage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = React.use(params);
   const router = useRouter();
 
   const [user, setUser]       = useState<IUser | null>(null);
-  const [likes, setLikes]     = useState<ILikedTrack[]>([]);
+  const [likes, setLikes]     = useState<ITrack[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState<string | null>(null);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const shareButtonRef = useRef<HTMLButtonElement>(null);
+  const { setQueue, setTrack } = usePlayerStore();
 
   useEffect(() => {
     async function loadAsync() {
@@ -33,7 +51,7 @@ export default function LikesPage({ params }: { params: Promise<{ username: stri
         const fetchedUser = await userProfileService.getUserProfile(username);
         const fetchedLikes = await userProfileService.getUserLikes(username);
         setUser(fetchedUser);
-        setLikes(fetchedLikes);
+        setLikes(fetchedLikes.map(likedTrackToITrack));
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong");
       } finally {
@@ -57,6 +75,10 @@ export default function LikesPage({ params }: { params: Promise<{ username: stri
 
   const displayName = user.displayName ?? user.username;
 
+  const handleLikeChange = (trackId: string, isLiked: boolean, likeCount: number) => {
+    setLikes(prev => prev.map(t => t.id === trackId ? { ...t, isLiked, likes: likeCount } : t));
+  };
+
   return (
     <div className="min-h-screen bg-black text-white font-sans pb-15">
       <Header />
@@ -73,8 +95,8 @@ export default function LikesPage({ params }: { params: Promise<{ username: stri
             {(["likes", "following", "followers"] as const).map((tab) => {
               const active = tab === "likes";
               const href =
-                tab === "likes" ? `/${username}/likes`
-                : tab === "following" ? `/${username}/following`
+                tab === "likes"      ? `/${username}/likes`
+                : tab === "following"  ? `/${username}/following`
                 : `/${username}/followers`;
               return (
                 <button
@@ -123,61 +145,15 @@ export default function LikesPage({ params }: { params: Promise<{ username: stri
             </span>
           </div>
         ) : (
-          <div className="flex flex-col">
-            {likes.map((track, idx) => (
-              <div
-                key={track.id}
-                className="flex items-start gap-4 py-5 border-b border-[#1a1a1a] group hover:bg-white/2 transition-colors px-2 -mx-2 rounded"
-              >
-                <div className="shrink-0">
-                  <TrackCover size={160} url={track.coverUrl} alt={track.title} accentColor={track.accentColor ?? "#1a1a2e"} />
-                </div>
-
-                <div className="shrink-0 self-center">
-                  <button className="w-11 h-11 rounded-full border-2 border-[#ff5500] flex items-center justify-center text-[#ff5500] hover:bg-[#ff5500] hover:text-white transition-colors cursor-pointer bg-transparent">
-                    <PlayIcon />
-                  </button>
-                </div>
-
-                <div className="flex-1 min-w-0 flex flex-col gap-2 pt-1">
-                  <div className="flex items-baseline gap-2 min-w-0">
-                    <span className="text-[#aaa] text-xs shrink-0 truncate">{track.artist}</span>
-                    <span className="text-white text-sm font-semibold truncate">{track.title}</span>
-                  </div>
-
-                  <Waveform
-                    data={seededWaveform(idx)}
-                    height={52}
-                    playedPercent={0}
-                    playedColor="#ff5500"
-                    unplayedColor="#333"
-                  />
-
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <button className="flex items-center gap-1.5 text-[#ff5500] text-xs cursor-pointer bg-transparent border border-[#ff5500]/40 rounded px-2.5 py-1 hover:border-[#ff5500] transition-colors">
-                      <HeartIcon isFilled={true} />
-                      {track.likes !== undefined ? formatNumber(track.likes) : ""}
-                    </button>
-                    <button className="flex items-center gap-1.5 text-[#aaa] text-xs cursor-pointer bg-transparent border border-[#2e2e2e] rounded px-2.5 py-1 hover:border-white transition-colors">
-                      <RepostIcon />
-                      {track.reposts !== undefined ? formatNumber(track.reposts) : ""}
-                    </button>
-                    <button className="flex items-center gap-1.5 text-[#aaa] text-xs cursor-pointer bg-transparent border border-[#2e2e2e] rounded px-2.5 py-1 hover:border-white transition-colors">
-                      <ShareIcon />
-                    </button>
-                    <div className="ml-auto flex items-center gap-3">
-                      {track.plays !== undefined && (
-                        <span className="text-[11px] text-[#555]">▶ {formatNumber(track.plays)}</span>
-                      )}
-                      {track.comments !== undefined && (
-                        <span className="text-[11px] text-[#555]">💬 {track.comments}</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          likes.map((track, index) => (
+            <TrackCard
+              key={`${track.id}-${index}`}
+              track={track}
+              onPlay={(t) => { setQueue(likes); setTrack(t); }}
+              onLikeChange={handleLikeChange}
+              isOwner={false}
+            />
+          ))
         )}
       </div>
 

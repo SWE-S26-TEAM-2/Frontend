@@ -478,7 +478,7 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
 
           {/* Upgrade now — hidden on small screens */}
           <Link
-            href="/artist-pro"
+            href="/subscription/artist-pro"
             className="hidden lg:flex items-center h-7 px-3 text-[#ff5500] text-[12px] font-bold border border-[#ff5500] rounded-[3px] no-underline whitespace-nowrap hover:bg-[#ff5500]/10 transition-colors mr-1"
           >
             Upgrade now

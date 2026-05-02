@@ -1,34 +1,74 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { FaFacebook, FaApple } from "react-icons/fa";
+import { FaFacebook, FaApple, FaGoogle } from "react-icons/fa";
 import Link from "next/link";
-import { GoogleLogin } from "@react-oauth/google";
 import InputStep from "./InputStep";
 import RegisterStep from "./RegisterStep";
 import SignInStep from "./SignInStep";
 import TellUsMoreStep from "./TellUsMoreStep";
 import VerifyEmailStep from "./VerifyEmailStep";
+import EnterResetCodeStep from "./EnterResetCodeStep";
 import { AuthService } from "@/services";
 import { useAuthStore } from "@/store/authStore";
 import type { ILoginModalProps } from "@/types/ui.types";
+import { GoogleLogin } from "@react-oauth/google";
+import ForgotPasswordStep from "./ForgotPasswordStep";
+import CheckYourEmailStep from "./CheckYourEmailStep";
+import { useRouter } from "next/navigation";
+import { ENV } from "@/config/env";
+
 
 export default function LoginModal({ onClose }: ILoginModalProps) {
   const router = useRouter();
   const authStore = useAuthStore();
 
   const [emailOrProfileUrl, setEmailOrProfileUrl] = useState("");
-  const [password, setPassword] = useState("");
-  const [step, setStep] = useState<"main" | "input" | "register" | "signin" | "tell-us-more" | "verify-email">("main");
   const [error, setError] = useState("");
+  const [step, setStep] = useState<"main" | "input" | "register" | "signin"|"tell-us-more"|"verify-email"| "forgot-password" | "check-your-email"| "enter-reset-code">("main");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  
   const [signinSubtitle, setSigninSubtitle] = useState<string | undefined>(undefined);
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmailOrProfileUrl(e.target.value);
+  };
+  const redirectAfterLogin = async (token: string) => {
+    try {
+      const res = await fetch(`${ENV.API_BASE_URL}/users/me`, {
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      });
+      if (res.ok) {
+        const json = await res.json();
+        const role = json?.data?.role ?? json?.role;
+        if (role === "admin") {
+          router.push("/admin/dashboard");
+          return;
+        }
+      }
+    } catch {
+      // fall through to default
+    }
+    router.push("/stream");
+  };
+
+  const handleGoogleLoginSuccess = async (credential: string) => {
+    try {
+      setIsLoading(true);
+      const result = await AuthService.googleLogin(credential);
+      authStore.login(result.user, result.token);
+      onClose();
+      await redirectAfterLogin(result.token);
+    } catch {
+      setError("Google login failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,12 +82,13 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
   const resetToMain = () => {
     setStep("main");
     setError("");
-    setIsSuccess(false);
+    setSuccessMessage("");
     setSigninSubtitle(undefined);
   };
 
   const handleLoginSuccess = () => {
     setIsSuccess(true);
+    setSuccessMessage("Login successful!");
     setTimeout(() => {
       onClose();
       router.push("/home");
@@ -91,6 +132,10 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
         setError("Please verify you are a human.");
         return;
       }
+      if (step === "signin" && password.length < 6) {
+        setError("Password must be at least 6 characters.");
+        return;
+      }
       setError("");
       try {
         setIsLoading(true);
@@ -102,7 +147,8 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
           authStore.login(response.user, response.token);
           window.localStorage.setItem("auth_token", response.token);
           window.localStorage.setItem("auth_user_id", String(response.user.id));
-          handleLoginSuccess();
+          onClose();
+          await redirectAfterLogin(response.token);
         }
       } catch (err) {
         const msg = err instanceof Error ? err.message : "";
@@ -112,7 +158,8 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
             authStore.login(response.user, response.token);
             window.localStorage.setItem("auth_token", response.token);
             window.localStorage.setItem("auth_user_id", String(response.user.id));
-            handleLoginSuccess();
+            onClose();
+            await redirectAfterLogin(response.token);
           } catch {
             setStep("signin");
             setError("An account with this email already exists. Please sign in.");
@@ -137,6 +184,8 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       setIsLoading(true);
       const finalDisplayName = data.displayName || emailOrProfileUrl.split("@")[0];
       await AuthService.updateProfile({ ...data, displayName: finalDisplayName });
+      
+
     } catch {
       // No token yet before email verification — proceed anyway
     } finally {
@@ -145,13 +194,34 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
     setStep("verify-email");
   };
 
+ 
+
+  const handleForgotPassword = async (email: string) => {
+    try {
+      setIsLoading(true);
+      await AuthService.forgotPassword(email);
+      setStep("check-your-email");
+    }  catch (err) {
+      const msg = err instanceof Error ? err.message : "";
+      if (msg.includes("429") || msg.toLowerCase().includes("too many")) {
+        setError("Too many attempts. Please wait a few minutes and try again.");
+      } else {
+        setError("Failed to send reset code. Please try again.");
+      }
+    }
+     finally {
+      setIsLoading(false);
+    }
+  };
+  
   const handleVerified = async () => {
     try {
       const response = await AuthService.login(emailOrProfileUrl, password);
       authStore.login(response.user, response.token);
       window.localStorage.setItem("auth_token", response.token);
       window.localStorage.setItem("auth_user_id", String(response.user.id));
-      handleLoginSuccess();
+      onClose();
+      await redirectAfterLogin(response.token);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "";
       setStep("signin");
@@ -165,18 +235,18 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       onClick={onClose}
       className="fixed inset-0 bg-[rgba(0,0,0,0.7)] flex items-center justify-center z-1000"
     >
-      {isSuccess && (
+      {successMessage && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-[#333333] text-white px-6 py-4 rounded-lg z-2000">
-          Successfully signed in! 🎉
+          {successMessage}
         </div>
       )}
-
+      {/* Modal box — stop click from closing when clicking inside */}
       <div
         onClick={(e) => e.stopPropagation()}
         className="bg-[#222222] w-125 rounded-lg p-10 relative"
       >
         <button
-          onClick={() => { onClose(); setIsSuccess(false); }}
+          onClick={() =>  onClose()}
           className="absolute top-3 right-4 bg-none border-none text-[#999] text-xl cursor-pointer"
         >
           ✕
@@ -187,8 +257,8 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
             <p className="text-white text-[35px] mb-4">Sign in or create an account</p>
             <p className="text-[#999999] text-sm leading-relaxed mb-8">
               By clicking on any of the &quot;Continue&quot; buttons below, you agree to SoundCloud&apos;s{" "}
-              <Link href="#">Terms of Use</Link> and acknowledge our{" "}
-              <Link href="#">Privacy Policy</Link>.
+              <Link href="https://soundcloud.com/terms-of-use">Terms of Use</Link> and acknowledge our{" "}
+              <Link href="https://soundcloud.com/pages/privacy">Privacy Policy</Link>.
             </p>
 
             <button className="bg-[#1877f2] text-white w-full p-3 rounded cursor-pointer mb-3 text-[15px] font-semibold border-none flex items-center justify-center gap-2">
@@ -196,29 +266,37 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
               Continue with Facebook
             </button>
 
-            <div className="mb-3 [&>div]:w-full [&_iframe]:w-full">
-              <GoogleLogin
-                onSuccess={async (credentialResponse) => {
-                  if (!credentialResponse.credential) return;
-                  try {
-                    setIsLoading(true);
-                    const response = await AuthService.googleLogin(credentialResponse.credential);
-                    authStore.login(response.user, response.token);
-                    window.localStorage.setItem("auth_token", response.token);
-                    window.localStorage.setItem("auth_user_id", String(response.user.id));
-                    handleLoginSuccess();
-                  } catch {
-                    setError("Google login failed. Please try again.");
-                  } finally {
-                    setIsLoading(false);
-                  }
-                }}
-                onError={() => setError("Google login failed. Please try again.")}
-                theme="filled_black"
-                text="continue_with"
-                width="400"
-              />
-            </div>
+            {ENV.USE_MOCK_API ? (
+              /* Mock mode: skip OAuth widget entirely — no Google Cloud origin check needed */
+              <button
+                onClick={() => handleGoogleLoginSuccess("mock-google-token")}
+                className="bg-[#333333] text-white w-full p-3 rounded cursor-pointer mb-3 text-[15px] font-semibold border border-[#444444] flex items-center justify-center gap-2"
+              >
+                <FaGoogle size={20} />
+                Continue with Google
+              </button>
+            ) : (
+              /* Real mode: GoogleLogin provides an id_token (credential); useGoogleLogin only gives an access_token which the backend rejects */
+              <div className="relative w-full mb-3">
+                <button
+                  className="bg-[#333333] text-white w-full p-3 rounded text-[15px] font-semibold border border-[#444444] flex items-center justify-center gap-2 pointer-events-none"
+                  tabIndex={-1}
+                  aria-hidden="true"
+                >
+                  <FaGoogle size={20} />
+                  Continue with Google
+                </button>
+                <div className="absolute inset-0 opacity-0 overflow-hidden">
+                  <GoogleLogin
+                    onSuccess={(cred) => {
+                      if (cred.credential) handleGoogleLoginSuccess(cred.credential);
+                    }}
+                    onError={() => setError("Google login failed. Please try again.")}
+                    width={500}
+                  />
+                </div>
+              </div>
+            )}
 
             <button className="bg-black text-white w-full p-3 rounded cursor-pointer mb-8 text-[15px] font-semibold border border-[#444444] flex items-center justify-center gap-2">
               <FaApple size={20} />
@@ -248,10 +326,10 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
             </button>
             </form>
 
-            <Link href="#" className="text-[#ff5500] text-sm cursor-pointer mt-8">
-              Need help?
-            </Link>
-          </>
+        <Link href="https://help.soundcloud.com/hc/en-us/sections/46266771825691" className="text-[#4a90e2] text-sm cursor-pointer">
+          Need help?
+        </Link>
+        </>
         )}
 
         {step === "input" && (
@@ -279,16 +357,33 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
         )}
 
         {step === "signin" && (
-          <SignInStep
-            emailOrProfileUrl={emailOrProfileUrl}
-            password={password}
-            onPasswordChange={handlePasswordChange}
-            onSubmit={handleSubmit}
-            onBack={resetToMain}
-            error={error}
-            isLoading={isLoading}
-            subtitle={signinSubtitle}
-          />
+
+        <SignInStep
+        emailOrProfileUrl={emailOrProfileUrl}
+        password={password}
+        onPasswordChange={handlePasswordChange}
+        onSubmit={handleSubmit}
+        onBack={() => {setStep("main"); setError("");}}
+        error={error}
+        isLoading={isLoading}
+        subtitle={signinSubtitle}
+        onForgotPassword={() => { setStep("forgot-password"); setError(""); }}
+        />
+        )}
+        {step === "forgot-password" && (
+        <ForgotPasswordStep
+        emailOrProfileUrl={emailOrProfileUrl}
+        onBack={() => { setStep("signin"); setError(""); }}
+        onSubmit={handleForgotPassword}
+        isLoading={isLoading}
+        error={error}
+        />
+        )}
+        {step === "check-your-email" && (
+          <CheckYourEmailStep
+          onBack={() => { setStep("forgot-password"); setError(""); }}
+          onContinue={() => setStep("enter-reset-code")}
+        />
         )}
 
         {step === "tell-us-more" && (
@@ -306,7 +401,19 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
             onVerified={handleVerified}
           />
         )}
+
+        {step === "enter-reset-code" && (
+          <EnterResetCodeStep
+          onBack={() => setStep("check-your-email")}
+          onContinue={(code) => {
+          onClose();
+          router.push(`/reset-password?token=${encodeURIComponent(code)}`);
+        }}
+  />
+)}
+
       </div>
     </div>
   );
 }
+
