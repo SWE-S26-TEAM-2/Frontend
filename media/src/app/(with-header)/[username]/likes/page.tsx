@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import { userProfileService } from "@/services/di";
 import type { IUser, ILikedTrack } from "@/types/userProfile.types";
 import type { ITrack } from "@/types/track.types";
-import Header from "@/components/Header/Header";
-import Footer from "@/components/Footer/Footer";
 import { SubPageHeader } from "@/components/Profile/SubPageHeader";
 import { ShareModal } from "@/components/Share/Share";
 import { ShareIcon } from "@/components/Icons/TrackIcons";
@@ -81,7 +79,6 @@ export default function LikesPage({ params }: { params: Promise<{ username: stri
 
   return (
     <div className="min-h-screen bg-black text-white font-sans pb-15">
-      <Header />
 
       <SubPageHeader
         user={user}
@@ -156,8 +153,6 @@ export default function LikesPage({ params }: { params: Promise<{ username: stri
           ))
         )}
       </div>
-
-      <Footer />
     </div>
   );
 }
