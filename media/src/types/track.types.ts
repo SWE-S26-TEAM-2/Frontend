@@ -84,6 +84,8 @@ export interface ITrackService {
   getTrending(limit?: number): Promise<ITrack[]>;
 
   getRelated(trackId: string, limit?: number): Promise<ITrack[]>;
+
+  postTrack(trackId: string): Promise<void>;
 }
 
 export interface ITrackListResponse {

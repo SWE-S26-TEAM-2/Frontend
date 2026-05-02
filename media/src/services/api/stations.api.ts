@@ -2,7 +2,7 @@ import { ENV } from "@/config/env";
 import type { ITrack } from "@/types/track.types";
 import type { IStation, IStationService } from "@/types/station.types";
 import { apiGet } from "./apiClient";
-
+import { apiPost, apiDelete } from "./apiClient";
 const BASE_URL = ENV.API_BASE_URL.replace(/\/$/, "");
 
 // ── RAW SHAPE (matches ListeningHistoryItem from /users/me/listening-history and /recently-played) ──
@@ -71,7 +71,7 @@ function dedup(items: IRawHistoryItem[]): IRawHistoryItem[] {
 export const realStationService: IStationService = {
   async getLikedStations(): Promise<IStation[]> {
     try {
-      const raw = await apiGet<IRawHistoryItem[]>("/users/me/listening-history");
+      const raw = await apiGet<IRawHistoryItem[]>(`${process.env.NEXT_PUBLIC_API_URL}/users/me/listening-history`);
       return dedup(raw ?? []).map(adaptHistoryItemToStation);
     } catch (error) {
       console.error("getLikedStations failed:", error);
@@ -89,7 +89,17 @@ export const realStationService: IStationService = {
     }
   },
 
-  async toggleLike(): Promise<void> {
-    // TODO: wire once backend ships a like/unlike station endpoint
-  },
+  async toggleLike(stationId: string, isLiked: boolean): Promise<void> {
+  // stationId is "station-{track_id}" — extract the track_id
+  const trackId = stationId.replace(/^station-/, "");
+  try {
+    if (isLiked) {
+      await apiPost(`${process.env.NEXT_PUBLIC_API_URL}/likes/tracks/${trackId}`);
+    } else {
+      await apiDelete(`${process.env.NEXT_PUBLIC_API_URL}/likes/tracks/${trackId}`);
+    }
+  } catch (error) {
+    console.error("toggleLike failed:", error);
+  }
+},
 };

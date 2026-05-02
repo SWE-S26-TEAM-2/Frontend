@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import SlideShow from "../../components/SlideShow/SlideShow";
@@ -10,6 +10,12 @@ import { LandingApiService } from "@/services/api/landing.api";
 import { ILandingData } from "@/types/landing.types";
 import type { ITrack } from "@/types/track.types";
 import TrackSlider from "@/components/Track/TrackSlider";
+import SearchBar from "@/components/Search/SearchBar";
+import { usePlayerStore } from "@/store/playerStore";
+import { realTrackService } from "@/services/api/trackService";
+import Footer from "@/components/Footer/Footer";
+
+
 
 export default function Home() {
   const router = useRouter();
@@ -17,22 +23,60 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [content, setContent] = useState<ILandingData | null>(null);
   const [tracks, setTracks] = useState<ITrack[]>([]);
+  const pendingTrack = useRef<ITrack | null>(null);          // ← add
+  const { setTrack, togglePlay } = usePlayerStore();
+
+
+  // Called when user clicks play on a track card
+  const handleTrackPlay = (track: ITrack) => {
+    // If this track is already loaded in the player, just toggle play/pause
+    // without opening the modal — the user already "paid" with the modal once
+    const currentTrack = usePlayerStore.getState().currentTrack;
+    const isPlaying = usePlayerStore.getState().isPlaying;
+
+    if (currentTrack?.id === track.id) {
+      togglePlay();
+      return;
+    }
+    // Fresh play attempt — show modal first
+    pendingTrack.current = track;
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+  setIsModalOpen(false);
+  if (pendingTrack.current) {
+    const track = pendingTrack.current;
+    pendingTrack.current = null;
+    console.log("Setting track:", track.title); // ← add this temporarily
+    setTrack(track);
+    void realTrackService.postTrack(track.id).catch(() => {});
+  }
+};
+
+
+
+
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.localStorage.getItem("auth_token")) {
-     router.push("/stream");
+      router.push("/stream");
     }
     LandingApiService.getLandingData().then(setContent);
     LandingApiService.getTrendingTracks().then(setTracks);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!content) return <div className="bg-[#141212] min-h-screen" />;
 
   return (
     <>
-      {isModalOpen && <LoginModal onClose={() => setIsModalOpen(false)} />}
-
+      {isModalOpen && <LoginModal onClose={handleModalClose} />}
+ <Footer />   {/* ← add this */}
+    
+    <div className="bg-[#141212] ...">
+      ...
+    </div>
       <div className="bg-[#141212] min-h-screen flex justify-center text-white pb-20 selection:bg-orange-500 selection:text-white">
         <main className="px-6 md:px-12 py-10 w-full max-w-[1400px]">
 
@@ -44,60 +88,44 @@ export default function Home() {
 
             {/* Search Input Area */}
             <div className="mt-10 w-full flex justify-center">
-  
-  <div className="flex items-center gap-3 w-full max-w-[780px]">
+              <div className="flex items-center w-full max-w-[700px] gap-4">
 
-    {/* Search Input */}
-    <div className="flex-1 h-[52px] bg-[#222] rounded-md border border-transparent focus-within:border-gray-500 transition-all flex items-center px-4">
-      <input
-        type="text"
-        placeholder="Search for artists, bands, tracks..."
-        className="w-full bg-transparent outline-none text-[16px] text-white placeholder:text-gray-500"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-      />
+                {/* SearchBar */}
+                <div className="flex-1 flex items-center">
+                  <SearchBar />
+                </div>
 
-      <div className="text-gray-400 flex items-center justify-center pointer-events-none">
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="11" cy="11" r="8" />
-      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-    </svg>
-  </div>
-    </div>
+                {/* OR */}
+                <div className="flex items-center justify-center h-[46px] min-w-[40px]">
+                  <span className="text-gray-400 text-sm font-medium tracking-wide ">
+                    or
+                  </span>
+                </div>
 
-    {/* Upload Button */}
-    <HoverButton
-      onClick={() => router.push('/Upload')}
-      className="h-[52px] px-6 bg-white text-black rounded-md font-bold whitespace-nowrap flex items-center justify-center text-[15px]"
-    >
-      Upload your own
-    </HoverButton>
+                {/* Button */}
+                <HoverButton
+                  onClick={() => router.push('/Upload')}
+                  className="h-[46px] px-5 bg-white text-black rounded-md font-semibold flex items-center justify-center text-[14px] whitespace-nowrap"
+                >
+                  Upload your own
+                </HoverButton>
 
-  </div>
-</div>
-
+              </div>
+            </div>
             <section className="mt-16 text-center">
               <h2 className="text-3xl font-medium mb-8">{content.trendingTagline}</h2>
 
 
-<TrackSlider
-  title=""
-  subtitle=""
-  tracks={tracks}
-  showFollow={true}
-/>
+              <TrackSlider
+                title=""
+                subtitle=""
+                tracks={tracks.slice(0, 5)} 
+                showFollow={true}
+                onPlay={handleTrackPlay}
+              />
               <HoverButton
                 onClick={() => router.push('/trending')}
-                className="px-10 py-[14px] bg-white text-black rounded font-bold text-base border-none"
+                className="px-5 py-[14px] bg-white text-black rounded font-bold text-base border-none"
               >
                 Explore trending playlists
               </HoverButton>
@@ -121,9 +149,13 @@ export default function Home() {
                   width={1200}
                   height={450}
                   className="w-full h-auto object-cover block"
-                />                  <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent flex flex-col justify-center px-16">
-                  <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">{content.creatorSection.title}</h2>
-                  <p className="text-sm md:text-base lg:text-xl max-w-[500px] mb-8 text-gray-200 leading-relaxed font-semibold">                      {content.creatorSection.text}
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent flex flex-col justify-center px-6 md:px-16">
+                  <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight max-w-[90%] md:max-w-none">
+                    {content.creatorSection.title}
+                  </h2>
+                  <p className="text-sm md:text-base lg:text-xl w-full max-w-[280px] md:max-w-[500px] mb-8 text-gray-200 leading-relaxed font-semibold">
+                    {content.creatorSection.text}
                   </p>
                   <HoverButton className="px-8 py-3 bg-white text-black rounded font-bold w-fit border-none">
                     {content.creatorSection.button}

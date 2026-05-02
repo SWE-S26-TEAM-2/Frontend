@@ -1,6 +1,6 @@
 import type { ITrack, ITrackListResponse, ITrackService } from "@/types/track.types";
 import { ENV } from "@/config/env";
-import { apiGet } from "./apiClient";
+import { apiGet, apiPost } from "./apiClient";
 import { unsupportedApiFeature } from "./apiMode";
 
 const RELATED_STOP_WORDS = new Set([
@@ -168,5 +168,16 @@ export const realTrackService: ITrackService = {
     }
 
     return candidates.slice(0, limit);
+  },
+
+  async postTrack(trackId: string): Promise<void> {
+    try {
+      // Call backend to record play
+      console.log('posting trackId:', trackId);
+      const result = await apiPost<ITrack>(`${ENV.API_BASE_URL}/tracks/${trackId}/plays`, {});
+      
+    } catch (error) {
+      console.error("Failed to update play count:", error);
+    }
   },
 };

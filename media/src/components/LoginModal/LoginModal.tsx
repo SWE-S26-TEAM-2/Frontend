@@ -18,7 +18,9 @@ import CheckYourEmailStep from "./CheckYourEmailStep";
 import { useRouter } from "next/navigation";
 import { ENV } from "@/config/env";
 
+
 export default function LoginModal({ onClose }: ILoginModalProps) {
+  const router = useRouter();
   const authStore = useAuthStore();
 
   const [emailOrProfileUrl, setEmailOrProfileUrl] = useState("");
@@ -27,10 +29,9 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   
-
-  const router = useRouter();
   const [signinSubtitle, setSigninSubtitle] = useState<string | undefined>(undefined);
 
 
@@ -83,6 +84,15 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
     setError("");
     setSuccessMessage("");
     setSigninSubtitle(undefined);
+  };
+
+  const handleLoginSuccess = () => {
+    setIsSuccess(true);
+    setSuccessMessage("Login successful!");
+    setTimeout(() => {
+      onClose();
+      router.push("/home");
+    }, 1500);
   };
 
   const handleSubmit = async () => {
@@ -406,3 +416,4 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
     </div>
   );
 }
+

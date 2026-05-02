@@ -10,7 +10,8 @@ export default function TrackSlider({
   title,
   subtitle,
   tracks,
-  showFollow = true
+  showFollow = true,
+    onPlay,   
 }: IExtendedSliderProps) {
   const [index, setIndex] = useState(0);
   const [peekOffset, setPeekOffset] = useState(0);
@@ -169,11 +170,13 @@ export default function TrackSlider({
             {tracks.map((track) => (
               <div
                 key={track.id}
-                className="flex-[0_0_calc(20%-25.6px)]"
-              >
+                className="w-[180px] min-w-[180px] max-w-[180px] flex-shrink-0"
+>
                 <TrackCard2
+                  key={track.id}
                   track={track}
                   showFollow={showFollow}
+                  onPlay={onPlay}
                 />
               </div>
             ))}

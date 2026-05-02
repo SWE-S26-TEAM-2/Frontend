@@ -84,9 +84,31 @@ function normalizeUser(d: Record<string, unknown>, requestedId: string): IUser {
   };
 }
 
+// ─── Engagement summary helper ────────────────────────────────────────────────
+
+interface IEngagementSummary {
+  like_count: number;
+  repost_count: number;
+  comment_count: number;
+  liked_by_me: boolean;
+  reposted_by_me: boolean;
+}
+
+async function fetchEngagementSummary(trackId: string): Promise<IEngagementSummary | null> {
+  try {
+    // apiGet returns the full response body; the endpoint returns the summary directly
+    const raw = await apiGet<unknown>(`${ENV.API_BASE_URL}/tracks/${trackId}/engagement-summary`);
+    // Some backends wrap in { data: {...} }, some return flat
+    const s = (raw as Record<string, unknown>)?.data ?? raw;
+    return s as IEngagementSummary;
+  } catch {
+    return null;
+  }
+}
+
 export const realUserProfileService: IUserProfileService = {
 
-   async getSocialLinks(): Promise<IUser["socialLinks"]> {
+  async getSocialLinks(): Promise<IUser["socialLinks"]> {
     const token = getAuthToken();
     if (!token) return {};
 
@@ -114,17 +136,17 @@ export const realUserProfileService: IUserProfileService = {
       const pubJson = await pubRes.json();
       const pubData = (pubJson.data ?? pubJson) as Record<string, unknown>;
       if (pubData.user_id === storedId) {
-      const meRes = await fetch(apiUrl(`/users/me`), {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (meRes.ok) {
-        const meJson = await meRes.json();
-        const meData = (meJson.data ?? meJson) as Record<string, unknown>;
-        const normalizedUser = normalizeUser({ ...pubData, ...meData }, storedId);
-        const socialLinks = await realUserProfileService.getSocialLinks();
-        return { ...normalizedUser, socialLinks };
+        const meRes = await fetch(apiUrl(`/users/me`), {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (meRes.ok) {
+          const meJson = await meRes.json();
+          const meData = (meJson.data ?? meJson) as Record<string, unknown>;
+          const normalizedUser = normalizeUser({ ...pubData, ...meData }, storedId);
+          const socialLinks = await realUserProfileService.getSocialLinks();
+          return { ...normalizedUser, socialLinks };
+        }
       }
-    }
 
       return normalizeUser(pubData, storedId);
     }
@@ -140,10 +162,22 @@ export const realUserProfileService: IUserProfileService = {
 
   async getUserTracks(username: string): Promise<ITrack[]> {
     try {
-      const data = await apiGet<Record<string, unknown>[] | { tracks?: Record<string, unknown>[] }>(
-        `${ENV.API_BASE_URL}/users/${username}/tracks`,
-      );
-      const rawTracks = Array.isArray(data) ? data : (data.tracks ?? []);
+      // API returns: { success, data: { tracks: [...] } }  OR  { tracks: [...] }  OR  [...]
+      const raw = await apiGet<unknown>(`${ENV.API_BASE_URL}/users/${username}/tracks`);
+
+      let rawTracks: Record<string, unknown>[] = [];
+      if (Array.isArray(raw)) {
+        rawTracks = raw as Record<string, unknown>[];
+      } else {
+        const body = raw as Record<string, unknown>;
+        // Handle { success, data: { tracks: [...] } }
+        const inner = body.data as Record<string, unknown> | undefined;
+        rawTracks = (
+          Array.isArray(inner?.tracks) ? inner!.tracks :
+          Array.isArray(body.tracks)   ? body.tracks   :
+          []
+        ) as Record<string, unknown>[];
+      }
 
       const tracks: ITrack[] = rawTracks.map((t) => ({
         id:            String(t.track_id ?? ""),
@@ -156,46 +190,32 @@ export const realUserProfileService: IUserProfileService = {
         likes:         Number(t.like_count ?? 0),
         plays:         Number(t.play_count ?? 0),
         commentsCount: Number(t.comment_count ?? 0),
-        reposts:       Number(t.repost_count ?? 0), 
-        isLiked:       false, 
-        isReposted: false,
+        reposts:       Number(t.repost_count ?? 0),
+        isLiked:       false,
+        isReposted:    false,
         createdAt:     String(t.created_at ?? ""),
         updatedAt:     String(t.updated_at ?? ""),
       }));
 
       const token = getAuthToken();
       if (!token || tracks.length === 0) return tracks;
+
       const summaries = await Promise.allSettled(
-        tracks.map((t) =>
-          apiGet<{
-            like_count: number;
-            repost_count: number;
-            comment_count: number;
-            liked_by_me: boolean;
-            reposted_by_me: boolean;
-          }>(`${ENV.API_BASE_URL}/tracks/${t.id}/engagement-summary`)
-        )
+        tracks.map((t) => fetchEngagementSummary(t.id))
       );
+
       return tracks.map((t, i) => {
         const result = summaries[i];
-        if (result.status === "fulfilled" && result.value) {
-      const d = result.value as unknown as {
-        like_count: number;
-        repost_count: number;
-        comment_count: number;
-        liked_by_me: boolean;
-        reposted_by_me: boolean;
-      };
-          return {
-            ...t,
-            likes:         d.like_count      ?? t.likes,
-            reposts:       d.repost_count    ?? t.reposts,
-            commentsCount: d.comment_count   ?? t.commentsCount,
-            isLiked:       d.liked_by_me     ?? false,
-            isReposted:    d.reposted_by_me  ?? false,
-          };
-        }
-        return t;
+        const s = result.status === "fulfilled" ? result.value : null;
+        if (!s) return t;
+        return {
+          ...t,
+          likes:         s.like_count      ?? t.likes,
+          reposts:       s.repost_count    ?? t.reposts,
+          commentsCount: s.comment_count   ?? t.commentsCount,
+          isLiked:       s.liked_by_me     ?? false,
+          isReposted:    s.reposted_by_me  ?? false,
+        };
       });
     } catch {
       return [];
@@ -204,14 +224,32 @@ export const realUserProfileService: IUserProfileService = {
 
   async getUserLikes(username: string): Promise<ILikedTrack[]> {
     try {
-      const data = await apiGet<{ tracks?: Record<string, unknown>[] }>(
-        `${ENV.API_BASE_URL}/users/${username}/liked-tracks`,
-      );
-      const list = Array.isArray(data) ? data : (data.tracks ?? []);
-      
+      // API returns: { success: true, data: { user_id, tracks: [...] } }
+      const raw = await apiGet<unknown>(`${ENV.API_BASE_URL}/users/${username}/liked-tracks`);
+
+      let list: Record<string, unknown>[] = [];
+      if (Array.isArray(raw)) {
+        list = raw as Record<string, unknown>[];
+      } else {
+        const body = raw as Record<string, unknown>;
+        // Unwrap { success, data: { tracks: [...] } }
+        const inner = body.data as Record<string, unknown> | undefined;
+        list = (
+          Array.isArray(inner?.tracks) ? inner!.tracks :
+          Array.isArray(body.tracks)   ? body.tracks   :
+          []
+        ) as Record<string, unknown>[];
+      }
+
+      if (list.length === 0) return [];
+
+      // Build track objects — the liked-tracks endpoint doesn't return display_name,
+      // so we fall back to the username param as artist name.
       const tracks: ILikedTrack[] = list.map((t) => ({
         id:       String(t.track_id ?? t.id ?? ""),
         title:    String(t.title ?? ""),
+        // The API returns user_id but not display_name on the liked list.
+        // We'll try display_name first, then fall back to the artist field, then username.
         artist:   String(t.display_name ?? t.artist ?? ""),
         url:      resolveMediaUrl(t.stream_url) ?? undefined,
         duration: Number(t.duration_seconds ?? 0),
@@ -219,63 +257,72 @@ export const realUserProfileService: IUserProfileService = {
         likes:    0,
         reposts:  0,
         comments: (t.comment_count as number) ?? undefined,
-        coverUrl: resolveMediaUrl(t.cover_image_url ?? t.cover_url ?? t.cover_photo ?? t.coverUrl),
+        coverUrl: resolveMediaUrl(
+          t.cover_image_url ?? t.cover_url ?? t.cover_photo ?? t.coverUrl
+        ),
       }));
 
-      if (tracks.length === 0) return tracks;
-
-      // Enrich with engagement summary
-      const summaries = await Promise.allSettled(
-        tracks.map((t) =>
-          apiGet<{
-            like_count: number;
-            repost_count: number;
-            comment_count: number;
-            liked_by_me: boolean;
-            reposted_by_me: boolean;
-          }>(`${ENV.API_BASE_URL}/tracks/${t.id}/engagement-summary`)
-        )
-      );
+      // Enrich with engagement summary + full track details (to get display_name)
+      const [summaries, trackDetails] = await Promise.all([
+        Promise.allSettled(tracks.map((t) => fetchEngagementSummary(t.id))),
+        Promise.allSettled(
+          tracks.map((t) =>
+            apiGet<Record<string, unknown>>(`${ENV.API_BASE_URL}/tracks/${t.id}`)
+          )
+        ),
+      ]);
 
       return tracks.map((t, i) => {
-        const result = summaries[i];
-        if (result.status === "fulfilled" && result.value) {
-          const s = result.value as unknown as {
-            like_count: number;
-            repost_count: number;
-            comment_count: number;
-            liked_by_me: boolean;
-            reposted_by_me: boolean;
-          };
-          return {
-            ...t,
-            likes:   s.like_count   ?? 0,
-            reposts: s.repost_count ?? 0,
-          };
+        const sResult = summaries[i];
+        const dResult = trackDetails[i];
+
+        const s = sResult.status === "fulfilled" ? sResult.value : null;
+
+        // Extract display_name from full track detail if artist is missing
+        let artist = t.artist;
+        if (!artist && dResult.status === "fulfilled" && dResult.value) {
+          const d = dResult.value as Record<string, unknown>;
+          const inner = (d.data ?? d) as Record<string, unknown>;
+          artist = String(inner.display_name ?? inner.username ?? "");
         }
-        return t;
+
+        return {
+          ...t,
+          artist,
+          likes:   s?.like_count   ?? 0,
+          reposts: s?.repost_count ?? 0,
+          comments: s?.comment_count ?? t.comments,
+        };
       });
     } catch {
       console.warn("getUserLikes: failed to fetch, returning empty list");
       return [];
     }
   },
+
   async getFansAlsoLike(userId: string): Promise<IFanUser[]> {
-    // backend /users/{id}/fans endpoint not implemented yet
     console.warn("getFansAlsoLike: endpoint not available, using mock data");
     return mockUserProfileService.getFansAlsoLike(userId);
   },
 
   async getFollowers(username: string): Promise<IFollower[]> {
     try {
-      const data = await apiGet<{ followers?: Record<string, unknown>[] }>(
-        `${ENV.API_BASE_URL}/users/${username}/followers`,
-      );
-      return (data.followers ?? []).map((f) => ({
-        id:        f.user_id as string,
-        username:  (f.username as string) ?? (f.display_name as string) ?? "",
-        displayName: (f.display_name as string) ?? "",
-        avatarUrl: resolveMediaUrl(f.profile_picture),
+      const raw = await apiGet<unknown>(`${ENV.API_BASE_URL}/users/${username}/followers`);
+      const body = raw as Record<string, unknown>;
+      // Handle { success, data: { followers: [...] } } or { followers: [...] }
+      const inner = body.data as Record<string, unknown> | undefined;
+      const list = (
+        Array.isArray(inner?.followers) ? inner!.followers :
+        Array.isArray(body.followers)   ? body.followers   :
+        Array.isArray(raw)              ? raw               :
+        []
+      ) as Record<string, unknown>[];
+
+      return list.map((f) => ({
+        id:          String(f.user_id ?? ""),
+        username:    String(f.username ?? f.display_name ?? ""),
+        displayName: String(f.display_name ?? ""),
+        avatarUrl:   resolveMediaUrl(f.profile_picture),
       }));
     } catch {
       return [];
@@ -284,22 +331,29 @@ export const realUserProfileService: IUserProfileService = {
 
   async getFollowing(username: string): Promise<IFollowing[]> {
     try {
-      const data = await apiGet<{ following?: Record<string, unknown>[] }>(
-        `${ENV.API_BASE_URL}/users/${username}/following`,
-      );
-    return (data.following ?? []).map((f) => ({
-      id:          f.user_id as string,
-      username:    (f.username as string) ?? (f.display_name as string) ?? "",
-      displayName: (f.display_name as string) ?? "",
-      avatarUrl:   resolveMediaUrl(f.profile_picture),
-      followers:   0,
-      tracks:      0,
-    }));
+      const raw = await apiGet<unknown>(`${ENV.API_BASE_URL}/users/${username}/following`);
+      const body = raw as Record<string, unknown>;
+      // Handle { success, data: { following: [...] } } or { following: [...] }
+      const inner = body.data as Record<string, unknown> | undefined;
+      const list = (
+        Array.isArray(inner?.following) ? inner!.following :
+        Array.isArray(body.following)   ? body.following   :
+        Array.isArray(raw)              ? raw               :
+        []
+      ) as Record<string, unknown>[];
+
+      return list.map((f) => ({
+        id:          String(f.user_id ?? ""),
+        username:    String(f.username ?? f.display_name ?? ""),
+        displayName: String(f.display_name ?? ""),
+        avatarUrl:   resolveMediaUrl(f.profile_picture),
+        followers:   Number(f.follower_count ?? 0),
+        tracks:      Number(f.track_count ?? 0),
+      }));
     } catch {
       return [];
     }
   },
-
 
   async updateProfile(_userId: string, payload: IEditProfilePayload): Promise<IUser> {
     const token = getAuthToken();
@@ -339,6 +393,7 @@ export const realUserProfileService: IUserProfileService = {
       const error = await res.json().catch(() => ({}));
       throw new Error((error as { detail?: string }).detail || "Failed to update profile");
     }
+
     if (payload.links) {
       const socialLinksBody = Object.entries(payload.links)
         .filter(([, url]) => url)
@@ -378,18 +433,18 @@ export const realUserProfileService: IUserProfileService = {
       throw new Error((error as { detail?: string }).detail || "Failed to upload avatar");
     }
 
-  const json = await res.json();
-  const data = (json.data ?? json) as Record<string, unknown>;
+    const json = await res.json();
+    const data = (json.data ?? json) as Record<string, unknown>;
 
-  const bustedAvatar = addCacheBuster(data.profile_picture);
-  const avatarUrl = resolveMediaUrl(bustedAvatar ?? data.profile_picture);
+    const bustedAvatar = addCacheBuster(data.profile_picture);
+    const avatarUrl = resolveMediaUrl(bustedAvatar ?? data.profile_picture);
 
-  if (typeof window !== "undefined" && avatarUrl) {
-    window.localStorage.setItem("auth_profile_image", avatarUrl);
-  }
+    if (typeof window !== "undefined" && avatarUrl) {
+      window.localStorage.setItem("auth_profile_image", avatarUrl);
+    }
 
-  return { avatarUrl } as unknown as IUser;
- },
+    return { avatarUrl } as unknown as IUser;
+  },
 
   async uploadCover(file: File): Promise<IUser> {
     const token = getAuthToken();
@@ -433,11 +488,22 @@ export const realUserProfileService: IUserProfileService = {
   },
 
   async searchUsers(query: string): Promise<ISearchUser[]> {
-    const data = await apiGet<Record<string, unknown>[] | { users?: Record<string, unknown>[] }>(
+    const raw = await apiGet<unknown>(
       `${ENV.API_BASE_URL}/search/users?keyword=${encodeURIComponent(query.trim())}`,
-
     );
-    const users = Array.isArray(data) ? data : (data.users ?? []);
+
+    let users: Record<string, unknown>[] = [];
+    if (Array.isArray(raw)) {
+      users = raw as Record<string, unknown>[];
+    } else {
+      const body = raw as Record<string, unknown>;
+      const inner = body.data as Record<string, unknown> | undefined;
+      users = (
+        Array.isArray(inner?.users) ? inner!.users :
+        Array.isArray(body.users)   ? body.users   :
+        []
+      ) as Record<string, unknown>[];
+    }
 
     return users.map((u) => ({
       id:            String(u.user_id ?? ""),
@@ -448,85 +514,74 @@ export const realUserProfileService: IUserProfileService = {
       followerCount: (u.follower_count as number) ?? 0,
       isVerified:    (u.is_verified as boolean) ?? false,
     }));
-      },
+  },
 
-async getUserReposts(username: string): Promise<ITrack[]> {
-  try {
-    const res = await fetch(
-      normalizeApiUrl(`${ENV.API_BASE_URL}/reposts/users/${username}`)
-    );
-    if (!res.ok) return [];
-    const json = await res.json();
+  async getUserReposts(username: string): Promise<ITrack[]> {
+    try {
+      // Use raw fetch so we can read the exact response shape
+      const res = await fetch(
+        normalizeApiUrl(`${ENV.API_BASE_URL}/reposts/users/${username}`)
+      );
+      if (!res.ok) return [];
 
-    const reposts: Array<{
-      track_id: string;
-      title: string;
-      stream_url: string;
-      cover_image_url?: string | null;
-      reposted_at: string;
-    }> = json?.data?.reposts ?? [];
+      const json = await res.json();
 
-    if (reposts.length === 0) return [];
-// Enrich each repost with full track details + engagement summary
-const [enriched, summaries] = await Promise.all([
-  Promise.allSettled(
-    reposts.map((r) =>
-      apiGet<{
-        track_id: string;
-        title: string;
-        stream_url: string;
-        cover_image_url?: string | null;
-        duration_seconds?: number | null;
-        genre?: string | null;
-        display_name?: string;
-        username?: string;
-        play_count?: number;
-      }>(`${ENV.API_BASE_URL}/tracks/${r.track_id}`)
-    )
-  ),
-  Promise.allSettled(
-    reposts.map((r) =>
-      apiGet<{
-        like_count: number;
-        repost_count: number;
-        comment_count: number;
-        liked_by_me: boolean;
-        reposted_by_me: boolean;
-      }>(`${ENV.API_BASE_URL}/tracks/${r.track_id}/engagement-summary`)
-    )
-  ),
-]);
+      // API shape: { success, data: { reposts: [...] } }
+      // Each repost item: { repost_id, track_id, title, stream_url, cover_image_url, reposted_at }
+      const body = json as Record<string, unknown>;
+      const inner = body.data as Record<string, unknown> | undefined;
+      const reposts = (
+        Array.isArray(inner?.reposts) ? inner!.reposts :
+        Array.isArray(body.reposts)   ? body.reposts   :
+        []
+      ) as Record<string, unknown>[];
 
-return reposts.map((r, i) => {
-  const t = enriched[i].status === "fulfilled" ? enriched[i].value : null;
-  const s = summaries[i].status === "fulfilled" ? summaries[i].value as unknown as {
-    like_count: number;
-    repost_count: number;
-    comment_count: number;
-    liked_by_me: boolean;
-    reposted_by_me: boolean;
-  } : null;
+      if (reposts.length === 0) return [];
 
-  return {
-    id:            r.track_id,
-    title:         t?.title         ?? r.title,
-    artist:        t?.display_name  ?? t?.username ?? username,
-    albumArt:      resolveMediaUrl(t?.cover_image_url ?? r.cover_image_url) ?? "",
-    url:           resolveMediaUrl(t?.stream_url ?? r.stream_url) ?? "",
-    genre:         t?.genre ?? undefined,
-    duration:      t?.duration_seconds  ?? 0,
-    likes:         s?.like_count        ?? 0,
-    plays:         t?.play_count        ?? 0,
-    commentsCount: s?.comment_count     ?? 0,
-    reposts:       s?.repost_count      ?? 0,
-    isLiked:       s?.liked_by_me       ?? false,
-    isReposted:    s?.reposted_by_me    ?? true,
-    createdAt:     r.reposted_at,
-    updatedAt:     r.reposted_at,
-  };
-});
-  } catch (err) {
-    return [];
-  }
-},
+      // Enrich each repost with full track details + engagement summary in parallel
+      const [enriched, summaries] = await Promise.all([
+        Promise.allSettled(
+          reposts.map((r) =>
+            apiGet<Record<string, unknown>>(`${ENV.API_BASE_URL}/tracks/${r.track_id}`)
+          )
+        ),
+        Promise.allSettled(
+          reposts.map((r) =>
+            fetchEngagementSummary(String(r.track_id))
+          )
+        ),
+      ]);
+
+      return reposts.map((r, i) => {
+        const rawDetail = enriched[i].status === "fulfilled" ? enriched[i].value : null;
+        // Track detail may be wrapped: { success, data: { ... } } or flat
+        const t = rawDetail
+          ? ((rawDetail as Record<string, unknown>).data ?? rawDetail) as Record<string, unknown>
+          : null;
+
+        const s = summaries[i].status === "fulfilled" ? summaries[i].value : null;
+
+        return {
+          id:            String(r.track_id ?? ""),
+          title:         String(t?.title         ?? r.title         ?? ""),
+          artist:        String(t?.display_name  ?? t?.username     ?? username),
+          albumArt:      resolveMediaUrl(t?.cover_image_url ?? r.cover_image_url) ?? "",
+          url:           resolveMediaUrl(t?.stream_url      ?? r.stream_url)      ?? "",
+          genre:         t?.genre ? String(t.genre) : undefined,
+          duration:      Number(t?.duration_seconds  ?? 0),
+          likes:         Number(s?.like_count         ?? 0),
+          plays:         Number(t?.play_count         ?? 0),
+          commentsCount: Number(s?.comment_count      ?? 0),
+          reposts:       Number(s?.repost_count       ?? 0),
+          isLiked:       Boolean(s?.liked_by_me       ?? false),
+          isReposted:    Boolean(s?.reposted_by_me    ?? true),
+          createdAt:     String(r.reposted_at         ?? ""),
+          updatedAt:     String(r.reposted_at         ?? ""),
+        };
+      });
+    } catch (err) {
+      console.warn("getUserReposts failed:", err);
+      return [];
+    }
+  },
 };

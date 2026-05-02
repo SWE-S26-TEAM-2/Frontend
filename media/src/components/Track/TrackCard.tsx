@@ -11,6 +11,7 @@ import { ShareModal } from "@/components/Share/Share";
 import { useWaveform } from "@/hooks/useWaveform";
 import { usePlayerStore } from "@/store/playerStore";
 import { engagementService, studioService } from "@/services/di";
+import { realTrackService } from "@/services/api/trackService";
 
 export function TrackCard({ track, onPlay, onLikeChange, isOwner, onDelete }: ITrackCardProps) {
   const [isLiked, setIsLiked] = useState<boolean>(track.isLiked ?? false);
@@ -36,7 +37,10 @@ export function TrackCard({ track, onPlay, onLikeChange, isOwner, onDelete }: IT
 
   const handlePlay = () => {
     if (isCurrent) togglePlay();
-    else onPlay(track);
+    else {
+      onPlay(track);
+      realTrackService.postTrack(track.id);
+    }
   };
 
   const handleSeek = (percent: number) => {

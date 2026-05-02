@@ -97,52 +97,43 @@ export default function SlideShow() {
         <div className="absolute top-0 left-0 w-full h-[120px] bg-gradient-to-b from-black/70 via-black/40 to-transparent z-30 pointer-events-none" />
 
         {/* ✅ NEW: Pixel-perfect Header */}
-        <div className="absolute top-0 left-0 w-full z-40 flex items-center justify-between px-6 md:px-10 py-5">
+<div className="absolute top-0 left-0 w-full z-40 flex items-center justify-between px-4 md:px-10 py-5 gap-2">
 
-          {/* LEFT: Logo */}
-          <div
-            onClick={() => router.push("/")}
-            className="flex items-center gap-2 cursor-pointer"
-          >
-            <Image
-  src="/logo1.png"
-  alt="SoundCloud"
-  width={32}
-  height={32}
-  className="object-contain"
-/>
-           <span className="text-white text-[16px] md:text-[17px] font-semibold tracking-tight">
-  SoundCloud
-</span>
-          </div>
+  {/* LEFT: Logo */}
+  <div
+    onClick={() => router.push("/")}
+    className="flex items-center gap-2 cursor-pointer shrink-0"  
+  >
+    <Image src="/logo1.png" alt="SoundCloud" width={32} height={32} className="object-contain" />
+    <span className="hidden sm:block text-white text-[16px] md:text-[17px] font-semibold tracking-tight">
+      SoundCloud
+    </span>
+  </div>
 
-          {/* RIGHT: Actions */}
-          <div className="flex items-center gap-3 md:gap-4">
+  {/* RIGHT: Actions */}
+  <div className="flex items-center gap-2 flex-wrap justify-end">
+    <HoverButton
+      onClick={() => setIsModalOpen(true)}
+      className="bg-white text-black text-[12px] md:text-[14px] font-semibold px-3 py-[6px] rounded-md hover:opacity-90 transition whitespace-nowrap"
+    >
+      Sign in
+    </HoverButton>
 
-            <HoverButton
-              onClick={() => setIsModalOpen(true)}
-              className="bg-white text-black text-[13px] md:text-[14px] font-semibold px-4 py-[6px] rounded-md hover:opacity-90 transition"
-            >
-              Sign in
-            </HoverButton>
+    <HoverButton
+      onClick={() => setIsModalOpen(true)}
+      className="bg-[#ff5500] hover:bg-[#ff3300] text-white text-[12px] md:text-[14px] font-semibold px-3 py-[6px] rounded-md transition whitespace-nowrap"
+    >
+      Create account
+    </HoverButton>
 
-            <HoverButton
-              onClick={() => setIsModalOpen(true)}
-              className="bg-[#ff5500] hover:bg-[#ff3300] text-white text-[13px] md:text-[14px] font-semibold px-4 py-[6px] rounded-md transition"
-            >
-              Create account
-            </HoverButton>
-
-            <HoverButton
-              onClick={() => router.push("/for-artists")}
-              className="bg-transparent text-white text-[13px] md:text-[14px] font-medium px-2 hover:underline underline-offset-4 transition"
-            >
-              For Artists
-            </HoverButton>
-
-          </div>
-        </div>
-
+    <HoverButton
+      onClick={() => router.push("/for-artists")}
+      className="hidden md:block bg-transparent text-white text-[13px] md:text-[14px] font-medium px-2 hover:underline underline-offset-4 transition whitespace-nowrap"
+    >
+      For Artists
+    </HoverButton>
+  </div>
+</div>
         {/* Background Image */}
         <Image
           src={currentSlide.image}

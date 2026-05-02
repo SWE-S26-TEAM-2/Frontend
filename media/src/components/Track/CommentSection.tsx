@@ -21,6 +21,8 @@ export default function CommentSection({ trackId }: ICommentSectionProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
+  useEffect(() => { console.log(comments)}, []);
+
   useEffect(() => {
     commentService.getTrackComments(trackId).then((data) => {
       setComments(data);
