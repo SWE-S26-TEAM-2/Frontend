@@ -21,8 +21,7 @@ export async function seedAuthToken(
     {
       name: 'sc_auth_token',
       value: token,
-      domain: process.env.USE_REAL_ENV === 'true' ? 'streamline-swp.duckdns.org' : 'localhost',
-      path: '/',
+      url: process.env.USE_REAL_ENV === 'true' ? 'https://streamline-swp.duckdns.org' : 'http://localhost:3100',
       httpOnly: false,
       secure: process.env.USE_REAL_ENV === 'true',
       sameSite: 'Lax',
