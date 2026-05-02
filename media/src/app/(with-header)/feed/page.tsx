@@ -17,6 +17,7 @@ export default function FeedPage() {
 
   const [data, setData]         = useState<IFeedPageData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     const token = typeof window !== "undefined" && window.localStorage.getItem("auth_token");
@@ -26,9 +27,16 @@ export default function FeedPage() {
   }, [isAuthenticated, router]);
 
   useEffect(() => {
-    feedService.getFeedPageData()
-      .then(setData)
-      .catch((e) => console.error("Failed to load feed:", e))
+    feedService
+      .getFeedPageData()
+      .then((d) => {
+        setData(d);
+        setLoadError(null);
+      })
+      .catch((e) => {
+        console.error("Failed to load feed:", e);
+        setLoadError(e instanceof Error ? e.message : "Failed to load feed");
+      })
       .finally(() => setIsLoading(false));
   }, []);
 
@@ -44,6 +52,14 @@ export default function FeedPage() {
         <div className="px-5 py-4 border border-[#333] rounded-lg bg-[#1a1a1a] text-[#ccc] text-sm">
           Loading Feed...
         </div>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh] bg-[#121212] px-5">
+        <p className="text-[#ff5500] text-sm text-center max-w-md">{loadError}</p>
       </div>
     );
   }
