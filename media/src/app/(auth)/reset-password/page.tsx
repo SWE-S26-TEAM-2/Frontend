@@ -50,6 +50,10 @@ function ResetPasswordForm() {
       setError("Password must contain at least one uppercase letter.");
       return;
     }
+    if (!/\d/.test(newPassword)) {
+      setError("Password must contain at least one number.");
+      return;
+    }
     if (newPassword !== confirmPassword) {
       setError("Passwords do not match.");
       return;
