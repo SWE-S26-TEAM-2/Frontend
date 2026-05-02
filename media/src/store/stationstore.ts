@@ -1,28 +1,16 @@
-/**
- * Station Store
- * Place at: store/stationStore.ts
- */
-
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { apiPost, apiDelete } from "@/services/api/apiClient";
 import type { IStation } from "@/types/station.types";
-
-// ── STATE INTERFACE ───────────────────────────────────────────────────────────
 
 interface IStationStore {
   likedStationIds: Set<string>;
   likedStations:   IStation[];
-
-  // Actions
-  likeStation:   (station: IStation) => void;
-  unlikeStation: (stationId: string) => void;
-  toggleLike:    (station: IStation) => void;
-  isLiked:       (stationId: string) => boolean;
+  likeStation:     (station: IStation) => void;
+  unlikeStation:   (stationId: string) => void;
+  toggleLike:      (station: IStation) => void;
+  isLiked:         (stationId: string) => boolean;
 }
-
-// ── STORE ─────────────────────────────────────────────────────────────────────
-// Uses persist middleware so liked stations survive page refresh.
-// Set is not JSON-serializable so we persist likedStationIds as an array.
 
 export const useStationStore = create<IStationStore>()(
   persist(
@@ -32,8 +20,7 @@ export const useStationStore = create<IStationStore>()(
 
       likeStation: (station: IStation) => {
         const { likedStationIds, likedStations } = get();
-        if (likedStationIds.has(station.id)) return; // already liked
-
+        if (likedStationIds.has(station.id)) return;
         set({
           likedStationIds: new Set([...likedStationIds, station.id]),
           likedStations:   [...likedStations, { ...station, isLiked: true }],
@@ -44,7 +31,6 @@ export const useStationStore = create<IStationStore>()(
         const { likedStationIds, likedStations } = get();
         const next = new Set(likedStationIds);
         next.delete(stationId);
-
         set({
           likedStationIds: next,
           likedStations:   likedStations.filter((s) => s.id !== stationId),
@@ -53,10 +39,28 @@ export const useStationStore = create<IStationStore>()(
 
       toggleLike: (station: IStation) => {
         const { isLiked, likeStation, unlikeStation } = get();
-        if (isLiked(station.id)) {
+        const currentlyLiked = isLiked(station.id);
+
+        // Optimistic UI update first
+        if (currentlyLiked) {
           unlikeStation(station.id);
         } else {
           likeStation(station);
+        }
+
+        // Extract track_id from station.id ("station-{track_id}")
+        // or use seedTrack.id directly which is more reliable
+        const trackId = station.seedTrack?.id;
+        if (!trackId) return;
+
+        const BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+
+        // Fire and forget — if it fails, UI stays optimistic
+        // (acceptable UX for a like action)
+        if (currentlyLiked) {
+          void apiDelete(`${BASE}/likes/tracks/${trackId}`).catch(() => {});
+        } else {
+          void apiPost(`${BASE}/likes/tracks/${trackId}`).catch(() => {});
         }
       },
 
@@ -64,7 +68,6 @@ export const useStationStore = create<IStationStore>()(
     }),
     {
       name: "station-store",
-      // Serialize Set as array for localStorage
       storage: {
         getItem: (name) => {
           if (typeof window === "undefined") return null;

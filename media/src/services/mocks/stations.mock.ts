@@ -146,11 +146,11 @@ export const mockStationService: IStationService = {
     return MOCK_DISCOVER_STATIONS;
   },
 
-  async toggleLike(stationId: string): Promise<void> {
+  async toggleLike(_stationId: string, _isLiked: boolean): Promise<void>{
     await delay();
     const station =
-      MOCK_LIKED_STATIONS.find((s) => s.id === stationId) ??
-      MOCK_DISCOVER_STATIONS.find((s) => s.id === stationId);
-    if (station) station.isLiked = !station.isLiked;
+      MOCK_LIKED_STATIONS.find((s) => s.id === _stationId) ??
+      MOCK_DISCOVER_STATIONS.find((s) => s.id === _stationId);
+    if (station) station.isLiked = _isLiked;
   },
 };

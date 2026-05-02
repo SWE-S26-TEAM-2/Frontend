@@ -43,5 +43,5 @@ export interface IDiscoverStationsData {
 export interface IStationService {
   getLikedStations(): Promise<IStation[]>;
   getDiscoverStations(): Promise<IStation[]>;  // for home page slider
-  toggleLike(stationId: string): Promise<void>;
+  toggleLike:(stationId: string, isLiked: boolean) => Promise<void>;
 }

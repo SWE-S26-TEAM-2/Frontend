@@ -17,4 +17,5 @@ export interface IExtendedSliderProps {
   subtitle: string;
   tracks: ITrack[];
   showFollow?: boolean;
+  onPlay?: (track: ITrack) => void; 
 }

@@ -151,7 +151,7 @@ const SignOutIcon = () => (
 
 const NAV_ITEMS = [
   { label: "Home",    href: "/home" },
-  { label: "Feed",    href: "/stream" },
+  { label: "Feed",    href: "/feed" },
   { label: "Library", href: "/library" },
 ];
 

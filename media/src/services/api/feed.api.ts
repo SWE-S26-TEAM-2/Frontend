@@ -90,16 +90,18 @@ export const realFeedService: IFeedService = {
   async getFeedPageData(): Promise<IFeedPageData> {
     try {
       const [feedRes, historyRes, suggestionsRes] = await Promise.all([
-        apiGet<{ items: IRawFeedTrack[] }>(`/ feed/following?limit=20`).catch(() => ({ items: [] })),
-        apiGet<IRawHistoryEntry[]>(`/users/me/listening-history`).catch(() => []),
-        apiGet<{ users: IRawFeedUser[] }>(`/search/users?keyword=`).catch(() => ({ users: [] })),
+        apiGet<{ items: IRawFeedTrack[] }>(`${process.env.NEXT_PUBLIC_API_URL}/feed/following?limit=20`).catch(() => ({ items: [] })),
+        apiGet<{ items: IRawHistoryEntry[] }>(`${process.env.NEXT_PUBLIC_API_URL}/users/me/listening-history`).catch(() => ({ items: [] })),
+        apiGet<{ users: IRawFeedUser[] }>(`${process.env.NEXT_PUBLIC_API_URL}/search/users?keyword=`).catch(() => ({ users: [] })),
       ]);
 
       const feedTracks = (feedRes?.items ?? []).map(adaptFeedTrack);
 
-      const listeningHistory = (historyRes ?? [])
+      console.log("Listening history (raw):", historyRes);
+
+      const listeningHistory = (historyRes.items ?? [])
         .slice(0, 3)
-        .map(adaptHistoryTrack);
+        .map(adaptHistoryTrack);  
 
       const followSuggestions = (suggestionsRes?.users ?? [])
         .slice(0, 4)

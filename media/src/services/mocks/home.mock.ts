@@ -139,7 +139,7 @@ export const mockHomeService: IHomeService = {
       moreOfWhatYouLike: MOCK_MORE_LIKE,
       recentlyPlayed: MOCK_RECENTLY_PLAYED,
       mixedForUser: MOCK_MIXED,
-      discoverStations: MOCK_MIXED,
+      discoverStations: [], // can add mock stations if needed
       followSuggestions: MOCK_FOLLOW_SUGGESTIONS,
       listeningHistory: MOCK_HISTORY,
     };

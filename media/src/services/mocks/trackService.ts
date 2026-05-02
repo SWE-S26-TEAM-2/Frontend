@@ -8,6 +8,7 @@ const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
  * Mock track service for development/testing
  * Returns properly typed responses matching the real API
  */
+
 export const mockTrackService: ITrackService = {
   /**
    * Get all tracks with pagination
@@ -20,6 +21,9 @@ export const mockTrackService: ITrackService = {
   /**
    * Get paginated tracks
    */
+async postTrack(trackId: string): Promise<void> {
+  console.log("Mock postTrack called with:", trackId);
+},  
   async getAllPaginated(page: number = 1, pageSize: number = 10): Promise<ITrackListResponse> {
     await delay(300);
     const start = (page - 1) * pageSize;

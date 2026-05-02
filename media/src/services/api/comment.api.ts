@@ -17,11 +17,11 @@ const withMockFallback = async <T>(
 };
 
 export const realCommentService: ICommentService = {
-  getTrackComments: async (trackId: string): Promise<IComment[]> => {
+  getTrackComments: async (trackId: string): Promise<{comments: IComment[]}> => {
     return withMockFallback(
       `getTrackComments(${trackId})`,
       () => mockCommentService.getTrackComments(trackId),
-      () => apiGet<IComment[]>(`${ENV.API_BASE_URL}/tracks/${trackId}/comments`)
+      () => apiGet<{comments: IComment[]}>(`${ENV.API_BASE_URL}/tracks/${trackId}/comments`)
     );
   },
 

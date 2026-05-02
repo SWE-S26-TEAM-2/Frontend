@@ -82,6 +82,9 @@ const MoreMenu = ({
 };
 
 export default function ListeningHistory({ history }: { history: ITrack[] }) {
+
+  const safeHistory = Array.isArray(history) ? history : [];
+  
   const { currentTrack, isPlaying, setTrack, togglePlay } = usePlayerStore();
 
   const [likedTracks, setLikedTracks] = useState<Record<string, boolean>>({});
@@ -93,13 +96,13 @@ export default function ListeningHistory({ history }: { history: ITrack[] }) {
 
   const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
-const [likeCounts, setLikeCounts] = useState<Record<string, number>>(
-  () => Object.fromEntries(history.map((t) => [t.id, Number(t.likes || 0)]))
-);
+  const [likeCounts, setLikeCounts] = useState<Record<string, number>>(
+    () => Object.fromEntries(history.map((t) => [t.id, Number(t.likes || 0)]))
+  );
 
-const [repostCounts, setRepostCounts] = useState<Record<string, number>>(
-  () => Object.fromEntries(history.map((t) => [t.id, 0]))
-);
+  const [repostCounts, setRepostCounts] = useState<Record<string, number>>(
+    () => Object.fromEntries(history.map((t) => [t.id, 0]))
+  );
 
   const handlePlayClick = (item: ITrack) => {
     if (currentTrack?.id === item.id) {
@@ -154,14 +157,14 @@ const handleToggleMenu = (e: React.MouseEvent, id: string) => {
         </button>
       </div>
 
-      {history.map((item) => {
+      {history.map((item, index) => {
         const isCurrent = currentTrack?.id === item.id;
         const showPause = isCurrent && isPlaying;
         const liked = likedTracks[item.id];
         const reposted = repostedTracks[item.id];
 
         return (
-          <div key={item.id} className="history-item" style={styles.historyRow}>
+          <div key={index} className="history-item" style={styles.historyRow}>
             <div
               style={styles.artWrapper}
               className="art-wrapper"

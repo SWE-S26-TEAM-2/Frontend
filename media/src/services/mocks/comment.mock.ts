@@ -4,9 +4,9 @@ import type { IComment, ICommentReply, ICommentService } from "@/types/comment.t
 let commentStore = { ...MOCK_COMMENTS };
 
 export const mockCommentService: ICommentService = {
-  getTrackComments: async (trackId: string): Promise<IComment[]> => {
+  getTrackComments: async (trackId: string): Promise< {comments: IComment[]}> => {
     await new Promise((r) => setTimeout(r, 300));
-    return commentStore[trackId] ?? [];
+    return { comments: commentStore[trackId] ?? [] };
   },
 
   addComment: async (trackId: string, body: string): Promise<IComment> => {

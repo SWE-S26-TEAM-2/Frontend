@@ -20,9 +20,11 @@ export default function CommentSection({ trackId }: ICommentSectionProps) {
   const [commentBody, setCommentBody] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  useEffect(() => { console.log(comments)}, []);
+
   useEffect(() => {
     commentService.getTrackComments(trackId).then((data) => {
-      setComments(data);
+      setComments(data.comments);
       setIsLoading(false);
     });
   }, [trackId]);
@@ -40,7 +42,7 @@ export default function CommentSection({ trackId }: ICommentSectionProps) {
     await commentService.addReply(commentId, body);
     // Reload comments to reflect new reply
     const updated = await commentService.getTrackComments(trackId);
-    setComments(updated);
+    setComments(updated.comments);
   };
 
   return (

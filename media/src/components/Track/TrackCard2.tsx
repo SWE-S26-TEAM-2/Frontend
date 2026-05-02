@@ -18,6 +18,7 @@ import {
 
 import { ITrack } from "@/types/track.types";
 import { usePlayerStore } from "@/store/playerStore";
+import { realTrackService } from "@/services/api/trackService";
 
 /* =========================
    MORE MENU (PORTAL)
@@ -93,10 +94,12 @@ const MoreMenu = ({
 ========================= */
 export default function TrackCard2({
   track,
-  showFollow = true
+  showFollow = true,
+  onPlay
 }: {
   track: ITrack;
   showFollow?: boolean;
+   onPlay?: (track: ITrack) => void;
 }) {
 
 
@@ -122,8 +125,17 @@ export default function TrackCard2({
   const handlePlayToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
 
-    if (isCurrentTrack) togglePlay();
-    else setTrack(track);
+      // If caller wants to intercept, let them
+    if (onPlay) {
+      onPlay(track);
+      return;
+    }
+    if (isCurrentTrack)
+      togglePlay();
+    else {
+      setTrack(track);
+      realTrackService.postTrack(track.id);
+    }
   };
 
   /* MENU */
@@ -138,7 +150,7 @@ export default function TrackCard2({
   };
 
   return (
-    <div className="group w-full flex flex-col gap-2 relative select-none z-10 transition-transform duration-200 hover:-translate-y-1">
+    <div className="group   flex flex-col gap-2 relative select-none z-10 transition-transform duration-200 hover:-translate-y-1">
 
       {/* IMAGE */}
       <div

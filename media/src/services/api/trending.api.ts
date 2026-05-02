@@ -1,14 +1,9 @@
-/**
- * Trending API Service
- * Uses /feed/discover — the curated discovery feed.
- * /tracks/curated, /tracks/emerging, /tracks/power do not exist in the backend;
- * all three sliders pull from the same discover feed for now.
- */
-
 import { apiGet } from "./apiClient";
 import type { ITrack } from "@/types/track.types";
 
-interface IRawFeedItem {
+const BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/api$/, "");
+
+interface IRawSearchTrack {
   track_id:         string;
   title:            string;
   description:      string | null;
@@ -27,19 +22,27 @@ interface IRawFeedItem {
   };
 }
 
-interface IFeedResponse {
-  items: IRawFeedItem[];
+interface ISearchResponse {
+  tracks: IRawSearchTrack[];
 }
 
-function adaptFeedItemToTrack(raw: IRawFeedItem): ITrack {
+function adaptTrack(raw: IRawSearchTrack): ITrack {
   return {
     id:            raw.track_id,
     title:         raw.title,
     artist:        raw.artist?.display_name ?? "Unknown Artist",
-    albumArt:      raw.cover_image_url ?? "/default-track-cover.png",
+    albumArt:      raw.cover_image_url
+                     ? raw.cover_image_url.startsWith("http")
+                       ? raw.cover_image_url
+                       : `${BASE_URL}${raw.cover_image_url}`
+                     : "/default-track-cover.png",
     genre:         raw.genre ?? undefined,
     description:   raw.description ?? undefined,
-    url:           raw.stream_url ?? "",
+    url:           raw.stream_url
+                     ? raw.stream_url.startsWith("http")
+                       ? raw.stream_url
+                       : `${BASE_URL}${raw.stream_url}`
+                     : "",
     duration:      raw.duration_seconds ?? 0,
     likes:         raw.like_count,
     plays:         raw.play_count,
@@ -50,15 +53,30 @@ function adaptFeedItemToTrack(raw: IRawFeedItem): ITrack {
   };
 }
 
-async function getDiscoverFeed(limit = 20): Promise<ITrack[]> {
+// Fetch once and split into sections so we don't hammer the API 3 times
+let cachedTracks: ITrack[] | null = null;
+
+async function getPublicTracks(): Promise<ITrack[]> {
+  if (cachedTracks) return cachedTracks;
   try {
-    const res = await apiGet<IFeedResponse>(`/feed/discover?limit=${limit}`);
-    return (res?.items ?? []).map(adaptFeedItemToTrack);
+    const res = await apiGet<ISearchResponse>(
+      `${process.env.NEXT_PUBLIC_API_URL}/search/tracks?keyword=&limit=60`
+    );
+    const items = res?.tracks ?? [];
+    cachedTracks = items
+      .sort((a, b) => b.play_count - a.play_count)
+      .map(adaptTrack);
+    return cachedTracks;
   } catch {
     return [];
   }
 }
 
-export const getCuratedTracksAPI  = (): Promise<ITrack[]> => getDiscoverFeed(20);
-export const getEmergingTracksAPI = (): Promise<ITrack[]> => getDiscoverFeed(20);
-export const getPowerPlaylistsAPI = (): Promise<ITrack[]> => getDiscoverFeed(20);
+export const getCuratedTracksAPI  = async (): Promise<ITrack[]> =>
+  (await getPublicTracks()).slice(0, 7);
+
+export const getEmergingTracksAPI = async (): Promise<ITrack[]> =>
+  (await getPublicTracks()).slice(7, 13);
+
+export const getPowerPlaylistsAPI = async (): Promise<ITrack[]> =>
+  (await getPublicTracks()).slice(13, 20);

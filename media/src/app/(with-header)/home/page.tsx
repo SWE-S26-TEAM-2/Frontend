@@ -17,7 +17,7 @@ export default function HomePage() {
 
   const [mounted,           setMounted]           = useState(false);
   const [data,              setData]              = useState<IHomePageData | null>(null);
-  const [discoverStations,  setDiscoverStations]  = useState<IStation[]>([]);
+  //const [discoverStations,  setDiscoverStations]  = useState<IStation[]>([]);
   const [isLoading,         setIsLoading]         = useState(true);
 
   // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -38,13 +38,20 @@ export default function HomePage() {
     const token = window.localStorage.getItem("auth_token");
     if (!isAuthenticated && !token) return;
 
-    Promise.all([
-      homeService.getHomePageData(),
-      stationService.getDiscoverStations(),
-    ])
-      .then(([homeData, stations]) => {
-        setData(homeData);
-        setDiscoverStations(stations);
+    console.log("Fetching home page data...");
+
+      // Promise.all([
+      //   homeService.getHomePageData(),
+          //stationService.getDiscoverStations(),
+      // ])
+      homeService.getHomePageData()
+          //.then(([homeData, stations]) => {
+          // setData(homeData);
+          //  setDiscoverStations(stations);
+        //  })
+        .then((homeData) => {
+          console.log("Home page data fetched:", homeData);
+          setData(homeData);
       })
       .catch((err) => console.error("Failed to fetch home data:", err))
       .finally(() => setIsLoading(false));
@@ -83,10 +90,11 @@ export default function HomePage() {
             tracks={data.mixedForUser}
             showFollow={false}
           />
+          {/* <div>SALMAAA</div> */}
           <StationSlider
             title="Discover with stations"
             subtitle="Pick a track and we'll play similar music"
-            stations={discoverStations}
+            stations={data.discoverStations}          
           />
         </main>
 

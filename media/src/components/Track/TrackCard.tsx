@@ -10,6 +10,7 @@ import { HeartIcon, ShareIcon, CopyIcon, MoreIcon, IconBtn } from "@/components/
 import { ShareModal } from "@/components/Share/Share";
 import { seededWaveform } from "@/utils/seededWaveform";
 import { usePlayerStore } from "@/store/playerStore";
+import { realTrackService } from "@/services/api/trackService";
 
 export function TrackCard({ track, onPlay }: ITrackCardProps) {
   const [isLiked, setIsLiked] = useState<boolean>(track.isLiked ?? false);
@@ -30,7 +31,10 @@ export function TrackCard({ track, onPlay }: ITrackCardProps) {
 
   const handlePlay = () => {
     if (isCurrent) togglePlay();
-    else onPlay(track);
+    else {
+      onPlay(track);
+      realTrackService.postTrack(track.id);
+    }
   };
 
   const handleSeek = (percent: number) => {
