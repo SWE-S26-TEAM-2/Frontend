@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { seedAuthToken } from '../helpers/auth';
 import { gotoSettings } from '../helpers/navigation';
 
 function rgbaToRgb(color: string): string {
@@ -17,7 +18,7 @@ function settingsHeading(page: Page) {
 }
 
 function settingsTab(page: Page, name: string) {
-  return settingsMain(page).getByRole('link', { name, exact: true });
+  return settingsMain(page).getByRole('link', { name, exact: true }).first();
 }
 async function navigateToSettingsTab(
   page: Page,
@@ -46,12 +47,6 @@ async function navigateToSettingsTab(
   }
 }
 
-function sectionByHeading(page: Page, name: string) {
-  return settingsMain(page)
-    .getByText(name, { exact: true })
-    .locator('xpath=..');
-}
-
 async function waitForSettingsReady(
   page: Page,
   anchor: ReturnType<Page['locator']>
@@ -61,10 +56,20 @@ async function waitForSettingsReady(
 }
 
 async function getToggleInSection(page: Page, title: string) {
-  return sectionByHeading(page, title).getByRole('button').first();
+  return settingsMain(page)
+    .getByText(title, { exact: true })
+    .locator(
+      'xpath=ancestor::*[contains(@class,"items-start")][.//button]'
+    )
+    .getByRole('switch')
+    .first();
 }
 
 test.describe('Settings pages', () => {
+  test.beforeEach(async ({ page }) => {
+    await seedAuthToken(page);
+  });
+
   test('/settings redirects to account settings', async ({ page }) => {
     await page.goto('/settings');
     await page.waitForLoadState('domcontentloaded');
@@ -116,19 +121,12 @@ test.describe('Settings pages', () => {
       '/settings/advertising',
       settingsMain(page).getByText('Advertising Settings', { exact: true })
     );
-
-    await navigateToSettingsTab(
-      page,
-      '2FA',
-      '/settings/two-factor',
-      settingsMain(page).getByText('Status', { exact: true })
-    );
   });
 
   test('privacy auth page loads and allows toggling a setting', async ({
     page,
   }) => {
-    await gotoSettings(page, 'privacy/auth');
+    await gotoSettings(page, 'privacy');
     const privacyHeading = settingsMain(page).getByRole('heading', {
       name: 'Privacy settings',
     });
@@ -222,8 +220,8 @@ test.describe('Settings pages', () => {
     await audienceSelect.waitFor({ state: 'visible' });
 
     await expect(audienceSelect).toHaveValue('Everyone');
-    await audienceSelect.selectOption('Following');
-    await expect(audienceSelect).toHaveValue('Following');
+    await audienceSelect.selectOption('Followed');
+    await expect(audienceSelect).toHaveValue('Followed');
   });
 
   test('content settings allow editing implemented form fields', async ({

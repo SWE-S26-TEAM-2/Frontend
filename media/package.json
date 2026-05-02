@@ -12,6 +12,7 @@
     "test:e2e": "playwright test",
     "test:e2e:ci": "cross-env CI=true playwright test",
     "test:e2e:real": "cross-env USE_REAL_ENV=true playwright test",
+    "test:e2e:deploy-setup": "node -e \"const fs=require('fs'),p=require('path'),t=p.join('e2e','deploy.env.example'),d=p.join('.env.e2e.local');if(fs.existsSync(d))process.exit(0); fs.copyFileSync(t,d); console.log('Created .env.e2e.local — open it and set E2E_TEST_PASSWORD.')\"",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:report": "playwright show-report"
@@ -44,6 +45,7 @@
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
     "cross-env": "^10.1.0",
+    "dotenv": "^17.4.2",
     "eslint": "^9.39.3",
     "eslint-config-next": "16.1.6",
     "eslint-config-prettier": "^10.1.8",

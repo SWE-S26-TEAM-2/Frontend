@@ -12,18 +12,18 @@ test.describe('Auth entry points', () => {
   }) => {
     await gotoHome(page);
     const landingPage = page.locator('main').first();
-    const landingHeader = landingPage.locator('header').first();
     const modalHeading = page.getByText('Sign in or create an account', {
       exact: true,
     });
 
     await expect(
-      landingPage.getByRole('heading', {
-        name: "Hear what's trending for free in the SoundCloud community",
-      })
+      landingPage.getByRole('button', { name: 'Explore trending playlists' })
     ).toBeVisible();
+    await expect(landingPage.getByRole('heading', { level: 1 })).toContainText(
+      'Thanks for listening'
+    );
 
-    const signInButton = landingHeader.getByRole('button', { name: 'Sign in' });
+    const signInButton = landingPage.getByRole('button', { name: 'Sign in' }).first();
     await expect(signInButton).toBeVisible();
     await signInButton.click();
 
@@ -31,8 +31,10 @@ test.describe('Auth entry points', () => {
     await expect(
       page.getByRole('button', { name: 'Continue with Facebook' })
     ).toBeVisible();
+    // Google uses an aria-hidden surface button when NEXT_PUBLIC_USE_MOCK_API is false;
+    // assert by visible label instead of role.
     await expect(
-      page.getByRole('button', { name: 'Continue with Google' })
+      page.getByText('Continue with Google', { exact: true }).first()
     ).toBeVisible();
     await expect(
       page.getByRole('button', { name: 'Continue with Apple' })
@@ -58,11 +60,12 @@ test.describe('Auth entry points', () => {
 
     await page.waitForLoadState('networkidle').catch(() => {});
     await expect(page).toHaveURL('/');
+    const main = page.locator('main').first();
     await expect(
-      page.locator('main').first().getByRole('heading', {
-        name: 'SoundCloud',
-        exact: true,
-      })
+      main.getByRole('button', { name: 'Explore trending playlists' })
     ).toBeVisible();
+    await expect(main.getByRole('heading', { level: 1 })).toContainText(
+      'Thanks for listening'
+    );
   });
 });

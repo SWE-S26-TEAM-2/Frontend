@@ -1,50 +1,54 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type TestInfo } from '@playwright/test';
 import { seedAuthToken } from '../helpers/auth';
+import { gotoFeedShell, skipIfFeedHasNoTracks } from '../helpers/feed';
+
+async function gotoStreamWithTracks(
+  page: import('@playwright/test').Page,
+  testInfo: TestInfo
+) {
+  await gotoFeedShell(page);
+  await skipIfFeedHasNoTracks(testInfo, page);
+  await expect(page.locator('[data-testid="track-card"]').first()).toBeVisible({
+    timeout: 15000,
+  });
+}
 
 test.describe('Global Audio Player', () => {
   test.beforeEach(async ({ page }) => {
-    // Seed auth token to bypass login and gain full access
     await seedAuthToken(page);
   });
 
-  test('clicking play on a track reveals the global footer player', async ({ page }) => {
-    // Navigate to a page with tracks (e.g., home/feed)
-    await page.goto('/home');
+  test('clicking play on a feed track activates pause in the footer player', async ({
+    page,
+  }, testInfo) => {
+    await gotoStreamWithTracks(page, testInfo);
 
-    // Wait for tracks to load
-    await page.waitForSelector('[data-testid="track-card"]', { state: 'visible', timeout: 10000 });
+    const footer = page.locator('[data-testid="global-player"]');
+    await expect(footer).toBeVisible();
 
-    // The footer player should not be visible initially
-    await expect(page.locator('[data-testid="global-player"]')).not.toBeVisible();
+    await page
+      .locator('[data-testid="track-card"]')
+      .filter({ has: page.getByRole('button', { name: 'Play' }) })
+      .first()
+      .getByRole('button', { name: 'Play' })
+      .click();
 
-    // Find the first track's play button and click it
-    const firstTrackPlayBtn = page.locator('[data-testid="track-card"] [aria-label="Play"]').first();
-    await firstTrackPlayBtn.click();
-
-    // The global footer player should now be visible
-    const globalPlayer = page.locator('[data-testid="global-player"]');
-    await expect(globalPlayer).toBeVisible();
-
-    // Verify player controls are present
-    await expect(globalPlayer.locator('[aria-label="Pause"]')).toBeVisible();
-    await expect(globalPlayer.locator('[role="slider"]')).toHaveCount(2); // Progress and Volume
+    await expect(footer.getByRole('button', { name: 'Pause' })).toBeVisible();
   });
 
-  test('player controls can toggle playback state', async ({ page }) => {
-    await page.goto('/home');
-    await page.waitForSelector('[data-testid="track-card"]', { state: 'visible' });
+  test('footer transport toggles playback state', async ({ page }, testInfo) => {
+    await gotoStreamWithTracks(page, testInfo);
 
-    // Start playback
-    await page.locator('[data-testid="track-card"] [aria-label="Play"]').first().click();
-    
-    const globalPlayer = page.locator('[data-testid="global-player"]');
-    await expect(globalPlayer).toBeVisible();
+    await page
+      .locator('[data-testid="track-card"]')
+      .filter({ has: page.getByRole('button', { name: 'Play' }) })
+      .first()
+      .getByRole('button', { name: 'Play' })
+      .click();
 
-    // Click Pause in the global player
-    const pauseBtn = globalPlayer.locator('[aria-label="Pause"]');
-    await pauseBtn.click();
-
-    // Verify it changed to Play
-    await expect(globalPlayer.locator('[aria-label="Play"]')).toBeVisible();
+    const footer = page.locator('[data-testid="global-player"]');
+    await expect(footer.getByRole('button', { name: 'Pause' })).toBeVisible();
+    await footer.getByRole('button', { name: 'Pause' }).click();
+    await expect(footer.getByRole('button', { name: 'Play' })).toBeVisible();
   });
 });

@@ -1,4 +1,11 @@
+import path from 'path';
+import { config as loadDeployEnv } from 'dotenv';
 import { defineConfig, devices } from '@playwright/test';
+
+// Secrets for `npm run test:e2e:real`: put them in `.env.e2e.local`, not in git.
+loadDeployEnv({
+  path: path.join(__dirname, '.env.e2e.local'),
+});
 
 /** Deploy/staging origin for USE_REAL_ENV (no trailing slash). */
 const E2E_DEFAULT_DEPLOY_ORIGIN =

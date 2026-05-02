@@ -1,13 +1,34 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { gotoProfile } from '../helpers/navigation';
-import { TEST_USERS } from '../helpers/profile';
+import { skipIfDeployProfileSlugMissing, TEST_USERS } from '../helpers/profile';
+
+const useRealEnv = process.env.USE_REAL_ENV === 'true';
 
 test.describe('Profile pages', () => {
   test('public artist profile loads with tracks and social sections', async ({
     page,
-  }) => {
+  }, testInfo) => {
+    skipIfDeployProfileSlugMissing(testInfo, 'artist');
     await gotoProfile(page, TEST_USERS.artist);
-    await expect(page.getByRole('button', { name: 'All', exact: true })).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'All', exact: true })
+    ).toBeVisible();
+
+    if (useRealEnv) {
+      await expect(page.getByRole('heading', { name: 'Recent' })).toBeVisible();
+      const trackCount = await page
+        .locator('[data-testid="track-card"]')
+        .count();
+      if (trackCount === 0) {
+        await expect(
+          page.getByText('Seems a little quiet over here')
+        ).toBeVisible();
+      } else {
+        await expect(page.locator('[data-testid="track-card"]').first()).toBeVisible();
+      }
+      return;
+    }
+
     await expect(page.getByText('NEW ALBUM SOON')).toBeVisible();
     await expect(
       page.getByRole('button', { name: /^👤 Follow$/ }).first()
@@ -19,19 +40,33 @@ test.describe('Profile pages', () => {
 
   test('owner profile loads with the current empty-state experience', async ({
     page,
-  }) => {
+  }, testInfo) => {
+    skipIfDeployProfileSlugMissing(testInfo, 'owner');
     await gotoProfile(page, TEST_USERS.owner);
-    await expect(page.getByRole('button', { name: 'Upload image' })).toBeVisible();
+    const avatar = page.locator('div.group.rounded-full').first();
+    await avatar.hover();
+    await expect(avatar.getByText('Update')).toBeVisible();
     await expect(
       page.getByRole('button', { name: 'Upload header image' })
     ).toBeVisible();
-    await expect(page.getByText('Seems a little quiet over here')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Upload now' })).toBeVisible();
+    if (useRealEnv) {
+      await expect(
+        page.getByRole('heading', { name: 'Recent' })
+      ).toBeVisible();
+      return;
+    }
+    await expect(
+      page.getByText('Seems a little quiet over here')
+    ).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Upload now' })
+    ).toBeVisible();
   });
 
   test('profile tabs switch between implemented visible states', async ({
     page,
-  }) => {
+  }, testInfo) => {
+    skipIfDeployProfileSlugMissing(testInfo, 'artist');
     await gotoProfile(page, TEST_USERS.artist);
     const playlistsTab = page.getByRole('button', {
       name: 'Playlists',
@@ -47,15 +82,35 @@ test.describe('Profile pages', () => {
     });
 
     await playlistsTab.click();
-    await expect(page.getByText('No playlists yet')).toBeVisible();
+    if (useRealEnv) {
+      await expect(
+        page
+          .getByText('No playlists yet')
+          .or(page.locator('a[href^="/playlist/"]').first())
+      ).toBeVisible({ timeout: 15000 });
+    } else {
+      await expect(page.getByText('No playlists yet')).toBeVisible();
+    }
 
     await popularTracksTab.click();
     await expect(
       page.getByRole('heading', { name: 'Popular tracks' })
     ).toBeVisible();
-    await expect(page.getByText(/Une vie à t['’]aimer/i).first()).toBeVisible();
+    if (!useRealEnv) {
+      await expect(
+        page.getByText(/Une vie à t['’]aimer/i).first()
+      ).toBeVisible();
+    }
 
     await repostsTab.click();
-    await expect(page.getByText('Seems a little quiet over here')).toBeVisible();
+    if (useRealEnv) {
+      await expect(
+        page.getByRole('heading', { name: 'Reposts' })
+      ).toBeVisible();
+    } else {
+      await expect(
+        page.getByText('Seems a little quiet over here')
+      ).toBeVisible();
+    }
   });
 });

@@ -8,11 +8,9 @@ async function waitForInteractive(page: Page) {
 export async function gotoHome(page: Page) {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   await waitForInteractive(page);
+  const main = page.locator('main').first();
   await expect(
-    page.locator('main').first().getByRole('heading', {
-      name: 'SoundCloud',
-      exact: true,
-    })
+    main.getByRole('button', { name: 'Explore trending playlists' })
   ).toBeVisible();
 }
 
@@ -39,7 +37,21 @@ export async function gotoSettings(page: Page, section: string) {
 export async function gotoProfile(page: Page, username: string) {
   await page.goto(`/${username}`, { waitUntil: 'domcontentloaded' });
   await waitForInteractive(page);
+  const allTab = page.getByRole('button', { name: 'All', exact: true });
+  const profileError = page.getByText(/User not found|Something went wrong/);
+  const privateProfile = page.getByText('This profile is private');
   await expect(
-    page.getByRole('button', { name: 'All', exact: true })
-  ).toBeVisible();
+    allTab.or(profileError).or(privateProfile).first()
+  ).toBeVisible({ timeout: 25000 });
+  if (await profileError.isVisible().catch(() => false)) {
+    throw new Error(
+      `Profile "${username}" did not load (error or not found on this environment).`
+    );
+  }
+  if (await privateProfile.isVisible().catch(() => false)) {
+    throw new Error(
+      `Profile "${username}" is private; use a public user for this test.`
+    );
+  }
+  await expect(allTab).toBeVisible();
 }

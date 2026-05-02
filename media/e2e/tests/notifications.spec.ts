@@ -68,6 +68,7 @@ test.describe('Notifications page', () => {
   });
 
   test('unauthenticated /notifications redirects to login', async ({ page }) => {
+    await page.context().clearCookies();
     await page.addInitScript(() => {
       window.localStorage.removeItem('auth_token');
     });

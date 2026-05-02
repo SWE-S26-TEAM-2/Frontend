@@ -20,9 +20,9 @@ test.describe('Upload page', () => {
   }) => {
     await gotoUpload(page);
     await expect(page).toHaveURL(/\/creator\/upload/);
-    // UploadLanding renders "Upload your first track" button when no file selected
+    // Logged-out: UploadLanding "Upload your first track". Logged-in: select step headline.
     await expect(
-      page.getByText(/Upload your first track|Upload a track/i).first()
+      page.getByText(/Upload your (first track|audio files)|Upload a track/i).first()
     ).toBeVisible();
   });
 
@@ -59,6 +59,7 @@ test.describe('Upload page', () => {
   test('unauthenticated /creator/upload redirects to login', async ({
     page,
   }) => {
+    await page.context().clearCookies();
     await page.addInitScript(() => {
       window.localStorage.removeItem('auth_token');
     });

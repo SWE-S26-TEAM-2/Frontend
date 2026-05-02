@@ -56,7 +56,7 @@ test.describe('Feed and Home pages', () => {
   });
 
   test('unauthenticated /stream redirects to login', async ({ page }) => {
-    // No seedAuthToken — clear state so middleware triggers
+    await page.context().clearCookies();
     await page.addInitScript(() => {
       window.localStorage.removeItem('auth_token');
     });
