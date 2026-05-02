@@ -1,5 +1,25 @@
 import { create } from "zustand";
 import type { IPlayerState } from "@/types/player.types";
+import { ENV } from "@/config/env";
+
+const recordPlay = async (trackId: string, durationListened = 0): Promise<void> => {
+  const token = typeof window !== "undefined"
+    ? window.localStorage.getItem("auth_token")
+    : null;
+  if (!token || !trackId) return;
+  try {
+    await fetch(`${ENV.API_BASE_URL}/tracks/${trackId}/plays`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ duration_listened_seconds: durationListened }),
+    });
+  } catch {
+    // non-critical — never block playback
+  }
+};
 
 export const usePlayerStore = create<IPlayerState>((set, get) => ({
   currentTrack: null,
@@ -12,14 +32,23 @@ export const usePlayerStore = create<IPlayerState>((set, get) => ({
   shuffle: false,
   repeat: false,
 
-  setTrack: (track) => set({ currentTrack: track, currentTime: 0, duration: 0, isPlaying: true }),
+  setTrack: (track) => {
+    const { currentTrack, currentTime } = get();
+    if (currentTrack) recordPlay(currentTrack.id, Math.floor(currentTime));
+    set({ currentTrack: track, currentTime: 0, duration: 0, isPlaying: true });
+  },
+
   setQueue: (tracks) => set({ queue: tracks }),
   addToQueue: (track) => set((s) => ({ queue: [...s.queue, track] })),
+
   playFromQueue: (index) => {
-    const { queue } = get();
+    const { queue, currentTrack, currentTime } = get();
     if (index < 0 || index >= queue.length) return;
-    set({ currentTrack: queue[index], currentTime: 0, duration: 0, isPlaying: true });
+    const track = queue[index];
+    if (currentTrack) recordPlay(currentTrack.id, Math.floor(currentTime));
+    set({ currentTrack: track, currentTime: 0, duration: 0, isPlaying: true });
   },
+
   moveQueueItem: (fromIndex, toIndex) =>
     set((state) => {
       const length = state.queue.length;
@@ -32,13 +61,12 @@ export const usePlayerStore = create<IPlayerState>((set, get) => ({
       ) {
         return state;
       }
-
       const nextQueue = [...state.queue];
       const [moved] = nextQueue.splice(fromIndex, 1);
       nextQueue.splice(toIndex, 0, moved);
-
       return { queue: nextQueue };
     }),
+
   play: () => set({ isPlaying: true }),
   pause: () => set({ isPlaying: false }),
   togglePlay: () => set((s) => ({ isPlaying: !s.isPlaying })),
@@ -50,20 +78,24 @@ export const usePlayerStore = create<IPlayerState>((set, get) => ({
   toggleRepeat: () => set((s) => ({ repeat: !s.repeat })),
 
   playNext: () => {
-    const { queue, currentTrack, shuffle } = get();
+    const { queue, currentTrack, currentTime, shuffle } = get();
     if (!queue.length || !currentTrack) return;
     const idx = queue.findIndex((t) => t.id === currentTrack.id);
     const nextIdx = shuffle
       ? Math.floor(Math.random() * queue.length)
       : (idx + 1) % queue.length;
-    set({ currentTrack: queue[nextIdx], currentTime: 0, duration: 0, isPlaying: true });
+    const track = queue[nextIdx];
+    recordPlay(currentTrack.id, Math.floor(currentTime));
+    set({ currentTrack: track, currentTime: 0, duration: 0, isPlaying: true });
   },
 
   playPrev: () => {
-    const { queue, currentTrack } = get();
+    const { queue, currentTrack, currentTime } = get();
     if (!queue.length || !currentTrack) return;
     const idx = queue.findIndex((t) => t.id === currentTrack.id);
     const prevIdx = (idx - 1 + queue.length) % queue.length;
-    set({ currentTrack: queue[prevIdx], currentTime: 0, duration: 0, isPlaying: true });
+    const track = queue[prevIdx];
+    recordPlay(currentTrack.id, Math.floor(currentTime));
+    set({ currentTrack: track, currentTime: 0, duration: 0, isPlaying: true });
   },
 }));

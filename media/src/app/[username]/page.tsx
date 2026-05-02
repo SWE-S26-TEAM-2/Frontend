@@ -42,6 +42,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState<string | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [reposts, setReposts] = useState<ITrack[]>([]);
 
     const handleEditOpen = async () => {
     const links = await userProfileService.getSocialLinks();
@@ -70,13 +71,14 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
       try {
         setLoading(true);
         const fetchedUser = await userProfileService.getUserProfile(username);
-        const [fetchedTracks, fetchedLikes, fetchedFans, fetchedFollowers, fetchedFollowing, fetchedPlaylists] = await Promise.all([
+        const [fetchedTracks, fetchedLikes, fetchedFans, fetchedFollowers, fetchedFollowing, fetchedPlaylists,fetchedReposts] = await Promise.all([
           userProfileService.getUserTracks(fetchedUser.username),
           userProfileService.getUserLikes(fetchedUser.username),
           userProfileService.getFansAlsoLike(fetchedUser.id),
           userProfileService.getFollowers(fetchedUser.username),
           userProfileService.getFollowing(fetchedUser.username),
           playlistService.getUserPlaylists(fetchedUser.username),
+          userProfileService.getUserReposts(fetchedUser.username),
         ]);
 
        // After — create a new object so React detects the change
@@ -97,6 +99,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
         setFollowers(fetchedFollowers);
         setFollowing(fetchedFollowing);
         setPlaylists(fetchedPlaylists);
+        setReposts(fetchedReposts); 
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong");
       } finally {
@@ -149,10 +152,11 @@ const handleBannerHeaderChange = async (url: string, file?: File) => {
 
   function getFilteredTracks(tab: IActiveTab): ITrack[] {
     switch (tab) {
-      case "All":            return tracks;
+      case "All": return [...tracks, ...reposts].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       case "Popular tracks": return [...tracks].sort((a, b) => b.plays - a.plays);
       case "Tracks":         return tracks;
-      case "Reposts":        return tracks.filter(t => t.isReposted);
+      case "Reposts":        return reposts;
       case "Albums":
       case "Playlists":      return [];
       default:               return tracks;
@@ -301,9 +305,9 @@ const handleBannerHeaderChange = async (url: string, file?: File) => {
               )}
             </div>
           ) : (
-            filteredTracks.map(track => (
-              <TrackCard
-                key={track.id}
+          filteredTracks.map((track, index) => (
+            <TrackCard
+              key={`${activeTab}-${track.id}-${index}`}
                 track={track}
                 onPlay={(t) => { setQueue(filteredTracks); setTrack(t); }}
                 onLikeChange={handleTrackLikeChange}
