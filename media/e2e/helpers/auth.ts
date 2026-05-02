@@ -21,10 +21,10 @@ export async function seedAuthToken(
     {
       name: 'sc_auth_token',
       value: token,
-      domain: 'streamline-swp.duckdns.org',
+      domain: process.env.USE_REAL_ENV === 'true' ? 'streamline-swp.duckdns.org' : 'localhost',
       path: '/',
       httpOnly: false,
-      secure: true,
+      secure: process.env.USE_REAL_ENV === 'true',
       sameSite: 'Lax',
     },
   ]);

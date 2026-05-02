@@ -8,10 +8,16 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: [['html', { open: 'never' }], ['list']],
   use: {
-    baseURL: 'https://streamline-swp.duckdns.org',
+    baseURL: process.env.USE_REAL_ENV === 'true' ? 'https://streamline-swp.duckdns.org' : 'http://localhost:3100',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
+  },
+  webServer: process.env.USE_REAL_ENV === 'true' ? undefined : {
+    command: 'npm run dev -- -p 3100',
+    url: 'http://localhost:3100',
+    reuseExistingServer: !process.env.CI,
+    timeout: 120000,
   },
   projects: [
     {
