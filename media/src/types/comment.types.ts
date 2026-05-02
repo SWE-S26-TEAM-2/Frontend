@@ -23,7 +23,7 @@ export interface IComment {
 }
 
 export interface ICommentService {
-  getTrackComments: (trackId: string) => Promise<{comments: IComment[]}>;
+  getTrackComments: (trackId: string) => Promise<IComment[]>;
   addComment: (trackId: string, body: string) => Promise<IComment>;
   addReply: (commentId: string, body: string) => Promise<ICommentReply>;
 }

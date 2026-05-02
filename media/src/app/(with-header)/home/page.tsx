@@ -82,6 +82,7 @@ export default function HomePage() {
             title="More of what you like"
             subtitle="Suggestions based on your recent plays"
             tracks={data.moreOfWhatYouLike}
+            showFollow={false}
           />
           <RecentlyPlayedGrid items={data.recentlyPlayed} />
           <TrackSlider

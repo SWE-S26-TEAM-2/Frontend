@@ -46,7 +46,7 @@ const normalizeComment = (raw: any): IComment => ({
 });
 
 export const realCommentService: ICommentService = {
-  getTrackComments: async (trackId: string): Promise<{comments: IComment[]}> => {
+  getTrackComments: async (trackId: string): Promise<IComment[]> => {
     return withMockFallback(
       `getTrackComments(${trackId})`,
       () => mockCommentService.getTrackComments(trackId),
