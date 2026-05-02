@@ -26,6 +26,7 @@ export default function StudioTrackList({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [trackToDelete, setTrackToDelete] = useState<IStudioTrack | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
   const [openPanel, setOpenPanel] = useState<BulkPanel>(null);
 
   const allSelected = tracks.length > 0 && selectedIds.size === tracks.length;
@@ -47,6 +48,7 @@ export default function StudioTrackList({
   const handleDeleteConfirm = async () => {
     if (!trackToDelete) return;
     setIsDeleting(true);
+    setDeleteError("");
     try {
       await studioService.deleteTrack(trackToDelete.id);
       onDeleteTrack(trackToDelete.id);
@@ -55,11 +57,12 @@ export default function StudioTrackList({
         next.delete(trackToDelete.id);
         return next;
       });
+      setTrackToDelete(null);
     } catch (err) {
-      console.error('[Studio] delete failed:', err);
+      console.warn('[Studio] delete failed:', err);
+      setDeleteError("Delete failed. The server may not support this action yet.");
     } finally {
       setIsDeleting(false);
-      setTrackToDelete(null);
     }
   };
 
@@ -161,8 +164,9 @@ export default function StudioTrackList({
         <StudioDeleteModal
           trackTitle={trackToDelete.title}
           isDeleting={isDeleting}
+          error={deleteError}
           onConfirm={handleDeleteConfirm}
-          onCancel={() => setTrackToDelete(null)}
+          onCancel={() => { setTrackToDelete(null); setDeleteError(""); }}
         />
       )}
 

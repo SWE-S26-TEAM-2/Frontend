@@ -3,6 +3,7 @@
 interface IStudioDeleteModalProps {
   trackTitle: string;
   isDeleting: boolean;
+  error?: string;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -10,6 +11,7 @@ interface IStudioDeleteModalProps {
 export default function StudioDeleteModal({
   trackTitle,
   isDeleting,
+  error,
   onConfirm,
   onCancel,
 }: IStudioDeleteModalProps) {
@@ -43,6 +45,10 @@ export default function StudioDeleteModal({
           <span className="text-white font-semibold">&ldquo;{trackTitle}&rdquo;</span>?
         </p>
         <p className="text-[#999] text-sm mb-8">This action cannot be undone.</p>
+
+        {error && (
+          <p className="text-[#e5383b] text-sm mb-4">{error}</p>
+        )}
 
         <div className="flex items-center justify-end gap-4">
           <button

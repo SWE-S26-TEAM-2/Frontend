@@ -5,11 +5,8 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { userProfileService } from "@/services/di";
 import type { IUser, IFollowing } from "@/types/userProfile.types";
-import Header from "@/components/Header/Header";
-import Footer from "@/components/Footer/Footer";
 import { SubPageHeader } from "@/components/Profile/SubPageHeader";
 import { VerifiedIcon } from "@/components/Icons/ProfileIcons";
-import { formatNumber } from "@/utils/formatNumber";
 
 export default function FollowingPage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = React.use(params);
@@ -100,7 +97,6 @@ export default function FollowingPage({ params }: { params: Promise<{ username: 
 
   return (
     <div className="min-h-screen bg-black text-white font-sans pb-15">
-      <Header />
 
       <SubPageHeader
         user={user}
@@ -194,8 +190,6 @@ export default function FollowingPage({ params }: { params: Promise<{ username: 
           </>
         )}
       </div>
-
-      <Footer />
     </div>
   );
 }

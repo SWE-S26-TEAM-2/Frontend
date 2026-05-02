@@ -9,6 +9,7 @@ import { useAuthStore } from "@/store/authStore";
 import KeyboardShortcutsModal from "@/components/KeyboardShortcutsModal/KeyboardShortcutsModal";
 import { clearAuthCookie } from "@/lib/authCookie";
 import SearchBar from "@/components/Search/SearchBar";
+//import ThemeToggle from "@/components/ThemeToggle/ThemeToggle";
 
 const BellIcon = () => (
   <svg width="20" height="20" viewBox="0 0 32 32" fill="currentColor">
@@ -401,14 +402,17 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
 
   return (
     <>
-      <header className="bg-[#121212] border-b border-[#121212] h-12 flex items-center px-3 sticky top-0 z-[100]">
+      <header
+        className="bg-sc-surface border-b border-sc-border h-12 flex items-center px-3 sticky top-0 z-[100]"
+        style={{ backgroundColor: 'var(--sc-header-bg)', borderColor: 'var(--sc-border)' }}
+      >
 
         {/* ── LEFT: hamburger (mobile) + logo + nav ── */}
         <div className="flex items-center gap-0 shrink-0">
 
           {/* Hamburger — mobile only */}
           <button
-            className="md:hidden flex items-center justify-center w-9 h-9 text-[#ccc] hover:text-white transition-colors bg-transparent border-none cursor-pointer mr-1"
+            className="md:hidden flex items-center justify-center w-9 h-9 text-sc-muted hover:text-sc-text transition-colors bg-transparent border-none cursor-pointer mr-1"
             onClick={() => setMobileOpen(true)}
             aria-label="Open menu"
           >
@@ -429,11 +433,12 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
                 <Link
                   key={item.label}
                   href={item.href}
-                  className={`flex items-center px-3 text-[13px] whitespace-nowrap transition-colors border-b-2 ${
-                    isActive
-                      ? "text-white font-semibold border-[#ff5500]"
-                      : "text-[#ccc] font-normal border-transparent hover:text-white hover:border-[#ff5500]/40"
-                  }`}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`header-nav-link flex items-center px-3 text-[13px] whitespace-nowrap transition-colors border-b-2 ${
+                      isActive
+                        ? "active text-sc-text font-semibold border-sc-accent"
+                        : "text-sc-muted font-normal border-transparent hover:text-sc-text hover:border-sc-accent/40"
+                    }`}
                 >
                   {item.label}
                 </Link>
@@ -476,10 +481,13 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
         {/* ── RIGHT: actions + user nav ── */}
         <div className="flex items-center gap-0.5 shrink-0">
 
+          {/* Theme toggle */}
+          {/* <ThemeToggle /> */}
+
           {/* Upgrade now — hidden on small screens */}
           <Link
             href="/subscription/artist-pro"
-            className="hidden lg:flex items-center h-7 px-3 text-[#ff5500] text-[12px] font-bold border border-[#ff5500] rounded-[3px] no-underline whitespace-nowrap hover:bg-[#ff5500]/10 transition-colors mr-1"
+            className="header-action-link hidden lg:flex items-center px-4 py-1.5 text-sc-accent text-[13px] font-semibold no-underline whitespace-nowrap hover:bg-sc-accent/10 transition-colors mr-1"
           >
             Upgrade now
           </Link>
@@ -487,7 +495,7 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
           {/* For Artists — hidden on medium and below */}
           <Link
             href="/creator/studio"
-            className="hidden lg:block text-[#ccc] text-[13px] no-underline whitespace-nowrap px-2 hover:text-white transition-colors"
+            className="header-action-link hidden lg:block text-sc-muted text-[13px] no-underline whitespace-nowrap px-2 hover:text-sc-text transition-colors"
           >
             For Artists
           </Link>
@@ -495,7 +503,7 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
           {/* Upload */}
           <Link
             href="/creator/upload"
-            className="hidden sm:block text-[#ccc] text-[13px] no-underline whitespace-nowrap px-2 hover:text-white transition-colors"
+            className="header-action-link hidden sm:block text-sc-muted text-[13px] no-underline whitespace-nowrap px-2 hover:text-sc-text transition-colors"
           >
             Upload
           </Link>
@@ -512,12 +520,12 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
                         alt="User avatar"
                         width={26}
                         height={26}
-                        className="rounded-full object-cover border border-white/20"
+                        className="rounded-full object-cover border border-sc-border"
                         unoptimized
                         onError={() => setAvatarError(true)}
                       />
                     ) : (
-                      <div className="w-[26px] h-[26px] rounded-full bg-[#ff5500] flex items-center justify-center text-white text-[11px] font-bold select-none border border-white/20">
+                      <div className="w-[26px] h-[26px] rounded-full bg-sc-accent flex items-center justify-center text-sc-bg text-[11px] font-bold select-none border border-sc-border">
                         {(authUser?.username?.[0] ?? "?").toUpperCase()}
                       </div>
                     )}
@@ -525,7 +533,7 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
                   <button
                     aria-label="Open profile menu"
                     onClick={() => { setAvatarOpen((o) => !o); setDotsOpen(false); }}
-                    className="bg-transparent border-none cursor-pointer flex items-center px-0.5 text-[#aaa] hover:text-white transition-colors"
+                    className="header-action-button bg-transparent border-none cursor-pointer flex items-center px-0.5 text-sc-muted hover:text-sc-text transition-colors"
                   >
                     <ChevronDown />
                   </button>
@@ -537,7 +545,7 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
               <button
                 aria-label="Notifications"
                 onClick={() => router.push("/notifications")}
-                className="bg-transparent border-none cursor-pointer text-[#bbb] flex items-center justify-center w-9 h-9 transition-colors hover:text-white"
+                className="header-action-button bg-transparent border-none cursor-pointer text-sc-muted flex items-center justify-center w-9 h-9 transition-colors hover:text-sc-text"
               >
                 <BellIcon />
               </button>
@@ -546,7 +554,7 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
               <button
                 aria-label="Messages"
                 onClick={() => router.push("/messages")}
-                className="bg-transparent border-none cursor-pointer text-[#bbb] flex items-center justify-center w-9 h-9 transition-colors hover:text-white"
+                className="header-action-button bg-transparent border-none cursor-pointer text-sc-muted flex items-center justify-center w-9 h-9 transition-colors hover:text-sc-text"
               >
                 <MailIcon />
               </button>
@@ -556,7 +564,7 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
                 <button
                   onClick={() => { setDotsOpen((o) => !o); setAvatarOpen(false); }}
                   aria-label="More options"
-                  className="bg-transparent border-none cursor-pointer text-[#bbb] flex items-center justify-center w-9 h-9 transition-colors hover:text-white"
+                  className="header-action-button bg-transparent border-none cursor-pointer text-sc-muted flex items-center justify-center w-9 h-9 transition-colors hover:text-sc-text"
                 >
                   <DotsIcon />
                 </button>
@@ -566,16 +574,16 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
           )}
 
           {!isLoggedIn && (
-            <div className="flex items-center gap-1.5 ml-1">
+            <div className="flex items-center gap-2 ml-1">
               <Link
                 href="/login"
-                className="text-white no-underline text-[12px] border border-[#ffffff40] rounded-[3px] px-2.5 py-1 leading-none hover:border-[#ffffff80] transition-colors whitespace-nowrap"
+                className="header-auth-link text-white no-underline text-[13px] font-semibold border border-[#ffffff40] rounded px-4 py-1.5 hover:border-white transition-colors whitespace-nowrap"
               >
                 Sign in
               </Link>
               <Link
                 href="/login"
-                className="text-[#111] bg-[#ff5500] no-underline text-[12px] rounded-[3px] px-2.5 py-1 leading-none font-semibold hover:bg-[#e64d00] transition-colors whitespace-nowrap hidden sm:block"
+                className="header-auth-link text-white bg-[#ff5500] no-underline text-[13px] rounded px-4 py-1.5 font-bold hover:bg-[#e64d00] transition-colors whitespace-nowrap hidden sm:block"
               >
                 Create account
               </Link>
