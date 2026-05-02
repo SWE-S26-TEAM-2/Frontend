@@ -223,9 +223,9 @@ export default function ArtistProPage() {
             </div>
             <p className="text-sm text-gray-500 mb-4">Tailored access to essential artist tools</p>
             <p className="font-black text-2xl text-[#5500ff] mb-1">
-              EGP 29.99{' '}
+              $ 9.99{' '}
               <span className="text-sm font-normal text-gray-500">
-                / month, billed yearly for EGP 359.88
+                / month, billed yearly for $ 99.99
               </span>
             </p>
             <button
@@ -264,9 +264,9 @@ export default function ArtistProPage() {
             </div>
             <p className="text-sm text-gray-500 mb-4">Unlimited access to all artist tools</p>
             <p className="font-black text-2xl text-[#c9a84c] mb-1">
-              EGP 74.99{' '}
+            $ 19.99{' '}
               <span className="text-sm font-normal text-gray-500">
-                / month, billed yearly for EGP 899.88
+                / month, billed yearly for $ 149.99
               </span>
             </p>
             <button
@@ -329,8 +329,8 @@ export default function ArtistProPage() {
             <div className="text-center">
               <p className="text-2xl font-black">Artist</p>
               <p className="text-sm text-gray-500 mb-1">
-                EGP 29.99{' '}
-                <span className="text-xs">/month, billed yearly for EGP 359.88</span>
+                $ 9.99{' '}
+                <span className="text-xs">/month, billed yearly for $ 99.99</span>
               </p>
               <button
                 onClick={() => router.push('/subscription/checkout?plan=artist')}
@@ -343,8 +343,8 @@ export default function ArtistProPage() {
             <div className="text-center">
               <p className="text-2xl font-black">Artist Pro</p>
               <p className="text-sm mb-1">
-                <span className="text-[#1a8a4a] font-black">EGP 74.99</span>{' '}
-                <span className="text-xs text-gray-500">/month, billed yearly for EGP 899.88</span>
+                <span className="text-[#1a8a4a] font-black">$ 19.99</span>{' '}
+                <span className="text-xs text-gray-500">/month, billed yearly for $ 149.99</span>
               </p>
               <button
                 onClick={() => router.push('/subscription/checkout?plan=artist-pro')}

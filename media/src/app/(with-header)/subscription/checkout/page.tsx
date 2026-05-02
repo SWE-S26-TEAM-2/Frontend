@@ -8,16 +8,15 @@ import { SubscriptionService } from '@/services/api/subscription.api';
 const PLANS = {
   artist: {
     name: 'Artist',
-    yearly: { total: 359.88, monthly: 29.99 },
-    monthly: { total: 59.99, monthly: 59.99 },
+    yearly: { total: 99.99, monthly: 8.33 },
+    monthly: { total: 9.99, monthly: 9.99 },
   },
   'artist-pro': {
     name: 'Artist Pro',
-    yearly: { total: 899.88, monthly: 74.99 },
-    monthly: { total: 149.99, monthly: 149.99 },
+    yearly: { total: 149.99, monthly: 12.50 },
+    monthly: { total: 19.99, monthly: 19.99 },
   },
 };
-
 function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -45,10 +44,23 @@ async function handleBuy() {
   try {
     setIsLoading(true);
     setError('');
-    await SubscriptionService.upgrade({
-      payment_token: 'tok_visa', // Stripe test token
-      plan: 'Premium',
-    });
+
+    const payload = { payment_token: 'tok_visa', plan: planKey.includes('pro') ? 'Pro' : 'Premium' };
+
+    if (planKey.includes('pro')) {
+      if (billing === 'yearly') {
+        await SubscriptionService.upgradeProYearly(payload);
+      } else {
+        await SubscriptionService.upgradeProMonthly(payload);
+      }
+    } else {
+      if (billing === 'yearly') {
+        await SubscriptionService.upgradeYearly(payload);
+      } else {
+        await SubscriptionService.upgradeMonthly(payload);
+      }
+    }
+
     router.push(`/subscription/success?plan=${planKey}`);
   } catch (err) {
     const msg = err instanceof Error ? err.message : '';
@@ -81,7 +93,7 @@ async function handleBuy() {
               </div>
               <div>
                 <p className="font-semibold text-sm">Yearly billing</p>
-                <p className="text-xs text-gray-500">EGP {plan.yearly.total}, that&apos;s EGP {plan.yearly.monthly}/month</p>
+                <p className="text-xs text-gray-500">$ {plan.yearly.total}, that&apos;s $ {plan.yearly.monthly}/month</p>
               </div>
             </div>
             <span className="bg-[#e84a25] text-white text-xs font-bold px-2 py-1 rounded">50% YEARLY DISCOUNT</span>
@@ -97,7 +109,7 @@ async function handleBuy() {
             </div>
             <div>
               <p className="font-semibold text-sm">Monthly billing</p>
-              <p className="text-xs text-gray-500">EGP {plan.monthly.monthly}/month</p>
+              <p className="text-xs text-gray-500">$ {plan.monthly.monthly}/month</p>
             </div>
           </div>
 
@@ -232,16 +244,16 @@ async function handleBuy() {
           <div className="bg-gray-100 rounded-lg p-4 mb-4">
             <div className="flex justify-between mb-3">
               <span className="font-bold text-sm">Total</span>
-              <span className="font-bold text-sm">EGP {price.total}</span>
+              <span className="font-bold text-sm">$ {price.total}</span>
             </div>
             <div className="flex justify-between mb-3">
               <span className="font-bold text-sm">Billing cycle</span>
               <span className="text-sm">{billing === 'yearly' ? 'Yearly' : 'Monthly'}</span>
             </div>
             <p className="text-xs text-gray-500 leading-relaxed mb-2">
-              Subscription will automatically renew at EGP {price.total} every {billing === 'yearly' ? 'year' : 'month'}, starting {renewDate}, unless you cancel before the day of your next renewal in your subscription settings.
+              Subscription will automatically renew at $ {price.total} every {billing === 'yearly' ? 'year' : 'month'}, starting {renewDate}, unless you cancel before the day of your next renewal in your subscription settings.
             </p>
-            <p className="text-xs text-gray-500">All prices in EGP</p>
+            <p className="text-xs text-gray-500">All prices in $</p>
           </div>
 
           {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
