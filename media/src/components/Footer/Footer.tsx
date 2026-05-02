@@ -149,7 +149,10 @@ export default function Footer() {
       />
 
       {/* ── Player bar ── */}
-      <footer className="fixed bottom-0 left-0 right-0 h-14 bg-[#333333] border-t border-[#111] flex items-center px-3 gap-2 z-[200] overflow-hidden">
+      <footer
+        data-testid="global-player"
+        className="fixed bottom-0 left-0 right-0 h-14 bg-[#333333] border-t border-[#111] flex items-center px-3 gap-2 z-[200] overflow-hidden"
+      >
 
         {/* LEFT: transport controls */}
         <div className="flex items-center gap-1 shrink-0">
