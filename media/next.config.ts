@@ -6,6 +6,14 @@ const currentDir = path.dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
+  /**
+   * Playwright starts `next dev` with PLAYWRIGHT_FORCE_MOCK=1 so the client bundle
+   * consistently uses mock services (Turbopack may not always forward arbitrary env).
+   */
+  env:
+    process.env.PLAYWRIGHT_FORCE_MOCK === "1"
+      ? { NEXT_PUBLIC_USE_MOCK_API: "true" }
+      : {},
   turbopack: {
     root: currentDir,
   },

@@ -41,6 +41,9 @@ const redirectToHome = (request: NextRequest): NextResponse => {
   return NextResponse.redirect(url);
 };
 
+/** Playwright/local e2e uses this cookie value; real APIs reject it on `/users/me`. */
+const E2E_LOCAL_AUTH_TOKEN = "fake-e2e-token";
+
 export async function middleware(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
 
@@ -51,6 +54,16 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
   if (!token) {
     return redirectToLogin(request);
+  }
+
+  const allowLocalE2ESentinel =
+    (process.env.NODE_ENV === "development" ||
+      process.env.E2E_SKIP_AUTH_VERIFY === "true") &&
+    token === E2E_LOCAL_AUTH_TOKEN &&
+    !isAdminPath(pathname);
+
+  if (allowLocalE2ESentinel) {
+    return NextResponse.next();
   }
 
   const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";

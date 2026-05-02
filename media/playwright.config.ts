@@ -1,5 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 
+/** Deploy/staging origin for USE_REAL_ENV (no trailing slash). */
+const E2E_DEFAULT_DEPLOY_ORIGIN =
+  process.env.E2E_BASE_URL?.replace(/\/$/, '') ??
+  'https://streamline-swp.duckdns.org';
+
 export default defineConfig({
   testDir: './e2e/tests',
   fullyParallel: true,
@@ -8,15 +13,22 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: [['html', { open: 'never' }], ['list']],
   use: {
-    baseURL: process.env.USE_REAL_ENV === 'true' ? 'https://streamline-swp.duckdns.org' : 'http://localhost:3100',
+    baseURL:
+      process.env.USE_REAL_ENV === 'true'
+        ? E2E_DEFAULT_DEPLOY_ORIGIN
+        : 'http://localhost:3100',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },
   webServer: process.env.USE_REAL_ENV === 'true' ? undefined : {
-    command: 'npm run dev -- -p 3100',
+    command:
+      'cross-env E2E_SKIP_AUTH_VERIFY=true PLAYWRIGHT_FORCE_MOCK=1 npm run dev -- -p 3100',
     url: 'http://localhost:3100',
-    reuseExistingServer: !process.env.CI,
+    // Default false: otherwise `npm run test:e2e` reuses whichever process already
+    // owns :3100 (e.g. a plain `npm run dev`) — wrong env ⇒ mass failures for QE.
+    // Opt in: PW_REUSE_WEB_SERVER=true npm run test:e2e
+    reuseExistingServer: process.env.PW_REUSE_WEB_SERVER === 'true',
     timeout: 120000,
   },
   projects: [

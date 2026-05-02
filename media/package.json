@@ -10,6 +10,7 @@
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:e2e": "playwright test",
+    "test:e2e:ci": "cross-env CI=true playwright test",
     "test:e2e:real": "cross-env USE_REAL_ENV=true playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
