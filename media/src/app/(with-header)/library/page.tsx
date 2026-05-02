@@ -18,13 +18,6 @@ import {
   FollowingOverviewSection,
 } from "@/components/Library/overview/LibraryOverviewSections";
 import type { ILibraryOverview, LibraryTab } from "@/types/library.types";
-
-// Bug 1 fix: removed mockLibraryService/realLibraryService direct imports and the
-// manual ENV.USE_MOCK_API switch — libraryService from di.ts is already resolved.
-
-// Bug 3 fix: no useAuth hook exists in this codebase. Auth state lives in
-// localStorage under "auth_token" (written by RealAuthService.saveTokens).
-// Reading it directly here — no invented abstraction needed.
 const getIsAuthenticated = (): boolean => {
   if (typeof window === "undefined") return false;
   return Boolean(window.localStorage.getItem("auth_token"));
@@ -43,7 +36,6 @@ export default function LibraryPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    // Bug 3 fix: redirect unauthenticated users before any API call fires.
     if (!getIsAuthenticated()) {
       router.replace("/login");
       return;

@@ -173,10 +173,6 @@ export default function FollowingPage({ params }: { params: Promise<{ username: 
                       {f.isVerified && <VerifiedIcon />}
                     </div>
 
-                    <span className="text-[11px] text-[#666]">
-                      {formatNumber(f.followers)} followers
-                    </span>
-
                     {isHovered && !isSelf ? (
                       <button
                         onClick={(e) => handleFollowToggle(e, f.username)}

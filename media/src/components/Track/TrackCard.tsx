@@ -119,7 +119,15 @@ export function TrackCard({ track, onPlay, onLikeChange, isOwner, onDelete }: IT
         <div className="flex justify-between items-center mb-1">
           <span className="text-xs text-[#888] truncate">{track.artist}</span>
           <div className="flex items-center gap-2 shrink-0 ml-2">
-            <span className="text-xs text-[#555]">{track.createdAt}</span>
+            <span className="text-xs text-[#555]">
+              {track.createdAt
+                ? new Date(track.createdAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })
+                : ""}
+            </span>
             {track.genre && (
               <span className="text-[11px] bg-[#1c1c1c] border border-[#2e2e2e] text-[#999] rounded px-2 py-0.5">
                 # {track.genre}

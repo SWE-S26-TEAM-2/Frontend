@@ -32,7 +32,7 @@ export function LikesTab({ tracks }: ILikesTabProps) {
         <div className="text-[#666] text-sm py-10 text-center">No tracks match your filter</div>
       ) : viewMode === "list" ? (
         <div className="flex flex-col gap-8">
-          {filteredTracks.map(track => <TrackListRow key={track.id} track={track} />)}
+          {filteredTracks.map(track => <TrackListRow key={track.id} track={track}  allTracks={filteredTracks} />)}
         </div>
       ) : (
         <div className="grid grid-cols-6 gap-6">
