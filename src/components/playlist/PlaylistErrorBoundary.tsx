@@ -1,10 +1,10 @@
 "use client";
 
 import { Component, ErrorInfo, ReactNode } from "react";
+import styles from "./PlaylistHeader.module.css";
 
 interface IPlaylistErrorBoundaryProps {
   children: ReactNode;
-  /** Optional fallback override. If omitted, the built-in error UI is shown. */
   fallback?: ReactNode;
 }
 
@@ -13,14 +13,6 @@ interface IPlaylistErrorBoundaryState {
   errorMessage: string;
 }
 
-/**
- * PlaylistErrorBoundary
- *
- * Catches any unhandled render-time errors inside the playlist detail view
- * and displays a recovery UI with a retry button.
- *
- * Must be a class component — React Error Boundaries cannot be function components.
- */
 export default class PlaylistErrorBoundary extends Component<
   IPlaylistErrorBoundaryProps,
   IPlaylistErrorBoundaryState
@@ -38,7 +30,6 @@ export default class PlaylistErrorBoundary extends Component<
   }
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
-    // Only log to error (allowed by ESLint no-console rule)
     console.error("[PlaylistErrorBoundary]", error, info.componentStack);
   }
 
@@ -51,7 +42,7 @@ export default class PlaylistErrorBoundary extends Component<
       if (this.props.fallback) return this.props.fallback;
 
       return (
-        <div className="playlist-error-boundary" role="alert">
+        <div className={styles.playlistErrorBoundary} role="alert">
           <svg
             width="48"
             height="48"
@@ -60,7 +51,7 @@ export default class PlaylistErrorBoundary extends Component<
             stroke="currentColor"
             strokeWidth="1.5"
             aria-hidden="true"
-            className="playlist-error-boundary__icon"
+            className={styles.playlistErrorBoundary__icon}
           >
             <path
               strokeLinecap="round"
@@ -69,16 +60,16 @@ export default class PlaylistErrorBoundary extends Component<
             />
           </svg>
 
-          <h2 className="playlist-error-boundary__title">
+          <h2 className={styles.playlistErrorBoundary__title}>
             Something went wrong
           </h2>
 
-          <p className="playlist-error-boundary__message">
+          <p className={styles.playlistErrorBoundary__message}>
             {this.state.errorMessage}
           </p>
 
           <button
-            className="playlist-header__btn playlist-header__btn--primary"
+            className={`${styles.playlistHeader__btn} ${styles["playlistHeader__btn--primary"]}`}
             onClick={this.handleReset}
             aria-label="Retry loading the playlist"
           >

@@ -381,7 +381,7 @@ export const MOCK_PLAYLISTS: IPlaylist[] = [
     totalDuration: 611,
     createdAt: '2026-03-01T10:00:00Z',
     updatedAt: '2026-04-10T08:00:00Z',
-    tracks: MOCK_TRACKS.map((t, i) => ({ position: i + 1, track: t })),
+    tracks: MOCK_TRACKS.map((t, i) => ({ position: i + 1, ...t })),
   },
   {
     id: 'pl2',
@@ -397,9 +397,9 @@ export const MOCK_PLAYLISTS: IPlaylist[] = [
     createdAt: '2026-02-15T22:00:00Z',
     updatedAt: '2026-04-08T20:00:00Z',
     tracks: [
-      { position: 1, track: MOCK_TRACKS[3] },
-      { position: 2, track: MOCK_TRACKS[0] },
-      { position: 3, track: MOCK_TRACKS[2] },
+      { position: 1, ...MOCK_TRACKS[3] },
+      { position: 2, ...MOCK_TRACKS[0] },
+      { position: 3, ...MOCK_TRACKS[2] },
     ],
   },
   {
@@ -415,7 +415,7 @@ export const MOCK_PLAYLISTS: IPlaylist[] = [
     totalDuration: 611,
     createdAt: '2026-01-20T12:00:00Z',
     updatedAt: '2026-04-01T10:00:00Z',
-    tracks: MOCK_TRACKS.map((t, i) => ({ position: i + 1, track: t })),
+    tracks: MOCK_TRACKS.map((t, i) => ({ position: i + 1, ...t })),
   },
   {
     id: 'pl4',

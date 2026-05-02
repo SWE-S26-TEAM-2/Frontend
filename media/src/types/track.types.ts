@@ -31,23 +31,16 @@ export interface IWaveformProps {
   unplayedColor?: string;
 }
 
-export interface ITrack {
+export interface ITrackBase {
   id: string;
-
-  // Basic info
   title: string;
-  artist: string; // keep as string for now (API may change later)
+  artist: string;
   albumArt: string;
-  genre?: string;
-  description?: string;
-
-  // Audio
   url: string;
-  duration: number; // seconds
+  duration: number;
+}
 
-  // Stats
-  likes: number;
-  plays: number;
+export interface ITrack extends ITrackBase {
   commentsCount?: number;
   reposts?: number;  
   isReposted?: boolean;

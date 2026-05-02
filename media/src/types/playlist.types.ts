@@ -56,10 +56,13 @@ export type PlaylistMood =
  * (e.g. usePlayerStore.setTrack) without fabricating stats fields.
  *
  * Playlist-context fields:
+ *  - position -- the position in the playlist (1-based)
  *  - addedAt  -- ISO timestamp when this track was added to the playlist
  *  - addedBy  -- the user who added the track (optional: may be absent in mock data)
  */
 export interface IPlaylistTrack extends ITrackBase {
+  /** Position in the playlist (1-based) */
+  position: number;
   /** ISO timestamp when this track was added to the playlist */
   addedAt?: string;
   /** User who added this track to the playlist */

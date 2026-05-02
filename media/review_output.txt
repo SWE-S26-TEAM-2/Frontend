@@ -1,118 +1,177 @@
 ================================================================
   FRONTEND CODE REVIEW — AUTOMATED REPORT
-  Generated: 2026-04-30 23:53:35
+  Generated: 2026-05-02 16:19:12
 ================================================================
 
 ================================================================
 STEP 1 — ESLINT
 ================================================================
+(node:24740) ExperimentalWarning: CommonJS module C:\Users\User37\AppData\Roaming\npm\node_modules\npm\node_modules\debug\src\node.js is loading ES Module C:\Users\User37\AppData\Roaming\npm\node_modules\npm\node_modules\supports-color\index.js using require().
+Support for loading ES Module in require() is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
 
-C:\Frontend\media\e2e\tests\profile.spec.ts
+D:\downloads\New folder\frontend\media\e2e\tests\profile.spec.ts
   1:29  warning  'Page' is defined but never used  @typescript-eslint/no-unused-vars
 
-C:\Frontend\media\src\app\(auth)\page.tsx
-  18:9  warning  'authUser' is assigned a value but never used            @typescript-eslint/no-unused-vars
-  24:9  warning  'redirectAfterLogin' is assigned a value but never used  @typescript-eslint/no-unused-vars
+D:\downloads\New folder\frontend\media\src\app\(with-header)\home\page.tsx
+  23:3  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/set-state-in-effect')
 
-C:\Frontend\media\src\app\(with-header)\creator\studio\page.tsx
-  112:6  warning  React Hook useEffect has missing dependencies: 'isLoggedIn' and 'router'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+D:\downloads\New folder\frontend\media\src\app\(with-header)\notifications\page.tsx
+  156:5  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/exhaustive-deps')
 
-C:\Frontend\media\src\app\(with-header)\search\page.tsx
-   78:3  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/exhaustive-deps')
-  239:7  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
-  273:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+D:\downloads\New folder\frontend\media\src\app\(with-header)\search\page.tsx
+   46:3  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/set-state-in-effect')
+  237:7  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  271:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
-C:\Frontend\media\src\app\(with-header)\settings\privacy\page.tsx
-  5:28  warning  'IBlockedUser' is defined but never used  @typescript-eslint/no-unused-vars
+D:\downloads\New folder\frontend\media\src\app\(with-header)\subscription\checkout\page.tsx
+  37:10  warning  'isLoading' is assigned a value but never used  @typescript-eslint/no-unused-vars
 
-C:\Frontend\media\src\app\(with-header)\stations\page.tsx
-  43:6  warning  React Hook useEffect has a missing dependency: 'likeStation'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+D:\downloads\New folder\frontend\media\src\app\[username]\followers\page.tsx
+  47:6  warning  React Hook useEffect has a missing dependency: 'storedUsername'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
 
-C:\Frontend\media\src\app\[username]\followers\page.tsx
-  44:7  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
-  56:9  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+D:\downloads\New folder\frontend\media\src\app\[username]\following\page.tsx
+  54:6  warning  React Hook useEffect has a missing dependency: 'storedUsername'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
 
-C:\Frontend\media\src\app\[username]\following\page.tsx
-  49:7  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
-  61:9  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+D:\downloads\New folder\frontend\media\src\app\[username]\page.tsx
+  270:25  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
-C:\Frontend\media\src\app\[username]\page.tsx
-  100:9   warning  'handleAvatarUpload' is assigned a value but never used                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
-  113:9   warning  'handleCoverUpload' is assigned a value but never used                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
-  272:25  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
-
-C:\Frontend\media\src\components\Header\Header.tsx
-  11:8  warning  'SearchBar' is defined but never used  @typescript-eslint/no-unused-vars
-
-C:\Frontend\media\src\components\Home\ArtistsFollow.tsx
+D:\downloads\New folder\frontend\media\src\components\Home\ArtistsFollow.tsx
   77:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
-C:\Frontend\media\src\components\Home\ListeningHistory.tsx
+D:\downloads\New folder\frontend\media\src\components\Home\ListeningHistory.tsx
   170:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
-C:\Frontend\media\src\components\Home\RecentlyPlayed.tsx
+D:\downloads\New folder\frontend\media\src\components\Home\RecentlyPlayed.tsx
   59:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
-C:\Frontend\media\src\components\Home\SideBar.tsx
-   9:10  warning  'IArtist' is defined but never used  @typescript-eslint/no-unused-vars
-  10:10  warning  'ITrack' is defined but never used   @typescript-eslint/no-unused-vars
-
-C:\Frontend\media\src\components\Station\StationCard.tsx
+D:\downloads\New folder\frontend\media\src\components\Station\StationCard.tsx
   128:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
-C:\Frontend\media\src\components\Station\StationSlider.tsx
-   7:15  warning  'IStation' is defined but never used                                                                         @typescript-eslint/no-unused-vars
-  66:6   warning  React Hook useEffect has a missing dependency: 'nextPage'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+D:\downloads\New folder\frontend\media\src\components\Station\StationSlider.tsx
+  26:104  warning  React Hook useCallback has an unnecessary dependency: 'maxIndex'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
 
-C:\Frontend\media\src\components\Studio\StudioDistributionTab.tsx
+D:\downloads\New folder\frontend\media\src\components\Studio\StudioDistributionTab.tsx
   249:11  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
-C:\Frontend\media\src\components\Studio\StudioPromotionsTab.tsx
+D:\downloads\New folder\frontend\media\src\components\Studio\StudioPromotionsTab.tsx
   87:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
-C:\Frontend\media\src\components\Track\TrackSlider.tsx
-  110:6  warning  React Hook useEffect has a missing dependency: 'nextPage'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+D:\downloads\New folder\frontend\media\src\components\Track\TrackSlider.tsx
+  34:6  warning  React Hook useCallback has an unnecessary dependency: 'maxIndex'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
 
-C:\Frontend\media\src\components\Upload\TrackInfoForm.tsx
-  6:31  warning  'IUploadFile' is defined but never used  @typescript-eslint/no-unused-vars
+D:\downloads\New folder\frontend\media\src\hooks\usePlaylistPersistence.ts
+  81:7  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/set-state-in-effect')
 
-C:\Frontend\media\src\components\Upload\UploadQuotaBar.tsx
-  3:15  warning  'IUploadQuota' is defined but never used  @typescript-eslint/no-unused-vars
+D:\downloads\New folder\frontend\media\src\services\api\library.api.ts
+  7:3  warning  'ILibraryAlbum' is defined but never used    @typescript-eslint/no-unused-vars
+  8:3  warning  'ILibraryStation' is defined but never used  @typescript-eslint/no-unused-vars
 
-C:\Frontend\media\src\services\api\auth.api.ts
-  321:24  warning  '_token' is defined but never used  @typescript-eslint/no-unused-vars
+D:\downloads\New folder\frontend\media\src\services\api\playlist.api.ts
+   95:26  warning  '_userId' is defined but never used       @typescript-eslint/no-unused-vars
+  106:5   warning  '_creatorName' is defined but never used  @typescript-eslint/no-unused-vars
 
-C:\Frontend\media\src\services\api\playlist.api.ts
-  88:28  warning  '_username' is defined but never used  @typescript-eslint/no-unused-vars
-
-C:\Frontend\media\src\services\api\stations.api.ts
-  123:20  warning  '_stationId' is defined but never used  @typescript-eslint/no-unused-vars
-
-C:\Frontend\media\src\services\di.ts
-  73:10  warning  'getNotificationSettingsFromAPI' is defined but never used   @typescript-eslint/no-unused-vars
-  73:42  warning  'updateNotificationSettingsOnAPI' is defined but never used  @typescript-eslint/no-unused-vars
-  77:10  warning  'getContentSettingsFromAPI' is defined but never used        @typescript-eslint/no-unused-vars
-  77:37  warning  'updateContentSettingsOnAPI' is defined but never used       @typescript-eslint/no-unused-vars
-  81:10  warning  'getAdvertisingSettingsFromAPI' is defined but never used    @typescript-eslint/no-unused-vars
-  81:41  warning  'updateAdvertisingSettingsOnAPI' is defined but never used   @typescript-eslint/no-unused-vars
-  85:10  warning  'getTwoFactorSettingsFromAPI' is defined but never used      @typescript-eslint/no-unused-vars
-  85:39  warning  'updateTwoFactorSettingsOnAPI' is defined but never used     @typescript-eslint/no-unused-vars
-
-C:\Frontend\media\src\services\mocks\trending.mock.ts
-  2:10  warning  'IDotsMenuItem' is defined but never used  @typescript-eslint/no-unused-vars
-
-C:\Frontend\media\src\store\stationstore.ts
-  56:9  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
-
-✖ 43 problems (0 errors, 43 warnings)
-  0 errors and 1 warning potentially fixable with the `--fix` option.
+✖ 23 problems (0 errors, 23 warnings)
+  0 errors and 4 warnings potentially fixable with the `--fix` option.
 
 RESULT: PASSED — No ESLint errors
 
 ================================================================
 STEP 2 — TYPESCRIPT
 ================================================================
-RESULT: PASSED — No TypeScript errors
+(node:25684) ExperimentalWarning: CommonJS module C:\Users\User37\AppData\Roaming\npm\node_modules\npm\node_modules\debug\src\node.js is loading ES Module C:\Users\User37\AppData\Roaming\npm\node_modules\npm\node_modules\supports-color\index.js using require().
+Support for loading ES Module in require() is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+src/__tests__/components/TrackCard.test.tsx(13,3): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/__tests__/components/TrackCard.test.tsx(44,48): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/__tests__/Footer.test.tsx(103,11): error TS2353: Object literal may only specify known properties, and 'likes' does not exist in type 'ITrack'.
+src/__tests__/Footer.test.tsx(287,11): error TS2353: Object literal may only specify known properties, and 'likes' does not exist in type 'ITrack'.
+src/__tests__/Footer.test.tsx(309,11): error TS2353: Object literal may only specify known properties, and 'likes' does not exist in type 'ITrack'.
+src/__tests__/TrackPage.test.tsx(63,3): error TS2353: Object literal may only specify known properties, and 'likes' does not exist in type 'ITrack'.
+src/app/(with-header)/charts/page.tsx(176,53): error TS2339: Property 'likes' does not exist on type 'ITrack'.
+src/app/(with-header)/charts/page.tsx(177,53): error TS2339: Property 'plays' does not exist on type 'ITrack'.
+src/app/(with-header)/discover/page.tsx(35,37): error TS2339: Property 'plays' does not exist on type 'ITrack'.
+src/app/[username]/likes/page.tsx(148,7): error TS2353: Object literal may only specify known properties, and 'likes' does not exist in type 'ITrack'.
+src/app/[username]/page.tsx(146,43): error TS2339: Property 'createPlaylist' does not exist on type 'IPlaylistService'.
+src/app/[username]/page.tsx(153,66): error TS2339: Property 'plays' does not exist on type 'ITrack'.
+src/app/[username]/page.tsx(153,76): error TS2339: Property 'plays' does not exist on type 'ITrack'.
+src/components/Home/ListeningHistory.tsx(97,63): error TS2339: Property 'likes' does not exist on type 'ITrack'.
+src/components/Home/ListeningHistory.tsx(206,44): error TS2339: Property 'plays' does not exist on type 'ITrack'.
+src/components/playlist/PlaylistHeader.tsx(26,5): error TS2353: Object literal may only specify known properties, and 'likes' does not exist in type 'ITrack'.
+src/components/playlist/PlaylistTrackItem.tsx(27,5): error TS2353: Object literal may only specify known properties, and 'likes' does not exist in type 'ITrack'.
+src/components/playlist/TrackSelector.tsx(26,13): error TS2322: Type '{ id: string; title: string; artist: string; albumArt: string; url: string; duration: number; }[]' is not assignable to type 'IPlaylistTrack[]'.
+  Property 'position' is missing in type '{ id: string; title: string; artist: string; albumArt: string; url: string; duration: number; }' but required in type 'IPlaylistTrack'.
+src/components/Profile/ProfileSidebar.tsx(268,5): error TS2353: Object literal may only specify known properties, and 'likes' does not exist in type 'ITrack'.
+src/components/Studio/StudioAddToPlaylistPanel.tsx(103,45): error TS2339: Property 'createPlaylist' does not exist on type 'IPlaylistService'.
+src/components/Track/TrackActions.tsx(11,44): error TS2339: Property 'likes' does not exist on type 'ITrack'.
+src/components/Track/TrackActions.tsx(17,15): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Track/TrackActions.tsx(25,22): error TS2339: Property 'likes' does not exist on type 'ITrack'.
+src/components/Track/TrackCard.tsx(17,52): error TS2339: Property 'likes' does not exist on type 'ITrack'.
+src/components/Track/TrackCard.tsx(68,22): error TS2339: Property 'likes' does not exist on type 'ITrack'.
+src/components/Track/TrackCard.tsx(123,20): error TS2339: Property 'genre' does not exist on type 'ITrack'.
+src/components/Track/TrackCard.tsx(125,26): error TS2339: Property 'genre' does not exist on type 'ITrack'.
+src/components/Track/TrackCard.tsx(213,41): error TS2339: Property 'plays' does not exist on type 'ITrack'.
+src/services/api/feed.api.ts(32,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/api/feed.api.ts(55,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/api/home.api.ts(32,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/api/playlist.api.ts(56,3): error TS2741: Property 'position' is missing in type '{ id: string; title: string; artist: string; albumArt: string; url: string; duration: number; }' but required in type 'IPlaylistTrack'.
+src/services/api/search.api.ts(28,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/api/stations.api.ts(39,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/api/stations.api.ts(57,23): error TS2339: Property 'genre' does not exist on type 'ITrack'.
+src/services/api/trackService.ts(82,11): error TS2339: Property 'genre' does not exist on type 'ITrack'.
+src/services/api/trackService.ts(108,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/api/trending.api.ts(40,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/api/userProfile.api.ts(202,47): error TS2339: Property 'likes' does not exist on type 'ITrack'.
+src/services/mocks/feed.mock.ts(18,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/mocks/feed.mock.ts(34,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/mocks/feed.mock.ts(50,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/mocks/feed.mock.ts(66,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/mocks/feed.mock.ts(82,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/mocks/feed.mock.ts(136,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/mocks/feed.mock.ts(152,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/mocks/feed.mock.ts(168,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/mocks/home.mock.ts(26,5): error TS2353: Object literal may only specify known properties, and 'likes' does not exist in type 'ITrack'.
+src/services/mocks/home.mock.ts(38,5): error TS2353: Object literal may only specify known properties, and 'likes' does not exist in type 'ITrack'.
+src/services/mocks/home.mock.ts(53,5): error TS2353: Object literal may only specify known properties, and 'likes' does not exist in type 'ITrack & { type: "track"; playedAt?: string | undefined; }'.
+src/services/mocks/home.mock.ts(79,5): error TS2353: Object literal may only specify known properties, and 'likes' does not exist in type 'ITrack'.
+src/services/mocks/home.mock.ts(91,5): error TS2353: Object literal may only specify known properties, and 'likes' does not exist in type 'ITrack'.
+src/services/mocks/home.mock.ts(125,5): error TS2353: Object literal may only specify known properties, and 'likes' does not exist in type 'ITrack'.
+src/services/mocks/mockData.ts(41,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/mocks/mockData.ts(54,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/mocks/mockData.ts(67,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/mocks/mockData.ts(80,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/mocks/mockData.ts(433,22): error TS2353: Object literal may only specify known properties, and 'track' does not exist in type 'IPlaylistTrack'.
+src/services/mocks/mockData.ts(434,22): error TS2353: Object literal may only specify known properties, and 'track' does not exist in type 'IPlaylistTrack'.
+src/services/mocks/mockData.ts(450,5): error TS2322: Type '{ position: number; track: ITrack; }[]' is not assignable to type 'IPlaylistTrack[]'.
+  Type '{ position: number; track: ITrack; }' is missing the following properties from type 'IPlaylistTrack': id, title, artist, albumArt, and 2 more.
+src/services/mocks/mockData.ts(599,12): error TS2339: Property 'plays' does not exist on type 'ITrack'.
+src/services/mocks/mockData.ts(599,28): error TS2339: Property 'likes' does not exist on type 'ITrack'.
+src/services/mocks/mockData.ts(606,54): error TS2339: Property 'plays' does not exist on type 'ITrack'.
+src/services/mocks/search.mock.ts(22,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/mocks/search.mock.ts(38,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/mocks/search.mock.ts(54,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/mocks/search.mock.ts(70,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/mocks/search.mock.ts(177,11): error TS2339: Property 'genre' does not exist on type 'ITrack'.
+src/services/mocks/stations.mock.ts(17,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/mocks/stations.mock.ts(33,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/mocks/stations.mock.ts(49,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/mocks/stations.mock.ts(65,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/mocks/stations.mock.ts(81,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/mocks/stations.mock.ts(97,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+src/services/mocks/stations.mock.ts(120,23): error TS2339: Property 'genre' does not exist on type 'ITrack'.
+src/services/mocks/stations.mock.ts(131,21): error TS2339: Property 'genre' does not exist on type 'ITrack'.
+src/services/mocks/trackService.ts(57,40): error TS2339: Property 'genre' does not exist on type 'ITrack'.
+src/services/mocks/trackService.ts(57,51): error TS2339: Property 'genre' does not exist on type 'ITrack'.
+src/services/mocks/trackService.ts(80,25): error TS2339: Property 'plays' does not exist on type 'ITrack'.
+src/services/mocks/trackService.ts(80,35): error TS2339: Property 'plays' does not exist on type 'ITrack'.
+src/services/mocks/trackService.ts(91,20): error TS2339: Property 'genre' does not exist on type 'ITrack'.
+src/services/mocks/trackService.ts(91,37): error TS2339: Property 'genre' does not exist on type 'ITrack'.
+src/services/mocks/trackService.ts(91,48): error TS2339: Property 'genre' does not exist on type 'ITrack'.
+src/services/mocks/trackService.ts(91,80): error TS2339: Property 'genre' does not exist on type 'ITrack'.
+src/services/mocks/trackService.ts(92,21): error TS2339: Property 'plays' does not exist on type 'ITrack'.
+src/services/mocks/trackService.ts(92,31): error TS2339: Property 'plays' does not exist on type 'ITrack'.
+src/services/mocks/userProfile.mock.ts(30,5): error TS2353: Object literal may only specify known properties, and 'genre' does not exist in type 'ITrack'.
+RESULT: FAILED — TypeScript errors found
 
 ================================================================
 STEP 3 — BUILD
@@ -122,63 +181,24 @@ STEP 3 — BUILD
 > next build
 
 ▲ Next.js 16.1.6 (Turbopack)
-- Environments: .env.local
 
   Creating an optimized production build ...
-✓ Compiled successfully in 16.7s
+✓ Compiled successfully in 18.8s
   Running TypeScript ...
-  Collecting page data using 7 workers ...
-  Generating static pages using 7 workers (0/31) ...
-  Generating static pages using 7 workers (7/31) 
-  Generating static pages using 7 workers (15/31) 
-  Generating static pages using 7 workers (23/31) 
-✓ Generating static pages using 7 workers (31/31) in 558.1ms
-  Finalizing page optimization ...
+Failed to compile.
 
-Route (app)
-┌ ○ /
-├ ○ /_not-found
-├ ƒ /[username]
-├ ƒ /[username]/followers
-├ ƒ /[username]/following
-├ ƒ /[username]/likes
-├ ○ /charts
-├ ○ /creator/distribute
-├ ○ /creator/monetize
-├ ○ /creator/studio
-├ ○ /creator/upload
-├ ○ /discover
-├ ○ /feed
-├ ○ /home
-├ ○ /icon.svg
-├ ○ /library
-├ ○ /login
-├ ○ /notifications
-├ ƒ /playlist/[id]
-├ ○ /search
-├ ○ /settings
-├ ○ /settings/account
-├ ○ /settings/advertising
-├ ○ /settings/content
-├ ○ /settings/notifications
-├ ○ /settings/privacy
-├ ○ /settings/request-verification
-├ ○ /settings/two-factor
-├ ○ /stations
-├ ○ /store
-├ ○ /stream
-├ ƒ /track/[id]
-├ ○ /trending
-├ ○ /who-to-follow
-└ ○ /you/insights
+./src/app/(with-header)/charts/page.tsx:176:53
+Type error: Property 'likes' does not exist on type 'ITrack'.
 
-
-ƒ Proxy (Middleware)
-
-○  (Static)   prerendered as static content
-ƒ  (Dynamic)  server-rendered on demand
-
-RESULT: PASSED — Build successful
+[0m [90m 174 |[39m                 {[90m/* Stats */[39m}
+ [90m 175 |[39m                 [33m<[39m[33mdiv[39m className[33m=[39m[32m"hidden sm:flex items-center gap-4 flex-shrink-0 text-xs text-(--sc-text-muted)"[39m[33m>[39m
+[31m[1m>[22m[39m[90m 176 |[39m                   [33m<[39m[33mspan[39m[33m>[39m♥ {formatNumber(entry[33m.[39mtrack[33m.[39mlikes)}[33m<[39m[33m/[39m[33mspan[39m[33m>[39m
+ [90m     |[39m                                                     [31m[1m^[22m[39m
+ [90m 177 |[39m                   [33m<[39m[33mspan[39m[33m>[39m▶ {formatNumber(entry[33m.[39mtrack[33m.[39mplays)}[33m<[39m[33m/[39m[33mspan[39m[33m>[39m
+ [90m 178 |[39m                 [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 179 |[39m               [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m[0m
+Next.js build worker exited with code: 1 and signal: null
+RESULT: FAILED — Build failed
 
 ================================================================
 STEP 4 — TESTS
@@ -187,28 +207,802 @@ STEP 4 — TESTS
 > media@0.1.0 test
 > jest --silent
 
-PASS src/__tests__/components/ProfileActions.test.tsx
-PASS src/__tests__/Landing.test.tsx
-PASS src/__tests__/components/TrackCard.test.tsx
-PASS src/__tests__/Trending.test.tsx
 PASS src/__tests__/Stations.test.tsx
+FAIL src/__tests__/Trending.test.tsx
+  ● TrendingPage Component › toggles the dots menu in the header
+
+    TestingLibraryElementError: Unable to find an element with the text: About us. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"bg-[#0a0a0a] min-h-screen text-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"w-full py-5 pb-[60px]"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"max-w-[1240px] mx-auto flex gap-[30px] px-5"[39m
+            [36m>[39m
+              [36m<main[39m
+                [33mclass[39m=[32m"flex-1 min-w-0"[39m
+              [36m>[39m
+                [36m<h1[39m
+                  [33mclass[39m=[32m"text-[32px] font-extrabold mb-[25px] pb-[15px] border-b border-[#222]"[39m
+                [36m>[39m
+                  [0mDiscover Tracks and Playlists[0m
+                [36m</h1>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"mb-[40px]"[39m
+                [36m>[39m
+                  [36m<section[39m
+                    [33mclass[39m=[32m"w-full mb-1"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"flex items-end justify-between mb-5"[39m
+                    [36m>[39m
+                      [36m<div>[39m
+                        [36m<h2[39m
+                          [33mclass[39m=[32m"text-white text-xl font-semibold"[39m
+                        [36m>[39m
+                          [0mCurated by SoundCloud[0m
+                        [36m</h2>[39m
+                        [36m<p[39m
+                          [33mclass[39m=[32m"text-neutral-400 text-sm"[39m
+                        [36m>[39m
+                          [0mHand-picked for you[0m
+                        [36m</p>[39m
+                      [36m</div>[39m
+                    [36m</div>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"relative track-slider-root"[39m
+                    [36m>[39m
+                      [36m<div[39m
+                        [33mclass[39m=[32m"overflow-x-clip overflow-y-visible pb-4"[39m
+                      [36m>[39m
+                        [36m<div[39m
+                          [33mclass[39m=[32m"flex gap-8 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"[39m
+                          [33mstyle[39m=[32m"transform: translateX(calc(-0 * (20% + 6.4px) + 0px));"[39m
+                        [36m>[39m
+                          [36m<div[39m
+                            [33mclass[39m=[32m"flex-[0_0_calc(20%-25.6px)]"[39m
+                          [36m>[39m
+                            [36m<div[39m
+                              [33mclass[39m=[32m"group w-full flex flex-col gap-2 relative select-none z-10 transition-transform duration-200 hover:-translate-y-1"[39m
+                            [36m>[39m
+                              [36m<div[39m
+                                [33mclass[39m=[32m"relative aspect-square rounded-xl bg-neutral-800 cursor-pointer overflow-hidden "[39m
+                              [36m>[39m
+                                [36m<img[39m
+                                  [33malt[39m=[32m"Track"[39m
+                                  [33mclass[39m=[32m"object-cover group-hover:scale-105 transition duration-300 pointer-events-none"[39m
+                                  [33mdata-nimg[39m=[32m"fill"[39m
+                                  [33mdecoding[39m=[32m"async"[39m
+                                  [33mloading[39m=[32m"lazy"[39m
+                                  [33msizes[39m=[32m"100vw"[39m
+                                  [33msrc[39m=[32m"/_next/image?url=%2Ftest.png&w=3840&q=75"[39m
+                                  [33msrcset[39m=[32m"/_next/image?url=%2Ftest.png&w=640&q=75 640w, /_next/image?url=%2Ftest.png&w=750&q=75 750w, /_next/image?url=%2Ftest.png&w=828&q=75 828w, /_next/image?url=%2Ftest.png&w=1080&q=75 1080w, /_next/image?url=%2Ftest.png&w=1200&q=75 1200w, /_next/image?url=%2Ftest.png&w=1920&q=75 1920w, /_next/image?url=%2Ftest.png&w=2048&q=75 2048w, /_next/image?url=%2Ftest.png&w=3840&q=75 3840w"[39m
+                                  [33mstyle[39m=[32m"position: absolute; height: 100%; width: 100%; left: 0px; top: 0px; right: 0px; bottom: 0px; color: transparent;"[39m
+                                [36m/>[39m
+                                [36m<div[39m
+                                  [33mclass[39m=[32m"absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent transition duration-300 opacity-0 group-hover:opacity-100"[39m
+                                [36m/>[39m
+                                [36m<div[39m
+                                  [33mclass[39m=[32m"absolute inset-0 flex items-center justify-center transition duration-300 opacity-0 group-hover:opacity-100"[39m
+                                [36m>[39m
+                                  [36m<button[39m
+                                    [33mclass[39m=[32m"cursor-pointer outline-none ring-0 border-none focus:outline-none focus:ring-0 active:outline-none active:ring-0 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition"[39m
+                                  [36m>[39m
+                                    [36m<svg[39m
+                                      [33maria-hidden[39m=[32m"true"[39m
+                                      [33mclass[39m=[32m"lucide lucide-play fill-black text-black ml-1"[39m
+                                      [33mfill[39m=[32m"none"[39m
+                                      [33mheight[39m=[32m"20"[39m
+                                      [33mstroke[39m=[32m"currentColor"[39m
+                                      [33mstroke-linecap[39m=[32m"round"[39m
+                                      [33mstroke-linejoin[39m=[32m"round"[39m
+                                      [33mstroke-width[39m=[32m"2"[39m
+                                      [33mviewBox[39m=[32m"0 0 24 24"[39m
+                                      [33mwidth[39m=[32m"20"[39m
+                                      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                                    [36m>[39m
+                                      [36m<path[39m
+                                        [33md[39m=[32m"M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"[39m
+                                      [36m/>[39m
+                                    [36m</svg>[39m
+                                  [36m</button>[39m
+                                [36m</div>[39m
+                                [36m<div[39m
+                                  [33mclass[39m=[32m"absolute bottom-2 right-2 flex gap-1.5 transition duration-300 opacity-0 group-hover:opacity-100"[39m
+                                [36m>[39m
+                                  [36m<button[39m
+                                    [33mclass[39m=[32m"cursor-pointer outline-none ring-0 border-none focus:outline-none focus:ring-0 active:outline-none active:ring-0 p-1.5 rounded-full bg-black/40 text-white hover:scale-110 transition "[39m
+                                  [36m>[39m
+                                    [36m<svg[39m
+                                      [33maria-hidden[39m=[32m"true"[39m
+                          ...
+
+    [0m [90m 75 |[39m     [36mif[39m (dotsBtn) {
+     [90m 76 |[39m       fireEvent[33m.[39mclick(dotsBtn)[33m;[39m
+    [31m[1m>[22m[39m[90m 77 |[39m       expect(screen[33m.[39mgetByText([32m"About us"[39m))[33m.[39mtoBeInTheDocument()[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   })[33m;[39m
+     [90m 80 |[39m[0m
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.getByText (src/__tests__/Trending.test.tsx:77:21)
+
+PASS src/__tests__/Footer.test.tsx
+FAIL src/__tests__/components/TrackCard.test.tsx
+  ● TrackCard › renders track title
+
+    ReferenceError: fetch is not defined
+
+    [0m [90m 35 |[39m     [36mlet[39m cancelled [33m=[39m [36mfalse[39m[33m;[39m
+     [90m 36 |[39m
+    [31m[1m>[22m[39m[90m 37 |[39m     fetch([32m`${ENV.API_BASE_URL}/tracks/${trackId}/waveform`[39m)
+     [90m    |[39m     [31m[1m^[22m[39m
+     [90m 38 |[39m       [33m.[39mthen(r [33m=>[39m (r[33m.[39mok [33m?[39m r[33m.[39mjson() [33m:[39m [33mPromise[39m[33m.[39mreject([36mnew[39m [33mError[39m([32m`${r.status}`[39m))))
+     [90m 39 |[39m       [33m.[39mthen(json [33m=>[39m {
+     [90m 40 |[39m         [36mif[39m (cancelled) [36mreturn[39m[33m;[39m[0m
+
+      at fetch (src/hooks/useWaveform.ts:37:5)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at commitHookEffectListMount (node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+      at commitHookPassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+      at recursivelyTraversePassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15519:11)
+      at flushPassiveEffects (node_modules/react-dom/cjs/react-dom-client.development.js:18432:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:17923:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:590:34)
+      at process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:884:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:189:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:291:10)
+      at Object.<anonymous> (src/__tests__/components/TrackCard.test.tsx:29:11)
+
+  ● TrackCard › renders track duration
+
+    ReferenceError: fetch is not defined
+
+    [0m [90m 35 |[39m     [36mlet[39m cancelled [33m=[39m [36mfalse[39m[33m;[39m
+     [90m 36 |[39m
+    [31m[1m>[22m[39m[90m 37 |[39m     fetch([32m`${ENV.API_BASE_URL}/tracks/${trackId}/waveform`[39m)
+     [90m    |[39m     [31m[1m^[22m[39m
+     [90m 38 |[39m       [33m.[39mthen(r [33m=>[39m (r[33m.[39mok [33m?[39m r[33m.[39mjson() [33m:[39m [33mPromise[39m[33m.[39mreject([36mnew[39m [33mError[39m([32m`${r.status}`[39m))))
+     [90m 39 |[39m       [33m.[39mthen(json [33m=>[39m {
+     [90m 40 |[39m         [36mif[39m (cancelled) [36mreturn[39m[33m;[39m[0m
+
+      at fetch (src/hooks/useWaveform.ts:37:5)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at commitHookEffectListMount (node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+      at commitHookPassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+      at recursivelyTraversePassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15519:11)
+      at flushPassiveEffects (node_modules/react-dom/cjs/react-dom-client.development.js:18432:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:17923:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:590:34)
+      at process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:884:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:189:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:291:10)
+      at Object.<anonymous> (src/__tests__/components/TrackCard.test.tsx:34:11)
+
+  ● TrackCard › renders genre tag when genre is provided
+
+    ReferenceError: fetch is not defined
+
+    [0m [90m 35 |[39m     [36mlet[39m cancelled [33m=[39m [36mfalse[39m[33m;[39m
+     [90m 36 |[39m
+    [31m[1m>[22m[39m[90m 37 |[39m     fetch([32m`${ENV.API_BASE_URL}/tracks/${trackId}/waveform`[39m)
+     [90m    |[39m     [31m[1m^[22m[39m
+     [90m 38 |[39m       [33m.[39mthen(r [33m=>[39m (r[33m.[39mok [33m?[39m r[33m.[39mjson() [33m:[39m [33mPromise[39m[33m.[39mreject([36mnew[39m [33mError[39m([32m`${r.status}`[39m))))
+     [90m 39 |[39m       [33m.[39mthen(json [33m=>[39m {
+     [90m 40 |[39m         [36mif[39m (cancelled) [36mreturn[39m[33m;[39m[0m
+
+      at fetch (src/hooks/useWaveform.ts:37:5)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at commitHookEffectListMount (node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+      at commitHookPassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+      at recursivelyTraversePassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15519:11)
+      at flushPassiveEffects (node_modules/react-dom/cjs/react-dom-client.development.js:18432:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:17923:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:590:34)
+      at process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:884:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:189:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:291:10)
+      at Object.<anonymous> (src/__tests__/components/TrackCard.test.tsx:39:11)
+
+  ● TrackCard › does not render genre tag when genre is null
+
+    ReferenceError: fetch is not defined
+
+    [0m [90m 35 |[39m     [36mlet[39m cancelled [33m=[39m [36mfalse[39m[33m;[39m
+     [90m 36 |[39m
+    [31m[1m>[22m[39m[90m 37 |[39m     fetch([32m`${ENV.API_BASE_URL}/tracks/${trackId}/waveform`[39m)
+     [90m    |[39m     [31m[1m^[22m[39m
+     [90m 38 |[39m       [33m.[39mthen(r [33m=>[39m (r[33m.[39mok [33m?[39m r[33m.[39mjson() [33m:[39m [33mPromise[39m[33m.[39mreject([36mnew[39m [33mError[39m([32m`${r.status}`[39m))))
+     [90m 39 |[39m       [33m.[39mthen(json [33m=>[39m {
+     [90m 40 |[39m         [36mif[39m (cancelled) [36mreturn[39m[33m;[39m[0m
+
+      at fetch (src/hooks/useWaveform.ts:37:5)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at commitHookEffectListMount (node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+      at commitHookPassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+      at recursivelyTraversePassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15519:11)
+      at flushPassiveEffects (node_modules/react-dom/cjs/react-dom-client.development.js:18432:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:17923:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:590:34)
+      at process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:884:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:189:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:291:10)
+      at Object.<anonymous> (src/__tests__/components/TrackCard.test.tsx:44:11)
+
+  ● TrackCard › calls onPlay when play button div is clicked
+
+    ReferenceError: fetch is not defined
+
+    [0m [90m 35 |[39m     [36mlet[39m cancelled [33m=[39m [36mfalse[39m[33m;[39m
+     [90m 36 |[39m
+    [31m[1m>[22m[39m[90m 37 |[39m     fetch([32m`${ENV.API_BASE_URL}/tracks/${trackId}/waveform`[39m)
+     [90m    |[39m     [31m[1m^[22m[39m
+     [90m 38 |[39m       [33m.[39mthen(r [33m=>[39m (r[33m.[39mok [33m?[39m r[33m.[39mjson() [33m:[39m [33mPromise[39m[33m.[39mreject([36mnew[39m [33mError[39m([32m`${r.status}`[39m))))
+     [90m 39 |[39m       [33m.[39mthen(json [33m=>[39m {
+     [90m 40 |[39m         [36mif[39m (cancelled) [36mreturn[39m[33m;[39m[0m
+
+      at fetch (src/hooks/useWaveform.ts:37:5)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at commitHookEffectListMount (node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+      at commitHookPassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+      at recursivelyTraversePassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15519:11)
+      at flushPassiveEffects (node_modules/react-dom/cjs/react-dom-client.development.js:18432:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:17923:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:590:34)
+      at process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:884:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:189:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:291:10)
+      at Object.<anonymous> (src/__tests__/components/TrackCard.test.tsx:49:33)
+
+  ● TrackCard › toggles like to true when track is not liked
+
+    ReferenceError: fetch is not defined
+
+    [0m [90m 35 |[39m     [36mlet[39m cancelled [33m=[39m [36mfalse[39m[33m;[39m
+     [90m 36 |[39m
+    [31m[1m>[22m[39m[90m 37 |[39m     fetch([32m`${ENV.API_BASE_URL}/tracks/${trackId}/waveform`[39m)
+     [90m    |[39m     [31m[1m^[22m[39m
+     [90m 38 |[39m       [33m.[39mthen(r [33m=>[39m (r[33m.[39mok [33m?[39m r[33m.[39mjson() [33m:[39m [33mPromise[39m[33m.[39mreject([36mnew[39m [33mError[39m([32m`${r.status}`[39m))))
+     [90m 39 |[39m       [33m.[39mthen(json [33m=>[39m {
+     [90m 40 |[39m         [36mif[39m (cancelled) [36mreturn[39m[33m;[39m[0m
+
+      at fetch (src/hooks/useWaveform.ts:37:5)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at commitHookEffectListMount (node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+      at commitHookPassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+      at recursivelyTraversePassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15519:11)
+      at flushPassiveEffects (node_modules/react-dom/cjs/react-dom-client.development.js:18432:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:17923:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:590:34)
+      at process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:884:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:189:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:291:10)
+      at Object.<anonymous> (src/__tests__/components/TrackCard.test.tsx:62:11)
+
+  ● TrackCard › toggles like to false when track is already liked
+
+    ReferenceError: fetch is not defined
+
+    [0m [90m 35 |[39m     [36mlet[39m cancelled [33m=[39m [36mfalse[39m[33m;[39m
+     [90m 36 |[39m
+    [31m[1m>[22m[39m[90m 37 |[39m     fetch([32m`${ENV.API_BASE_URL}/tracks/${trackId}/waveform`[39m)
+     [90m    |[39m     [31m[1m^[22m[39m
+     [90m 38 |[39m       [33m.[39mthen(r [33m=>[39m (r[33m.[39mok [33m?[39m r[33m.[39mjson() [33m:[39m [33mPromise[39m[33m.[39mreject([36mnew[39m [33mError[39m([32m`${r.status}`[39m))))
+     [90m 39 |[39m       [33m.[39mthen(json [33m=>[39m {
+     [90m 40 |[39m         [36mif[39m (cancelled) [36mreturn[39m[33m;[39m[0m
+
+      at fetch (src/hooks/useWaveform.ts:37:5)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at commitHookEffectListMount (node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+      at commitHookPassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+      at recursivelyTraversePassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15519:11)
+      at flushPassiveEffects (node_modules/react-dom/cjs/react-dom-client.development.js:18432:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:17923:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:590:34)
+      at process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:884:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:189:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:291:10)
+      at Object.<anonymous> (src/__tests__/components/TrackCard.test.tsx:70:11)
+
 PASS src/__tests__/Home.test.tsx
-PASS src/__tests__/components/Banner.test.tsx
+PASS src/__tests__/components/ProfileActions.test.tsx
 PASS src/__tests__/components/UserSearchCard.test.tsx
+PASS src/__tests__/SlideShow.test.tsx
+PASS src/__tests__/components/Banner.test.tsx
+PASS src/__tests__/Landing.test.tsx
+PASS src/__tests__/utils/formatNumber.test.ts
 PASS src/__tests__/TrackPage.test.tsx
 PASS src/__tests__/utils/timeAgo.test.ts
-PASS src/__tests__/SlideShow.test.tsx
-PASS src/__tests__/utils/formatNumber.test.ts
 PASS src/__tests__/Toggle.test.tsx
-PASS src/__tests__/Header.test.tsx (5.498 s)
-PASS src/__tests__/Footer.test.tsx
-PASS src/__tests__/services/userProfile.service.test.ts (7.338 s)
+FAIL src/__tests__/Header.test.tsx (5.48 s)
+  ● Header Component › Search Functionality › submits search with encoded query on Enter
 
-Test Suites: 16 passed, 16 total
-Tests:       167 passed, 167 total
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: ""
+    Received: "lo fi"
+
+    [0m [90m 133 |[39m
+     [90m 134 |[39m       expect(mockPush)[33m.[39mtoHaveBeenCalledWith([32m"/search?q=lo%20fi"[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 135 |[39m       expect(searchInput[33m.[39mvalue)[33m.[39mtoBe([32m""[39m)[33m;[39m
+     [90m     |[39m                                 [31m[1m^[22m[39m
+     [90m 136 |[39m     })[33m;[39m
+     [90m 137 |[39m
+     [90m 138 |[39m     test([32m"submits search from the search icon button"[39m[33m,[39m () [33m=>[39m {[0m
+
+      at Object.toBe (src/__tests__/Header.test.tsx:135:33)
+
+  ● Header Component › Search Functionality › submits search from the search icon button
+
+    TestingLibraryElementError: Unable to find a label with the text of: Search
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<header[39m
+          [33mclass[39m=[32m"bg-[#121212] border-b border-[#121212] h-12 flex items-center px-3 sticky top-0 z-[100]"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-0 shrink-0"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Open menu"[39m
+              [33mclass[39m=[32m"md:hidden flex items-center justify-center w-9 h-9 text-[#ccc] hover:text-white transition-colors bg-transparent border-none cursor-pointer mr-1"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mfill[39m=[32m"currentColor"[39m
+                [33mheight[39m=[32m"18"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"18"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</button>[39m
+            [36m<a[39m
+              [33mhref[39m=[32m"/home"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-label[39m=[32m"SoundCloud"[39m
+                [33mfill[39m=[32m"white"[39m
+                [33mheight[39m=[32m"28"[39m
+                [33mviewBox[39m=[32m"-2 0 32 32"[39m
+                [33mwidth[39m=[32m"28"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M23.2 22.68h-10.12c-0.28 0-0.56-0.16-0.72-0.4-0.080-0.12-0.12-0.32-0.12-0.48v-10.76c0-0.28 0.16-0.56 0.4-0.72 1.040-0.64 2.28-1 3.52-1 2.92 0 5.48 1.88 6.36 4.64 0.24-0.040 0.48-0.080 0.72-0.080 2.4 0 4.4 1.96 4.4 4.4s-2.040 4.4-4.44 4.4zM13.92 20.96h9.28c1.48 0 2.68-1.2 2.68-2.68s-1.2-2.68-2.68-2.68c-0.36 0-0.72 0.080-1.040 0.2-0.24 0.080-0.52 0.080-0.72-0.040-0.24-0.12-0.4-0.36-0.44-0.6-0.4-2.4-2.48-4.12-4.88-4.12-0.76 0-1.52 0.16-2.2 0.52v9.4zM10.84 21.8v-8.68c0-0.48-0.4-0.84-0.84-0.84s-0.84 0.4-0.84 0.84v8.72c0 0.48 0.4 0.84 0.84 0.84s0.84-0.4 0.84-0.88zM7.8 21.8v-9c0-0.48-0.4-0.84-0.84-0.84s-0.84 0.4-0.84 0.84v9.040c0 0.48 0.4 0.84 0.84 0.84s0.84-0.4 0.84-0.88zM4.76 21.8v-6.48c0-0.48-0.4-0.84-0.84-0.84s-0.84 0.4-0.84 0.84v6.52c0 0.48 0.4 0.84 0.84 0.84s0.84-0.4 0.84-0.88zM1.72 21.32v-5.32c0-0.48-0.4-0.84-0.84-0.84s-0.88 0.36-0.88 0.84v5.32c0 0.48 0.4 0.84 0.84 0.84s0.88-0.36 0.88-0.84z"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"text-white text-sm font-bold tracking-tight hidden sm:block select-none"[39m
+              [36m>[39m
+                [0msoundcloud[0m
+              [36m</span>[39m
+            [36m</a>[39m
+            [36m<nav[39m
+              [33mclass[39m=[32m"hidden md:flex items-stretch h-12 ml-2"[39m
+              [33mrole[39m=[32m"navigation"[39m
+            [36m>[39m
+              [36m<a[39m
+                [33mhref[39m=[32m"/home"[39m
+              [36m>[39m
+                [0mHome[0m
+              [36m</a>[39m
+              [36m<a[39m
+                [33mhref[39m=[32m"/stream"[39m
+              [36m>[39m
+                [0mFeed[0m
+              [36m</a>[39m
+              [36m<a[39m
+                [33mhref[39m=[32m"/library"[39m
+              [36m>[39m
+                [0mLibrary[0m
+              [36m</a>[39m
+            [36m</nav>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex-1 flex items-center justify-center px-3 min-w-0"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"position: relative; width: 100%; max-width: 480px;"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"display: flex; align-items: center; gap: 8px; background: rgb(26, 26, 26); border-radius: 6px; padding: 0px 12px; height: 36px; border: 1px solid rgb(46, 46, 46); transition: border-color 0.2s, box-shadow 0.2s; border-color: rgb(46, 46, 46); box-shadow: none;"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"15"[39m
+                  [33mstroke[39m=[32m"#555"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mstyle[39m=[32m"flex-shrink: 0; transition: stroke 0.2s;"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"15"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"11"[39m
+                    [33mcy[39m=[32m"11"[39m
+                    [33mr[39m=[32m"8"[39m
+                  [36m/>[39m
+                  [36m<line[39m
+                    [33mx1[39m=[32m"21"[39m
+                    [33mx2[39m=[32m"16.65"[39m
+                    [33my1[39m=[32m"21"[39m
+                    [33my2[39m=[32m"16.65"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<input[39m
+                  [33mautocomplete[39m=[32m"off"[39m
+                  [33mplaceholder[39m=[32m"Search"[39m
+                  [33mspellcheck[39m=[32m"false"[39m
+                  [33mstyle[39m=[32m"flex: 1 1 0%; background: transparent; color: rgb(255, 255, 255); outline: none; font-size: 13px; font-family: inherit; min-width: 0;"[39m
+                  [33mtype[39m=[32m"text"[39m
+                  [33mvalue[39m=[32m""[39m
+                [36m/>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-0.5 shrink-0"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mhref[39m=[32m"/subscription/artist-pro"[39m
+            [36m>[39m
+              [0mUpgrade now[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mhref[39m=[32m"/creator/studio"[39m
+            [36m>[39m
+              [0mFor Artists[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mhref[39m=[32m"/creator/upload"[39m
+            [36m>[39m
+              [0mUpload[0m
+            [36m</a>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-1.5 ml-1"[39m
+            [36m>[39m
+              [36m<a[39m
+                [33mhref[39m=[32m"/login"[39m
+              [36m>[39m
+                [0mSign in[0m
+              [36m</a>[39m
+              [36m<a[39m
+                [33mhref[39m=[32m"/login"[39m
+              [36m>[39m
+                [0mCreate account[0m
+              [36m</a>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</header>[39m
+      [36m</div>[39m
+    [36m</body>[39m
+
+    [0m [90m 139 |[39m       render([33m<[39m[33mHeader[39m [33m/[39m[33m>[39m)[33m;[39m
+     [90m 140 |[39m       [36mconst[39m searchInput [33m=[39m screen[33m.[39mgetByPlaceholderText([32m"Search"[39m) [36mas[39m [33mHTMLInputElement[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 141 |[39m       [36mconst[39m searchButton [33m=[39m screen[33m.[39mgetAllByLabelText([32m"Search"[39m)[33m.[39mfind((el) [33m=>[39m el[33m.[39mtagName [33m===[39m [32m"BUTTON"[39m)[33m;[39m
+     [90m     |[39m                                   [31m[1m^[22m[39m
+     [90m 142 |[39m
+     [90m 143 |[39m       fireEvent[33m.[39mchange(searchInput[33m,[39m { target[33m:[39m { value[33m:[39m [32m"ambient"[39m } })[33m;[39m
+     [90m 144 |[39m       fireEvent[33m.[39mclick(searchButton [36mas[39m [33mHTMLButtonElement[39m)[33m;[39m[0m
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at getAllByLabelText (node_modules/@testing-library/dom/dist/queries/label-text.js:111:38)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:109:15
+      at Object.getAllByLabelText (src/__tests__/Header.test.tsx:141:35)
+
+  ● Header Component › Navigation › navigation links navigate to correct paths
+
+    expect(element).toHaveAttribute("href", "/discover") // element.getAttribute("href") === "/discover"
+
+    Expected the element to have attribute:
+      href="/discover"
+    Received:
+      href="/home"
+
+    [0m [90m 156 |[39m
+     [90m 157 |[39m       [36mconst[39m homeLink [33m=[39m screen[33m.[39mgetAllByText([32m"Home"[39m)[[35m0[39m][33m.[39mclosest([32m"a"[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 158 |[39m       expect(homeLink)[33m.[39mtoHaveAttribute([32m"href"[39m[33m,[39m [32m"/discover"[39m)[33m;[39m
+     [90m     |[39m                        [31m[1m^[22m[39m
+     [90m 159 |[39m
+     [90m 160 |[39m       [36mconst[39m libraryLink [33m=[39m screen[33m.[39mgetAllByText([32m"Library"[39m)[[35m0[39m][33m.[39mclosest([32m"a"[39m)[33m;[39m
+     [90m 161 |[39m       expect(libraryLink)[33m.[39mtoHaveAttribute([32m"href"[39m[33m,[39m [32m"/library"[39m)[33m;[39m[0m
+
+      at Object.toHaveAttribute (src/__tests__/Header.test.tsx:158:24)
+
+  ● Header Component › Navigation › changes active nav item on click
+
+    expect(element).toHaveAttribute("href", "/discover") // element.getAttribute("href") === "/discover"
+
+    Expected the element to have attribute:
+      href="/discover"
+    Received:
+      href="/home"
+
+    [0m [90m 174 |[39m
+     [90m 175 |[39m       fireEvent[33m.[39mclick(homeLink)[33m;[39m
+    [31m[1m>[22m[39m[90m 176 |[39m       expect(homeLink)[33m.[39mtoHaveAttribute([32m"href"[39m[33m,[39m [32m"/discover"[39m)[33m;[39m
+     [90m     |[39m                        [31m[1m^[22m[39m
+     [90m 177 |[39m     })[33m;[39m
+     [90m 178 |[39m   })[33m;[39m
+     [90m 179 |[39m[0m
+
+      at Object.toHaveAttribute (src/__tests__/Header.test.tsx:176:24)
+
+  ● Header Component › Avatar Dropdown Menu › avatar dropdown items have correct hrefs
+
+    expect(element).toHaveAttribute("href", "/stream") // element.getAttribute("href") === "/stream"
+
+    Expected the element to have attribute:
+      href="/stream"
+    Received:
+      href="/stations"
+
+    Ignored nodes: comments, script, style
+    [36m<html>[39m
+      [36m<head />[39m
+      [36m<body>[39m
+        [36m<div>[39m
+          [36m<header[39m
+            [33mclass[39m=[32m"bg-[#121212] border-b border-[#121212] h-12 flex items-center px-3 sticky top-0 z-[100]"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-0 shrink-0"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Open menu"[39m
+                [33mclass[39m=[32m"md:hidden flex items-center justify-center w-9 h-9 text-[#ccc] hover:text-white transition-colors bg-transparent border-none cursor-pointer mr-1"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33mfill[39m=[32m"currentColor"[39m
+                  [33mheight[39m=[32m"18"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"18"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</button>[39m
+              [36m<a[39m
+                [33mhref[39m=[32m"/home"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-label[39m=[32m"SoundCloud"[39m
+                  [33mfill[39m=[32m"white"[39m
+                  [33mheight[39m=[32m"28"[39m
+                  [33mviewBox[39m=[32m"-2 0 32 32"[39m
+                  [33mwidth[39m=[32m"28"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M23.2 22.68h-10.12c-0.28 0-0.56-0.16-0.72-0.4-0.080-0.12-0.12-0.32-0.12-0.48v-10.76c0-0.28 0.16-0.56 0.4-0.72 1.040-0.64 2.28-1 3.52-1 2.92 0 5.48 1.88 6.36 4.64 0.24-0.040 0.48-0.080 0.72-0.080 2.4 0 4.4 1.96 4.4 4.4s-2.040 4.4-4.44 4.4zM13.92 20.96h9.28c1.48 0 2.68-1.2 2.68-2.68s-1.2-2.68-2.68-2.68c-0.36 0-0.72 0.080-1.040 0.2-0.24 0.080-0.52 0.080-0.72-0.040-0.24-0.12-0.4-0.36-0.44-0.6-0.4-2.4-2.48-4.12-4.88-4.12-0.76 0-1.52 0.16-2.2 0.52v9.4zM10.84 21.8v-8.68c0-0.48-0.4-0.84-0.84-0.84s-0.84 0.4-0.84 0.84v8.72c0 0.48 0.4 0.84 0.84 0.84s0.84-0.4 0.84-0.88zM7.8 21.8v-9c0-0.48-0.4-0.84-0.84-0.84s-0.84 0.4-0.84 0.84v9.040c0 0.48 0.4 0.84 0.84 0.84s0.84-0.4 0.84-0.88zM4.76 21.8v-6.48c0-0.48-0.4-0.84-0.84-0.84s-0.84 0.4-0.84 0.84v6.52c0 0.48 0.4 0.84 0.84 0.84s0.84-0.4 0.84-0.88zM1.72 21.32v-5.32c0-0.48-0.4-0.84-0.84-0.84s-0.88 0.36-0.88 0.84v5.32c0 0.48 0.4 0.84 0.84 0.84s0.88-0.36 0.88-0.84z"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"text-white text-sm font-bold tracking-tight hidden sm:block select-none"[39m
+                [36m>[39m
+                  [0msoundcloud[0m
+                [36m</span>[39m
+              [36m</a>[39m
+              [36m<nav[39m
+                [33mclass[39m=[32m"hidden md:flex items-stretch h-12 ml-2"[39m
+                [33mrole[39m=[32m"navigation"[39m
+              [36m>[39m
+                [36m<a[39m
+                  [33mhref[39m=[32m"/home"[39m
+                [36m>[39m
+                  [0mHome[0m
+                [36m</a>[39m
+                [36m<a[39m
+                  [33mhref[39m=[32m"/stream"[39m
+                [36m>[39m
+                  [0mFeed[0m
+                [36m</a>[39m
+                [36m<a[39m
+                  [33mhref[39m=[32m"/library"[39m
+                [36m>[39m
+                  [0mLibrary[0m
+                [36m</a>[39m
+              [36m</nav>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex-1 flex items-center justify-center px-3 min-w-0"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"position: relative; width: 100%; max-width: 480px;"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mstyle[39m=[32m"display: flex; align-items: center; gap: 8px; background: rgb(26, 26, 26); border-radius: 6px; padding: 0px 12px; height: 36px; border: 1px solid rgb(46, 46, 46); transition: border-color 0.2s, box-shadow 0.2s; border-color: rgb(46, 46, 46); box-shadow: none;"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"15"[39m
+                    [33mstroke[39m=[32m"#555"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mstyle[39m=[32m"flex-shrink: 0; transition: stroke 0.2s;"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"15"[39m
+                  [36m>[39m
+                    [36m<circle[39m
+                      [33mcx[39m=[32m"11"[39m
+                      [33mcy[39m=[32m"11"[39m
+                      [33mr[39m=[32m"8"[39m
+                    [36m/>[39m
+                    [36m<line[39m
+                      [33mx1[39m=[32m"21"[39m
+                      [33mx2[39m=[32m"16.65"[39m
+                      [33my1[39m=[32m"21"[39m
+                      [33my2[39m=[32m"16.65"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                  [36m<input[39m
+                    [33mautocomplete[39m=[32m"off"[39m
+                    [33mplaceholder[39m=[32m"Search"[39m
+                    [33mspellcheck[39m=[32m"false"[39m
+                    [33mstyle[39m=[32m"flex: 1 1 0%; background: transparent; color: rgb(255, 255, 255); outline: none; font-size: 13px; font-family: inherit; min-width: 0;"[39m
+                    [33mtype[39m=[32m"text"[39m
+                    [33mvalue[39m=[32m""[39m
+                  [36m/>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-0.5 shrink-0"[39m
+            [36m>[39m
+              [36m<a[39m
+                [33mhref[39m=[32m"/subscription/artist-pro"[39m
+              [36m>[39m
+                [0mUpgrade now[0m
+              [36m</a>[39m
+              [36m<a[39m
+                [33mhref[39m=[32m"/creator/studio"[39m
+              [36m>[39m
+                [0mFor Artists[0m
+              [36m</a>[39m
+              [36m<a[39m
+                [33mhref[39m=[32m"/creator/upload"[39m
+              [36m>[39m
+                [0mUpload[0m
+              [36m</a>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"relative flex items-center ml-1"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex items-center gap-0.5"[39m
+                [36m>[39m
+                  [36m<a[39m
+                    [33mhref[39m=[32m"/testuser"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"w-[26px] h-[26px] rounded-full bg-[#ff5500] flex items-center justify-center text-white text-[11px] font-bold select-none border border-white/20"[39m
+                    [36m>[39m
+                      [0m?[0m
+                 ...
+
+    [0m [90m 270 |[39m         [33mObject[39m[33m.[39mentries(expectedLinks)[33m.[39mforEach(([label[33m,[39m href]) [33m=>[39m {
+     [90m 271 |[39m           [36mconst[39m link [33m=[39m screen[33m.[39mgetAllByText(label)[33m.[39mfind((node) [33m=>[39m node[33m.[39mclosest([32m"a"[39m))[33m?[39m[33m.[39mclosest([32m"a"[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 272 |[39m           expect(link)[33m.[39mtoHaveAttribute([32m"href"[39m[33m,[39m href)[33m;[39m
+     [90m     |[39m                        [31m[1m^[22m[39m
+     [90m 273 |[39m         })[33m;[39m
+     [90m 274 |[39m       })[33m;[39m
+     [90m 275 |[39m     })[33m;[39m[0m
+
+      at toHaveAttribute (src/__tests__/Header.test.tsx:272:24)
+          at Array.forEach (<anonymous>)
+      at forEach (src/__tests__/Header.test.tsx:270:39)
+      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+  ● Header Component › Responsive Behavior › search input fills available width
+
+    expect(element).toHaveClass("w-full")
+
+    Expected the element to have class:
+      w-full
+    Received:
+
+    [0m [90m 420 |[39m       render([33m<[39m[33mHeader[39m [33m/[39m[33m>[39m)[33m;[39m
+     [90m 421 |[39m       [36mconst[39m searchInput [33m=[39m screen[33m.[39mgetByPlaceholderText([32m"Search"[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 422 |[39m       expect(searchInput)[33m.[39mtoHaveClass([32m"w-full"[39m)[33m;[39m
+     [90m     |[39m                           [31m[1m^[22m[39m
+     [90m 423 |[39m     })[33m;[39m
+     [90m 424 |[39m   })[33m;[39m
+     [90m 425 |[39m[0m
+
+      at Object.toHaveClass (src/__tests__/Header.test.tsx:422:27)
+
+  ● Header Component › Link Navigation › logo link navigates to home
+
+    expect(element).toHaveAttribute("href", "/") // element.getAttribute("href") === "/"
+
+    Expected the element to have attribute:
+      href="/"
+    Received:
+      href="/home"
+
+    [0m [90m 446 |[39m       render([33m<[39m[33mHeader[39m [33m/[39m[33m>[39m)[33m;[39m
+     [90m 447 |[39m       [36mconst[39m logoLink [33m=[39m screen[33m.[39mgetByText([32m"soundcloud"[39m)[33m.[39mclosest([32m"a"[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 448 |[39m       expect(logoLink)[33m.[39mtoHaveAttribute([32m"href"[39m[33m,[39m [32m"/"[39m)[33m;[39m
+     [90m     |[39m                        [31m[1m^[22m[39m
+     [90m 449 |[39m     })[33m;[39m
+     [90m 450 |[39m   })[33m;[39m
+     [90m 451 |[39m[0m
+
+      at Object.toHaveAttribute (src/__tests__/Header.test.tsx:448:24)
+
+  ● Header Component › Mobile Drawer › mobile drawer links route to the same destinations
+
+    expect(element).toHaveAttribute("href", "/discover") // element.getAttribute("href") === "/discover"
+
+    Expected the element to have attribute:
+      href="/discover"
+    Received:
+      href="/home"
+
+    [0m [90m 457 |[39m       [36mconst[39m drawer [33m=[39m screen[33m.[39mgetByText([32m"Notifications"[39m)[33m.[39mclosest([32m"nav"[39m) [36mas[39m [33mHTMLElement[39m[33m;[39m
+     [90m 458 |[39m
+    [31m[1m>[22m[39m[90m 459 |[39m       expect(within(drawer)[33m.[39mgetByText([32m"Home"[39m)[33m.[39mclosest([32m"a"[39m))[33m.[39mtoHaveAttribute([32m"href"[39m[33m,[39m [32m"/discover"[39m)[33m;[39m
+     [90m     |[39m                                                             [31m[1m^[22m[39m
+     [90m 460 |[39m       expect(within(drawer)[33m.[39mgetByText([32m"Feed"[39m)[33m.[39mclosest([32m"a"[39m))[33m.[39mtoHaveAttribute([32m"href"[39m[33m,[39m [32m"/stream"[39m)[33m;[39m
+     [90m 461 |[39m       expect(within(drawer)[33m.[39mgetByText([32m"Library"[39m)[33m.[39mclosest([32m"a"[39m))[33m.[39mtoHaveAttribute([32m"href"[39m[33m,[39m [32m"/library"[39m)[33m;[39m
+     [90m 462 |[39m       expect(within(drawer)[33m.[39mgetByText([32m"Upload"[39m)[33m.[39mclosest([32m"a"[39m))[33m.[39mtoHaveAttribute([32m"href"[39m[33m,[39m [32m"/creator/upload"[39m)[33m;[39m[0m
+
+      at Object.toHaveAttribute (src/__tests__/Header.test.tsx:459:61)
+
+PASS src/__tests__/services/userProfile.service.test.ts (7.045 s)
+
+Test Suites: 3 failed, 13 passed, 16 total
+Tests:       16 failed, 151 passed, 167 total
 Snapshots:   0 total
-Time:        11.121 s
-RESULT: PASSED — Tests successful
+Time:        11.118 s
+RESULT: FAILED — Tests failed
 
 ================================================================
 STEP 5 — CONSOLE.LOG CHECK
@@ -218,13 +1012,14 @@ RESULT: PASSED — No console.log found
 ================================================================
 STEP 6 — BRANCH NAME
 ================================================================
-RESULT: PASSED — Branch name valid (feature/fe-stations-page)
+RESULT: PASSED — Branch name valid (feature/fe-playlist-only-final)
 
 ================================================================
 STEP 7 — COMMIT MESSAGE
 ================================================================
-RESULT: PASSED — Commit message valid
+RESULT: FAILED — Invalid commit message:
+Copy all playlist files from master to feature/fe-playlist-only-final branch
 
 ================================================================
-✅ FINAL RESULT: ALL CHECKS PASSED
+❌ FINAL RESULT: ISSUES FOUND — FIX BEFORE MERGE
 ================================================================
