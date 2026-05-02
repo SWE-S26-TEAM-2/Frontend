@@ -48,6 +48,8 @@ export interface IProfileSidebarProps {
 export interface IIconBtnProps {
   icon: ReactNode;
   label?: string;
+  /** Shown on the control for assistive tech / e2e (labels are not rendered when omitted). */
+  ariaLabel?: string;
   active?: boolean;
   count?: number;
   onClick?: () => void;
