@@ -43,21 +43,12 @@ function SearchInner() {
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState<string | null>(null);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setTab("all");
-
     if (!queryParam.trim()) {
-      setResults({ tracks: [], users: [], playlists: [] });
-      setLoading(false);
-      setError(null);
       return;
     }
 
     let cancelled = false;
-    setLoading(true);
-    setError(null);
 
     searchService.searchAll(queryParam)
       .then((data) => {

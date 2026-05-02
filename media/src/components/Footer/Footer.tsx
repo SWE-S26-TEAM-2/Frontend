@@ -74,7 +74,7 @@ export default function Footer() {
   const {
     currentTrack, queue, isPlaying, currentTime, duration, volume, liked, shuffle, repeat,
     togglePlay, setCurrentTime, setDuration, setVolume, toggleLike, toggleShuffle,
-    toggleRepeat, playNext, playPrev, setTrack, setQueue, playFromQueue, moveQueueItem,
+    toggleRepeat, playNext, playPrev, setTrack, setQueue, playFromQueue,
   } = usePlayerStore();
 
   const audioRef    = useRef<HTMLAudioElement>(null);
@@ -84,8 +84,6 @@ export default function Footer() {
   const [muted,          setMuted]          = useState(false);
   const [volVisible,     setVolVisible]     = useState(false);
   const [queueOpen,      setQueueOpen]      = useState(false);
-  const [dragFromIndex,  setDragFromIndex]  = useState<number | null>(null);
-  const [dragOverIndex,  setDragOverIndex]  = useState<number | null>(null);
 
   // Load tracks on mount
   useEffect(() => {
@@ -297,7 +295,7 @@ export default function Footer() {
           <div>
             <div className="text-white text-sm">Autoplay station</div>
             <div className="text-xs text-[#aaa]">
-              Hear related tracks based on what's playing now.
+              Hear related tracks based on what&apos;s playing now.
             </div>
           </div>
 
