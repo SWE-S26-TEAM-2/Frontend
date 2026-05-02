@@ -53,7 +53,7 @@ export default function HomePage() {
 
   // ── Render ────────────────────────────────────────────────────────────────
   // Return null before mount so server and client produce identical HTML.
-  if (!mounted) return null;
+  //if (!mounted) return null;
 
   if (isLoading) {
     return (
