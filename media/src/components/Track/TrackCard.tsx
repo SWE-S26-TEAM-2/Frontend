@@ -133,9 +133,11 @@ export function TrackCard({ track, onPlay, onLikeChange, isOwner, onDelete }: IT
 
         {/* Play + Waveform + Duration */}
         <div className="flex items-center gap-2.5 mb-2.5">
-          <div
+          <button
+            type="button"
             onClick={handlePlay}
-            className="w-9 h-9 rounded-full bg-white shrink-0 flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors"
+            aria-label={isCurrent && isPlaying ? "Pause" : "Play"}
+            className="w-9 h-9 rounded-full bg-white shrink-0 flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors border-none p-0"
           >
             {isCurrent && isPlaying ? (
               <span className="text-[10px] font-bold text-[#111] leading-none">❚❚</span>
@@ -144,7 +146,7 @@ export function TrackCard({ track, onPlay, onLikeChange, isOwner, onDelete }: IT
                 <path d="M8 5v14l11-7z" />
               </svg>
             )}
-          </div>
+          </button>
           <Waveform data={waveform} playedPercent={playedPercent} onSeek={handleSeek} />
           <span className="text-[11px] text-[#555] shrink-0">
             {Math.floor(track.duration / 60)}:{(track.duration % 60).toString().padStart(2, "0")}
@@ -158,6 +160,7 @@ export function TrackCard({ track, onPlay, onLikeChange, isOwner, onDelete }: IT
               icon={<HeartIcon isFilled={isLiked} />}
               count={likes}
               active={isLiked}
+              ariaLabel="Like track"
               onClick={handleLikeToggle}
             />
             <IconBtn
@@ -171,7 +174,11 @@ export function TrackCard({ track, onPlay, onLikeChange, isOwner, onDelete }: IT
             </span>
             <IconBtn icon={<CopyIcon />} onClick={handleCopy} />
             <span ref={moreBtnRef} className="relative inline-flex">
-              <IconBtn icon={<MoreIcon />} onClick={() => setIsMoreOpen((v) => !v)} />
+              <IconBtn
+                icon={<MoreIcon />}
+                ariaLabel="More options"
+                onClick={() => setIsMoreOpen((v) => !v)}
+              />
               {isMoreOpen && (
                 <div className="absolute left-0 top-full mt-1 z-50 min-w-40 bg-[#1c1c1c] border border-[#2e2e2e] rounded shadow-lg py-1">
                   <button
