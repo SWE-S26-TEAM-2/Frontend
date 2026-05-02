@@ -25,7 +25,7 @@ export default function CommentSection({ trackId }: ICommentSectionProps) {
 
   useEffect(() => {
     commentService.getTrackComments(trackId).then((data) => {
-      setComments(data.comments);
+      setComments(data);
       setIsLoading(false);
     });
   }, [trackId]);

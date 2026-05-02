@@ -20,7 +20,6 @@ export interface IComment {
   replyCount: number;
   replies: ICommentReply[];
   likeCount: number;
-  comments: ICommentReply[]; // For backward compatibility with older API responses that use "comments" instead of "replies"
 }
 
 export interface ICommentService {
