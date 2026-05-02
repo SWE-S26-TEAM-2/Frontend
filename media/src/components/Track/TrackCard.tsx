@@ -61,8 +61,8 @@ export function TrackCard({ track, onPlay, onLikeChange, isOwner, onDelete }: IT
       const result = newLiked
         ? await engagementService.likeTrack(track.id)
         : await engagementService.unlikeTrack(track.id);
-      setLikes(result.likeCount);
-      onLikeChange?.(track.id, newLiked, result.likeCount);
+      if (result.likeCount >= 0) setLikes(result.likeCount);
+      onLikeChange?.(track.id, newLiked, result.likeCount >= 0 ? result.likeCount : likes);
     } catch {
       setIsLiked(!newLiked);
       setLikes(track.likes);

@@ -74,16 +74,32 @@ export default function Footer() {
   const {
     currentTrack, queue, isPlaying, currentTime, duration, volume, liked, shuffle, repeat,
     togglePlay, setCurrentTime, setDuration, setVolume, toggleLike, toggleShuffle,
-    toggleRepeat, playNext, playPrev, setTrack, setQueue, playFromQueue,
+    toggleRepeat, playNext, playPrev, setTrack, setQueue, addToQueue, playFromQueue, moveQueueItem,
   } = usePlayerStore();
 
   const audioRef    = useRef<HTMLAudioElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const leaveTimer  = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const [muted,          setMuted]          = useState(false);
-  const [volVisible,     setVolVisible]     = useState(false);
-  const [queueOpen,      setQueueOpen]      = useState(false);
+  const [muted,           setMuted]           = useState(false);
+  const [volVisible,      setVolVisible]      = useState(false);
+  const [queueOpen,       setQueueOpen]       = useState(false);
+  const [dragFromIndex,   setDragFromIndex]   = useState<number | null>(null);
+  const [dragOverIndex,   setDragOverIndex]   = useState<number | null>(null);
+  const [stationsEnabled, setStationsEnabled] = useState(false);
+
+  const fetchStationTracks = async (trackId: string) => {
+    try {
+      const related = await trackService.getRelated(trackId);
+      if (related.length === 0) {
+        console.warn("[stations] No related tracks found for autoplay.");
+        return;
+      }
+      related.forEach((t) => addToQueue(t));
+    } catch {
+      console.warn("[stations] fetchStationTracks: endpoint unavailable.");
+    }
+  };
 
   // Load tracks on mount
   useEffect(() => {
@@ -143,7 +159,10 @@ export default function Footer() {
     ref={audioRef}
     onLoadedMetadata={() => { if (audioRef.current) setDuration(audioRef.current.duration || 0); }}
     onTimeUpdate={() => { if (audioRef.current) setCurrentTime(audioRef.current.currentTime); }}
-    onEnded={playNext}
+    onEnded={() => {
+      if (stationsEnabled && currentTrack) void fetchStationTracks(currentTrack.id);
+      playNext();
+    }}
   />
 
   {/* ── Player bar ── */}
@@ -262,17 +281,30 @@ export default function Footer() {
       </div>
 
       {/* List */}
-      <div className="overflow-y-auto">
+      <div className="flex-1 overflow-y-auto">
         {queue.map((track, index) => {
           const isCurrent = currentTrack?.id === track.id;
 
           return (
             <div
               key={`${track.id}-${index}`}
-              className={`flex items-center gap-3 px-4 py-2 cursor-pointer ${
-                isCurrent ? "bg-[#2a2a2a]" : "hover:bg-[#1a1a1a]"
+              draggable
+              className={`flex items-center gap-3 px-4 py-2 cursor-pointer select-none ${
+                isCurrent
+                  ? "bg-[#2a2a2a]"
+                  : dragOverIndex === index && dragFromIndex !== index
+                  ? "bg-[#1e2a3a] border-l-2 border-[#f50]"
+                  : "hover:bg-[#1a1a1a]"
               }`}
               onClick={() => playFromQueue(index)}
+              onDragStart={() => setDragFromIndex(index)}
+              onDragOver={(e) => { e.preventDefault(); setDragOverIndex(index); }}
+              onDrop={() => {
+                if (dragFromIndex !== null && dragFromIndex !== index) moveQueueItem(dragFromIndex, index);
+                setDragFromIndex(null);
+                setDragOverIndex(null);
+              }}
+              onDragEnd={() => { setDragFromIndex(null); setDragOverIndex(null); }}
             >
               <TrackArtwork src={track.albumArt} alt={track.title} size={40} />
 
@@ -299,9 +331,13 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="w-10 h-5 bg-[#f50] rounded-full relative">
-            <div className="absolute right-1 top-1/2 -translate-y-1/2 w-4 h-4 bg-black rounded-full" />
-          </div>
+          <button
+            onClick={() => setStationsEnabled((p) => !p)}
+            className={`w-10 h-5 rounded-full relative transition-colors ${stationsEnabled ? "bg-[#f50]" : "bg-[#555]"}`}
+            aria-label="Toggle autoplay station"
+          >
+            <div className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-black rounded-full transition-all ${stationsEnabled ? "right-1" : "left-1"}`} />
+          </button>
         </div>
       </div>
 

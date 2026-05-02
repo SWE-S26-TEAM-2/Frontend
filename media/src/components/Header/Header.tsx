@@ -9,7 +9,7 @@ import { useAuthStore } from "@/store/authStore";
 import KeyboardShortcutsModal from "@/components/KeyboardShortcutsModal/KeyboardShortcutsModal";
 import { clearAuthCookie } from "@/lib/authCookie";
 import SearchBar from "@/components/Search/SearchBar";
-import ThemeToggle from "@/components/ThemeToggle/ThemeToggle";
+//import ThemeToggle from "@/components/ThemeToggle/ThemeToggle";
 
 const BellIcon = () => (
   <svg width="20" height="20" viewBox="0 0 32 32" fill="currentColor">
@@ -482,12 +482,12 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
         <div className="flex items-center gap-0.5 shrink-0">
 
           {/* Theme toggle */}
-          <ThemeToggle />
+          {/* <ThemeToggle /> */}
 
           {/* Upgrade now — hidden on small screens */}
           <Link
             href="/subscription/artist-pro"
-            className="header-action-link hidden lg:flex items-center h-7 px-3 text-sc-accent text-[12px] font-bold border border-sc-accent rounded-[1px] no-underline whitespace-nowrap hover:bg-sc-accent/10 transition-colors mr-1"
+            className="header-action-link hidden lg:flex items-center px-4 py-1.5 text-sc-accent text-[13px] font-semibold border border-sc-accent rounded no-underline whitespace-nowrap hover:bg-sc-accent/10 transition-colors mr-1"
           >
             Upgrade now
           </Link>
@@ -574,16 +574,16 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
           )}
 
           {!isLoggedIn && (
-            <div className="flex items-center gap-1.5 ml-1">
+            <div className="flex items-center gap-2 ml-1">
               <Link
                 href="/login"
-                className="header-auth-link text-white no-underline text-[12px] border border-[#ffffff40] rounded-[3px] px-2.5 py-1 leading-none hover:border-[#ffffff80] transition-colors whitespace-nowrap"
+                className="header-auth-link text-white no-underline text-[13px] font-semibold border border-[#ffffff40] rounded px-4 py-1.5 hover:border-white transition-colors whitespace-nowrap"
               >
                 Sign in
               </Link>
               <Link
                 href="/login"
-                className="header-auth-link text-[#111] bg-[#ff5500] no-underline text-[12px] rounded-[3px] px-2.5 py-1 leading-none font-semibold hover:bg-[#e64d00] transition-colors whitespace-nowrap hidden sm:block"
+                className="header-auth-link text-white bg-[#ff5500] no-underline text-[13px] rounded px-4 py-1.5 font-bold hover:bg-[#e64d00] transition-colors whitespace-nowrap hidden sm:block"
               >
                 Create account
               </Link>

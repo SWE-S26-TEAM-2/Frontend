@@ -32,17 +32,17 @@ export default function CommentCard({ comment, onReply }: ICommentCardProps) {
       {/* Avatar */}
       <div className="shrink-0">
         <div className="w-9 h-9 rounded-full bg-(--sc-bg-surface) overflow-hidden flex items-center justify-center text-(--sc-text-muted) text-sm font-bold">
-          {comment.user.avatarUrl ? (
+          {comment.user?.avatarUrl ? (
             <Image
-              src={comment.user.avatarUrl}
-              alt={comment.user.username}
+              src={comment.user?.avatarUrl ?? ""}
+              alt={comment.user?.username ?? ""}
               width={36}
               height={36}
               className="object-cover w-full h-full"
               onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
             />
           ) : (
-            (comment.user.username?.[0] ?? "?").toUpperCase()
+            (comment.user?.username?.[0] ?? "?").toUpperCase()
           )}
         </div>
       </div>
@@ -52,10 +52,10 @@ export default function CommentCard({ comment, onReply }: ICommentCardProps) {
         {/* Header */}
         <div className="flex items-center gap-2 mb-1 flex-wrap">
           <Link
-            href={`/${comment.user.username}`}
+            href={`/${comment.user?.username ?? ""}`}
             className="text-sm font-semibold text-(--sc-orange) hover:underline"
           >
-            {comment.user.username}
+            {comment.user?.username ?? ""}
           </Link>
           <span className="text-xs text-(--sc-text-muted)">{timeAgo(comment.createdAt)}</span>
         </div>
