@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { FaFacebook, FaApple } from "react-icons/fa";
 import Link from "next/link";
 import { GoogleLogin } from "@react-oauth/google";
@@ -14,6 +15,7 @@ import { useAuthStore } from "@/store/authStore";
 import type { ILoginModalProps } from "@/types/ui.types";
 
 export default function LoginModal({ onClose }: ILoginModalProps) {
+  const router = useRouter();
   const authStore = useAuthStore();
 
   const [emailOrProfileUrl, setEmailOrProfileUrl] = useState("");
@@ -42,6 +44,14 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
     setError("");
     setIsSuccess(false);
     setSigninSubtitle(undefined);
+  };
+
+  const handleLoginSuccess = () => {
+    setIsSuccess(true);
+    setTimeout(() => {
+      onClose();
+      router.push("/home");
+    }, 1500);
   };
 
   const handleSubmit = async () => {
@@ -92,8 +102,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
           authStore.login(response.user, response.token);
           window.localStorage.setItem("auth_token", response.token);
           window.localStorage.setItem("auth_user_id", String(response.user.id));
-          setIsSuccess(true);
-          setTimeout(onClose, 1500);
+          handleLoginSuccess();
         }
       } catch (err) {
         const msg = err instanceof Error ? err.message : "";
@@ -103,8 +112,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
             authStore.login(response.user, response.token);
             window.localStorage.setItem("auth_token", response.token);
             window.localStorage.setItem("auth_user_id", String(response.user.id));
-            setIsSuccess(true);
-            setTimeout(onClose, 1500);
+            handleLoginSuccess();
           } catch {
             setStep("signin");
             setError("An account with this email already exists. Please sign in.");
@@ -143,8 +151,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
       authStore.login(response.user, response.token);
       window.localStorage.setItem("auth_token", response.token);
       window.localStorage.setItem("auth_user_id", String(response.user.id));
-      setIsSuccess(true);
-      setTimeout(onClose, 1500);
+      handleLoginSuccess();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "";
       setStep("signin");
@@ -199,8 +206,7 @@ export default function LoginModal({ onClose }: ILoginModalProps) {
                     authStore.login(response.user, response.token);
                     window.localStorage.setItem("auth_token", response.token);
                     window.localStorage.setItem("auth_user_id", String(response.user.id));
-                    setIsSuccess(true);
-                    setTimeout(onClose, 1500);
+                    handleLoginSuccess();
                   } catch {
                     setError("Google login failed. Please try again.");
                   } finally {
