@@ -78,7 +78,6 @@ export default function StationSlider({ title, subtitle, stations }: IStationSli
 
   return (
     <section style={{ width: "100%", marginBottom: 4 }}>
-      <div>SALMAAA</div>
       {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 20 }}>
         <div>
