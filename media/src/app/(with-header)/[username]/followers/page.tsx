@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { userProfileService } from "@/services/di";
 import type { IUser, IFollower } from "@/types/userProfile.types";
-import Header from "@/components/Header/Header";
-import Footer from "@/components/Footer/Footer";
 import { SubPageHeader } from "@/components/Profile/SubPageHeader";
 
 export default function FollowersPage({ params }: { params: Promise<{ username: string }> }) {
@@ -93,7 +91,7 @@ export default function FollowersPage({ params }: { params: Promise<{ username: 
 
   return (
     <div className="min-h-screen bg-black text-white font-sans pb-15">
-      <Header />
+     
 
       <SubPageHeader
         user={user}
@@ -184,8 +182,6 @@ export default function FollowersPage({ params }: { params: Promise<{ username: 
           </>
         )}
       </div>
-
-      <Footer />
     </div>
   );
 }

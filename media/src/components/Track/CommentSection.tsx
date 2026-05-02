@@ -25,20 +25,41 @@ export default function CommentSection({ trackId }: ICommentSectionProps) {
 
   useEffect(() => {
     commentService.getTrackComments(trackId).then((data) => {
-      setComments(data.comments);
+      setComments(data);
       setIsLoading(false);
     });
   }, [trackId]);
 
   const handleSubmit = async () => {
     if (!commentBody.trim()) return;
+    const body = commentBody.trim();
+    setCommentBody("");
     setIsSubmitting(true);
     setSubmitError("");
+
+    const tempId = `temp-${Date.now()}`;
+    const tempComment: IComment = {
+      id: tempId,
+      trackId,
+      body,
+      createdAt: new Date().toISOString(),
+      likeCount: 0,
+      replyCount: 0,
+      replies: [],
+      user: {
+        id: String(user?.id ?? ""),
+        username: user?.username ?? "",
+        avatarUrl: user?.profileImageUrl ?? "",
+      },
+    };
+    setComments((prev) => [tempComment, ...prev]);
+
     try {
-      const newComment = await commentService.addComment(trackId, commentBody.trim());
-      setComments((prev) => [newComment, ...prev]);
-      setCommentBody("");
+      const newComment = await commentService.addComment(trackId, body);
+      setComments((prev) => prev.map((c) => (c.id === tempId ? newComment : c)));
     } catch (err) {
+      setComments((prev) => prev.filter((c) => c.id !== tempId));
+      setCommentBody(body);
       setSubmitError(err instanceof Error ? err.message : "Failed to post comment");
     } finally {
       setIsSubmitting(false);
@@ -49,7 +70,7 @@ export default function CommentSection({ trackId }: ICommentSectionProps) {
     await commentService.addReply(commentId, body);
     // Reload comments to reflect new reply
     const updated = await commentService.getTrackComments(trackId);
-    setComments(updated.comments);
+    setComments(updated);
   };
 
   return (

@@ -183,11 +183,10 @@ export const RealAuthService = {
   },
 
   checkEmail: async (emailOrProfileUrl: string): Promise<ICheckEmailResponse> => {
-    // Uses GET ?email= query param — backend returns { available: boolean }.
-    // Note: available:false => email is taken, so we invert to produce isExisting.
-    const response = await fetch(apiUrl(`/auth/check-email?email=${encodeURIComponent(emailOrProfileUrl)}`), {
-      method: "GET",
+    const response = await fetch(apiUrl("/auth/check-email"), {
+      method: "POST",
       headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: emailOrProfileUrl }),
     });
   
     if (!response.ok) {
@@ -198,7 +197,7 @@ export const RealAuthService = {
     const data = json.data ?? json;
   
     return {
-      isExisting: !data.available, // available:false means email is taken = isExisting:true
+      isExisting: !data.available,
     };
   },
 
@@ -308,7 +307,7 @@ export const RealAuthService = {
       headers: { "Content-Type": "application/json" },
       // Include the `sign_out_everywhere` flag collected from the UI so the
       // backend can invalidate other sessions when requested.
-      body: JSON.stringify({ token, new_password: newPassword, sign_out_everywhere: !!signOutEverywhere }),
+      body: JSON.stringify({ token, new_password: newPassword }),
     });
   
     if (!response.ok) {

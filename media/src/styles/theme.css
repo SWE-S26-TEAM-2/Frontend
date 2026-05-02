@@ -1,5 +1,60 @@
+/* Theme tokens — central place for colors, fonts, and spacing */
+:root {
+  --sc-bg: #ffffff;
+  --sc-surface: #f4f4f4;
+  --sc-header-bg: #121212;
+  --sc-footer-bg: #2f2f2f;
+  --sc-text: #111111;
+  --sc-muted: #9b9b9b;
+  --sc-accent: #ff5500;
+  --sc-accent-2: #ff6a1f;
+  --sc-border: #e6e6e6;
+  --sc-success: #16a34a;
+  --sc-danger: #dc2626;
+
+  --font-sans: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Liberation Sans', sans-serif;
+}
+
+/* Respect OS-level dark mode preference on first paint to avoid white flash */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sc-bg: #0f0f10;
+    --sc-surface: #121212;
+    --sc-header-bg: #121212;
+    --sc-footer-bg: #2f2f2f;
+    --sc-text: #e7e7e7;
+    --sc-muted: #999999;
+    --sc-accent: #ff5500;
+    --sc-accent-2: #ff6a1f;
+    --sc-border: #2a2a2a;
+    --sc-success: #22c55e;
+    --sc-danger: #f87171;
+  }
+}
+
+/* Dark theme override — toggle by adding `theme-dark` to <html> or <body> */
+.theme-dark {
+  --sc-bg: #0f0f10;
+  --sc-surface: #121212;
+  --sc-header-bg: #121212;
+  --sc-footer-bg: #2f2f2f;
+  --sc-text: #e7e7e7;
+  --sc-muted: #999999;
+  --sc-accent: #ff5500;
+  --sc-accent-2: #ff6a1f;
+  --sc-border: #2a2a2a;
+  --sc-success: #22c55e;
+  --sc-danger: #f87171;
+}
+
+/* Utility helpers for quick usage in components without editing Tailwind config */
+.sc-bg { background-color: var(--sc-bg); }
+.sc-surface { background-color: var(--sc-surface); }
+.sc-text { color: var(--sc-text); }
+.sc-accent { color: var(--sc-accent); }
+.sc-border { border-color: var(--sc-border); }
 /* ============================================================
-   SoundCloud Clone — Design Tokens
+   SoundCloud Clone — Design
    All colours/spacing consumed via var(--sc-*) in components.
    Dark theme is the default (SoundCloud is dark-first).
    Toggle by setting data-theme="light" on <html>.
@@ -43,6 +98,55 @@
   --sc-header-h:      46px;
   --sc-player-h:      50px;
   --sc-sidebar-w:     220px;
+}
+
+/* ───────── HEADER ───────── */
+header {
+  height: 46px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+}
+
+header .header-nav-link,
+header .header-action-link,
+header .header-auth-link {
+  font-family: "Söhne", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 14px !important;
+  font-weight: 500;
+  line-height: 20px !important;
+  color: #ccc !important;
+  text-decoration: none;
+  padding: 0 12px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  transition: color 0.15s ease;
+}
+
+header .header-action-button {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  padding: 0;
+  height: auto;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+header .header-nav-link:hover,
+header .header-action-link:hover,
+header .header-action-button:hover,
+header .header-auth-link:hover {
+  color: #fff !important;
+}
+
+header .header-nav-link.active,
+header .header-nav-link[aria-current="page"] {
+  color: #fff !important;
 }
 
 /* ── Light theme ──────────────────────────────────────────── */

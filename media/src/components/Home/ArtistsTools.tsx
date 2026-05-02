@@ -44,7 +44,7 @@ const ArtistTools = () => {
       <div style={styles.proBanner}>
         <Award size={20} color="white" style={{ flexShrink: 0 }} />
         <span style={styles.bannerText}>
-          Unlock Artist tools from EGP 29.99/month.
+          Unlock Artist tools from $ 9.99/month.
         </span>
       </div>
     </div>

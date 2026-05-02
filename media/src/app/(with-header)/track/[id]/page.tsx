@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, notFound } from "next/navigation";
-import { trackService } from "@/services";
+import { trackService, engagementService } from "@/services/di";
 
 import TrackPlayer from "@/components/Track/TrackPlayer";
 import TrackActions from "@/components/Track/TrackActions";
@@ -24,11 +24,21 @@ export default function TrackPage() {
 
     async function fetchTrack() {
       try {
-        const [t, r] = await Promise.all([
+        const [t, r, summary] = await Promise.all([
           trackService.getById(id),
           trackService.getRelated(id),
+          engagementService.getEngagementSummary(id).catch(() => null),
         ]);
-        setTrack(t);
+        setTrack({
+          ...t,
+          ...(summary && {
+            isLiked:       summary.isLiked,
+            isReposted:    summary.isReposted,
+            likes:         summary.likeCount,
+            reposts:       summary.repostCount,
+            commentsCount: summary.commentCount,
+          }),
+        });
         setRelated(r);
       } catch {
         setError(true);

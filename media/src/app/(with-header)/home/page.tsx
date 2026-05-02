@@ -20,13 +20,7 @@ export default function HomePage() {
   //const [discoverStations,  setDiscoverStations]  = useState<IStation[]>([]);
   const [isLoading,         setIsLoading]         = useState(true);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
-    // This effect runs only once after first render to set mounted=true
-    // and check auth status
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
-    
     const token = window.localStorage.getItem("auth_token");
     if (!isAuthenticated && !token) {
       router.push("/login");
@@ -82,6 +76,7 @@ export default function HomePage() {
             title="More of what you like"
             subtitle="Suggestions based on your recent plays"
             tracks={data.moreOfWhatYouLike}
+            showFollow={false}
           />
           <RecentlyPlayedGrid items={data.recentlyPlayed} />
           <TrackSlider

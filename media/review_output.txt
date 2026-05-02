@@ -1,6 +1,6 @@
 ================================================================
   FRONTEND CODE REVIEW — AUTOMATED REPORT
-  Generated: 2026-05-02 08:03:19
+  Generated: 2026-05-02 23:25:45
 ================================================================
 
 ================================================================
@@ -23,23 +23,42 @@ C:\Frontend\media\src\app\(with-header)\home\page.tsx
   41:5   warning  Unexpected console statement. Only these console methods are allowed: warn, error                   no-console
   53:11  warning  Unexpected console statement. Only these console methods are allowed: warn, error                   no-console
 
+C:\Frontend\media\src\app\(with-header)\notifications\page.tsx
+  156:5  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/exhaustive-deps')
+
 C:\Frontend\media\src\app\(with-header)\search\page.tsx
    46:3  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/set-state-in-effect')
   237:7  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
   271:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
+C:\Frontend\media\src\app\(with-header)\subscription\checkout\page.tsx
+  37:10  warning  'isLoading' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Frontend\media\src\app\[username]\followers\page.tsx
+  47:6  warning  React Hook useEffect has a missing dependency: 'storedUsername'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Frontend\media\src\app\[username]\following\page.tsx
+  12:10  warning  'formatNumber' is defined but never used                                                                           @typescript-eslint/no-unused-vars
+  54:6   warning  React Hook useEffect has a missing dependency: 'storedUsername'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
 C:\Frontend\media\src\app\[username]\page.tsx
-  251:25  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  274:25  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
 C:\Frontend\media\src\components\Home\ArtistsFollow.tsx
-  77:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  99:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
 C:\Frontend\media\src\components\Home\ListeningHistory.tsx
-   86:9   warning  'safeHistory' is assigned a value but never used                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
-  173:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  217:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
 C:\Frontend\media\src\components\Home\RecentlyPlayed.tsx
   59:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Frontend\media\src\components\Library\overview\LibraryOverviewSections.tsx
+  7:10  warning  'formatNumber' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Frontend\media\src\components\LoginModal\LoginModal.tsx
+  32:10  warning  'isSuccess' is assigned a value but never used           @typescript-eslint/no-unused-vars
+  89:9   warning  'handleLoginSuccess' is assigned a value but never used  @typescript-eslint/no-unused-vars
 
 C:\Frontend\media\src\components\Station\StationCard.tsx
   128:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
@@ -54,8 +73,8 @@ C:\Frontend\media\src\components\Studio\StudioPromotionsTab.tsx
   87:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
 C:\Frontend\media\src\components\Track\CommentSection.tsx
-  23:21  warning  Unexpected console statement. Only these console methods are allowed: warn, error                            no-console
-  23:45  warning  React Hook useEffect has a missing dependency: 'comments'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  24:21  warning  Unexpected console statement. Only these console methods are allowed: warn, error                            no-console
+  24:45  warning  React Hook useEffect has a missing dependency: 'comments'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
 
 C:\Frontend\media\src\components\Track\TrackSlider.tsx
   35:6  warning  React Hook useCallback has an unnecessary dependency: 'maxIndex'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
@@ -63,12 +82,12 @@ C:\Frontend\media\src\components\Track\TrackSlider.tsx
 C:\Frontend\media\src\services\api\feed.api.ts
   100:7  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
 
-C:\Frontend\media\src\services\api\home.api.ts
-  165:5  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
-  194:3  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
-
 C:\Frontend\media\src\services\api\landing.api.ts
   28:10  warning  'isWithinLastMonth' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Frontend\media\src\services\api\library.api.ts
+  7:3  warning  'ILibraryAlbum' is defined but never used    @typescript-eslint/no-unused-vars
+  8:3  warning  'ILibraryStation' is defined but never used  @typescript-eslint/no-unused-vars
 
 C:\Frontend\media\src\services\api\trackService.ts
   176:7   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
@@ -77,8 +96,11 @@ C:\Frontend\media\src\services\api\trackService.ts
 C:\Frontend\media\src\services\mocks\trackService.ts
   25:3  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
 
-✖ 32 problems (0 errors, 32 warnings)
-  0 errors and 2 warnings potentially fixable with the `--fix` option.
+C:\Frontend\media\src\services\mocks\userProfile.mock.ts
+  265:24  warning  '_username' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 40 problems (0 errors, 40 warnings)
+  0 errors and 3 warnings potentially fixable with the `--fix` option.
 
 RESULT: PASSED — No ESLint errors
 
@@ -98,14 +120,14 @@ STEP 3 — BUILD
 - Environments: .env.local
 
   Creating an optimized production build ...
-✓ Compiled successfully in 24.8s
+✓ Compiled successfully in 18.3s
   Running TypeScript ...
   Collecting page data using 7 workers ...
-  Generating static pages using 7 workers (0/31) ...
-  Generating static pages using 7 workers (7/31) 
-  Generating static pages using 7 workers (15/31) 
-  Generating static pages using 7 workers (23/31) 
-✓ Generating static pages using 7 workers (31/31) in 1484.4ms
+  Generating static pages using 7 workers (0/39) ...
+  Generating static pages using 7 workers (9/39) 
+  Generating static pages using 7 workers (19/39) 
+  Generating static pages using 7 workers (29/39) 
+✓ Generating static pages using 7 workers (39/39) in 1554.4ms
   Finalizing page optimization ...
 
 Route (app)
@@ -115,6 +137,7 @@ Route (app)
 ├ ƒ /[username]/followers
 ├ ƒ /[username]/following
 ├ ƒ /[username]/likes
+├ ○ /admin/dashboard
 ├ ○ /charts
 ├ ○ /creator/distribute
 ├ ○ /creator/monetize
@@ -128,6 +151,8 @@ Route (app)
 ├ ○ /login
 ├ ○ /notifications
 ├ ƒ /playlist/[id]
+├ ○ /reset-password
+├ ○ /reset-password/success
 ├ ○ /search
 ├ ○ /settings
 ├ ○ /settings/account
@@ -140,6 +165,11 @@ Route (app)
 ├ ○ /stations
 ├ ○ /store
 ├ ○ /stream
+├ ○ /subscription
+├ ○ /subscription/artist-pro
+├ ○ /subscription/checkout
+├ ○ /subscription/go-plus
+├ ○ /subscription/success
 ├ ƒ /track/[id]
 ├ ○ /trending
 ├ ○ /who-to-follow
@@ -222,7 +252,7 @@ FAIL src/__tests__/Trending.test.tsx
                             [33mclass[39m=[32m"w-[180px] min-w-[180px] max-w-[180px] flex-shrink-0"[39m
                           [36m>[39m
                             [36m<div[39m
-                              [33mclass[39m=[32m"group   flex flex-col gap-2 relative select-none z-10 transition-transform duration-200 hover:-translate-y-1"[39m
+                              [33mclass[39m=[32m"group flex flex-col gap-2 relative select-none z-10 transition-transform duration-200 hover:-translate-y-1"[39m
                             [36m>[39m
                               [36m<div[39m
                                 [33mclass[39m=[32m"relative aspect-square rounded-xl bg-neutral-800 cursor-pointer overflow-hidden "[39m
@@ -233,9 +263,9 @@ FAIL src/__tests__/Trending.test.tsx
                                   [33mdata-nimg[39m=[32m"fill"[39m
                                   [33mdecoding[39m=[32m"async"[39m
                                   [33mloading[39m=[32m"lazy"[39m
-                                  [33msizes[39m=[32m"100vw"[39m
+                                  [33msizes[39m=[32m"180px"[39m
                                   [33msrc[39m=[32m"/_next/image?url=%2Ftest.png&w=3840&q=75"[39m
-                                  [33msrcset[39m=[32m"/_next/image?url=%2Ftest.png&w=640&q=75 640w, /_next/image?url=%2Ftest.png&w=750&q=75 750w, /_next/image?url=%2Ftest.png&w=828&q=75 828w, /_next/image?url=%2Ftest.png&w=1080&q=75 1080w, /_next/image?url=%2Ftest.png&w=1200&q=75 1200w, /_next/image?url=%2Ftest.png&w=1920&q=75 1920w, /_next/image?url=%2Ftest.png&w=2048&q=75 2048w, /_next/image?url=%2Ftest.png&w=3840&q=75 3840w"[39m
+                                  [33msrcset[39m=[32m"/_next/image?url=%2Ftest.png&w=32&q=75 32w, /_next/image?url=%2Ftest.png&w=48&q=75 48w, /_next/image?url=%2Ftest.png&w=64&q=75 64w, /_next/image?url=%2Ftest.png&w=96&q=75 96w, /_next/image?url=%2Ftest.png&w=128&q=75 128w, /_next/image?url=%2Ftest.png&w=256&q=75 256w, /_next/image?url=%2Ftest.png&w=384&q=75 384w, /_next/image?url=%2Ftest.png&w=640&q=75 640w, /_next/image?url=%2Ftest.png&w=750&q=75 750w, /_next/image?url=%2Ftest.png&w=828&q=75 828w, /_next/image?url=%2Ftest.png&w=1080&q=75 1080w, /_next/image?url=%2Ftest.png&w=1200&q=75 1200w, /_next/image?url=%2Ftest.png&w=1920&q=75 1920w, /_next/image?url=%2Ftest.png&w=2048&q=75 2048w, /_next/image?url=%2Ftest.png&w=3840&q=75 3840w"[39m
                                   [33mstyle[39m=[32m"position: absolute; height: 100%; width: 100%; left: 0px; top: 0px; right: 0px; bottom: 0px; color: transparent;"[39m
                                 [36m/>[39m
                                 [36m<div[39m
@@ -270,11 +300,7 @@ FAIL src/__tests__/Trending.test.tsx
                                   [33mclass[39m=[32m"absolute bottom-2 right-2 flex gap-1.5 transition duration-300 opacity-0 group-hover:opacity-100"[39m
                                 [36m>[39m
                                   [36m<button[39m
-                                    [33mclass[39m=[32m"cursor-pointer outline-none ring-0 border-none focus:outline-none focus:ring-0 active:outline-none active:ring-0 p-1.5 rounded-full bg-black/40 text-white hover:scale-110 transition "[39m
-                                  [36m>[39m
-                                    [36m<svg[39m
-                                      [33maria-hidden[39m=[32m"true"[39m
-       ...
+                                    [33mclass[39m=[32m"cursor-pointer outline-none ring-0 border-...
 
     [0m [90m 75 |[39m     [36mif[39m (dotsBtn) {
      [90m 76 |[39m       fireEvent[33m.[39mclick(dotsBtn)[33m;[39m
@@ -290,8 +316,6 @@ FAIL src/__tests__/Trending.test.tsx
       at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
       at Object.getByText (src/__tests__/Trending.test.tsx:77:21)
 
-PASS src/__tests__/Landing.test.tsx
-PASS src/__tests__/components/TrackCard.test.tsx
 FAIL src/__tests__/Home.test.tsx
   ● HomePage Component › renders loading state then content
 
@@ -433,16 +457,221 @@ FAIL src/__tests__/Home.test.tsx
       at node_modules/@testing-library/dom/dist/query-helpers.js:109:15
       at Object.getAllByRole (src/__tests__/Home.test.tsx:176:31)
 
-PASS src/__tests__/TrackPage.test.tsx
+PASS src/__tests__/Landing.test.tsx
+FAIL src/__tests__/components/TrackCard.test.tsx (5.431 s)
+  ● TrackCard › renders track title
+
+    ReferenceError: fetch is not defined
+
+    [0m [90m 35 |[39m     [36mlet[39m cancelled [33m=[39m [36mfalse[39m[33m;[39m
+     [90m 36 |[39m
+    [31m[1m>[22m[39m[90m 37 |[39m     fetch([32m`${ENV.API_BASE_URL}/tracks/${trackId}/waveform`[39m)
+     [90m    |[39m     [31m[1m^[22m[39m
+     [90m 38 |[39m       [33m.[39mthen(r [33m=>[39m (r[33m.[39mok [33m?[39m r[33m.[39mjson() [33m:[39m [33mPromise[39m[33m.[39mreject([36mnew[39m [33mError[39m([32m`${r.status}`[39m))))
+     [90m 39 |[39m       [33m.[39mthen(json [33m=>[39m {
+     [90m 40 |[39m         [36mif[39m (cancelled) [36mreturn[39m[33m;[39m[0m
+
+      at fetch (src/hooks/useWaveform.ts:37:5)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at commitHookEffectListMount (node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+      at commitHookPassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+      at recursivelyTraversePassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15519:11)
+      at flushPassiveEffects (node_modules/react-dom/cjs/react-dom-client.development.js:18432:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:17923:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:590:34)
+      at process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:884:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:189:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:291:10)
+      at Object.<anonymous> (src/__tests__/components/TrackCard.test.tsx:29:11)
+
+  ● TrackCard › renders track duration
+
+    ReferenceError: fetch is not defined
+
+    [0m [90m 35 |[39m     [36mlet[39m cancelled [33m=[39m [36mfalse[39m[33m;[39m
+     [90m 36 |[39m
+    [31m[1m>[22m[39m[90m 37 |[39m     fetch([32m`${ENV.API_BASE_URL}/tracks/${trackId}/waveform`[39m)
+     [90m    |[39m     [31m[1m^[22m[39m
+     [90m 38 |[39m       [33m.[39mthen(r [33m=>[39m (r[33m.[39mok [33m?[39m r[33m.[39mjson() [33m:[39m [33mPromise[39m[33m.[39mreject([36mnew[39m [33mError[39m([32m`${r.status}`[39m))))
+     [90m 39 |[39m       [33m.[39mthen(json [33m=>[39m {
+     [90m 40 |[39m         [36mif[39m (cancelled) [36mreturn[39m[33m;[39m[0m
+
+      at fetch (src/hooks/useWaveform.ts:37:5)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at commitHookEffectListMount (node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+      at commitHookPassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+      at recursivelyTraversePassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15519:11)
+      at flushPassiveEffects (node_modules/react-dom/cjs/react-dom-client.development.js:18432:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:17923:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:590:34)
+      at process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:884:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:189:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:291:10)
+      at Object.<anonymous> (src/__tests__/components/TrackCard.test.tsx:34:11)
+
+  ● TrackCard › renders genre tag when genre is provided
+
+    ReferenceError: fetch is not defined
+
+    [0m [90m 35 |[39m     [36mlet[39m cancelled [33m=[39m [36mfalse[39m[33m;[39m
+     [90m 36 |[39m
+    [31m[1m>[22m[39m[90m 37 |[39m     fetch([32m`${ENV.API_BASE_URL}/tracks/${trackId}/waveform`[39m)
+     [90m    |[39m     [31m[1m^[22m[39m
+     [90m 38 |[39m       [33m.[39mthen(r [33m=>[39m (r[33m.[39mok [33m?[39m r[33m.[39mjson() [33m:[39m [33mPromise[39m[33m.[39mreject([36mnew[39m [33mError[39m([32m`${r.status}`[39m))))
+     [90m 39 |[39m       [33m.[39mthen(json [33m=>[39m {
+     [90m 40 |[39m         [36mif[39m (cancelled) [36mreturn[39m[33m;[39m[0m
+
+      at fetch (src/hooks/useWaveform.ts:37:5)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at commitHookEffectListMount (node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+      at commitHookPassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+      at recursivelyTraversePassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15519:11)
+      at flushPassiveEffects (node_modules/react-dom/cjs/react-dom-client.development.js:18432:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:17923:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:590:34)
+      at process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:884:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:189:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:291:10)
+      at Object.<anonymous> (src/__tests__/components/TrackCard.test.tsx:39:11)
+
+  ● TrackCard › does not render genre tag when genre is null
+
+    ReferenceError: fetch is not defined
+
+    [0m [90m 35 |[39m     [36mlet[39m cancelled [33m=[39m [36mfalse[39m[33m;[39m
+     [90m 36 |[39m
+    [31m[1m>[22m[39m[90m 37 |[39m     fetch([32m`${ENV.API_BASE_URL}/tracks/${trackId}/waveform`[39m)
+     [90m    |[39m     [31m[1m^[22m[39m
+     [90m 38 |[39m       [33m.[39mthen(r [33m=>[39m (r[33m.[39mok [33m?[39m r[33m.[39mjson() [33m:[39m [33mPromise[39m[33m.[39mreject([36mnew[39m [33mError[39m([32m`${r.status}`[39m))))
+     [90m 39 |[39m       [33m.[39mthen(json [33m=>[39m {
+     [90m 40 |[39m         [36mif[39m (cancelled) [36mreturn[39m[33m;[39m[0m
+
+      at fetch (src/hooks/useWaveform.ts:37:5)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at commitHookEffectListMount (node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+      at commitHookPassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+      at recursivelyTraversePassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15519:11)
+      at flushPassiveEffects (node_modules/react-dom/cjs/react-dom-client.development.js:18432:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:17923:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:590:34)
+      at process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:884:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:189:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:291:10)
+      at Object.<anonymous> (src/__tests__/components/TrackCard.test.tsx:44:11)
+
+  ● TrackCard › calls onPlay when play button div is clicked
+
+    ReferenceError: fetch is not defined
+
+    [0m [90m 35 |[39m     [36mlet[39m cancelled [33m=[39m [36mfalse[39m[33m;[39m
+     [90m 36 |[39m
+    [31m[1m>[22m[39m[90m 37 |[39m     fetch([32m`${ENV.API_BASE_URL}/tracks/${trackId}/waveform`[39m)
+     [90m    |[39m     [31m[1m^[22m[39m
+     [90m 38 |[39m       [33m.[39mthen(r [33m=>[39m (r[33m.[39mok [33m?[39m r[33m.[39mjson() [33m:[39m [33mPromise[39m[33m.[39mreject([36mnew[39m [33mError[39m([32m`${r.status}`[39m))))
+     [90m 39 |[39m       [33m.[39mthen(json [33m=>[39m {
+     [90m 40 |[39m         [36mif[39m (cancelled) [36mreturn[39m[33m;[39m[0m
+
+      at fetch (src/hooks/useWaveform.ts:37:5)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at commitHookEffectListMount (node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+      at commitHookPassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+      at recursivelyTraversePassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15519:11)
+      at flushPassiveEffects (node_modules/react-dom/cjs/react-dom-client.development.js:18432:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:17923:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:590:34)
+      at process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:884:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:189:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:291:10)
+      at Object.<anonymous> (src/__tests__/components/TrackCard.test.tsx:49:33)
+
+  ● TrackCard › toggles like to true when track is not liked
+
+    ReferenceError: fetch is not defined
+
+    [0m [90m 35 |[39m     [36mlet[39m cancelled [33m=[39m [36mfalse[39m[33m;[39m
+     [90m 36 |[39m
+    [31m[1m>[22m[39m[90m 37 |[39m     fetch([32m`${ENV.API_BASE_URL}/tracks/${trackId}/waveform`[39m)
+     [90m    |[39m     [31m[1m^[22m[39m
+     [90m 38 |[39m       [33m.[39mthen(r [33m=>[39m (r[33m.[39mok [33m?[39m r[33m.[39mjson() [33m:[39m [33mPromise[39m[33m.[39mreject([36mnew[39m [33mError[39m([32m`${r.status}`[39m))))
+     [90m 39 |[39m       [33m.[39mthen(json [33m=>[39m {
+     [90m 40 |[39m         [36mif[39m (cancelled) [36mreturn[39m[33m;[39m[0m
+
+      at fetch (src/hooks/useWaveform.ts:37:5)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at commitHookEffectListMount (node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+      at commitHookPassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+      at recursivelyTraversePassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15519:11)
+      at flushPassiveEffects (node_modules/react-dom/cjs/react-dom-client.development.js:18432:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:17923:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:590:34)
+      at process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:884:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:189:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:291:10)
+      at Object.<anonymous> (src/__tests__/components/TrackCard.test.tsx:62:11)
+
+  ● TrackCard › toggles like to false when track is already liked
+
+    ReferenceError: fetch is not defined
+
+    [0m [90m 35 |[39m     [36mlet[39m cancelled [33m=[39m [36mfalse[39m[33m;[39m
+     [90m 36 |[39m
+    [31m[1m>[22m[39m[90m 37 |[39m     fetch([32m`${ENV.API_BASE_URL}/tracks/${trackId}/waveform`[39m)
+     [90m    |[39m     [31m[1m^[22m[39m
+     [90m 38 |[39m       [33m.[39mthen(r [33m=>[39m (r[33m.[39mok [33m?[39m r[33m.[39mjson() [33m:[39m [33mPromise[39m[33m.[39mreject([36mnew[39m [33mError[39m([32m`${r.status}`[39m))))
+     [90m 39 |[39m       [33m.[39mthen(json [33m=>[39m {
+     [90m 40 |[39m         [36mif[39m (cancelled) [36mreturn[39m[33m;[39m[0m
+
+      at fetch (src/hooks/useWaveform.ts:37:5)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at commitHookEffectListMount (node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+      at commitHookPassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+      at recursivelyTraversePassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15519:11)
+      at flushPassiveEffects (node_modules/react-dom/cjs/react-dom-client.development.js:18432:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:17923:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:590:34)
+      at process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:884:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:189:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:291:10)
+      at Object.<anonymous> (src/__tests__/components/TrackCard.test.tsx:70:11)
+
 PASS src/__tests__/Footer.test.tsx
 PASS src/__tests__/components/UserSearchCard.test.tsx
-PASS src/__tests__/SlideShow.test.tsx
-PASS src/__tests__/utils/formatNumber.test.ts
 PASS src/__tests__/Stations.test.tsx
-PASS src/__tests__/utils/timeAgo.test.ts
 PASS src/__tests__/components/Banner.test.tsx
+PASS src/__tests__/TrackPage.test.tsx
+PASS src/__tests__/SlideShow.test.tsx
+PASS src/__tests__/utils/timeAgo.test.ts
 PASS src/__tests__/Toggle.test.tsx
-FAIL src/__tests__/Header.test.tsx (6.752 s)
+PASS src/__tests__/utils/formatNumber.test.ts
+FAIL src/__tests__/Header.test.tsx (7.737 s)
   ● Header Component › Search Functionality › submits search with encoded query on Enter
 
     expect(received).toBe(expected) // Object.is equality
@@ -577,7 +806,7 @@ FAIL src/__tests__/Header.test.tsx (6.752 s)
             [33mclass[39m=[32m"flex items-center gap-0.5 shrink-0"[39m
           [36m>[39m
             [36m<a[39m
-              [33mhref[39m=[32m"/artist-pro"[39m
+              [33mhref[39m=[32m"/subscription/artist-pro"[39m
             [36m>[39m
               [0mUpgrade now[0m
             [36m</a>[39m
@@ -804,7 +1033,7 @@ FAIL src/__tests__/Header.test.tsx (6.752 s)
               [33mclass[39m=[32m"flex items-center gap-0.5 shrink-0"[39m
             [36m>[39m
               [36m<a[39m
-                [33mhref[39m=[32m"/artist-pro"[39m
+                [33mhref[39m=[32m"/subscription/artist-pro"[39m
               [36m>[39m
                 [0mUpgrade now[0m
               [36m</a>[39m
@@ -831,7 +1060,7 @@ FAIL src/__tests__/Header.test.tsx (6.752 s)
                       [33mclass[39m=[32m"w-[26px] h-[26px] rounded-full bg-[#ff5500] flex items-center justify-center text-white text-[11px] font-bold select-none border border-white/20"[39m
                     [36m>[39m
                       [0m?[0m
-                    [36m</div>...
+                   ...
 
     [0m [90m 270 |[39m         [33mObject[39m[33m.[39mentries(expectedLinks)[33m.[39mforEach(([label[33m,[39m href]) [33m=>[39m {
      [90m 271 |[39m           [36mconst[39m link [33m=[39m screen[33m.[39mgetAllByText(label)[33m.[39mfind((node) [33m=>[39m node[33m.[39mclosest([32m"a"[39m))[33m?[39m[33m.[39mclosest([32m"a"[39m)[33m;[39m
@@ -905,12 +1134,12 @@ FAIL src/__tests__/Header.test.tsx (6.752 s)
 
       at Object.toHaveAttribute (src/__tests__/Header.test.tsx:459:61)
 
-PASS src/__tests__/services/userProfile.service.test.ts (7.465 s)
+PASS src/__tests__/services/userProfile.service.test.ts (7.891 s)
 
-Test Suites: 3 failed, 13 passed, 16 total
-Tests:       13 failed, 154 passed, 167 total
+Test Suites: 4 failed, 12 passed, 16 total
+Tests:       20 failed, 147 passed, 167 total
 Snapshots:   0 total
-Time:        11.304 s
+Time:        12.568 s
 RESULT: FAILED — Tests failed
 
 ================================================================
@@ -920,10 +1149,8 @@ RESULT: FAILED — console.log found:
 src/app/(auth)/page.tsx:51:    console.log("Setting track:", track.title); // ← add this temporarily
 src/app/(with-header)/home/page.tsx:41:    console.log("Fetching home page data...");
 src/app/(with-header)/home/page.tsx:53:          console.log("Home page data fetched:", homeData);
-src/components/Track/CommentSection.tsx:23:  useEffect(() => { console.log(comments)}, []);
+src/components/Track/CommentSection.tsx:24:  useEffect(() => { console.log(comments)}, []);
 src/services/api/feed.api.ts:100:      console.log("Listening history (raw):", historyRes);
-src/services/api/home.api.ts:165:    console.log("My following:", myFollowing);
-src/services/api/home.api.ts:194:  console.log("All feed tracks:", allFeedTracks);
 src/services/api/trackService.ts:176:      console.log('posting trackId:', trackId);
 src/services/mocks/trackService.ts:25:  console.log("Mock postTrack called with:", trackId);
 
@@ -935,7 +1162,8 @@ RESULT: PASSED — Branch name valid (feature/fe-stations-page)
 ================================================================
 STEP 7 — COMMIT MESSAGE
 ================================================================
-RESULT: PASSED — Commit message valid
+RESULT: FAILED — Invalid commit message:
+Merge branch 'main' into feature/fe-stations-page
 
 ================================================================
 ❌ FINAL RESULT: ISSUES FOUND — FIX BEFORE MERGE

@@ -73,10 +73,12 @@ export const TracksIcon = () => (
   </svg>
 );
 
-export function IconBtn({ icon, label, active = false, count, onClick }: IIconBtnProps) {
+export function IconBtn({ icon, label, ariaLabel, active = false, count, onClick }: IIconBtnProps) {
   return (
     <button
+      type="button"
       onClick={onClick}
+      aria-label={ariaLabel}
       className={`flex items-center gap-1 rounded px-2.5 py-1 text-xs cursor-pointer transition-colors ${
         active
           ? "bg-orange-500/10 border border-[#ff5500] text-[#ff5500]"

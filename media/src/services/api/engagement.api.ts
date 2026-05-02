@@ -44,15 +44,15 @@ interface IRawLikeCountResponse {
   like_count: number;
 }
 
-interface IRawEngagementSummaryResponse {
-  success: boolean;
-  data: {
-    like_count: number;
-    repost_count: number;
-    comment_count: number;
-    is_liked: boolean;
-    is_reposted: boolean;
-  };
+// apiClient unwraps json.data, so this is the already-unwrapped shape
+interface IRawEngagementSummaryData {
+  like_count?: number;
+  repost_count?: number;
+  comment_count?: number;
+  liked_by_me?: boolean;   // actual backend field
+  reposted_by_me?: boolean; // actual backend field
+  is_liked?: boolean;      // fallback alias
+  is_reposted?: boolean;   // fallback alias
 }
 
 interface IRawRepostResponse {
@@ -88,6 +88,12 @@ interface IRawAddCommentResponse {
   };
 }
 
+// Returns true for 409-conflict / "already done" errors that should not cause a revert
+function isConflict(err: unknown): boolean {
+  const msg = (err instanceof Error ? err.message : "").toLowerCase();
+  return msg.includes("already") || msg.includes("conflict") || msg.includes("duplicate");
+}
+
 // ── Real service ──────────────────────────────────────────────────────────────
 
 export const realEngagementService: IEngagementService = {
@@ -95,28 +101,27 @@ export const realEngagementService: IEngagementService = {
   // ── Likes ──────────────────────────────────────────────────────────────────
 
   async likeTrack(trackId: string): Promise<ILikeResult> {
-    // POST /likes/tracks/{track_id} → LikeResponse (no count in body)
-    const likeRes = await apiPost<IRawLikeResponse>(
-      `${ENV.API_BASE_URL}/likes/tracks/${trackId}`,
-    );
-    // Fetch updated count separately
+    try {
+      await apiPost(`${ENV.API_BASE_URL}/likes/tracks/${trackId}`);
+    } catch (err) {
+      if (!isConflict(err)) throw err; // real error → propagate so UI reverts
+    }
     const countRes = await apiGet<IRawLikeCountResponse>(
       `${ENV.API_BASE_URL}/tracks/${trackId}/likes/count`,
-    );
-    return {
-      likeCount: countRes?.like_count ?? 0,
-      likeId: likeRes?.data?.like_id,
-    };
+    ).catch(() => null);
+    return { likeCount: countRes?.like_count ?? -1 };
   },
 
   async unlikeTrack(trackId: string): Promise<ILikeResult> {
-    // DELETE /likes/tracks/{track_id} → MessageResponse (no count in body)
-    await apiDelete(`${ENV.API_BASE_URL}/likes/tracks/${trackId}`);
-    // Fetch updated count separately
+    try {
+      await apiDelete(`${ENV.API_BASE_URL}/likes/tracks/${trackId}`);
+    } catch (err) {
+      if (!isConflict(err)) throw err;
+    }
     const countRes = await apiGet<IRawLikeCountResponse>(
       `${ENV.API_BASE_URL}/tracks/${trackId}/likes/count`,
-    );
-    return { likeCount: countRes?.like_count ?? 0 };
+    ).catch(() => null);
+    return { likeCount: countRes?.like_count ?? -1 };
   },
 
   async getLikeCount(trackId: string): Promise<number> {
@@ -129,35 +134,39 @@ export const realEngagementService: IEngagementService = {
   // ── Engagement Summary ─────────────────────────────────────────────────────
 
   async getEngagementSummary(trackId: string): Promise<IEngagementSummary> {
-    const res = await apiGet<IRawEngagementSummaryResponse>(
+    const d = await apiGet<IRawEngagementSummaryData>(
       `${ENV.API_BASE_URL}/tracks/${trackId}/engagement-summary`,
     );
-    const d = res?.data;
     return {
       likeCount:    d?.like_count    ?? 0,
       repostCount:  d?.repost_count  ?? 0,
       commentCount: d?.comment_count ?? 0,
-      isLiked:      d?.is_liked      ?? false,
-      isReposted:   d?.is_reposted   ?? false,
+      isLiked:      d?.liked_by_me   ?? d?.is_liked      ?? false,
+      isReposted:   d?.reposted_by_me ?? d?.is_reposted  ?? false,
     };
   },
 
   // ── Reposts ────────────────────────────────────────────────────────────────
 
   async repostTrack(trackId: string): Promise<IRepostData> {
-    // POST /reposts/tracks/{track_id} → RepostResponse
-    const res = await apiPost<IRawRepostResponse>(
-      `${ENV.API_BASE_URL}/reposts/tracks/${trackId}`,
-    );
-    return {
-      repostId: res?.data?.repost_id ?? "",
-      trackId:  res?.data?.track_id  ?? trackId,
-    };
+    try {
+      // apiClient already unwraps json.data, so d is the inner object
+      const d = await apiPost<{ repost_id?: string; track_id?: string }>(
+        `${ENV.API_BASE_URL}/reposts/tracks/${trackId}`,
+      );
+      return { repostId: d?.repost_id ?? "", trackId: d?.track_id ?? trackId };
+    } catch (err) {
+      if (!isConflict(err)) throw err;
+      return { repostId: "", trackId };
+    }
   },
 
   async removeRepost(trackId: string): Promise<void> {
-    // DELETE /reposts/tracks/{track_id} → MessageResponse
-    await apiDelete(`${ENV.API_BASE_URL}/reposts/tracks/${trackId}`);
+    try {
+      await apiDelete(`${ENV.API_BASE_URL}/reposts/tracks/${trackId}`);
+    } catch (err) {
+      if (!isConflict(err)) throw err;
+    }
   },
 
   // ── Comments ───────────────────────────────────────────────────────────────
