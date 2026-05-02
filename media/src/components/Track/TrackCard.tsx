@@ -110,7 +110,10 @@ export function TrackCard({ track, onPlay, onLikeChange, isOwner, onDelete }: IT
 
   return (
     <>
-    <div className="grid grid-cols-[auto_1fr] py-3.5 border-b border-[#161616] gap-x-3.5">
+    <div
+      className="grid grid-cols-[auto_1fr] py-3.5 border-b border-[#161616] gap-x-3.5"
+      data-testid="track-card"
+    >
       <TrackCover size={96} url={track.albumArt} alt={track.title} accentColor="#111822" />
 
       <div className="min-w-0">
