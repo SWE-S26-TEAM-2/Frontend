@@ -8,7 +8,19 @@ export const SubscriptionService = {
     return apiGet<ISubscriptionData>(`${getApiBaseUrl()}/subscriptions/me`);
   },
 
-  upgrade: async (data: IUpgradeRequest): Promise<IUpgradeResponse> => {
-    return apiPost<IUpgradeResponse>(`${getApiBaseUrl()}/subscriptions/upgrade`, data);
+  upgradeMonthly: async (data: IUpgradeRequest): Promise<IUpgradeResponse> => {
+    return apiPost<IUpgradeResponse>(`${getApiBaseUrl()}/subscriptions/upgrade/monthly`, data);
+  },
+
+  upgradeYearly: async (data: IUpgradeRequest): Promise<IUpgradeResponse> => {
+    return apiPost<IUpgradeResponse>(`${getApiBaseUrl()}/subscriptions/upgrade/yearly`, data);
+  },
+
+  upgradeProMonthly: async (data: IUpgradeRequest): Promise<IUpgradeResponse> => {
+    return apiPost<IUpgradeResponse>(`${getApiBaseUrl()}/subscriptions/upgrade/pro/monthly`, data);
+  },
+
+  upgradeProYearly: async (data: IUpgradeRequest): Promise<IUpgradeResponse> => {
+    return apiPost<IUpgradeResponse>(`${getApiBaseUrl()}/subscriptions/upgrade/pro/yearly`, data);
   },
 };
