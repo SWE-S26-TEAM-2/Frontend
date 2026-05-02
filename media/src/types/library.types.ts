@@ -9,10 +9,14 @@ export interface ILibraryTrack {
   plays?: number;
   likes?: number;
   reposts?: number;
+  isLiked?: boolean;     
+  isReposted?: boolean;   
   duration?: string;
   likedAt?: string; 
   genre?: string;
   waveformData?: number[]; 
+  commentsCount?: number;
+  url?: string;  
 }
 
 export interface ILibraryPlaylist {

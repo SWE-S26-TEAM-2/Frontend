@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CoverBox } from "@/components/Library/CoverBox";
 import { AllDropdown } from "@/components/Library/LibraryControls";
 import { TrackGridCard } from "@/components/Library/LibraryTrackCard";
-//import { VerifiedIcon } from "@/components/Icons/ProfileIcons";
+import { VerifiedIcon } from "@/components/Icons/ProfileIcons";
 import { HeartIcon } from "@/components/Icons/TrackIcons";
 import { formatNumber } from "@/utils/formatNumber";
 import type {
@@ -13,21 +13,6 @@ import type {
   ILibraryStation,
   ILibraryFollowing,
 } from "@/types/library.types";
-
-// JUST TILL MERGING LAST PR
-export const VerifiedIcon = () => (
-  <svg width={14} height={14} viewBox="0 0 24 24">
-    <circle cx="12" cy="12" r="12" fill="#1da1f2" />
-    <path
-      d="M6.5 12.5l3.5 3.5 7-7"
-      stroke="white"
-      strokeWidth={2.2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      fill="none"
-    />
-  </svg>
-);
 
 // ─── Recently played ──────────────────────────────────────────────────────────
 
@@ -207,7 +192,11 @@ export function FollowingOverviewSection({ following }: IFollowingOverviewSectio
       </div>
       <div className="grid grid-cols-6 gap-6">
         {following.map(f => (
-          <div key={f.id} className="flex flex-col items-center gap-2 group cursor-pointer">
+          <Link
+            key={f.id}
+            href={`/${f.username}`}
+            className="flex flex-col items-center gap-2 group no-underline"
+          >
             <CoverBox
               url={f.avatarUrl}
               alt={f.username}
@@ -222,14 +211,8 @@ export function FollowingOverviewSection({ following }: IFollowingOverviewSectio
                 <span className="truncate max-w-[90%]">{f.username}</span>
                 {f.isVerified && <VerifiedIcon />}
               </div>
-              <div className="flex items-center justify-center gap-1 text-[12px] text-[#666]">
-                <svg width={10} height={10} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
-                </svg>
-                {formatNumber(f.followers)} followers
-              </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </section>
