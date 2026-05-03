@@ -44,15 +44,15 @@ export default function Home() {
   };
 
   const handleModalClose = () => {
-  setIsModalOpen(false);
-  if (pendingTrack.current) {
-    const track = pendingTrack.current;
-    pendingTrack.current = null;
-    console.log("Setting track:", track.title); // ← add this temporarily
-    setTrack(track);
-    void realTrackService.postTrack(track.id).catch(() => {});
-  }
-};
+    setIsModalOpen(false);
+    if (pendingTrack.current) {
+      const track = pendingTrack.current;
+      pendingTrack.current = null;
+      console.log("Setting track:", track.title); // ← add this temporarily
+      setTrack(track);
+      void realTrackService.postTrack(track.id).catch(() => { });
+    }
+  };
 
 
 
@@ -72,11 +72,11 @@ export default function Home() {
   return (
     <>
       {isModalOpen && <LoginModal onClose={handleModalClose} />}
- <Footer />   {/* ← add this */}
-    
-    <div className="bg-[#141212] ...">
-      ...
-    </div>
+      <Footer />   {/* ← add this */}
+
+      <div className="bg-[#141212] ...">
+        ...
+      </div>
       <div className="bg-[#141212] min-h-screen flex justify-center text-white pb-20 selection:bg-orange-500 selection:text-white">
         <main className="px-6 md:px-12 py-10 w-full max-w-[1400px]">
 
@@ -96,16 +96,16 @@ export default function Home() {
                 </div>
 
                 {/* OR */}
-                <div className="flex items-center justify-center h-[46px] min-w-[40px]">
-                  <span className="text-gray-400 text-sm font-medium tracking-wide ">
+                <div className="flex items-center justify-center h-[46px] px-1">
+                  <span className="text-gray-500 text-lg italic font-medium tracking-wide">
                     or
                   </span>
                 </div>
 
                 {/* Button */}
                 <HoverButton
-                  onClick={() => router.push('/Upload')}
-                  className="h-[46px] px-5 bg-white text-black rounded-md font-semibold flex items-center justify-center text-[14px] whitespace-nowrap"
+                  onClick={() => setIsModalOpen(true)}
+                  className="h-[42px] px-5 bg-white text-black rounded-md font-semibold flex items-center justify-center text-[17px] whitespace-nowrap"
                 >
                   Upload your own
                 </HoverButton>
@@ -119,7 +119,7 @@ export default function Home() {
               <TrackSlider
                 title=""
                 subtitle=""
-                tracks={tracks.slice(0, 5)} 
+                tracks={tracks.slice(0, 5)}
                 showFollow={true}
                 onPlay={handleTrackPlay}
               />

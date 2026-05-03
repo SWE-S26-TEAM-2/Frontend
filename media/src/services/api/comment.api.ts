@@ -54,7 +54,7 @@ export const realCommentService: ICommentService = {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const raw = await apiGet<any>(`${ENV.API_BASE_URL}/tracks/${trackId}/comments`);
         const list: unknown[] = Array.isArray(raw) ? raw : (raw?.comments ?? raw?.data ?? []);
-        return { comments: list.map(normalizeComment) };
+        return list.map(normalizeComment);
       }
     );
   },
