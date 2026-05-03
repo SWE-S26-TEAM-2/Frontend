@@ -32,7 +32,6 @@ export default function HomePage() {
     const token = window.localStorage.getItem("auth_token");
     if (!isAuthenticated && !token) return;
 
-    console.log("Fetching home page data...");
 
       // Promise.all([
       //   homeService.getHomePageData(),
@@ -44,7 +43,6 @@ export default function HomePage() {
           //  setDiscoverStations(stations);
         //  })
         .then((homeData) => {
-          console.log("Home page data fetched:", homeData);
           setData(homeData);
       })
       .catch((err) => console.error("Failed to fetch home data:", err))

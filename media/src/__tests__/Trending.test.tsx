@@ -13,6 +13,20 @@ beforeAll(() => {
 const mockPush = jest.fn();
 jest.mock("next/navigation", () => ({
   useRouter: () => ({ push: mockPush }),
+  usePathname: () => "/trending",
+}));
+
+// Mock auth store so the logged-in header (with dots menu) renders
+jest.mock("@/store/authStore", () => ({
+  useAuthStore: (selector: (s: unknown) => unknown) => {
+    const state = {
+      user: { username: "testuser", profileImageUrl: null },
+      isAuthenticated: true,
+      login: jest.fn(),
+      logout: jest.fn(),
+    };
+    return selector ? selector(state) : state;
+  },
 }));
 
 jest.mock("@/services/di", () => ({

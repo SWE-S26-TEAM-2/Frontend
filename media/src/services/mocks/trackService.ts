@@ -22,7 +22,6 @@ export const mockTrackService: ITrackService = {
    * Get paginated tracks
    */
 async postTrack(trackId: string): Promise<void> {
-  console.log("Mock postTrack called with:", trackId);
 },  
   async getAllPaginated(page: number = 1, pageSize: number = 10): Promise<ITrackListResponse> {
     await delay(300);

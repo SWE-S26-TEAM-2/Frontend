@@ -108,6 +108,7 @@ export default function SearchBar({
   const submit = useCallback((value: string) => {
     if (!value.trim()) return;
     setOpen(false);
+    setQuery("");
     if (onSearch) { onSearch(value.trim()); return; }
     router.push(`/search?q=${encodeURIComponent(value.trim())}`);
   }, [onSearch, router]);
@@ -152,6 +153,7 @@ export default function SearchBar({
           onBlur={() => setFocused(false)}
           onKeyDown={onKeyDown}
           style={s.input}
+          className="w-full"
           autoComplete="off"
           spellCheck={false}
         />
@@ -163,6 +165,13 @@ export default function SearchBar({
             inputRef.current?.focus();
           }}>×</button>
         )}
+        <button
+          aria-label="Search"
+          onClick={() => submit(query)}
+          style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0 }}
+          tabIndex={-1}
+          type="button"
+        />
       </div>
 
       {open && suggestions.length > 0 && (

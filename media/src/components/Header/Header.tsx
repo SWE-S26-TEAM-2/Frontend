@@ -151,8 +151,8 @@ const SignOutIcon = () => (
 // ── Data ──────────────────────────────────────────────────────────────────────
 
 const NAV_ITEMS = [
-  { label: "Home",    href: "/home" },
-  { label: "Feed",    href: "/feed" },
+  { label: "Home",    href: "/discover" },
+  { label: "Feed",    href: "/stream" },
   { label: "Library", href: "/library" },
 ];
 
@@ -166,7 +166,7 @@ const getAvatarMenu = (profileHref: string): IMenuItem[] => {
   return [
     { icon: <ProfileIcon />,     label: "Profile",        href: profileHref },
     { icon: <LikesIcon />,       label: "Likes",          href: profileLikesHref },
-    { icon: <StationsIcon />,    label: "Stations",       href: "/stations" },
+    { icon: <StationsIcon />,    label: "Stations",       href: "/stream" },
     { icon: <WhoToFollowIcon />, label: "Who to follow",  href: "/who-to-follow", dividerBefore: true },
     { icon: <ArtistProBadge />,  label: "Try Artist Pro", href: "/artist-pro", orange: true },
     { icon: <TracksIcon />,      label: "Tracks",         href: "/library", dividerBefore: true },
@@ -420,7 +420,7 @@ export default function Header({ isLoggedIn: isLoggedInProp }: { isLoggedIn?: bo
           </button>
 
           {/* Logo */}
-          <Link href="/home" className="flex items-center gap-1.5 no-underline shrink-0">
+          <Link href="/" className="flex items-center gap-1.5 no-underline shrink-0">
             <SoundCloudLogo />
             <span className="text-white text-sm font-bold tracking-tight hidden sm:block select-none">soundcloud</span>
           </Link>

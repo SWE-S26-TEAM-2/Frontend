@@ -12,6 +12,9 @@ jest.mock("@/services/di", () => ({
     getById: jest.fn(),
     getRelated: jest.fn(),
   },
+  engagementService: {
+    getEngagementSummary: jest.fn().mockRejectedValue(new Error("not mocked")),
+  },
 }));
 
 const mockTrack = {

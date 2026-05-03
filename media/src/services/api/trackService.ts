@@ -191,8 +191,7 @@ export const realTrackService: ITrackService = {
   async postTrack(trackId: string): Promise<void> {
     try {
       // Call backend to record play
-      console.log('posting trackId:', trackId);
-      const result = await apiPost<ITrack>(`${ENV.API_BASE_URL}/tracks/${trackId}/plays`, {});
+      await apiPost<ITrack>(`${ENV.API_BASE_URL}/tracks/${trackId}/plays`, {});
       
     } catch (error) {
       console.error("Failed to update play count:", error);

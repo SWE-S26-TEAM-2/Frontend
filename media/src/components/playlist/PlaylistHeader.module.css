@@ -1,0 +1,310 @@
+/*
+ * PlaylistHeader.module.css
+ * Scoped styles for PlaylistHeader, PlaylistErrorBoundary, and shared action buttons.
+ * Origin: globals.css §"Playlist Header", §"Error Boundary", §"Edit button",
+ *         §"Visibility badge", §"Genre/Mood tags"
+ */
+
+/* ── CSS custom properties (playlist token layer) ───────────── */
+/* Re-declared locally so the module is self-contained even if the
+   consumer forgets to load globals.css. The root in globals.css wins
+   via cascade; these are only a safety net. */
+:root {
+  --pl-bg:           #0d0d0e;
+  --pl-surface:      #161617;
+  --pl-surface-2:    #1e1e20;
+  --pl-border:       rgba(255, 255, 255, 0.07);
+  --pl-text:         #f0ece4;
+  --pl-text-muted:   #7a7874;
+  --pl-text-dim:     #4a4845;
+  --pl-accent:       #ff5500;
+  --pl-accent-hover: #ff6a1f;
+  --pl-accent-rgb:   255, 85, 0;
+  --pl-liked:        #ff5500;
+  --pl-radius:       6px;
+  --pl-radius-lg:    12px;
+  --pl-transition:   180ms ease;
+}
+
+/* ── Header shell ───────────────────────────────────────────── */
+.playlistHeader {
+  position: relative;
+  overflow: hidden;
+  padding: 60px 0 0;
+}
+
+.playlistHeader__backdrop {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    160deg,
+    rgba(var(--pl-accent-rgb), 0.12) 0%,
+    var(--pl-bg) 65%
+  );
+  pointer-events: none;
+}
+
+.playlistHeader__inner {
+  position: relative;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 24px 40px;
+  display: flex;
+  align-items: flex-end;
+  gap: 36px;
+}
+
+/* ── Cover art ──────────────────────────────────────────────── */
+.playlistHeader__coverWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.playlistHeader__cover {
+  display: block;
+  width: 220px;
+  height: 220px;
+  object-fit: cover;
+  border-radius: var(--pl-radius-lg);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7), 0 0 0 1px var(--pl-border);
+}
+
+.playlistHeader__coverShine {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--pl-radius-lg);
+  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* ── Meta text ──────────────────────────────────────────────── */
+.playlistHeader__meta {
+  flex: 1;
+  min-width: 0;
+  padding-bottom: 4px;
+}
+
+.playlistHeader__label {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pl-accent);
+  margin-bottom: 10px;
+}
+
+.playlistHeader__title {
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--pl-text);
+  margin: 0 0 12px;
+  word-break: break-word;
+}
+
+.playlistHeader__description {
+  font-size: 0.88rem;
+  font-weight: 300;
+  color: var(--pl-text-muted);
+  line-height: 1.6;
+  margin: 0 0 14px;
+  max-width: 480px;
+}
+
+.playlistHeader__sub {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 7px;
+}
+
+.playlistHeader__creator { font-size: 0.88rem; font-weight: 500; color: var(--pl-text); }
+.playlistHeader__dot     { color: var(--pl-text-dim); }
+.playlistHeader__count   { font-size: 0.88rem; color: var(--pl-text-muted); }
+
+/* ── Visibility badge ───────────────────────────────────────── */
+.playlistHeader__visibility {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: var(--pl-text-muted);
+}
+
+.playlistHeader__visibility--private {
+  color: var(--pl-text-dim);
+}
+
+/* ── Genre / Mood tags ──────────────────────────────────────── */
+.playlistHeader__tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.playlistHeader__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--pl-text-muted);
+  padding: 3px 10px;
+  letter-spacing: 0.02em;
+}
+
+.playlistHeader__tag--genre {
+  color: #ff5500;
+  background: rgba(255, 85, 0, 0.08);
+  border-color: rgba(255, 85, 0, 0.2);
+}
+
+.playlistHeader__tag--mood {
+  color: #a78bfa;
+  background: rgba(167, 139, 250, 0.08);
+  border-color: rgba(167, 139, 250, 0.2);
+}
+
+/* ── Action buttons ─────────────────────────────────────────── */
+.playlistHeader__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.playlistHeader__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: none;
+  border-radius: 100px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 10px 22px;
+  transition:
+    background var(--pl-transition),
+    color var(--pl-transition),
+    transform var(--pl-transition),
+    box-shadow var(--pl-transition);
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.playlistHeader__btn--primary {
+  background: var(--pl-accent);
+  color: #fff;
+}
+
+.playlistHeader__btn--primary:hover {
+  background: var(--pl-accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(var(--pl-accent-rgb), 0.4);
+}
+
+.playlistHeader__btn--primary:active {
+  transform: translateY(0);
+}
+
+.playlistHeader__btn--ghost {
+  background: transparent;
+  color: var(--pl-text);
+  border: 1px solid rgba(255,255,255,0.07);
+}
+
+.playlistHeader__btn--ghost:hover {
+  background: var(--pl-surface-2);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Liked state */
+.playlistHeader__btn--liked {
+  color: var(--pl-liked);
+  border-color: var(--pl-liked);
+}
+
+.playlistHeader__btn--liked:hover {
+  background: rgba(var(--pl-accent-rgb), 0.1);
+  border-color: var(--pl-liked);
+}
+
+/* Edit modifier — subtle left separator */
+.playlistHeader__btn--edit {
+  margin-left: 6px;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  padding-left: 20px;
+}
+
+/* ── Share wrap + toast ─────────────────────────────────────── */
+.playlistHeader__shareWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.playlistHeader__shareToast {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--pl-surface-2);
+  color: var(--pl-text);
+  font-size: 0.78rem;
+  font-weight: 500;
+  white-space: nowrap;
+  padding: 6px 12px;
+  border-radius: var(--pl-radius);
+  border: 1px solid var(--pl-border);
+  pointer-events: none;
+  animation: toastIn 0.15s ease;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ── Error Boundary ─────────────────────────────────────────── */
+.playlistErrorBoundary {
+  min-height: 60vh;
+  background: var(--pl-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.playlistErrorBoundary__icon    { color: var(--pl-text-dim); }
+.playlistErrorBoundary__title   { font-size: 1.2rem; font-weight: 700; color: var(--pl-text); margin: 0; }
+.playlistErrorBoundary__message { font-size: 0.88rem; color: var(--pl-text-muted); max-width: 360px; margin: 0; line-height: 1.6; }
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .playlistHeader__inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    padding-top: 32px;
+  }
+
+  .playlistHeader__cover {
+    width: 160px;
+    height: 160px;
+  }
+
+  .playlistHeader__title {
+    font-size: 1.8rem;
+  }
+}
