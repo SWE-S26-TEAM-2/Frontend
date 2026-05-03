@@ -4,6 +4,16 @@ import { TrackCard } from "@/components/Track/TrackCard";
 import { TrackCover } from "@/components/Track/TrackCover";
 import { type ITrack } from "@/types/track.types";
 
+// Mock fetch globally so useWaveform doesn't crash in jsdom
+global.fetch = jest.fn(() =>
+  Promise.resolve({ ok: true, json: async () => ({ peaks: [] }) })
+) as jest.Mock;
+
+beforeAll(() => {
+  window.HTMLMediaElement.prototype.play  = jest.fn().mockResolvedValue(undefined);
+  window.HTMLMediaElement.prototype.pause = jest.fn();
+});
+
 const sampleTrack: ITrack = {
   id: "1",
   title: "Une vie à t'aimer",

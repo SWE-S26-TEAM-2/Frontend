@@ -97,7 +97,6 @@ export const realFeedService: IFeedService = {
 
       const feedTracks = (feedRes?.items ?? []).map(adaptFeedTrack);
 
-      console.log("Listening history (raw):", historyRes);
 
       const listeningHistory = (historyRes.items ?? [])
         .slice(0, 3)

@@ -48,7 +48,6 @@ export default function Home() {
     if (pendingTrack.current) {
       const track = pendingTrack.current;
       pendingTrack.current = null;
-      console.log("Setting track:", track.title); // ← add this temporarily
       setTrack(track);
       void realTrackService.postTrack(track.id).catch(() => { });
     }

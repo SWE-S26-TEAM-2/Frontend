@@ -1,0 +1,164 @@
+/*
+ * PlaylistSkeleton.module.css
+ * Scoped skeleton / shimmer loading state styles.
+ * Origin: globals.css §"Skeleton loading"
+ */
+
+/* ── Shimmer animation ──────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+.pulse {
+  background: linear-gradient(
+    90deg,
+    var(--pl-skel-base) 25%,
+    var(--pl-skel-shine) 50%,
+    var(--pl-skel-base) 75%
+  );
+  background-size: 1200px 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+  border-radius: var(--pl-radius);
+}
+
+/* ── Root skeleton ──────────────────────────────────────────── */
+.skeleton {
+  background: var(--pl-bg);
+  min-height: 100vh;
+  padding-bottom: 72px;
+}
+
+/* ── Header skeleton ────────────────────────────────────────── */
+.skeleton__header {
+  position: relative;
+  padding: 60px 0 0;
+  overflow: hidden;
+}
+
+.skeleton__header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    160deg,
+    rgba(var(--pl-accent-rgb), 0.05) 0%,
+    var(--pl-bg) 60%
+  );
+  pointer-events: none;
+}
+
+.skeleton__inner {
+  position: relative;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 24px 40px;
+  display: flex;
+  align-items: flex-end;
+  gap: 36px;
+}
+
+.skeleton__cover {
+  width: 220px;
+  height: 220px;
+  flex-shrink: 0;
+  border-radius: var(--pl-radius-lg) !important;
+}
+
+.skeleton__meta {
+  flex: 1;
+  min-width: 0;
+  padding-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Skeleton lines ─────────────────────────────────────────── */
+.skeleton__line           { height: 14px; border-radius: var(--pl-radius); }
+.skeleton__line--label    { width: 72px;  height: 10px; }
+.skeleton__line--title    { width: 60%;   height: 40px; border-radius: 6px; }
+.skeleton__line--desc     { width: 85%;   height: 13px; }
+.skeleton__line--sub      { width: 140px; height: 12px; }
+
+.skeleton__actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.skeleton__btn           { height: 38px; width: 110px; border-radius: 100px !important; }
+.skeleton__btn--ghost    { width: 80px; }
+
+/* ── Track list skeleton ────────────────────────────────────── */
+.skeleton__tracklist {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 16px 24px 0;
+  border-top: 1px solid var(--pl-border);
+}
+
+.skeleton__trackRow {
+  display: grid;
+  grid-template-columns: 48px 48px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+}
+
+.skeleton__trackIndex    { width: 24px;  height: 14px; margin: 0 auto; }
+.skeleton__trackCover    { width: 48px;  height: 48px; flex-shrink: 0; border-radius: var(--pl-radius) !important; }
+.skeleton__trackDuration { width: 36px;  height: 12px; }
+
+.skeleton__trackInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.skeleton__line--trackTitle  { width: 55%; height: 13px; }
+.skeleton__line--trackArtist { width: 35%; height: 11px; }
+
+/* ── Accessibility: screen-reader only ──────────────────────── */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .skeleton__inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    padding-top: 32px;
+  }
+
+  .skeleton__cover {
+    width: 160px;
+    height: 160px;
+  }
+
+  .skeleton__line--title {
+    height: 28px;
+  }
+
+  .skeleton__trackRow {
+    grid-template-columns: 36px 40px 1fr auto;
+    gap: 10px;
+    padding: 8px 4px;
+  }
+
+  .skeleton__trackCover {
+    width: 40px;
+    height: 40px;
+  }
+}

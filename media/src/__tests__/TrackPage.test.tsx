@@ -11,6 +11,9 @@ jest.mock("@/services", () => ({
     getById: jest.fn(),
     getRelated: jest.fn(),
   },
+  engagementService: {
+    getEngagementSummary: jest.fn().mockRejectedValue(new Error("not mocked")),
+  },
 }));
 
 jest.mock("next/navigation", () => ({

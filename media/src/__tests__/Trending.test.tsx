@@ -15,6 +15,20 @@ beforeAll(() => {
 const mockPush = jest.fn();
 jest.mock("next/navigation", () => ({
   useRouter: () => ({ push: mockPush }),
+  usePathname: () => "/trending",
+}));
+
+// Mock auth store so the logged-in header (with dots menu) renders
+jest.mock("@/store/authStore", () => ({
+  useAuthStore: (selector: (s: unknown) => unknown) => {
+    const state = {
+      user: { username: "testuser", profileImageUrl: null },
+      isAuthenticated: true,
+      login: jest.fn(),
+      logout: jest.fn(),
+    };
+    return selector ? selector(state) : state;
+  },
 }));
 
 // Mock Data
@@ -63,15 +77,12 @@ describe("TrendingPage Component", () => {
     expect(screen.getByText(/Discover Tracks and Playlists/i)).toBeInTheDocument();
   });
 
-  // --- FIX 2: Use getAllBy and specific selectors ---
+  // --- FIX 2: Use aria-label to find the correct dots menu button ---
   test("toggles the dots menu in the header", async () => {
     await act(async () => { render(<TrendingPage />); });
 
-    // Instead of getByRole("button", {name: ""}), use a more specific way to find the header dots
-    // Looking for the dots icon SVG inside a button
-    const buttons = screen.getAllByRole("button");
-    const dotsBtn = buttons.find(btn => btn.innerHTML.includes("circle")); 
-    
+    const dotsBtn = screen.queryByLabelText("More options");
+
     if (dotsBtn) {
       fireEvent.click(dotsBtn);
       expect(screen.getByText("About us")).toBeInTheDocument();

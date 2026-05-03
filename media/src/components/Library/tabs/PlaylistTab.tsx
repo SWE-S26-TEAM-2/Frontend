@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { FilterInput, AllDropdown } from "@/components/Library/LibraryControls";
 import { CoverBox } from "@/components/Library/CoverBox";
 import type { ILibraryPlaylist } from "@/types/library.types";
@@ -11,6 +12,7 @@ interface IPlaylistsTabProps {
 
 export function PlaylistsTab({ playlists }: IPlaylistsTabProps) {
   const [filter, setFilter] = useState("");
+  const router = useRouter();
 
   const filteredPlaylists = useMemo(() =>
     playlists.filter(p => p.title.toLowerCase().includes(filter.toLowerCase())),
@@ -21,6 +23,16 @@ export function PlaylistsTab({ playlists }: IPlaylistsTabProps) {
       <div className="flex items-center justify-between mb-8">
         <h2 className="text-[20px] font-bold text-white">Hear your own playlists and the playlists you&apos;ve liked:</h2>
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => router.push("/playlist/create")}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#ff5500] hover:bg-[#e64d00] text-white text-[13px] font-semibold transition-colors cursor-pointer border-none"
+          >
+            <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Create a new playlist
+          </button>
           <FilterInput value={filter} onChange={setFilter} />
           <AllDropdown />
         </div>

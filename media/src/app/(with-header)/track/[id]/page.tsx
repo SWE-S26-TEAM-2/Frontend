@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, notFound } from "next/navigation";
-import { trackService, engagementService } from "@/services/di";
+import { trackService, engagementService } from "@/services";
 
 import TrackPlayer from "@/components/Track/TrackPlayer";
 import TrackActions from "@/components/Track/TrackActions";
@@ -29,6 +29,10 @@ export default function TrackPage() {
           trackService.getRelated(id),
           engagementService.getEngagementSummary(id).catch(() => null),
         ]);
+        if (!t) {
+          setError(true);
+          return;
+        }
         setTrack({
           ...t,
           ...(summary && {

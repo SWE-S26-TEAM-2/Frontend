@@ -170,18 +170,19 @@ export default function Footer() {
 
     {/* LEFT */}
     <div className="flex items-center gap-1 shrink-0">
-      <button className={`${iconBtn} hidden sm:flex`} onClick={playPrev}><PrevIcon /></button>
+      <button aria-label="Previous" className={`${iconBtn} hidden sm:flex`} onClick={playPrev}><PrevIcon /></button>
 
       <button
+        aria-label={isPlaying ? "Pause" : "Play"}
         onClick={togglePlay}
         className="w-8 h-8 min-w-[32px] rounded-full bg-white text-black flex items-center justify-center shrink-0 hover:bg-[#e5e5e5]"
       >
         {isPlaying ? <PauseIcon /> : <PlayIcon />}
       </button>
 
-      <button className={`${iconBtn} hidden sm:flex`} onClick={playNext}><NextIcon /></button>
-      <button className={`${activeIconBtn(shuffle)} hidden md:flex`} onClick={toggleShuffle}><ShuffleIcon /></button>
-      <button className={`${activeIconBtn(repeat)} hidden md:flex`} onClick={toggleRepeat}><RepeatIcon /></button>
+      <button aria-label="Next" className={`${iconBtn} hidden sm:flex`} onClick={playNext}><NextIcon /></button>
+      <button aria-label="Shuffle" className={`${activeIconBtn(shuffle)} hidden md:flex`} onClick={toggleShuffle}><ShuffleIcon /></button>
+      <button aria-label="Repeat" className={`${activeIconBtn(repeat)} hidden md:flex`} onClick={toggleRepeat}><RepeatIcon /></button>
     </div>
 
     {/* CENTER */}
@@ -215,7 +216,7 @@ export default function Footer() {
         onMouseEnter={handleVolEnter}
         onMouseLeave={handleVolLeave}
       >
-        <button onClick={() => setMuted((m) => !m)} className={iconBtn}>
+        <button onClick={() => setMuted((m) => !m)} aria-label={muted ? "Unmute" : "Mute"} className={iconBtn}>
           <VolumeIcon muted={muted} />
         </button>
 
@@ -262,7 +263,7 @@ export default function Footer() {
             <AddUserIcon />
           </button>
 
-          <button className={iconBtn} onClick={() => setQueueOpen((p) => !p)}>
+          <button aria-label="Queue" className={iconBtn} onClick={() => setQueueOpen((p) => !p)}>
             <QueueIcon />
           </button>
         </>

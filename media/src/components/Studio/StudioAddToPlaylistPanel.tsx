@@ -102,7 +102,6 @@ export default function StudioAddToPlaylistPanel({
     try {
       const created = await playlistService.createPlaylist(
         createForm.title.trim(),
-        createForm.description.trim() || undefined,
       );
 
       // Add selected tracks to the newly created playlist

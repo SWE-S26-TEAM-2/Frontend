@@ -31,29 +31,30 @@ export interface IWaveformProps {
   unplayedColor?: string;
 }
 
-export interface ITrack {
+/**
+ * Minimum shape shared by ITrack and IPlaylistTrack.
+ * Consumers that only need id / title / artist / albumArt / url / duration
+ * should accept ITrackBase so both full tracks and playlist tracks are accepted.
+ */
+export interface ITrackBase {
   id: string;
-
-  // Basic info
   title: string;
-  artist: string; // keep as string for now (API may change later)
+  artist: string;
   albumArt: string;
+  url: string;
+  duration: number;
   genre?: string;
   description?: string;
+  isLiked?: boolean;
+}
 
-  // Audio
-  url: string;
-  duration: number; // seconds
-
+export interface ITrack extends ITrackBase {
   // Stats
   likes: number;
   plays: number;
   commentsCount?: number;
   reposts?: number;  
   isReposted?: boolean;
-
-  // UI state (frontend only)
-  isLiked?: boolean;
 
   // Timestamps
   createdAt: string;

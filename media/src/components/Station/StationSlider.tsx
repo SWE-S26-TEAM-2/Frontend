@@ -13,7 +13,7 @@ const VISIBLE = 5;
 // Gap between cards in px — must match gap style below
 const GAP_PX  = 16;
 
-export default function StationSlider({ title, subtitle, stations }: IStationSliderProps) {
+export default function StationSlider({ title, subtitle, stations = [] }: IStationSliderProps) {
   const [index, setIndex]           = useState(0);
   const [peekOffset, setPeekOffset] = useState(0);
   const peekTimer                   = useRef<ReturnType<typeof setTimeout> | null>(null);
