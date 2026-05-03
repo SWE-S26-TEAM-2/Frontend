@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { IProfileActionsProps } from "@/types/ui.types";
 import { ShareIcon } from "@/components/Icons/TrackIcons";
 import { ShareModal } from "@/components/Share/Share";
-import { userProfileService } from "@/services/di";
+import { useFollow } from "@/hooks/useFollow";
+import { useFollowStore } from "@/store/followStore";
 
 const StationIcon = () => (
   <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
@@ -26,27 +27,16 @@ const EditIcon = () => (
 
 export function ProfileActions({ user, onEditOpen, isFollowing: initialIsFollowing }: IProfileActionsProps) {
   const router = useRouter();
-  const [isFollowing, setIsFollowing] = useState(initialIsFollowing ?? false); 
-  const [followLoading, setFollowLoading] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
 
-  const handleFollow = async () => {
-    if (followLoading) return;
-    const nextIsFollowing = !isFollowing;
-    setIsFollowing(nextIsFollowing);
-    setFollowLoading(true);
-    try {
-      if (nextIsFollowing) {
-        await userProfileService.followUser(user.username);
-      } else {
-        await userProfileService.unfollowUser(user.username);
-      }
-    } catch {
-      setIsFollowing(!nextIsFollowing);
-    } finally {
-      setFollowLoading(false);
-    }
-  };
+  // Seed the follow store with the server-fetched value on mount
+  const initFollow = useFollowStore((s) => s.init);
+  useEffect(() => {
+    if (user.username) initFollow(user.username, initialIsFollowing ?? false);
+  }, [user.username]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const { isFollowing, isLoading: followLoading, toggleFollow: handleFollow } =
+    useFollow(user.username);
 
   if (user.isOwner) {
     return (

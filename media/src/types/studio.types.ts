@@ -61,6 +61,7 @@ export interface IStudioService {
   getTracks(page: number, pageSize: number): Promise<IStudioTracksResponse>;
   deleteTrack(trackId: string): Promise<void>;
   updateVisibility(trackId: string, visibility: TrackVisibility): Promise<IStudioTrack>;
+  updateTrackCover(trackId: string, file: File): Promise<string>;
   bulkEditTracks(trackIds: string[], payload: IBulkEditPayload): Promise<void>;
   getPlaylists(): Promise<IPlaylist[]>;
   addTracksToPlaylist(playlistId: string, trackIds: string[]): Promise<void>;

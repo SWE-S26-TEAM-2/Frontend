@@ -97,10 +97,28 @@ function buildRelatedSearchTerms(track: ITrack): string[] {
 function normalizeTrack(d: Record<string, unknown>): ITrack {
   const id = (d.track_id ?? d.id ?? "") as string;
 
+  // GET /tracks/{id} returns artist info as a nested FeedArtist object.
+  // Search results may return flat fields. Handle both.
+  const artistObj = typeof d.artist === "object" && d.artist !== null
+    ? (d.artist as Record<string, unknown>)
+    : null;
+
+  const artistUsername = asString(artistObj?.username) ?? asString(d.username);
+  const artistId       = asString(artistObj?.user_id)  ?? asString(d.user_id);
+  const artist =
+    asString(artistObj?.display_name) ??
+    asString(d.display_name) ??
+    asString(artistObj?.username) ??
+    asString(d.username) ??
+    (typeof d.artist === "string" ? asString(d.artist) : undefined) ??
+    "";
+
   return {
     id,
     title: d.title as string,
-    artist: (asString(d.artist) ?? asString(d.display_name) ?? asString(d.username)) ?? "",
+    artist,
+    artistUsername,
+    artistId,
     albumArt: resolveApiUrl(
       asString(d.artwork_url) ?? asString(d.cover_image_url) ?? asString(d.cover_image) ??
       asString(d.cover_url) ?? asString(d.cover_photo) ?? asString(d.albumArt)

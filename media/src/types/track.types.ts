@@ -13,7 +13,7 @@ export interface ITrackCardProps {
   onLikeChange?: (trackId: string, isLiked: boolean, likeCount: number) => void;
   isOwner?: boolean;
   onDelete?: (trackId: string) => void;
-} 
+}
 
 export interface ITrackCoverProps {
   url?: string | null;
@@ -36,7 +36,9 @@ export interface ITrack {
 
   // Basic info
   title: string;
-  artist: string; // keep as string for now (API may change later)
+  artist: string; // display name
+  artistUsername?: string; // URL slug used for follow/unfollow API calls
+  artistId?: string;       // user_id of the track owner, used to resolve username
   albumArt: string;
   genre?: string;
   description?: string;

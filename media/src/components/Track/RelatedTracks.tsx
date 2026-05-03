@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { IRelatedTracksProps } from "@/types/track.types";
 import { usePlayerStore } from "@/store/playerStore";
 import { TrackCard } from "@/components/Track/TrackCard";
 
 export default function RelatedTracks({ tracks, sourceTrack }: IRelatedTracksProps) {
+  const router = useRouter();
   const { currentTrack, setQueue, setTrack } = usePlayerStore();
 
   const list = useMemo(
@@ -69,7 +71,12 @@ export default function RelatedTracks({ tracks, sourceTrack }: IRelatedTracksPro
                 <p className="text-sm text-[#9a9a9a]">268</p>
               </div>
             </div>
-            <button className="rounded bg-white px-4 py-2 text-sm font-semibold text-black">Follow</button>
+            <button
+              onClick={() => sourceTrack?.artistUsername && router.push(`/${sourceTrack.artistUsername}`)}
+              className="rounded bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-gray-200 transition-colors cursor-pointer"
+            >
+              Follow
+            </button>
           </div>
         </div>
       </aside>

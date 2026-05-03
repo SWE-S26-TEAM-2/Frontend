@@ -1,50 +1,21 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ITrack } from "@/types/track.types";
 import { ShareModal } from "@/components/Share/Share";
-import { engagementService, userProfileService } from "@/services/di";
 import { formatNumber } from "@/utils/formatNumber";
+import { useInitTrackEngagement, useTrackEngagement } from "@/hooks/useTrackEngagement";
 
 export default function TrackActions({ track }: { track: ITrack }) {
+  const router = useRouter();
   const shareBtnRef = useRef<HTMLButtonElement>(null);
-  const [liked, setLiked] = useState(track.isLiked ?? false);
-  const [likes, setLikes] = useState(track.likes);
-  const [reposted, setReposted] = useState(track.isReposted ?? false);
-  const [reposts, setReposts] = useState(track.reposts ?? 0);
   const [copied, setCopied] = useState(false);
-  const [following, setFollowing] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
 
-  const handleLike = async () => {
-    const newLiked = !liked;
-    setLiked(newLiked);
-    setLikes((prev) => (newLiked ? prev + 1 : prev - 1)); // optimistic
-    try {
-      const result = newLiked
-        ? await engagementService.likeTrack(track.id)
-        : await engagementService.unlikeTrack(track.id);
-      if (result.likeCount >= 0) setLikes(result.likeCount);
-    } catch {
-      setLiked(!newLiked);
-      setLikes(track.likes);
-    }
-  };
-  const handleRepost = async () => {
-    const newReposted = !reposted;
-    setReposted(newReposted);
-    setReposts((prev) => (newReposted ? prev + 1 : Math.max(0, prev - 1)));
-    try {
-      if (newReposted) {
-        await engagementService.repostTrack(track.id);
-      } else {
-        await engagementService.removeRepost(track.id);
-      }
-    } catch {
-      setReposted(!newReposted);
-      setReposts(track.reposts ?? 0);
-    }
-  };
+  useInitTrackEngagement(track);
+  const { isLiked, likes, isReposted, reposts, toggleLike, toggleRepost } =
+    useTrackEngagement(track.id);
 
   const handleCopyLink = async () => {
     try {
@@ -52,20 +23,6 @@ export default function TrackActions({ track }: { track: ITrack }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch { /* clipboard not available */ }
-  };
-
-  const handleFollow = async () => {
-    const newFollowing = !following;
-    setFollowing(newFollowing);
-    try {
-      if (newFollowing) {
-        await userProfileService.followUser(track.artist);
-      } else {
-        await userProfileService.unfollowUser(track.artist);
-      }
-    } catch {
-      setFollowing(!newFollowing);
-    }
   };
 
   return (
@@ -76,10 +33,11 @@ export default function TrackActions({ track }: { track: ITrack }) {
           <span>{formatNumber(track.commentsCount ?? 0)} comments</span>
         )}
       </div>
+
       <button
-        onClick={handleLike}
+        onClick={toggleLike}
         className={`inline-flex items-center gap-2 rounded border px-4 py-2 text-sm font-semibold transition ${
-          liked
+          isLiked
             ? "border-[#ff5500] bg-[#2f1b12] text-[#ff7a36]"
             : "border-[#383838] bg-[#1f1f1f] text-[#f0f0f0] hover:border-[#5a5a5a]"
         }`}
@@ -90,9 +48,9 @@ export default function TrackActions({ track }: { track: ITrack }) {
       </button>
 
       <button
-        onClick={handleRepost}
+        onClick={toggleRepost}
         className={`inline-flex items-center gap-2 rounded border px-4 py-2 text-sm font-semibold transition ${
-          reposted
+          isReposted
             ? "border-[#ff5500] bg-[#2f1b12] text-[#ff7a36]"
             : "border-[#383838] bg-[#1f1f1f] text-[#f0f0f0] hover:border-[#5a5a5a]"
         }`}
@@ -131,15 +89,12 @@ export default function TrackActions({ track }: { track: ITrack }) {
       </button>
 
       <button
-        onClick={handleFollow}
-        className={`inline-flex items-center gap-2 rounded border px-4 py-2 text-sm font-semibold transition ${
-          following
-            ? "border-[#ff5500] bg-[#2f1b12] text-[#ff7a36]"
-            : "border-[#383838] bg-[#1f1f1f] text-[#f0f0f0] hover:border-[#5a5a5a]"
-        }`}
+        onClick={() => router.push(`/${track.artistUsername ?? track.artist}`)}
+        className="inline-flex items-center gap-2 rounded border border-[#ff5500] bg-[#ff5500] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#e64d00]"
       >
-        {following ? "Following" : `Follow ${track.artist}`}
+        👤 {`Follow ${track.artist}`}
       </button>
+
       <button className="inline-flex items-center gap-2 rounded border border-[#383838] bg-[#1f1f1f] px-4 py-2 text-sm font-semibold text-[#f0f0f0] transition hover:border-[#5a5a5a]">
         Add to Next up
       </button>

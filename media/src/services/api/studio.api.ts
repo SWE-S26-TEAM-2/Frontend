@@ -6,6 +6,7 @@ import type {
 } from '@/types/studio.types';
 import type { TrackVisibility } from '@/types/upload.types';
 import { apiDelete, apiGet, apiPut, apiPost } from './apiClient';
+import { getApiBaseUrl, normalizeApiUrl } from '@/config/env';
 import { ENV } from '@/config/env';
 
 // ── Backend response shapes ───────────────────────────────────────────────────
@@ -117,6 +118,30 @@ export const realStudioService: IStudioService = {
 
   async deleteTrack(trackId: string): Promise<void> {
     await apiDelete(`${ENV.API_BASE_URL}/tracks/${trackId}`);
+  },
+
+  async updateTrackCover(trackId: string, file: File): Promise<string> {
+    const token = typeof window !== 'undefined' ? window.localStorage.getItem('auth_token') : null;
+    if (!token) throw new Error('Not authenticated');
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const url = normalizeApiUrl(`${getApiBaseUrl()}/tracks/${trackId}/cover`);
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error((err as { detail?: string }).detail ?? 'Failed to upload cover image');
+    }
+
+    const json = await res.json();
+    const data = (json.data ?? json) as Record<string, unknown>;
+    return (data.cover_image_url as string) ?? '';
   },
 
   async updateVisibility(trackId: string, visibility: TrackVisibility): Promise<IStudioTrack> {
