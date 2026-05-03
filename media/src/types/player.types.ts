@@ -21,6 +21,7 @@ export interface IPlayerState {
   setCurrentTime: (time: number) => void;
   setDuration: (duration: number) => void;
   setVolume: (volume: number) => void;
+  setLiked: (liked: boolean) => void;
   toggleLike: () => void;
   toggleShuffle: () => void;
   toggleRepeat: () => void;

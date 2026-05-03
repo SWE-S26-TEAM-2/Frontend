@@ -5,6 +5,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { usePlayerStore } from "@/store/playerStore";
 import { trackService } from "@/services";
+import { apiPost, apiDelete } from "@/services/api/apiClient";
+import { ENV } from "@/config/env";
 
 import {
   PrevIcon, NextIcon, PlayIcon, PauseIcon, ShuffleIcon,
@@ -73,9 +75,29 @@ export default function Footer() {
   const router = useRouter();
   const {
     currentTrack, queue, isPlaying, currentTime, duration, volume, liked, shuffle, repeat,
-    togglePlay, setCurrentTime, setDuration, setVolume, toggleLike, toggleShuffle,
+    togglePlay, setCurrentTime, setDuration, setVolume, setLiked, toggleShuffle,
     toggleRepeat, playNext, playPrev, setTrack, setQueue, addToQueue, playFromQueue, moveQueueItem,
   } = usePlayerStore();
+
+  // Seed liked state from track metadata when track changes
+  useEffect(() => {
+    setLiked(currentTrack?.isLiked ?? false);
+  }, [currentTrack?.id, setLiked]);
+
+  const handleLike = async () => {
+    if (!currentTrack) return;
+    const nowLiked = !liked;
+    setLiked(nowLiked);
+    try {
+      if (nowLiked) {
+        await apiPost(`${ENV.API_BASE_URL}/likes/tracks/${currentTrack.id}`);
+      } else {
+        await apiDelete(`${ENV.API_BASE_URL}/likes/tracks/${currentTrack.id}`);
+      }
+    } catch {
+      setLiked(!nowLiked); // rollback on failure
+    }
+  };
 
   const audioRef    = useRef<HTMLAudioElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
@@ -256,7 +278,7 @@ export default function Footer() {
 
           <div className="w-px h-4 bg-[#555] hidden sm:block" />
 
-          <button className={activeIconBtn(liked)} onClick={toggleLike}>
+          <button className={activeIconBtn(liked)} onClick={handleLike}>
             <HeartIcon liked={liked} />
           </button>
 

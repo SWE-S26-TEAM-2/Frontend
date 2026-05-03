@@ -15,13 +15,13 @@ interface ITrackUpdatePayload {
   visibility?: string;
 }
 
-interface Props {
+interface IProps {
   track: ITrack;
   onClose: () => void;
   onSaved: (updated: Partial<ITrack>) => void;
 }
 
-export default function TrackEditModal({ track, onClose, onSaved }: Props) {
+export default function TrackEditModal({ track, onClose, onSaved }: IProps) {
   const [title,       setTitle]       = useState(track.title ?? "");
   const [description, setDescription] = useState(track.description ?? "");
   const [genre,       setGenre]       = useState(track.genre ?? "");

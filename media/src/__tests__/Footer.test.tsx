@@ -81,6 +81,15 @@ describe("Footer Component", () => {
       playNext: mockPlayNext,
       setQueue: jest.fn(),
       setTrack: jest.fn(),
+      setLiked: jest.fn(),
+      setCurrentTime: jest.fn(),
+      setDuration: jest.fn(),
+      toggleShuffle: jest.fn(),
+      toggleRepeat: jest.fn(),
+      playPrev: jest.fn(),
+      addToQueue: jest.fn(),
+      playFromQueue: jest.fn(),
+      moveQueueItem: jest.fn(),
     }));
   });
 
@@ -139,8 +148,25 @@ describe("Footer Component", () => {
       queue: [mockTrack],
       duration: 180,
       currentTime: 0,
+      isPlaying: false,
+      volume: 0.5,
+      liked: false,
+      shuffle: false,
+      repeat: false,
       setCurrentTime: mockSetCurrentTime,
       togglePlay: jest.fn(),
+      setLiked: jest.fn(),
+      setDuration: jest.fn(),
+      setVolume: jest.fn(),
+      toggleShuffle: jest.fn(),
+      toggleRepeat: jest.fn(),
+      playNext: jest.fn(),
+      playPrev: jest.fn(),
+      setQueue: jest.fn(),
+      setTrack: jest.fn(),
+      addToQueue: jest.fn(),
+      playFromQueue: jest.fn(),
+      moveQueueItem: jest.fn(),
     }));
 
     render(<Footer />);

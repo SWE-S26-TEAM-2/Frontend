@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 
 jest.mock("next/navigation", () => ({
   useParams: jest.fn(),
+  useRouter: jest.fn(() => ({ push: jest.fn() })),
   notFound: jest.fn(),
 }));
 

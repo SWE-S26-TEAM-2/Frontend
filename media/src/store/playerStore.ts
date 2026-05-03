@@ -73,6 +73,7 @@ export const usePlayerStore = create<IPlayerState>((set, get) => ({
   setCurrentTime: (time) => set({ currentTime: time }),
   setDuration: (duration) => set({ duration }),
   setVolume: (volume) => set({ volume }),
+  setLiked: (liked) => set({ liked }),
   toggleLike: () => set((s) => ({ liked: !s.liked })),
   toggleShuffle: () => set((s) => ({ shuffle: !s.shuffle })),
   toggleRepeat: () => set((s) => ({ repeat: !s.repeat })),

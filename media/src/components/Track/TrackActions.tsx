@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { Pencil } from "lucide-react";
 import { ITrack } from "@/types/track.types";
 import { ShareModal } from "@/components/Share/Share";
@@ -12,7 +11,6 @@ import { useFollow } from "@/hooks/useFollow";
 import TrackEditModal from "./TrackEditModal";
 
 export default function TrackActions({ track }: { track: ITrack }) {
-  const router = useRouter();
   const shareBtnRef = useRef<HTMLButtonElement>(null);
   const [copied,       setCopied]       = useState(false);
   const [isShareOpen,  setIsShareOpen]  = useState(false);
@@ -27,8 +25,11 @@ export default function TrackActions({ track }: { track: ITrack }) {
   const [myUserId,   setMyUserId]   = useState<string | null>(null);
   const [myUsername, setMyUsername] = useState<string | null>(null);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMyUserId(String(user?.id ?? "") || localStorage.getItem("auth_user_id"));
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMyUsername(user?.username ?? localStorage.getItem("auth_username"));
   }, [user?.id, user?.username]);
 
