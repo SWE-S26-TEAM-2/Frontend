@@ -184,7 +184,7 @@ export function resolveAvatarUrl(profilePicture: string | null): string {
 }
 
 export function resolvePlaylistCover(coverPhoto: string | null): string {
-  if (!coverPhoto) return "/default-track-cover.png";
+  if (!coverPhoto) return "/cc.jpg";
   if (coverPhoto.startsWith("http")) return coverPhoto;
   return `${BASE_URL}${coverPhoto}`;
 }

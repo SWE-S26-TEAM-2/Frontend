@@ -35,7 +35,7 @@ function adaptTrack(raw: IRawSearchTrack): ITrack {
                      ? raw.cover_image_url.startsWith("http")
                        ? raw.cover_image_url
                        : `${BASE_URL}${raw.cover_image_url}`
-                     : "/default-track-cover.png",
+                     : "/cc.jpg",
     genre:         raw.genre ?? undefined,
     description:   raw.description ?? undefined,
     url:           raw.stream_url

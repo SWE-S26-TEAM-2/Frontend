@@ -263,7 +263,7 @@ function PlaylistCard({ playlist }: { playlist: ISearchPlaylist }) {
           src={resolvePlaylistCover(playlist.cover_photo)}
           alt={playlist.title}
           style={pg.plCoverImg}
-          onError={(e) => { (e.target as HTMLImageElement).src = "/default-track-cover.png"; }}
+          onError={(e) => { (e.target as HTMLImageElement).src = "/cc.jpg"; }}
         />
         <div style={pg.plOverlay}>▶</div>
       </div>

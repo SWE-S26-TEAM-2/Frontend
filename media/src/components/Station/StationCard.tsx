@@ -126,11 +126,11 @@ export default function StationCard({ station }: IStationCardProps) {
       <div className="relative w-full aspect-square rounded-md overflow-hidden bg-[#1a1a1a]">
 
         <img
-          src={station.coverArt || "/default-track-cover.png"}
+          src={station.coverArt || "/cc.jpg"}
           alt={station.name}
           className="absolute inset-0 w-full h-full object-cover"
           onError={(e) => {
-            (e.target as HTMLImageElement).src = "/default-track-cover.png";
+            (e.target as HTMLImageElement).src = "/cc.jpg";
           }}
         />
 

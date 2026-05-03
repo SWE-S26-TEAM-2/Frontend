@@ -28,7 +28,7 @@ function adaptFeedTrack(raw: IRawFeedTrack): ITrack {
       ? raw.cover_image_url.startsWith("http")
         ? raw.cover_image_url
         : `${BASE_URL}${raw.cover_image_url}`
-      : "/default-track-cover.png",
+      : "/cc.jpg",
     genre: raw.genre ?? undefined,
     description: raw.description ?? undefined,
    url: raw.stream_url
@@ -51,7 +51,7 @@ function adaptHistoryTrack(raw: IRawHistoryEntry): ITrack {
     id: raw.track_id,
     title: raw.title,
     artist: "Unknown Artist",
-    albumArt: "/default-track-cover.png",
+    albumArt: "/cc.jpg",
     genre: raw.genre ?? undefined,
     description: raw.description ?? undefined,
    url: raw.file_url

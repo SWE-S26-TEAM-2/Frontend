@@ -153,7 +153,7 @@ function adaptFeedTrack(raw: IRawFeedTrack): ITrack & { artistUsername: string }
     title:          raw.title,
     artist:         raw.artist?.display_name ?? "Unknown Artist",
     artistUsername: raw.artist?.username ?? "",
-    albumArt:       resolveImage(raw.cover_image_url, "/default-track-cover.png"),
+    albumArt:       resolveImage(raw.cover_image_url, "/cc.jpg"),
     genre:          raw.genre ?? undefined,
     description:    raw.description ?? undefined,
     url:            resolveUrl(raw.stream_url),
@@ -180,7 +180,7 @@ function adaptRawTrack(raw: IRawTrack): ITrack & { artistUsername: string } {
     title:          raw.title,
     artist:         artistName,
     artistUsername,
-    albumArt:       resolveImage(raw.cover_image_url, "/default-track-cover.png"),
+    albumArt:       resolveImage(raw.cover_image_url, "/cc.jpg"),
     genre:          raw.genre ?? undefined,
     description:    raw.description ?? undefined,
     url:            resolveUrl(raw.stream_url),
@@ -210,7 +210,7 @@ function adaptRecentlyPlayed(
     title:          t.title,
     artist:         artistName,
     artistUsername,
-    albumArt:       resolveImage(t.cover_image_url, "/default-track-cover.png"),
+    albumArt:       resolveImage(t.cover_image_url, "/cc.jpg"),
     description:    t.description ?? undefined,
     url:            resolveUrl(t.stream_url),
     duration:       t.duration_seconds ?? 0,
@@ -234,7 +234,7 @@ function adaptUser(raw: IRawSearchUser): IArtist & { username: string } {
     name:        raw.display_name,
     followers:   raw.follower_count.toLocaleString(),
     tracksCount: 0,
-    imageUrl:    resolveImage(raw.profile_picture, "/default-avatar.png"),
+    imageUrl:    resolveImage(raw.profile_picture, "/cc.jpg"),
     type:        "artist",
   };
 }
@@ -375,7 +375,7 @@ export const realHomeService: IHomeService = {
               name:        u.display_name,
               followers:   "",
               tracksCount: 0,
-              imageUrl:    resolveImage(u.profile_picture, "/default-avatar.png"),
+              imageUrl:    resolveImage(u.profile_picture, "/cc.jpg"),
               type:        "artist",
             });
           }

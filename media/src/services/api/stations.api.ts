@@ -23,7 +23,7 @@ function adaptHistoryItemToStation(raw: IRawHistoryItem, index: number): IStatio
     ? raw.cover_image_url.startsWith("http")
       ? raw.cover_image_url
       : `${BASE_URL}${raw.cover_image_url}`
-    : "/default-track-cover.png";
+    : "/cc.jpg";
 
   const url = raw.stream_url
     ? raw.stream_url.startsWith("http")
