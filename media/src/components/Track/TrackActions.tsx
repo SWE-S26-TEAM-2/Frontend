@@ -25,6 +25,8 @@ export default function TrackActions({ track }: { track: ITrack }) {
     } catch { /* clipboard not available */ }
   };
 
+  const artistSlug = track.artistUsername; // populated from artist.username in normalizeTrack
+
   return (
     <div className="mt-1 flex flex-wrap items-center gap-3">
       <div className="w-full flex items-center gap-4 text-xs text-[#888] pb-1">
@@ -89,8 +91,11 @@ export default function TrackActions({ track }: { track: ITrack }) {
       </button>
 
       <button
-        onClick={() => router.push(`/${track.artistUsername ?? track.artist}`)}
-        className="inline-flex items-center gap-2 rounded border border-[#ff5500] bg-[#ff5500] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#e64d00]"
+        onClick={() => artistSlug && router.push(`/${artistSlug}`)}
+        disabled={!artistSlug}
+        className={`inline-flex items-center gap-2 rounded border border-[#ff5500] bg-[#ff5500] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#e64d00] ${
+          !artistSlug ? "opacity-50 cursor-not-allowed" : ""
+        }`}
       >
         👤 {`Follow ${track.artist}`}
       </button>

@@ -174,6 +174,7 @@ export default function Footer() {
 
       <button
         onClick={togglePlay}
+        aria-label={isPlaying ? "Pause" : "Play"}
         className="w-8 h-8 min-w-[32px] rounded-full bg-white text-black flex items-center justify-center shrink-0 hover:bg-[#e5e5e5]"
       >
         {isPlaying ? <PauseIcon /> : <PlayIcon />}
@@ -193,6 +194,7 @@ export default function Footer() {
       <div
         ref={progressRef}
         onClick={handleSeek}
+        data-testid="progress-bar"
         className="flex-1 h-[2px] bg-[#555] relative cursor-pointer"
       >
         <div

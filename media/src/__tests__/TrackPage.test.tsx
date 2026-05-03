@@ -5,12 +5,19 @@ import { useParams } from "next/navigation";
 
 jest.mock("next/navigation", () => ({
   useParams: jest.fn(),
+  notFound: jest.fn(),
 }));
 
 jest.mock("@/services/di", () => ({
   trackService: {
     getById: jest.fn(),
     getRelated: jest.fn(),
+  },
+  engagementService: {
+    getEngagementSummary: jest.fn().mockResolvedValue(null),
+  },
+  userProfileService: {
+    getUserProfile: jest.fn().mockResolvedValue(null),
   },
 }));
 

@@ -96,9 +96,7 @@ describe("Footer Component", () => {
   test("calls togglePlay when play/pause button is clicked", () => {
     render(<Footer />);
     
-    // Find play button by searching for the button containing the PlayIcon/PauseIcon
-    // In your code, it's the only one with w-8 h-8
-    const playBtn = screen.getByRole("button", { name: "" }); 
+    const playBtn = screen.getByRole("button", { name: /play|pause/i });
     fireEvent.click(playBtn);
     
     expect(mockTogglePlay).toHaveBeenCalled();
@@ -147,21 +145,18 @@ describe("Footer Component", () => {
 
     render(<Footer />);
     
-    const progressBar = screen.getByRole("generic").querySelector(".h-\\[2px\\]");
-    if (progressBar) {
-      // Mock getBoundingClientRect for coordinates
-      progressBar.getBoundingClientRect = jest.fn(() => ({
-        width: 200,
-        left: 0,
-        top: 0,
-        right: 200,
-        bottom: 2,
-      } as DOMRect));
+    const progressBar = screen.getByTestId("progress-bar");
 
-      fireEvent.click(progressBar, { clientX: 100 }); // Click middle (50%)
-      
-      // We expect the currentTime to be set to 50% of 180 = 90
-      expect(mockSetCurrentTime).toHaveBeenCalledWith(90);
-    }
+    progressBar.getBoundingClientRect = jest.fn(() => ({
+      width: 200,
+      left: 0,
+      top: 0,
+      right: 200,
+      bottom: 2,
+    } as DOMRect));
+
+    fireEvent.click(progressBar, { clientX: 100 }); // Click middle (50%)
+
+    expect(mockSetCurrentTime).toHaveBeenCalledWith(90);
   });
 });
