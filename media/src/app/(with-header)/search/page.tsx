@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { TrackCard } from "@/components/Track/TrackCard";
 import { searchService } from "@/services/di";
 import { userProfileService } from "@/services/di";
@@ -198,25 +198,27 @@ function SectionHeader({ title, count, onSeeAll }: { title: string; count: numbe
 }
 
 function UserCard({ user }: { user: ISearchUser }) {
-  const [isFollowing, setIsFollowing] = useState(false);
+  const router = useRouter();
+  const [isFollowing,  setIsFollowing]  = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
 
+  const goToProfile = () => router.push(`/${user.username}`);
+
   const handleFollow = async (e: React.MouseEvent) => {
-    e.preventDefault();
+    e.stopPropagation();
     if (followLoading) return;
 
     const next = !isFollowing;
-    setIsFollowing(next); // optimistic update
-
+    setIsFollowing(next);
     setFollowLoading(true);
     try {
       if (next) {
-await userProfileService.followUser(user.username);
+        await userProfileService.followUser(user.username);
       } else {
         await userProfileService.unfollowUser(user.username);
       }
     } catch (err) {
-      setIsFollowing(!next); // revert on failure
+      setIsFollowing(!next);
       console.error("Follow action failed:", err);
     } finally {
       setFollowLoading(false);
@@ -224,14 +226,15 @@ await userProfileService.followUser(user.username);
   };
 
   return (
-    <div style={pg.userCard}>
+    <div style={pg.userCard} onClick={goToProfile}>
       <img
         src={resolveAvatarUrl(user.profile_picture)}
         alt={user.display_name}
         style={pg.avatar}
-        onError={(e) => { (e.target as HTMLImageElement).src = "/default-avatar.png"; }}
+        onError={(e) => { (e.target as HTMLImageElement).src = "/default-avatar.png.png"; }}
       />
       <span style={pg.userName}>{user.display_name}</span>
+      <span style={pg.userHandle}>@{user.username}</span>
       <span style={pg.userType}>{user.account_type}</span>
       <div style={pg.userStats}>
         <span style={pg.stat}>{user.follower_count.toLocaleString()} followers</span>
@@ -242,11 +245,10 @@ await userProfileService.followUser(user.username);
         disabled={followLoading}
         style={{
           ...pg.followBtn,
-          background:    isFollowing ? "transparent" : "transparent",
-          borderColor:   isFollowing ? "#666" : "#ff5500",
-          color:         isFollowing ? "#666" : "#ff5500",
-          opacity:       followLoading ? 0.6 : 1,
-          cursor:        followLoading ? "not-allowed" : "pointer",
+          borderColor: isFollowing ? "#666" : "#ff5500",
+          color:       isFollowing ? "#666" : "#ff5500",
+          opacity:     followLoading ? 0.6 : 1,
+          cursor:      followLoading ? "not-allowed" : "pointer",
         }}
       >
         {isFollowing ? "Following" : followLoading ? "…" : "Follow"}
@@ -330,6 +332,7 @@ const pg: Record<string, React.CSSProperties> = {
   userCard:     { display: "flex", flexDirection: "column", alignItems: "center", gap: 7, padding: "20px 14px", background: "#111", borderRadius: 8, border: "1px solid #1e1e1e", cursor: "pointer", textAlign: "center" },
   avatar:       { width: 68, height: 68, borderRadius: "50%", objectFit: "cover", background: "#1e1e1e" },
   userName:     { color: "#fff", fontSize: 13, fontWeight: 600 },
+  userHandle:   { color: "#555", fontSize: 11 },
   userType:     { color: "#ff5500", fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" },
   userStats:    { display: "flex", flexDirection: "column", gap: 2, alignItems: "center" },
   stat:         { color: "#555", fontSize: 11 },

@@ -124,6 +124,7 @@ export default function TrackCard2({
   const [following,  setFollowing]  = useState(false);
   const [menuOpen,   setMenuOpen]   = useState(false);
   const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
+  const [imgFailed,  setImgFailed]  = useState(false);
 
   const btnReset = "cursor-pointer outline-none ring-0 border-none focus:outline-none focus:ring-0 active:outline-none active:ring-0";
 
@@ -213,13 +214,22 @@ export default function TrackCard2({
           isCurrentTrack ? "ring-2 ring-orange-500" : ""
         }`}
       >
-        <Image
-          src={track.albumArt || "/test.png"}
-          alt={track.title}
-          fill
-          sizes="180px"
-          className="object-cover group-hover:scale-105 transition duration-300 pointer-events-none"
-        />
+        {track.albumArt && !imgFailed ? (
+          <Image
+            src={track.albumArt}
+            alt={track.title}
+            fill
+            sizes="180px"
+            className="object-cover group-hover:scale-105 transition duration-300 pointer-events-none"
+            onError={() => setImgFailed(true)}
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] to-[#2d1b4e] flex items-center justify-center pointer-events-none">
+            <svg width="40%" height="40%" viewBox="0 0 24 24" fill="#ffffff15">
+              <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+            </svg>
+          </div>
+        )}
 
         <div className={`absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent transition duration-300 ${
           menuOpen || isCurrentTrack ? "opacity-100" : "opacity-0 group-hover:opacity-100"

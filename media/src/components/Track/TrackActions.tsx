@@ -1,21 +1,40 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Pencil } from "lucide-react";
 import { ITrack } from "@/types/track.types";
 import { ShareModal } from "@/components/Share/Share";
 import { formatNumber } from "@/utils/formatNumber";
 import { useInitTrackEngagement, useTrackEngagement } from "@/hooks/useTrackEngagement";
+import { useAuthStore } from "@/store/authStore";
+import { useFollow } from "@/hooks/useFollow";
+import TrackEditModal from "./TrackEditModal";
 
 export default function TrackActions({ track }: { track: ITrack }) {
   const router = useRouter();
   const shareBtnRef = useRef<HTMLButtonElement>(null);
-  const [copied, setCopied] = useState(false);
-  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [copied,       setCopied]       = useState(false);
+  const [isShareOpen,  setIsShareOpen]  = useState(false);
+  const [isEditOpen,   setIsEditOpen]   = useState(false);
+  const [localTrack,   setLocalTrack]   = useState(track);
 
   useInitTrackEngagement(track);
   const { isLiked, likes, isReposted, reposts, toggleLike, toggleRepost } =
     useTrackEngagement(track.id);
+
+  const { user } = useAuthStore();
+  const [myUserId,   setMyUserId]   = useState<string | null>(null);
+  const [myUsername, setMyUsername] = useState<string | null>(null);
+
+  useEffect(() => {
+    setMyUserId(String(user?.id ?? "") || localStorage.getItem("auth_user_id"));
+    setMyUsername(user?.username ?? localStorage.getItem("auth_username"));
+  }, [user?.id, user?.username]);
+
+  const isOwner =
+    Boolean(myUserId   && localTrack.artistId       && myUserId   === localTrack.artistId) ||
+    Boolean(myUsername && localTrack.artistUsername  && myUsername === localTrack.artistUsername);
 
   const handleCopyLink = async () => {
     try {
@@ -25,7 +44,8 @@ export default function TrackActions({ track }: { track: ITrack }) {
     } catch { /* clipboard not available */ }
   };
 
-  const artistSlug = track.artistUsername; // populated from artist.username in normalizeTrack
+  const artistSlug = localTrack.artistUsername ?? "";
+  const { isFollowing, isLoading: followLoading, toggleFollow } = useFollow(artistSlug);
 
   return (
     <div className="mt-1 flex flex-wrap items-center gap-3">
@@ -90,15 +110,29 @@ export default function TrackActions({ track }: { track: ITrack }) {
         {copied ? "Copied!" : "Copy Link"}
       </button>
 
-      <button
-        onClick={() => artistSlug && router.push(`/${artistSlug}`)}
-        disabled={!artistSlug}
-        className={`inline-flex items-center gap-2 rounded border border-[#ff5500] bg-[#ff5500] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#e64d00] ${
-          !artistSlug ? "opacity-50 cursor-not-allowed" : ""
-        }`}
-      >
-        👤 {`Follow ${track.artist}`}
-      </button>
+      {!isOwner && (
+        <button
+          onClick={toggleFollow}
+          disabled={followLoading || !artistSlug}
+          className={`inline-flex items-center gap-2 rounded border px-4 py-2 text-sm font-semibold transition ${
+            isFollowing
+              ? "border-[#555] bg-[#1f1f1f] text-[#aaa] hover:border-red-500 hover:text-red-400"
+              : "border-[#ff5500] bg-[#ff5500] text-white hover:bg-[#e64d00]"
+          } ${followLoading ? "opacity-60 cursor-wait" : ""}`}
+        >
+          👤 {followLoading ? "..." : isFollowing ? `Following ${localTrack.artist}` : `Follow ${localTrack.artist}`}
+        </button>
+      )}
+
+      {isOwner && (
+        <button
+          onClick={() => setIsEditOpen(true)}
+          className="inline-flex items-center gap-2 rounded border border-[#ff5500] bg-[#ff5500] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#e64d00]"
+        >
+          <Pencil size={14} />
+          Edit Track
+        </button>
+      )}
 
       <button className="inline-flex items-center gap-2 rounded border border-[#383838] bg-[#1f1f1f] px-4 py-2 text-sm font-semibold text-[#f0f0f0] transition hover:border-[#5a5a5a]">
         Add to Next up
@@ -117,6 +151,14 @@ export default function TrackActions({ track }: { track: ITrack }) {
           mode="popover"
           anchorRef={shareBtnRef}
           onClose={() => setIsShareOpen(false)}
+        />
+      )}
+
+      {isEditOpen && (
+        <TrackEditModal
+          track={localTrack}
+          onClose={() => setIsEditOpen(false)}
+          onSaved={(updated) => setLocalTrack((prev) => ({ ...prev, ...updated }))}
         />
       )}
     </div>
