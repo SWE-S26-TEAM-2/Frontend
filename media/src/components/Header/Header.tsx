@@ -8,8 +8,6 @@ import type { IMenuItem } from "@/types/ui.types";
 import { useAuthStore } from "@/store/authStore";
 import KeyboardShortcutsModal from "@/components/KeyboardShortcutsModal/KeyboardShortcutsModal";
 import { NAV_ITEMS } from "@/constants/navigation";
-import { apiGet } from "@/services/api/apiClient";
-import { ENV } from "@/config/env";
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -336,7 +334,6 @@ export default function Header({
   const [hasToken, setHasToken]             = useState(false);
   const [storedUserId, setStoredUserId]     = useState<string | null>(null);
   const [shortcutsOpen, setShortcutsOpen]   = useState(false);
-  const [unreadMessages, setUnreadMessages] = useState(0);
   const authUser        = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const storeLogin      = useAuthStore((state) => state.login);
@@ -397,21 +394,6 @@ export default function Header({
     if (item.label === "Keyboard shortcuts") return { ...item, noNav: true, onClick: () => setShortcutsOpen(true) };
     return item;
   });
-
-  // Fetch unread message count for the DM badge
-  useEffect(() => {
-    if (!isLoggedIn) return;
-    const fetchUnread = () => {
-      apiGet<{ unread_count?: number; count?: number }>(
-        `${ENV.API_BASE_URL}/conversations/unread-count`
-      )
-        .then((d) => setUnreadMessages(d?.unread_count ?? d?.count ?? 0))
-        .catch(() => {});
-    };
-    fetchUnread();
-    const interval = setInterval(fetchUnread, 30_000);
-    return () => clearInterval(interval);
-  }, [isLoggedIn]);
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -604,23 +586,11 @@ export default function Header({
             <button
               aria-label="Messages"
               onClick={() => router.push("/messages")}
-              style={{ ...iconBtnStyle, textDecoration: "none", position: "relative" }}
+              style={{ ...iconBtnStyle, textDecoration: "none" }}
               onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
               onMouseLeave={(e) => (e.currentTarget.style.color = "#999")}
             >
               <MailIcon />
-              {unreadMessages > 0 && (
-                <span style={{
-                  position: "absolute", top: -4, right: -4,
-                  minWidth: 14, height: 14, borderRadius: 7,
-                  background: "#ff5500", color: "#fff",
-                  fontSize: 9, fontWeight: 700, lineHeight: "14px",
-                  textAlign: "center", padding: "0 3px",
-                  pointerEvents: "none",
-                }}>
-                  {unreadMessages > 99 ? "99+" : unreadMessages}
-                </span>
-              )}
             </button>
 
             {/* Dots dropdown */}

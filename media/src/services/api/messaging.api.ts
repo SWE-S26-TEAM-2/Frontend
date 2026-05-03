@@ -122,18 +122,11 @@ function normalizeConversation(c: IBackendConversation): IConversation {
     };
   }
 
-  const unreadCount =
-    c.last_message &&
-    !c.last_message.is_read &&
-    c.last_message.sender_id !== myId
-      ? 1
-      : 0;
-
   return {
     id: c.conversation_id,
     participants,
     lastMessage,
-    unreadCount,
+    unreadCount: 0, // resolved separately from unread-count endpoint
     updatedAt: lastMessage?.timestamp ?? c.created_at ?? new Date().toISOString(),
   };
 }
