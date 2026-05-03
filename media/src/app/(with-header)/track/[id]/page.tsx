@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, notFound } from "next/navigation";
-import { trackService, engagementService } from "@/services";
+import { trackService, engagementService, userProfileService } from "@/services/di";
 
 import TrackPlayer from "@/components/Track/TrackPlayer";
 import TrackActions from "@/components/Track/TrackActions";
@@ -29,12 +29,17 @@ export default function TrackPage() {
           trackService.getRelated(id),
           engagementService.getEngagementSummary(id).catch(() => null),
         ]);
-        if (!t) {
-          setError(true);
-          return;
+
+        // Resolve artist username for follow/unfollow if the track response didn't include it
+        let artistUsername = t.artistUsername;
+        if (!artistUsername && t.artistId) {
+          const artistProfile = await userProfileService.getUserProfile(t.artistId).catch(() => null);
+          artistUsername = artistProfile?.username || undefined;
         }
+
         setTrack({
           ...t,
+          artistUsername,
           ...(summary && {
             isLiked:       summary.isLiked,
             isReposted:    summary.isReposted,

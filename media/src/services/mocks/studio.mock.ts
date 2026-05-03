@@ -159,6 +159,14 @@ export const mockStudioService: IStudioService = {
     console.warn('[MOCK] studioService.deleteTrack called', { trackId });
     mockTracks = mockTracks.filter((t) => t.id !== trackId);
   },
+
+  async updateTrackCover(trackId: string, file: File): Promise<string> {
+    console.warn('[MOCK] studioService.updateTrackCover called', { trackId, fileName: file.name });
+    const fakeUrl = URL.createObjectURL(file);
+    const track = mockTracks.find((t) => t.id === trackId);
+    if (track) track.artworkUrl = fakeUrl;
+    return fakeUrl;
+  },
  
   async updateVisibility(trackId: string, visibility: TrackVisibility): Promise<IStudioTrack> {
     console.warn('[MOCK] studioService.updateVisibility called', { trackId, visibility });

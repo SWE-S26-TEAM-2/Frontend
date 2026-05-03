@@ -10,20 +10,25 @@ import { HeartIcon, ShareIcon, CopyIcon, MoreIcon, IconBtn, RepostIcon } from "@
 import { ShareModal } from "@/components/Share/Share";
 import { useWaveform } from "@/hooks/useWaveform";
 import { usePlayerStore } from "@/store/playerStore";
-import { engagementService, studioService } from "@/services/di";
+import { studioService } from "@/services/di";
 import { realTrackService } from "@/services/api/trackService";
+import { useInitTrackEngagement, useTrackEngagement } from "@/hooks/useTrackEngagement";
 
 export function TrackCard({ track, onPlay, onLikeChange, isOwner, onDelete }: ITrackCardProps) {
-  const [isLiked, setIsLiked] = useState<boolean>(track.isLiked ?? false);
-  const [likes, setLikes] = useState<number>(track.likes);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
-  const shareBtnRef = useRef<HTMLSpanElement>(null);
-  const moreBtnRef = useRef<HTMLSpanElement>(null);
-  const [isReposted, setIsReposted] = useState<boolean>(track.isReposted ?? false);
-  const [reposts, setReposts] = useState<number>(track.reposts ?? 0);
   const [deleteConfirming, setDeleteConfirming] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [coverUrl, setCoverUrl] = useState<string>(track.albumArt ?? "");
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
+
+  const shareBtnRef = useRef<HTMLSpanElement>(null);
+  const moreBtnRef = useRef<HTMLSpanElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+
+  useInitTrackEngagement(track);
+  const { isLiked, likes, isReposted, reposts, toggleLike, toggleRepost } =
+    useTrackEngagement(track.id);
 
   const { currentTrack, isPlaying, currentTime, duration, setCurrentTime, togglePlay, addToQueue } =
     usePlayerStore();
@@ -57,21 +62,6 @@ export function TrackCard({ track, onPlay, onLikeChange, isOwner, onDelete }: IT
     return () => document.removeEventListener("mousedown", handler);
   }, [isMoreOpen]);
 
-  const handleLikeToggle = async () => {
-    const newLiked = !isLiked;
-    setIsLiked(newLiked);
-    setLikes((prev) => (newLiked ? prev + 1 : prev - 1));
-    try {
-      const result = newLiked
-        ? await engagementService.likeTrack(track.id)
-        : await engagementService.unlikeTrack(track.id);
-      if (result.likeCount >= 0) setLikes(result.likeCount);
-      onLikeChange?.(track.id, newLiked, result.likeCount >= 0 ? result.likeCount : likes);
-    } catch {
-      setIsLiked(!newLiked);
-      setLikes(track.likes);
-    }
-  };
 
   const handleShare = () => setIsShareOpen(true);
 
@@ -94,19 +84,21 @@ export function TrackCard({ track, onPlay, onLikeChange, isOwner, onDelete }: IT
     }
   };
 
-  const handleRepostToggle = async () => {
-    const newReposted = !isReposted;
-    setIsReposted(newReposted);
-    setReposts((prev) => (newReposted ? prev + 1 : prev - 1));
+  const handleCoverFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const preview = URL.createObjectURL(file);
+    setCoverUrl(preview);
+    setIsUploadingCover(true);
     try {
-      if (newReposted) {
-        await engagementService.repostTrack(track.id);
-      } else {
-        await engagementService.removeRepost(track.id);
-      }
+      const newUrl = await studioService.updateTrackCover(track.id, file);
+      if (newUrl) setCoverUrl(newUrl);
     } catch {
-      setIsReposted(!newReposted);
-      setReposts((prev) => (newReposted ? prev - 1 : prev + 1));
+      setCoverUrl(track.albumArt ?? "");
+    } finally {
+      setIsUploadingCover(false);
+      URL.revokeObjectURL(preview);
+      if (coverInputRef.current) coverInputRef.current.value = "";
     }
   };
 
@@ -118,10 +110,40 @@ export function TrackCard({ track, onPlay, onLikeChange, isOwner, onDelete }: IT
       className="grid grid-cols-[auto_1fr] py-3.5 border-b border-[#161616] gap-x-3.5"
       data-testid="track-card"
     >
-      <TrackCover size={96} url={track.albumArt} alt={track.title} accentColor="#111822" />
+      <div className="relative shrink-0 group">
+        <TrackCover size={96} url={coverUrl || track.albumArt} alt={track.title} accentColor="#111822" />
+        {isOwner && (
+          <>
+            <button
+              type="button"
+              onClick={() => coverInputRef.current?.click()}
+              disabled={isUploadingCover}
+              className="absolute inset-0 flex items-center justify-center rounded-sm bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer disabled:cursor-wait"
+              aria-label="Change track cover"
+            >
+              {isUploadingCover ? (
+                <svg className="animate-spin" width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2}>
+                  <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                </svg>
+              ) : (
+                <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
+                </svg>
+              )}
+            </button>
+            <input
+              ref={coverInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleCoverFileChange}
+            />
+          </>
+        )}
+      </div>
 
       <div className="min-w-0">
-
         {/* Top row */}
         <div className="flex justify-between items-center mb-1">
           <span className="text-xs text-[#888] truncate">{track.artist}</span>
@@ -168,7 +190,7 @@ export function TrackCard({ track, onPlay, onLikeChange, isOwner, onDelete }: IT
           </span>
         </div>
 
-        {/* Action buttons — grid keeps icons left, stats right */}
+        {/* Action buttons */}
         <div className="grid grid-cols-[auto_1fr] items-center gap-1.5">
           <div className="flex gap-1.5 items-center">
             <IconBtn
@@ -176,13 +198,13 @@ export function TrackCard({ track, onPlay, onLikeChange, isOwner, onDelete }: IT
               count={likes}
               active={isLiked}
               ariaLabel="Like track"
-              onClick={handleLikeToggle}
+              onClick={toggleLike}
             />
             <IconBtn
               icon={<RepostIcon />}
               count={reposts}
               active={isReposted}
-              onClick={handleRepostToggle}
+              onClick={toggleRepost}
             />
             <span ref={shareBtnRef} className="inline-flex">
               <IconBtn icon={<ShareIcon />} onClick={handleShare} />

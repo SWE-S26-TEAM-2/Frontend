@@ -13,7 +13,7 @@ export interface ITrackCardProps {
   onLikeChange?: (trackId: string, isLiked: boolean, likeCount: number) => void;
   isOwner?: boolean;
   onDelete?: (trackId: string) => void;
-} 
+}
 
 export interface ITrackCoverProps {
   url?: string | null;
@@ -39,7 +39,9 @@ export interface IWaveformProps {
 export interface ITrackBase {
   id: string;
   title: string;
-  artist: string;
+  artist: string; // display name
+  artistUsername?: string; // URL slug used for follow/unfollow API calls
+  artistId?: string;       // user_id of the track owner, used to resolve username
   albumArt: string;
   url: string;
   duration: number;

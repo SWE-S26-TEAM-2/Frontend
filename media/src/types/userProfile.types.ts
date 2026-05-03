@@ -22,6 +22,7 @@ export interface IUser {
     facebook?: string;
   };
   isPrivate?: boolean;
+  isFollowing?: boolean;
   followers: number;
   following: number;
   tracks: number;
