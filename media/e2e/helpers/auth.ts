@@ -1,4 +1,22 @@
 import type { APIRequestContext, Page } from '@playwright/test';
+import fs from 'fs';
+import path from 'path';
+
+type E2ETokens = { accessToken: string; refreshToken?: string };
+
+const deployedTokenCache = new Map<'user' | 'admin', E2ETokens>();
+const deployedTokenCachePath = path.join(
+  process.cwd(),
+  'test-results',
+  '.deployed-auth-tokens.json'
+);
+const RETRYABLE_LOGIN_ERRORS = [
+  'ECONNRESET',
+  'ETIMEDOUT',
+  'ENOTFOUND',
+  'EAI_AGAIN',
+  'socket hang up',
+];
 
 /**
  * Seeds both the localStorage auth_token (read by client-side AuthService)
@@ -22,10 +40,91 @@ function defaultLoginUrl(): string {
   return `${deployOrigin()}/api/auth/login`;
 }
 
+function readCachedDeployedToken(role: 'user' | 'admin'): E2ETokens | undefined {
+  const memoryCached = deployedTokenCache.get(role);
+  if (memoryCached) return memoryCached;
+
+  try {
+    const raw = fs.readFileSync(deployedTokenCachePath, 'utf8');
+    const json = JSON.parse(raw) as Partial<Record<'user' | 'admin', E2ETokens>>;
+    const tokens = json[role];
+    if (tokens?.accessToken) {
+      deployedTokenCache.set(role, tokens);
+      return tokens;
+    }
+  } catch {
+    // Cache misses are expected before the first real-env login.
+  }
+
+  return undefined;
+}
+
+function writeCachedDeployedToken(role: 'user' | 'admin', tokens: E2ETokens) {
+  deployedTokenCache.set(role, tokens);
+
+  try {
+    fs.mkdirSync(path.dirname(deployedTokenCachePath), { recursive: true });
+    let existing: Partial<Record<'user' | 'admin', E2ETokens>> = {};
+    if (fs.existsSync(deployedTokenCachePath)) {
+      existing = JSON.parse(fs.readFileSync(deployedTokenCachePath, 'utf8'));
+    }
+    fs.writeFileSync(
+      deployedTokenCachePath,
+      JSON.stringify({ ...existing, [role]: tokens })
+    );
+  } catch {
+    // The in-memory cache still covers the common single-worker real-env path.
+  }
+}
+
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function isRetryableLoginError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return RETRYABLE_LOGIN_ERRORS.some((needle) => message.includes(needle));
+}
+
+async function postLoginWithRetries(
+  request: APIRequestContext,
+  url: string,
+  data: { identifier: string; password: string }
+) {
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      const res = await request.post(url, {
+        headers: { 'Content-Type': 'application/json' },
+        data,
+        failOnStatusCode: false,
+      });
+
+      if (res.status() === 429 || res.status() >= 500) {
+        lastError = new Error(`E2E login retryable status ${res.status()}`);
+        await delay(500 * attempt);
+        continue;
+      }
+
+      return res;
+    } catch (error) {
+      lastError = error;
+      if (!isRetryableLoginError(error) || attempt === 3) {
+        throw error;
+      }
+      await delay(500 * attempt);
+    }
+  }
+
+  throw lastError;
+}
+
 async function fetchTokensFromDeployedLogin(
   request: APIRequestContext,
   role: 'user' | 'admin' = 'user'
-): Promise<{ accessToken: string; refreshToken?: string }> {
+): Promise<E2ETokens> {
+  const cached = readCachedDeployedToken(role);
+  if (cached) return cached;
+
   const url = process.env.E2E_LOGIN_URL?.trim() || defaultLoginUrl();
   let email: string;
   let password: string | undefined;
@@ -48,10 +147,9 @@ async function fetchTokensFromDeployedLogin(
     }
   }
 
-  const res = await request.post(url, {
-    headers: { 'Content-Type': 'application/json' },
-    data: { identifier: email, password },
-    failOnStatusCode: false,
+  const res = await postLoginWithRetries(request, url, {
+    identifier: email,
+    password,
   });
 
   if (!res.ok()) {
@@ -70,7 +168,9 @@ async function fetchTokensFromDeployedLogin(
     throw new Error('E2E login: response JSON missing string data.access_token');
   }
 
-  return { accessToken, refreshToken };
+  const tokens = { accessToken, refreshToken };
+  writeCachedDeployedToken(role, tokens);
+  return tokens;
 }
 
 /** `deployRole`: only used when USE_REAL_ENV=true (real login). */
@@ -125,5 +225,3 @@ export async function clearAuthState(page: Page) {
   });
   await page.context().clearCookies();
 }
-
-
